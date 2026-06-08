@@ -1,0 +1,33 @@
+{
+  "name": "kalai",
+  "description": "The studio that MAKES. A brand-fidelity multi-agent studio on Google ADK: a Claude-via-Vertex Creative Director frames the concept and brand guardrails; a Designer/Producer and a Copy & SEO desk produce in parallel; a Gemini Brand-Fidelity scorer drives a deterministic climb-to-threshold loop; a Claude-via-Vertex fail-closed compliance gate clears the master. kalai holds no channel keys and never publishes — its only world-facing act is token spend — and it hands the compliance-cleared multi-platform master to kural over A2A.",
+  "version": "0.1.0",
+  "protocolVersion": "0.2.5",
+  "url": "https://kalai.saakshe.example/a2a",
+  "preferredTransport": "JSONRPC",
+  "provider": {
+    "organization": "saakshe",
+    "url": "https://saakshe.example"
+  },
+  "capabilities": {
+    "streaming": true,
+    "pushNotifications": false,
+    "stateTransitionHistory": false
+  },
+  "defaultInputModes": ["text/plain", "application/json"],
+  "defaultOutputModes": ["text/plain", "application/json"],
+  "skills": [
+    {
+      "id": "render_asset",
+      "name": "Render a brand-cleared master",
+      "description": "Run the full studio on a brief: a Claude Creative Director frames it, the Designer and Copy desks produce in parallel, a Brand-Fidelity loop climbs to the deterministic threshold, and a fail-closed Claude compliance gate clears it. Returns the on-brand, compliance-cleared multi-platform master (or a blocked marker). NEVER returns channel keys and NEVER publishes — the master is handed to kural for the world-facing step.",
+      "tags": ["creative", "brand-fidelity", "fail-closed", "no-publish"],
+      "examples": [
+        "Launch announcement for the decision: Raise Pro to $34, grandfather all existing subscribers, give 30-day notice."
+      ],
+      "inputModes": ["text/plain", "application/json"],
+      "outputModes": ["application/json"]
+    }
+  ],
+  "notes": "Served manually by the FastAPI server rather than via ADK's to_a2a() helper (blocked by the a2a-sdk 1.1.0 restructure that arivu documents). kalai exposes exactly one world-facing seam: it hands a compliance-cleared CreativeMaster to kural. It holds no channel keys and never publishes; the only irreversible act inside kalai is token spend. There is no founder gate here — the single creative gate is at the mouth (kural, tap 2)."
+}

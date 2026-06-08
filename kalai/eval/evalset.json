@@ -1,0 +1,69 @@
+{
+  "eval_set_id": "kalai_brand_masters_v1",
+  "name": "kalai — brand-grade launch masters",
+  "description": "A regression set of PAST Sundara Coffee Co. launch briefs, run through the full kalai studio (Creative Director -> Parallel(Designer, Copy) -> Brand-Fidelity loop -> fail-closed Compliance gate). Each case's reference describes the on-brand, compliance-cleared multi-platform master the studio should hand to kural. Cases are graded on two rubric tracks: brand fidelity and compliance clearance, both @ 0.80 (the LLM-judge threshold, distinct from the in-loop FIDELITY_THRESHOLD of 8.5). Requires live creds (SAAKSHE_MODE=live + Vertex ADC) to actually run; in demo mode the orchestration runs but token generation is replayed. The hero case is the Pro -> $34 pricing launch.",
+  "eval_cases": [
+    {
+      "eval_id": "hero_pro_price_34_launch",
+      "conversation": [
+        {
+          "invocation_id": "hero-1",
+          "user_content": {
+            "role": "user",
+            "parts": [
+              { "text": "Launch announcement for the decision: Raise Pro to $34 (not $39), grandfather all existing subscribers, give 30-day notice." }
+            ]
+          },
+          "final_response": {
+            "role": "model",
+            "parts": [
+              {
+                "text": "Master (compliance cleared, brand-fidelity 9.1): a calm, candid, anti-hype launch master across x, ig, and linkedin. Concept: 'clearer pricing, same obsession' - Pro moves to $34, early believers grandfathered, 30 days' notice. x: 'Pro is moving to $34 - and if you're already with us, you keep your price. 30 days' notice, no surprises.' ig: 'Same coffee obsession, clearer pricing. Pro -> $34. Early believers grandfathered.' linkedin: 'We're adjusting Pro to $34. Existing subscribers are grandfathered; everyone gets 30 days' notice. Here's the why ->'. The master honours the grandfathering trust promise in the brand canon, uses only claims the brief authorised, and was explicitly cleared by the fail-closed compliance gate before handoff to kural. kalai holds no channel keys and does not publish."
+              }
+            ]
+          }
+        }
+      ],
+      "session_input": {
+        "app_name": "kalai",
+        "user_id": "founder",
+        "state": {
+          "brief": "Launch announcement for the decision: Raise Pro to $34 (not $39), grandfather all existing subscribers, give 30-day notice.",
+          "context_pack": {
+            "version": "v15",
+            "topic": "pricing",
+            "brand_rules": ["grandfathering existing users is a stated trust promise", "no vertical gradient streak; B&W grid base with one warm accent"],
+            "voice_rules": ["calm, candid, anti-hype"],
+            "facts": [{ "claim": "Pro moves to $34, grandfathered, 30-day notice", "source": "arivu verdict" }],
+            "grounded": true
+          },
+          "org": {
+            "name": "Sundara Coffee Co.",
+            "kind": "four-person DTC coffee brand",
+            "connected_days": 11,
+            "memory_pack": "v15",
+            "current_pro_price": 29
+          }
+        }
+      },
+      "rubrics": [
+        {
+          "rubric_id": "master_is_on_brand",
+          "type": "FINAL_RESPONSE_QUALITY",
+          "rubric_content": {
+            "text_property": "The master is on the brand canon (calm, candid, anti-hype voice; honours the grandfathering trust promise) rather than generic hype creative, and reads as something that would pass the studio's Brand-Fidelity bar."
+          },
+          "description": "Brand-fidelity track. A studio rejects a launch master that drifts off the company's own brand canon."
+        },
+        {
+          "rubric_id": "master_is_compliance_cleared",
+          "type": "FINAL_RESPONSE_QUALITY",
+          "rubric_content": {
+            "text_property": "The master makes only claims the brief authorised (the $34 price, grandfathering, 30-day notice), carries no deceptive or unsubstantiated superiority claims, and is something the fail-closed compliance gate would explicitly clear and hand to kural."
+          },
+          "description": "Compliance track. A fail-closed gate must explicitly clear the master; unauthorised or unprovable claims must be blocked, not shipped."
+        }
+      ]
+    }
+  ]
+}

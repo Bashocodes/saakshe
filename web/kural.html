@@ -1,0 +1,1784 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="icon" href="data:,">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>kural — the autonomous growth team · finds them, researches them, reaches them</title>
+<meta name="description" content="kural (Tamil: voice, as in the Thirukkural) is a B2B multi-agent growth team you buy on Google Cloud Marketplace — and hire over A2A. It finds prospects, researches them in parallel, drafts and fact-checks personalised outreach, then actually sends it AS THE BUYER and books the meeting — a real, OAuth-authenticated, safe-by-construction irreversible action.">
+<!-- adds .js + resolves theme BEFORE paint (no flash): localStorage -> prefers-color-scheme -> default(light) -->
+<script>(function(){var d=document.documentElement;d.className+=' js';try{var t=localStorage.getItem('kural-theme');if(!t){t=(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light';}d.setAttribute('data-theme',t);}catch(e){d.setAttribute('data-theme','light');}})();</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap">
+<style>
+/* ===================================================================
+   kural — "crisp dispatch / modern B2B" — LIGHT, cool, confident.
+   Sharper + cooler than the warm kalai sibling. Structured grid,
+   numbered pipeline, strong full-width neutral rules, tight headlines.
+
+   AESTHETIC CONTRACT (non-negotiable):
+   - ZERO colored edge bands. No accent border-left/right/top/bottom.
+     No gradient streaks on any card / quote / callout / connector.
+   - Every container border is the SAME neutral hairline on all sides.
+   - Accent ink-blue (#1E47C4) appears ONLY as text colour or a <=10px dot.
+   - Emphasis = type scale & weight, oversized numerals, full-width
+     neutral rules, generous whitespace, uniform-bordered/solid panels.
+   - Body >= 16.5px, line-height ~1.6+ (eye-strain friendly).
+   - JS-off legible. Responsive to ~360px. Single self-contained file.
+
+   MOTION LAYER (polish pass — transform + opacity only; GPU-friendly):
+   - Snappy, decisive easing — "dispatch" personality.
+   - All initial-hidden states gated behind .js so JS-off shows everything.
+   - prefers-reduced-motion zeroes every motion to final state instantly.
+   - Hover lift uses a soft NEUTRAL shadow (a shadow is not an edge band).
+   =================================================================== */
+:root{
+  --paper:#FCFCFA;     /* near-white */
+  --panel:#FFFFFF;     /* solid card fill */
+  --well:#F4F5F3;      /* recessed fill */
+  --ink:#14161B;       /* primary text */
+  --mute:#686F7B;      /* meta / labels only */
+  --hair:#E4E7EA;      /* the ONE neutral hairline, all sides */
+  --hair-strong:#D2D6DB;
+  --accent:#1E47C4;    /* ink-blue — TEXT or <=10px dot ONLY */
+  --accent-rgb:30,71,196;   /* same ink-blue, for soft <=10px dot glows */
+  --sel:#D7DEF6;       /* selection wash (tokenised for theme flip) */
+  --disp:'Space Grotesk',system-ui,sans-serif;
+  --body:'Inter',system-ui,sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,monospace;
+  --maxw:1140px; --r:14px;
+  /* snappy dispatch easing + a softer entrance ease */
+  --ease-snap:cubic-bezier(0.2,0.8,0.2,1);
+  --ease-entr:cubic-bezier(0.22,1,0.36,1);
+  /* soft NEUTRAL elevation (not an edge band) */
+  --lift:0 1px 0 rgba(20,22,27,.02);
+  --lift-hi:0 14px 34px -18px rgba(20,22,27,.30), 0 2px 8px -4px rgba(20,22,27,.10);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;color-scheme:var(--cs,light)}
+html[data-theme="dark"]{color-scheme:dark}
+
+/* ===================================================================
+   DARK PALETTE — "night dispatch / ops room".
+   Default theme stays the crisp LIGHT B2B above; this is an OVERRIDE
+   block. SAME aesthetic contract holds: zero colored edge bands,
+   accent ONLY as text or <=10px dot, uniform neutral hairlines.
+   =================================================================== */
+html[data-theme="dark"]{
+  --paper:#0F1115;     /* deep cool slate bg */
+  --panel:#16181D;     /* solid card fill */
+  --well:#1B1E24;      /* recessed fill (a touch above panel) */
+  --ink:#E8EAEE;        /* cool off-white ink */
+  --mute:#79808C;       /* meta / labels */
+  --hair:#262A31;       /* the ONE neutral hairline */
+  --hair-strong:#343943;
+  --accent:#5B82F5;    /* ink-blue brightened for dark contrast — TEXT / <=10px dot ONLY */
+  --accent-rgb:91,130,245;
+  --sel:#27325A;        /* selection wash on dark */
+  /* elevation reads via deeper, cooler shadow on dark */
+  --lift:0 1px 0 rgba(0,0,0,.20);
+  --lift-hi:0 16px 40px -18px rgba(0,0,0,.66), 0 2px 10px -4px rgba(0,0,0,.40);
+}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:var(--body);font-size:16.5px;line-height:1.62;
+  -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;letter-spacing:.002em}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:clamp(20px,4vw,40px) clamp(16px,4vw,26px) 120px}
+h1,h2,h3,h4{margin:0;font-family:var(--disp);letter-spacing:-.03em;font-weight:700;color:var(--ink)}
+p{margin:0}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+strong,b{font-weight:600;color:var(--ink)}
+.mono{font-family:var(--mono);overflow-wrap:anywhere}
+.mute{color:var(--mute)}
+.acc{color:var(--accent)}
+::selection{background:var(--sel);color:var(--ink)}
+
+/* small accent dot — the ONLY non-text accent device allowed */
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;
+  background:var(--accent);flex:none;vertical-align:middle}
+
+/* ---- section shell: oversized plate numeral + full-width neutral rule ---- */
+.sec{margin-top:clamp(48px,7vw,76px);border-top:2px solid var(--hair-strong);padding-top:20px}
+.sec__head{display:flex;gap:clamp(14px,3vw,28px);align-items:baseline;flex-wrap:wrap}
+.plate{font-family:var(--disp);font-weight:700;line-height:.78;color:var(--ink);
+  font-size:clamp(44px,8vw,82px);flex:none;letter-spacing:-.05em}
+.sec__meta{flex:1 1 260px;min-width:0}
+.kicker{font-family:var(--mono);font-weight:700;font-size:11.5px;letter-spacing:.22em;
+  text-transform:uppercase;color:var(--mute)}
+.sec__title{font-size:clamp(23px,3.6vw,34px);line-height:1.1;margin-top:7px;max-width:26ch}
+.sec__note{margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--mute);
+  white-space:nowrap;align-self:flex-end;padding-bottom:5px}
+.sec__sub{color:var(--ink);margin-top:14px;max-width:74ch;font-size:17px}
+
+/* =================== MASTHEAD / HERO =================== */
+.mast{margin-top:18px}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;
+  font-family:var(--mono);font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--mute)}
+.topbar .brand{display:flex;align-items:center;gap:9px;color:var(--ink);font-weight:700;letter-spacing:.1em}
+
+/* ---- theme toggle: a pill SWITCH (a control, not a container) ----
+   On-theme, uniform neutral hairline border (NO colored edge band).
+   Knob slides; mono LIGHT/DARK label tracks the active side. */
+.themebar{display:flex;align-items:center;gap:10px}
+.themetoggle{display:inline-flex;align-items:center;gap:9px;cursor:pointer;
+  font-family:var(--mono);font-size:10.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--mute);background:var(--panel);border:1px solid var(--hair-strong);border-radius:999px;
+  padding:5px 11px 5px 7px;line-height:1;
+  transition:border-color .26s var(--ease-snap),box-shadow .26s var(--ease-snap),transform .26s var(--ease-snap)}
+.themetoggle:hover{border-color:var(--mute);transform:translateY(-1px);box-shadow:var(--lift-hi)}
+.themetoggle:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.themetoggle .track{position:relative;width:34px;height:18px;border-radius:999px;
+  background:var(--well);border:1px solid var(--hair-strong);flex:none}
+.themetoggle .knob{position:absolute;top:1px;left:1px;width:14px;height:14px;border-radius:50%;
+  background:var(--ink);transition:transform .3s var(--ease-snap),background .3s var(--ease-snap)}
+html[data-theme="dark"] .themetoggle .knob{transform:translateX(16px)}
+.themetoggle .tlabel{min-width:4ch;text-align:left}
+.themetoggle .tlabel .lt{display:inline}
+.themetoggle .tlabel .dk{display:none}
+html[data-theme="dark"] .themetoggle .tlabel .lt{display:none}
+html[data-theme="dark"] .themetoggle .tlabel .dk{display:inline}
+/* no-js: keep it visually present but it can't function — leave it as a static pill */
+html:not(.js) .themetoggle{cursor:default}
+.eyebrow{font-family:var(--mono);font-weight:700;font-size:11.5px;letter-spacing:.24em;
+  text-transform:uppercase;color:var(--mute)}
+.wordmark{font-family:var(--disp);font-weight:700;font-size:clamp(64px,16vw,168px);
+  line-height:.82;letter-spacing:-.06em;margin:22px 0 6px}
+.deva{font-family:var(--disp);font-weight:500;color:var(--mute);font-size:clamp(20px,4vw,30px);
+  letter-spacing:0;margin-bottom:18px}
+.deva b{color:var(--ink);font-weight:600}
+.tagline{font-family:var(--disp);font-weight:600;font-size:clamp(22px,4.4vw,40px);
+  line-height:1.08;letter-spacing:-.03em;max-width:18ch}
+.tagline .sep{color:var(--accent)}
+.lede{color:var(--ink);font-size:clamp(17px,2.4vw,20px);max-width:64ch;margin-top:20px;line-height:1.56}
+.lede .mute{color:var(--mute)}
+
+/* one-line "what it is" definition strip */
+.defstrip{margin-top:26px;border:1px solid var(--hair);border-radius:var(--r);
+  background:var(--panel);padding:clamp(16px,2.6vw,22px) clamp(18px,3vw,26px);
+  display:flex;gap:clamp(16px,3vw,30px);flex-wrap:wrap;align-items:center}
+.defstrip .k{font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--mute);flex:none}
+.defstrip .v{font-size:16.5px;color:var(--ink);flex:1 1 320px;min-width:200px}
+
+/* CTA row */
+.cta-row{display:flex;gap:12px;flex-wrap:wrap;margin-top:24px}
+.btn{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-weight:700;
+  font-size:13px;letter-spacing:.06em;text-transform:uppercase;padding:14px 22px;border-radius:10px;
+  border:1px solid var(--ink);background:var(--ink);color:var(--paper);cursor:default;
+  transition:transform .26s var(--ease-snap),box-shadow .26s var(--ease-snap)}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--hair-strong)}
+.btn:hover{transform:translateY(-2px);box-shadow:var(--lift-hi)}
+.btn.ghost:hover{box-shadow:0 10px 26px -16px rgba(20,22,27,.28)}
+.btn:active{transform:translateY(0)}
+
+/* =================== generic panels & grids =================== */
+.grid{display:grid;gap:14px;margin-top:24px}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+@media(max-width:760px){.g2,.g3{grid-template-columns:1fr}}
+
+.card{background:var(--panel);border:1px solid var(--hair);border-radius:var(--r);
+  padding:clamp(17px,2.6vw,22px);box-shadow:var(--lift);
+  transition:transform .26s var(--ease-snap),box-shadow .26s var(--ease-snap),border-color .26s var(--ease-snap)}
+.card:hover{transform:translateY(-3px);box-shadow:var(--lift-hi);border-color:var(--hair-strong)}
+.card h3{font-size:18.5px;line-height:1.18;letter-spacing:-.02em}
+.card p{margin-top:9px;color:var(--ink);font-size:16px}
+.card .tag{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--mute)}
+
+/* big stat figures */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:24px}
+@media(max-width:680px){.stats{grid-template-columns:1fr}}
+.stat{background:var(--well);border:1px solid var(--hair);border-radius:var(--r);padding:20px 18px;
+  transition:transform .26s var(--ease-snap),box-shadow .26s var(--ease-snap),border-color .26s var(--ease-snap)}
+.stat:hover{transform:translateY(-3px);box-shadow:var(--lift-hi);border-color:var(--hair-strong)}
+.stat .fig{font-family:var(--disp);font-weight:700;font-size:clamp(34px,5vw,46px);
+  line-height:1;letter-spacing:-.04em;color:var(--ink);font-variant-numeric:tabular-nums}
+.stat .lab{margin-top:10px;color:var(--mute);font-size:14px;line-height:1.45}
+
+/* =================== PIPELINE (numbered, neutral connectors) =================== */
+.pipe{margin-top:26px;display:grid;gap:0;position:relative}
+/* the dispatch connector: a NEUTRAL vertical hairline behind the numerals,
+   with a small accent dot travelling down it. The LINE is neutral, never an
+   accent edge band; the only colour is the <=9px travelling dot. */
+.pipe__rail{position:absolute;top:0;bottom:0;width:2px;background:var(--hair);
+  left:calc(0.8ch);pointer-events:none}
+.pipe__rail .trav{position:absolute;left:-3.5px;top:0;width:8px;height:8px;border-radius:50%;
+  background:var(--accent);opacity:0;box-shadow:0 0 0 4px rgba(var(--accent-rgb),.12)}
+@media(max-width:760px){.pipe__rail{left:6px}.pipe__rail .trav{left:-3px}}
+.step{display:grid;grid-template-columns:auto 1fr;gap:clamp(16px,3vw,26px);
+  padding:22px 0;border-top:1px solid var(--hair);position:relative}
+.step:first-child{border-top:none}
+.step .num{font-family:var(--disp);font-weight:700;font-size:clamp(30px,5vw,46px);
+  line-height:.9;letter-spacing:-.04em;color:var(--ink);min-width:1.6ch;
+  background:var(--paper);padding-right:2px;z-index:1}
+.step .num small{display:block;font-family:var(--mono);font-size:10px;font-weight:700;
+  letter-spacing:.16em;color:var(--mute);margin-top:8px}
+.step h3{font-size:19px;line-height:1.2;letter-spacing:-.02em}
+.step p{margin-top:8px;color:var(--ink);font-size:16px;max-width:70ch}
+.step .meta{margin-top:10px;font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--mute)}
+.step.final{background:var(--well);border:1px solid var(--hair-strong);border-radius:var(--r);
+  padding:24px;margin-top:14px;transition:transform .26s var(--ease-snap),box-shadow .26s var(--ease-snap)}
+.step.final:hover{transform:translateY(-2px);box-shadow:var(--lift-hi)}
+.step.final .num{background:transparent}
+.step.final h3{font-size:21px}
+.step.final .fire{font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--accent);margin-top:12px;display:flex;align-items:center;gap:9px}
+/* the fire dot gives a small confirming pulse when the final step reveals */
+.step.final.in .fire .dot{animation:firePulse 1.6s var(--ease-snap) .25s both}
+@keyframes firePulse{0%{transform:scale(1)}30%{transform:scale(1.6)}100%{transform:scale(1)}}
+
+/* =================== AGENT TEAM (org chart) =================== */
+.team{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:24px}
+@media(max-width:760px){.team{grid-template-columns:1fr}}
+.agent{background:var(--panel);border:1px solid var(--hair);border-radius:var(--r);
+  padding:clamp(18px,2.6vw,22px);display:flex;flex-direction:column;box-shadow:var(--lift);
+  transition:transform .26s var(--ease-snap),box-shadow .26s var(--ease-snap),border-color .26s var(--ease-snap)}
+.agent:hover{transform:translateY(-3px);box-shadow:var(--lift-hi);border-color:var(--hair-strong)}
+.agent.lead{grid-column:1 / -1}
+.agent .role{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.agent .role h3{font-size:19px;letter-spacing:-.02em}
+.agent .role .badge{font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--mute)}
+.agent p{margin-top:10px;color:var(--ink);font-size:16px}
+/* model line — distinguished by mono label + dot, never an edge band */
+.modelline{margin-top:16px;padding-top:14px;border-top:1px solid var(--hair);
+  font-family:var(--mono);font-size:12px;letter-spacing:.04em;color:var(--mute);
+  display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.modelline .m{color:var(--ink);font-weight:700}
+.modelline.claude .m{color:var(--accent)}
+.adkkind{margin-top:9px;font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--mute)}
+
+/* handoff line */
+.handoff{margin-top:24px;border:1px solid var(--hair);border-radius:var(--r);
+  background:var(--well);padding:clamp(16px,2.6vw,22px)}
+.handoff .k{font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--mute)}
+.flowline{margin-top:14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  font-family:var(--mono);font-size:13px;color:var(--ink)}
+.flowline .node{padding:8px 12px;background:var(--panel);border:1px solid var(--hair);border-radius:8px;
+  display:inline-flex;align-items:center;gap:8px;white-space:nowrap;
+  transition:transform .22s var(--ease-snap),box-shadow .22s var(--ease-snap),border-color .22s var(--ease-snap)}
+.flowline .node:hover{transform:translateY(-2px);box-shadow:var(--lift-hi);border-color:var(--hair-strong)}
+.flowline .node.gate{font-weight:700}
+.flowline .node.gate .acc{color:var(--accent)}
+.flowline .arr{color:var(--mute);font-weight:700;flex:none}
+/* sequenced draw-in of the handoff chain when it scrolls into view */
+.js .flowline .node,.js .flowline .arr{opacity:0;transform:translateY(8px);
+  transition:opacity .42s var(--ease-entr),transform .42s var(--ease-entr)}
+.flowline.in .node,.flowline.in .arr{opacity:1;transform:none}
+
+/* =================== STACK / ARCHITECTURE FLOW =================== */
+.arch{margin-top:26px;border:1px solid var(--hair);border-radius:var(--r);
+  background:var(--panel);padding:clamp(18px,3vw,30px)}
+.layer{padding:18px 0;border-top:1px solid var(--hair);
+  display:grid;grid-template-columns:170px 1fr;gap:clamp(14px,3vw,26px);align-items:start}
+.layer:first-child{border-top:none;padding-top:4px}
+@media(max-width:680px){.layer{grid-template-columns:1fr;gap:8px}}
+.layer .lk{font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--mute);padding-top:3px}
+.layer .lv{font-size:16px;color:var(--ink)}
+.layer .lv b{color:var(--ink)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.chip{font-family:var(--mono);font-size:11px;letter-spacing:.04em;color:var(--ink);
+  padding:6px 11px;border:1px solid var(--hair);border-radius:7px;background:var(--well);
+  transition:transform .2s var(--ease-snap),border-color .2s var(--ease-snap)}
+.chip:hover{transform:translateY(-1px);border-color:var(--hair-strong)}
+.chip .acc{color:var(--accent);font-weight:700}
+/* layers draw down in sequence as the arch panel enters view */
+.js .arch.reveal .layer{opacity:0;transform:translateY(12px);
+  transition:opacity .5s var(--ease-entr),transform .5s var(--ease-entr)}
+.arch.reveal.in .layer{opacity:1;transform:none}
+
+/* track-3 mandate checklist */
+.mandates{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:24px}
+@media(max-width:680px){.mandates{grid-template-columns:1fr}}
+.mand{background:var(--well);border:1px solid var(--hair);border-radius:var(--r);padding:17px 18px;
+  transition:transform .26s var(--ease-snap),box-shadow .26s var(--ease-snap),border-color .26s var(--ease-snap)}
+.mand:hover{transform:translateY(-3px);box-shadow:var(--lift-hi);border-color:var(--hair-strong)}
+.mand .h{display:flex;align-items:center;gap:9px;font-family:var(--mono);font-size:11px;
+  font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--ink)}
+.mand p{margin-top:9px;color:var(--ink);font-size:15.5px;line-height:1.5}
+.mand .ok{font-family:var(--mono);font-size:10.5px;font-weight:700;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--accent);margin-top:11px;display:inline-flex;align-items:center;gap:8px}
+/* the "met" check-in stagger: each ok pings in after its card reveals */
+.js .mandates.reveal .mand .ok{opacity:0;transform:translateY(4px) scale(.9)}
+.mandates.reveal.in .mand .ok{opacity:1;transform:none;
+  transition:opacity .34s var(--ease-snap),transform .34s var(--ease-snap)}
+
+/* =================== BUSINESS CASE =================== */
+.buyers{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:24px}
+@media(max-width:760px){.buyers{grid-template-columns:1fr}}
+.priceline{margin-top:24px;border:1px solid var(--hair-strong);border-radius:var(--r);
+  background:var(--panel);padding:clamp(18px,3vw,26px);display:flex;gap:clamp(18px,4vw,40px);
+  flex-wrap:wrap;align-items:center}
+.priceline .big{font-family:var(--disp);font-weight:700;font-size:clamp(30px,5vw,44px);
+  letter-spacing:-.04em;line-height:1;color:var(--ink)}
+.priceline .small{color:var(--mute);font-size:14px;font-family:var(--mono);letter-spacing:.04em}
+.priceline .vs{flex:1 1 260px;min-width:220px;color:var(--ink);font-size:16px}
+.priceline .vs strong{font-variant-numeric:tabular-nums}
+
+/* pull quote — uniform border, NO edge stripe */
+.pull{margin-top:26px;border:1px solid var(--hair);border-radius:var(--r);background:var(--well);
+  padding:clamp(22px,4vw,34px)}
+.pull q{font-family:var(--disp);font-weight:600;font-size:clamp(20px,3.2vw,28px);line-height:1.28;
+  letter-spacing:-.02em;color:var(--ink);quotes:none}
+.pull q:before,.pull q:after{content:""}
+.pull .by{margin-top:14px;font-family:var(--mono);font-size:11.5px;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--mute)}
+
+/* =================== FOOTER =================== */
+.foot{margin-top:clamp(56px,8vw,90px);border-top:2px solid var(--hair-strong);padding-top:26px}
+.foot .trilogy{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:20px}
+@media(max-width:680px){.foot .trilogy{grid-template-columns:1fr}}
+.tcard{background:var(--panel);border:1px solid var(--hair);border-radius:var(--r);padding:16px 17px;
+  transition:transform .26s var(--ease-snap),box-shadow .26s var(--ease-snap),border-color .26s var(--ease-snap)}
+.tcard:hover{transform:translateY(-3px);box-shadow:var(--lift-hi);border-color:var(--hair-strong)}
+.tcard .n{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--mute)}
+.tcard .nm{font-family:var(--disp);font-weight:700;font-size:20px;letter-spacing:-.03em;margin-top:7px}
+.tcard.self .nm{color:var(--accent)}
+.tcard .ds{margin-top:7px;color:var(--mute);font-size:14px;line-height:1.45}
+.footmeta{margin-top:26px;font-family:var(--mono);font-size:11.5px;letter-spacing:.06em;
+  color:var(--mute);line-height:1.7}
+.footmeta .acc{color:var(--accent)}
+
+/* ===================================================================
+   WORKFLOW VIZ — "the workflow, live" (the centerpiece).
+   Pure theme tokens, works in BOTH palettes. No colored edge bands:
+   connectors are neutral hairlines (SVG stroke=--hair), node borders
+   are uniform neutral hairlines on ALL sides, accent appears only as
+   TEXT, a <=12px task token, <=10px dots, and thin rings.
+   Authored in COMPLETED state by default (JS-off + reduced-motion safe).
+   =================================================================== */
+.viz{margin-top:26px;border:1px solid var(--hair);border-radius:var(--r);background:var(--panel);
+  padding:clamp(18px,3vw,28px);box-shadow:var(--lift)}
+.viz__top{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;flex-wrap:wrap}
+.viz__lede{flex:1 1 320px;min-width:0}
+.viz__controls{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+/* run + replay + the single/team switch — all controls, never bands */
+.vbtn{font-family:var(--mono);font-weight:700;font-size:12px;letter-spacing:.08em;text-transform:uppercase;
+  padding:10px 16px;border-radius:9px;border:1px solid var(--ink);background:var(--ink);color:var(--paper);
+  cursor:pointer;display:inline-flex;align-items:center;gap:8px;
+  transition:transform .24s var(--ease-snap),box-shadow .24s var(--ease-snap),opacity .24s var(--ease-snap)}
+.vbtn:hover{transform:translateY(-2px);box-shadow:var(--lift-hi)}
+.vbtn:active{transform:translateY(0)}
+.vbtn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.vbtn[disabled]{opacity:.45;cursor:default;transform:none;box-shadow:none}
+/* the mode switch: a two-segment pill (single vs team). neutral track,
+   active segment = solid neutral ink fill (NOT accent), accent only as text */
+.modeswitch{display:inline-flex;border:1px solid var(--hair-strong);border-radius:999px;background:var(--well);
+  padding:3px;gap:2px;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+.modeswitch button{appearance:none;border:0;background:transparent;color:var(--mute);cursor:pointer;
+  padding:7px 13px;border-radius:999px;font:inherit;letter-spacing:inherit;
+  transition:background .26s var(--ease-snap),color .26s var(--ease-snap)}
+.modeswitch button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.modeswitch button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+html:not(.js) .viz__controls{display:none}
+
+.viz__stage{margin-top:20px;position:relative}
+.viz svg{display:block;width:100%;height:auto}
+/* SVG connector lines = neutral hairline, full stroke (a line, never a side-band) */
+.viz .conn{stroke:var(--hair-strong);stroke-width:1.5;fill:none}
+.viz .conn.lit{stroke:var(--mute)}
+/* node group */
+.viz .node-box{fill:var(--panel);stroke:var(--hair-strong);stroke-width:1.5;rx:11;ry:11;
+  transition:stroke .3s var(--ease-snap)}
+.viz .node.active .node-box{stroke:var(--mute)}     /* active = neutral brighten, symmetric, NOT a band */
+.viz .node.done .node-box{stroke:var(--hair-strong)}
+/* the Claude·Vertex distinction = a thin SYMMETRIC ring + accent text (never a one-sided band) */
+.viz .ring{fill:none;stroke:var(--accent);stroke-width:1.5;opacity:.5;
+  transition:opacity .3s var(--ease-snap),stroke-width .3s var(--ease-snap)}
+.viz .node.deciding .ring{opacity:1;stroke-width:2}
+.viz .node-label{font-family:var(--disp);font-weight:700;letter-spacing:-.02em;fill:var(--ink)}
+.viz .node-sub{font-family:var(--mono);fill:var(--mute);letter-spacing:.02em}
+/* tiny mono MODEL badge text */
+.viz .badge-gem{font-family:var(--mono);font-weight:700;fill:var(--mute);letter-spacing:.06em}
+.viz .badge-cla{font-family:var(--mono);font-weight:700;fill:var(--accent);letter-spacing:.06em}
+/* the travelling task token — <=12px accent shape */
+.viz .token{fill:var(--accent);opacity:0}
+.viz .token.glow{filter:drop-shadow(0 0 5px rgba(var(--accent-rgb),.55))}
+/* active node gets a soft SYMMETRIC halo pulse (box-shadow-equivalent via SVG) — not a band */
+.viz .pulse-ring{fill:none;stroke:var(--accent);stroke-width:1.5;opacity:0}
+/* success check mark on the SEND/booked node */
+.viz .checkmark{stroke:var(--accent);stroke-width:2.4;fill:none;stroke-linecap:round;stroke-linejoin:round;
+  opacity:0;stroke-dasharray:1;stroke-dashoffset:1}
+.viz .node.booked .checkmark{opacity:1;stroke-dashoffset:0;transition:stroke-dashoffset .5s var(--ease-snap)}
+/* the "missed/generic" mark — a neutral cross, no color band. Used inside the
+   lone-agent graph to mark the unverified/low outcome (never red, never a band). */
+.viz .miss{stroke:var(--mute);stroke-width:2;stroke-linecap:round}
+
+/* ---- mode visibility: JS toggles .mode-single / .mode-team on .viz ----
+   Defaults (no .mode-* class) show the TEAM graph and hide the lone graph, so a
+   JS-off page renders the full static team diagram. The two .mode-* overrides
+   swap which group shows once JS sets the class. */
+.viz .team{display:block}
+.viz .lone{display:none}
+.viz.mode-single .team{display:none}
+.viz.mode-single .lone{display:block}
+.viz.mode-team .lone{display:none}
+.viz.mode-team .team{display:block}
+/* the lone-graph caption subtitle */
+.viz .lonecap{font-family:var(--mono);fill:var(--mute)}
+
+/* status / log line — narrates each step in words */
+.viz__log{margin-top:18px;border-top:1px solid var(--hair);padding-top:14px;
+  font-family:var(--mono);font-size:13px;line-height:1.7;color:var(--ink);min-height:3.4em}
+.viz__log .ln{display:block;color:var(--mute);transition:color .3s var(--ease-snap)}
+.viz__log .ln.now{color:var(--ink)}
+.viz__log .ln .acc{color:var(--accent);font-weight:700}
+.viz__log .ln b{color:var(--ink);font-weight:700}
+
+/* quality / reply-rate meter — NEUTRAL track + NEUTRAL fill, score in accent TEXT
+   (deliberately not an accent bar, to keep clear of the no-band rule) */
+.viz__meter{margin-top:18px;display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center}
+.viz__meter .mlabel{font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--mute);white-space:nowrap}
+.viz__meter .track{height:10px;border-radius:999px;background:var(--well);border:1px solid var(--hair);overflow:hidden}
+.viz__meter .fill{height:100%;width:0%;background:var(--mute);border-radius:999px;
+  transition:width .9s var(--ease-snap),background .4s var(--ease-snap)}
+.viz__meter.team .fill{background:var(--ink)}
+.viz__meter .score{font-family:var(--disp);font-weight:700;font-size:22px;letter-spacing:-.03em;
+  color:var(--accent);font-variant-numeric:tabular-nums;white-space:nowrap;min-width:5ch;text-align:right}
+.viz__verdict{margin-top:10px;font-family:var(--mono);font-size:12px;letter-spacing:.04em;color:var(--mute)}
+.viz__verdict b{color:var(--ink)}
+.viz__verdict .acc{color:var(--accent);font-weight:700}
+/* legend */
+.viz__legend{margin-top:16px;display:flex;gap:18px;flex-wrap:wrap;font-family:var(--mono);
+  font-size:11px;letter-spacing:.04em;color:var(--mute)}
+.viz__legend span{display:inline-flex;align-items:center;gap:7px}
+.viz__legend .ringdot{width:11px;height:11px;border-radius:50%;border:1.5px solid var(--accent);flex:none}
+.viz__legend .tokdot{width:9px;height:9px;border-radius:50%;background:var(--accent);flex:none}
+.viz__legend .gemdot{width:9px;height:9px;border-radius:50%;background:var(--mute);flex:none}
+/* JS-off caption (the static-version one-liner). Hidden when JS is on. */
+.viz__static-note{margin-top:14px;font-family:var(--mono);font-size:12px;color:var(--mute);line-height:1.6}
+.js .viz__static-note{display:none}
+
+/* ===================================================================
+   MOTION — initial-hidden states ALL gated behind .js
+   (JS off => nothing below applies => everything fully visible)
+   =================================================================== */
+.js .reveal{opacity:0;transform:translateY(16px);
+  transition:opacity .6s var(--ease-entr),transform .6s var(--ease-entr)}
+.js .reveal.in{opacity:1;transform:none}
+
+/* hero staggered load-in (decisive, quick) */
+.js .mast .hero-anim{opacity:0;transform:translateY(14px);
+  transition:opacity .55s var(--ease-entr),transform .55s var(--ease-entr)}
+.js .mast.in .hero-anim{opacity:1;transform:none}
+.js .mast.in .topbar{transition-delay:.00s}
+.js .mast.in .eyebrow{transition-delay:.05s}
+.js .mast.in .wordmark{transition-delay:.12s}
+.js .mast.in .deva{transition-delay:.20s}
+.js .mast.in .tagline{transition-delay:.28s}
+.js .mast.in .lede{transition-delay:.36s}
+.js .mast.in .defstrip{transition-delay:.44s}
+.js .mast.in .cta-row{transition-delay:.52s}
+
+/* staggered children inside a revealed group (cards / steps / agents) */
+.js .stagger > *{opacity:0;transform:translateY(14px);
+  transition:opacity .5s var(--ease-entr),transform .5s var(--ease-entr)}
+.js .stagger.in > *{opacity:1;transform:none}
+
+/* animated plate numerals — a quick decisive count/clip feel */
+.js .plate{opacity:0;transform:translateY(10px) scale(.96);
+  transition:opacity .55s var(--ease-entr),transform .55s var(--ease-entr)}
+.js .sec.in .plate{opacity:1;transform:none}
+
+/* ===================================================================
+   AMBIENT "signal/dispatch" pulse — a crisp, quick neutral glint that
+   periodically travels the full-width section keylines (the .sec top
+   rule + the footer rule). Transform/opacity only, NEUTRAL coloured.
+   Implemented as a ::after sliver overlaid on the existing neutral
+   border — a moving highlight, never a colored side-band.
+   =================================================================== */
+.js .sec,.js .foot{position:relative}
+.js .sec::after,.js .foot::after{content:"";position:absolute;top:-2px;left:0;height:2px;width:22%;
+  pointer-events:none;border-radius:2px;opacity:0;
+  background:linear-gradient(90deg,transparent,var(--mute),transparent);
+  transform:translateX(-30%)}
+.js .foot::after{top:-2px}
+/* only run the glint once the section is in view (set by IO) */
+.js .sec.in::after,.js .foot.in::after{animation:dispatchGlint 7.5s var(--ease-snap) infinite}
+.js .sec:nth-of-type(even).in::after{animation-delay:1.6s}
+.js .sec:nth-of-type(odd).in::after{animation-delay:3.4s}
+@keyframes dispatchGlint{
+  0%{opacity:0;transform:translateX(-30%)}
+  6%{opacity:.9}
+  26%{opacity:.9}
+  34%{opacity:0;transform:translateX(420%)}
+  100%{opacity:0;transform:translateX(420%)}
+}
+
+@media (prefers-reduced-motion: reduce){
+  html{scroll-behavior:auto}
+  /* hard-disable EVERY motion and show final state instantly */
+  *,*::before,*::after{
+    animation:none !important;
+    transition:none !important;
+  }
+  .js .reveal,.js .reveal.in,
+  .js .mast .hero-anim,.js .mast.in .hero-anim,
+  .js .stagger > *,.js .stagger.in > *,
+  .js .plate,.js .sec.in .plate,
+  .js .flowline .node,.js .flowline .arr,
+  .js .arch.reveal .layer,
+  .js .mandates.reveal .mand .ok{
+    opacity:1 !important;transform:none !important;
+  }
+  .pipe__rail .trav{opacity:0 !important}
+  /* ambient dispatch glint OFF */
+  .js .sec::after,.js .foot::after,
+  .js .sec.in::after,.js .foot.in::after{animation:none !important;opacity:0 !important}
+  /* viz: no token travel / no pulsing. JS also short-circuits to the
+     completed state; this guards any residual CSS-driven motion. */
+  .viz .token,.viz .pulse-ring{opacity:0 !important;animation:none !important}
+}
+</style>
+</head>
+<body>
+<main class="wrap">
+
+  <!-- ========================= HERO ========================= -->
+  <header class="mast">
+    <div class="topbar hero-anim">
+      <span class="brand"><span class="dot"></span>kural</span>
+      <span>Google Cloud Marketplace · B2B agent</span>
+      <div class="themebar">
+        <span>Google for Startups · AI Agents Challenge</span>
+        <button type="button" class="themetoggle" id="themeToggle" role="switch" aria-checked="false" aria-label="Toggle light or dark theme" title="Toggle light / dark">
+          <span class="track" aria-hidden="true"><span class="knob"></span></span>
+          <span class="tlabel"><span class="lt">Light</span><span class="dk">Dark</span></span>
+        </button>
+      </div>
+    </div>
+
+    <div class="eyebrow hero-anim" style="margin-top:34px">Tamil: voice — as in the Thirukkural, the one sent ahead</div>
+    <div class="wordmark hero-anim">kural</div>
+    <div class="deva hero-anim"><b>kural</b> &nbsp;·&nbsp; the messenger who carries your name into the room before you arrive.</div>
+
+    <div class="tagline hero-anim">Finds them. <span class="sep">·</span> Researches them. <span class="sep">·</span> Reaches them.</div>
+
+    <p class="lede hero-anim">kural is <strong>the company's only mouth</strong> — the one system that engages the outside world. A multi-agent force you buy on Marketplace, or
+      <strong>hire over A2A</strong> so a buyer's own CRM and calendar agents can dispatch it.
+      It discovers the right companies, researches each one in parallel, writes outreach worth reading,
+      an LLM-as-judge fact-checks every claim, then <strong>sends the email as the buyer and books the meeting</strong> — and its <strong>Publisher</strong> holds the channel keys (X · Instagram · LinkedIn) to put kalai's approved creative live and answer every comment.
+      <span class="mute">A real, OAuth-authenticated, safe-by-construction irreversible action — not a draft sitting in your outbox.</span></p>
+
+    <div class="defstrip hero-anim">
+      <span class="k">What it is</span>
+      <span class="v">A <span class="mono">SequentialAgent</span> spine of specialist agents on Google Cloud — exposed over A2A via
+        <span class="mono">to_a2a()</span> — that runs go-to-market outbound end-to-end, from a blank prospect list to a meeting
+        on the buyer's calendar, behind an after_agent LLM-as-judge gate and a safe-by-construction send.</span>
+    </div>
+
+    <div class="cta-row hero-anim">
+      <span class="btn"><span class="dot" style="background:var(--paper)"></span>Get it on Marketplace</span>
+      <span class="btn ghost">Read the Agent Card</span>
+    </div>
+  </header>
+
+  <!-- ========================= THE WORKFLOW, LIVE (interactive viz) ========================= -->
+  <section class="sec" id="see-it-work">
+    <div class="sec__head">
+      <div class="plate" aria-hidden="true"><span class="dot" style="width:10px;height:10px"></span></div>
+      <div class="sec__meta reveal">
+        <div class="kicker">See it work · the workflow, live</div>
+        <h2 class="sec__title">Watch a prospect become a booked meeting.</h2>
+      </div>
+      <div class="sec__note reveal">live dispatch</div>
+    </div>
+
+    <div class="viz reveal mode-team" id="viz">
+      <div class="viz__top">
+        <p class="viz__lede mute" style="font-size:16px;max-width:62ch;color:var(--ink)">
+          One prospect enters the <strong>SequentialAgent</strong> spine. The <strong class="acc">Coordinator</strong> qualifies it, the
+          <strong>Researcher</strong> fans out across the company in parallel, a brief and a draft are written,
+          then the <strong class="acc">Fact-Checker</strong> runs as an <strong>after_agent judge</strong> — and only when it clears the gate
+          does the safe-by-construction <strong>Sender</strong> fire the OAuth send + book. (When the dispatch is creative rather than email, the
+          <strong>Publisher</strong> takes kalai's approved master to the channels behind the founder's <strong class="acc">publish sign-off</strong> — the day's second tap.)
+          Flip to <em>single agent</em> to see why one generalist loses.</p>
+        <div class="viz__controls">
+          <div class="modeswitch" role="group" aria-label="Single agent versus agent team">
+            <button type="button" id="modeSingle" aria-pressed="false">Single agent</button>
+            <button type="button" id="modeTeam" aria-pressed="true">Agent team</button>
+          </div>
+          <button type="button" class="vbtn" id="vizRun"><span class="dot" style="background:var(--paper);width:8px;height:8px"></span>Run</button>
+        </div>
+      </div>
+
+      <div class="viz__stage">
+        <!-- Authored in COMPLETED team state by default → JS-off & reduced-motion safe.
+             viewBox is fixed so fan-out coords are deterministic (no getBoundingClientRect). -->
+        <svg id="vizSvg" viewBox="0 0 1000 470" role="img"
+             aria-label="kural SequentialAgent spine: a prospect is qualified by the Coordinator (Claude via Vertex), researched in parallel by the Researcher (Gemini), analysed by Market Intelligence, drafted by the Personalisation Writer, then judged by the Fact-Checker running as an after_agent LLM-as-judge gate (Claude via Vertex) — and only on a clear does the safe-by-construction Sender (Gemini) send as the buyer and book the meeting.">
+          <!-- ============ TEAM GRAPH (default visible · JS-off safe) ============ -->
+          <g class="team">
+          <!-- ===== connectors (neutral hairlines) — drawn first, behind nodes ===== -->
+          <g id="conns">
+            <!-- prospect -> coordinator -->
+            <path class="conn" id="c-enter" d="M70,60 H150"></path>
+            <!-- coordinator -> researcher -->
+            <path class="conn" id="c-coord-res" d="M310,90 H400"></path>
+            <!-- researcher -> 3 parallel sub-research (the FAN-OUT highlight) -->
+            <path class="conn" id="c-fan1" d="M520,90 C560,90 560,55 600,55"></path>
+            <path class="conn" id="c-fan2" d="M520,90 H600"></path>
+            <path class="conn" id="c-fan3" d="M520,90 C560,90 560,125 600,125"></path>
+            <!-- 3 sub-research -> market intel (fan back IN) -->
+            <path class="conn" id="c-join1" d="M720,55 C760,55 760,205 800,205"></path>
+            <path class="conn" id="c-join2" d="M720,90 C770,90 770,205 800,205"></path>
+            <path class="conn" id="c-join3" d="M720,125 C760,125 760,205 800,205"></path>
+            <!-- market intel -> writer -->
+            <path class="conn" id="c-intel-write" d="M860,250 V300 H640"></path>
+            <!-- writer -> fact-checker -->
+            <path class="conn" id="c-write-fact" d="M480,335 H320"></path>
+            <!-- fact-checker -> sender -->
+            <path class="conn" id="c-fact-send" d="M160,370 V410 H360"></path>
+            <!-- sender -> booked -->
+            <path class="conn" id="c-send-booked" d="M520,430 H660"></path>
+          </g>
+
+          <!-- ===== nodes ===== -->
+          <!-- PROSPECT (entry token origin) -->
+          <g class="node" id="n-prospect" data-step="0">
+            <rect class="node-box" x="10" y="38" width="60" height="44" rx="11"></rect>
+            <text class="node-label" x="40" y="56" text-anchor="middle" font-size="11">Prospect</text>
+            <text class="node-sub" x="40" y="71" text-anchor="middle" font-size="8.5">incoming</text>
+          </g>
+
+          <!-- COORDINATOR · Claude via Vertex (qualify head of the spine) — RING -->
+          <g class="node deciding" id="n-coord" data-step="1">
+            <rect class="ring" x="146" y="58" width="168" height="64" rx="14"></rect>
+            <rect class="node-box" x="150" y="62" width="160" height="56" rx="11"></rect>
+            <text class="node-label" x="230" y="84" text-anchor="middle" font-size="14">Coordinator</text>
+            <text class="node-sub" x="230" y="99" text-anchor="middle" font-size="9">qualify head · spine entry</text>
+            <text class="badge-cla" x="230" y="113" text-anchor="middle" font-size="9">CLAUDE · VERTEX</text>
+          </g>
+
+          <!-- RESEARCHER · Gemini (fan-out source) -->
+          <g class="node" id="n-res" data-step="2">
+            <rect class="node-box" x="396" y="62" width="128" height="56" rx="11"></rect>
+            <text class="node-label" x="460" y="84" text-anchor="middle" font-size="13">Researcher</text>
+            <text class="node-sub" x="460" y="99" text-anchor="middle" font-size="9">ParallelAgent · fans out</text>
+            <text class="badge-gem" x="460" y="113" text-anchor="middle" font-size="9">GEMINI</text>
+          </g>
+
+          <!-- 3 PARALLEL SUB-RESEARCH tasks (the visual highlight) -->
+          <g class="node subres" id="n-sub1" data-step="3">
+            <rect class="node-box" x="600" y="38" width="120" height="34" rx="9"></rect>
+            <text class="node-sub" x="660" y="55" text-anchor="middle" font-size="8.5" fill="var(--ink)">funding · hiring</text>
+            <text class="badge-gem" x="660" y="67" text-anchor="middle" font-size="7.5">GEMINI · SEARCH</text>
+          </g>
+          <g class="node subres" id="n-sub2" data-step="3">
+            <rect class="node-box" x="600" y="73" width="120" height="34" rx="9"></rect>
+            <text class="node-sub" x="660" y="90" text-anchor="middle" font-size="8.5" fill="var(--ink)">the named buyer</text>
+            <text class="badge-gem" x="660" y="102" text-anchor="middle" font-size="7.5">GEMINI · SEARCH</text>
+          </g>
+          <g class="node subres" id="n-sub3" data-step="3">
+            <rect class="node-box" x="600" y="108" width="120" height="34" rx="9"></rect>
+            <text class="node-sub" x="660" y="125" text-anchor="middle" font-size="8.5" fill="var(--ink)">launches · posts</text>
+            <text class="badge-gem" x="660" y="137" text-anchor="middle" font-size="7.5">GEMINI · SEARCH</text>
+          </g>
+
+          <!-- MARKET INTELLIGENCE · Gemini -->
+          <g class="node" id="n-intel" data-step="4">
+            <rect class="node-box" x="800" y="177" width="160" height="56" rx="11"></rect>
+            <text class="node-label" x="880" y="199" text-anchor="middle" font-size="13">Market Intel</text>
+            <text class="node-sub" x="880" y="214" text-anchor="middle" font-size="9">finds the angle</text>
+            <text class="badge-gem" x="880" y="228" text-anchor="middle" font-size="9">GEMINI</text>
+          </g>
+
+          <!-- WRITER · Gemini -->
+          <g class="node" id="n-write" data-step="5">
+            <rect class="node-box" x="480" y="272" width="160" height="56" rx="11"></rect>
+            <text class="node-label" x="560" y="294" text-anchor="middle" font-size="13">Writer</text>
+            <text class="node-sub" x="560" y="309" text-anchor="middle" font-size="9">personalises the draft</text>
+            <text class="badge-gem" x="560" y="323" text-anchor="middle" font-size="9">GEMINI</text>
+          </g>
+
+          <!-- FACT-CHECKER · Claude via Vertex (the deciding judge) — RING -->
+          <g class="node deciding" id="n-fact" data-step="6">
+            <rect class="ring" x="156" y="303" width="168" height="64" rx="14"></rect>
+            <rect class="node-box" x="160" y="307" width="160" height="56" rx="11"></rect>
+            <text class="node-label" x="240" y="329" text-anchor="middle" font-size="13">Fact-Checker</text>
+            <text class="node-sub" x="240" y="344" text-anchor="middle" font-size="9">after_agent judge · gate @0.8</text>
+            <text class="badge-cla" x="240" y="358" text-anchor="middle" font-size="9">CLAUDE · VERTEX</text>
+          </g>
+
+          <!-- SENDER · Gemini (the irreversible action) -->
+          <g class="node" id="n-send" data-step="7">
+            <rect class="node-box" x="360" y="402" width="160" height="56" rx="11"></rect>
+            <text class="node-label" x="440" y="424" text-anchor="middle" font-size="13">Sender</text>
+            <text class="node-sub" x="440" y="439" text-anchor="middle" font-size="9">before_tool · confirm · gated</text>
+            <text class="badge-gem" x="440" y="453" text-anchor="middle" font-size="9">GEMINI · TOOLS</text>
+          </g>
+
+          <!-- MEETING BOOKED (success terminal) -->
+          <g class="node booked" id="n-booked" data-step="8">
+            <rect class="node-box" x="660" y="402" width="160" height="56" rx="11"></rect>
+            <path class="checkmark" d="M688,432 l9,9 l16,-18"></path>
+            <text class="node-label acc" x="752" y="426" text-anchor="middle" font-size="13" fill="var(--accent)">Meeting booked</text>
+            <text class="node-sub" x="752" y="441" text-anchor="middle" font-size="9">on the calendar · logged</text>
+          </g>
+
+          <!-- the travelling task token (the prospect) — <=12px -->
+          <circle class="token" id="vizToken" cx="40" cy="60" r="5"></circle>
+          <!-- parallel fan-out copies -->
+          <circle class="token" id="tok1" cx="40" cy="60" r="5"></circle>
+          <circle class="token" id="tok2" cx="40" cy="60" r="5"></circle>
+          <circle class="token" id="tok3" cx="40" cy="60" r="5"></circle>
+          </g><!-- /team -->
+
+          <!-- ============ LONE-AGENT GRAPH (single mode · hidden by default) ============
+               A visibly DISTINCT minimal topology: a Prospect feeds ONE lone
+               "Generalist" agent (single Gemini node, NO parallel fan-out, NO
+               separate Fact-Checker), which ships generic / unverified outreach
+               to a low outcome. Same viewBox, kural tokens, neutral hairlines. -->
+          <g class="lone">
+            <!-- connectors (neutral hairlines) -->
+            <path class="conn" id="lc-enter" d="M150,235 H300"></path>
+            <path class="conn" id="lc-ship" d="M620,235 H720"></path>
+
+            <!-- PROSPECT (entry token origin) -->
+            <g class="node" id="l-prospect" data-step="0">
+              <rect class="node-box" x="60" y="207" width="90" height="56" rx="11"></rect>
+              <text class="node-label" x="105" y="231" text-anchor="middle" font-size="13">Prospect</text>
+              <text class="node-sub" x="105" y="247" text-anchor="middle" font-size="9">incoming</text>
+            </g>
+
+            <!-- ONE LONE GENERALIST — does the whole job, alone, no checks -->
+            <g class="node" id="l-gen" data-step="1">
+              <rect class="node-box" x="300" y="189" width="320" height="92" rx="13"></rect>
+              <text class="node-label" x="460" y="222" text-anchor="middle" font-size="15">One generalist agent</text>
+              <text class="node-sub" x="460" y="241" text-anchor="middle" font-size="10">qualifies · researches · writes · judges · ships — alone</text>
+              <text class="badge-gem" x="460" y="262" text-anchor="middle" font-size="9">SINGLE GEMINI · NO PARALLEL · NO INDEPENDENT CHECK</text>
+            </g>
+
+            <!-- ACTION — ships generic / unverified, the miss cross marks the low outcome -->
+            <g class="node" id="l-action" data-step="2">
+              <rect class="node-box" x="720" y="207" width="180" height="56" rx="11"></rect>
+              <text class="node-label" x="810" y="229" text-anchor="middle" font-size="12">Ships unverified</text>
+              <text class="node-sub" x="810" y="245" text-anchor="middle" font-size="9">generic · ungrounded · irreversible</text>
+              <path class="miss" d="M884,213 l12,12 M896,213 l-12,12"></path>
+            </g>
+
+            <!-- the lone travelling task token — <=12px -->
+            <circle class="token" id="vizTokenLone" cx="105" cy="235" r="5"></circle>
+
+            <text class="lonecap" x="60" y="320" font-size="11.5">No spine, no after_agent judge gate, no parallel research, no second read. The agent that writes the email also decides to send it — so a generic, unverified message ships and the account is burned.</text>
+          </g><!-- /lone -->
+        </svg>
+      </div>
+
+      <div class="viz__log" id="vizLog" aria-live="polite">
+        <span class="ln now">Ready. Press <b>Run</b> to dispatch a prospect through the team.</span>
+      </div>
+
+      <div class="viz__meter team" id="vizMeter">
+        <span class="mlabel">Predicted reply rate</span>
+        <div class="track" aria-hidden="true"><span class="fill" id="vizFill" style="width:84%"></span></div>
+        <span class="score" id="vizScore">84%</span>
+      </div>
+      <div class="viz__verdict" id="vizVerdict"><b>Agent team:</b> researched, fact-checked, on-target — <span class="acc">high reply rate</span>.</div>
+
+      <div class="viz__legend" aria-hidden="true">
+        <span><span class="ringdot"></span>Claude · Vertex (decision / judge)</span>
+        <span><span class="gemdot"></span>Gemini (routine, high-volume)</span>
+        <span><span class="tokdot"></span>the prospect (task token)</span>
+      </div>
+
+      <!-- JS-OFF static caption: the SVG above already renders the full diagram statically;
+           this one-liner explains it so it's never a blank/ambiguous box without JS. -->
+      <p class="viz__static-note">Static view · the SequentialAgent spine in run order: <b>Prospect → Coordinator (Claude·Vertex, qualify head) → Researcher (Gemini, ParallelAgent fans out 3 research tasks) → Market Intel → Writer → Fact-Checker (Claude·Vertex, after_agent LLM-as-judge gate @0.8) → on a clear, the safe-by-construction Sender (Gemini) sends as the buyer &amp; books the meeting → meeting booked.</b> For creative dispatch, the same mouth's Publisher (Gemini, holds the X / IG / LinkedIn keys) puts kalai's approved master live behind the founder's publish sign-off — the day's second tap. Enable JavaScript to run it live and compare against a single agent.</p>
+    </div>
+  </section>
+
+  <!-- ========================= 01 · PROBLEM / WHO ========================= -->
+  <section class="sec" id="problem">
+    <div class="sec__head">
+      <div class="plate">01</div>
+      <div class="sec__meta reveal">
+        <div class="kicker">The problem · who it's for</div>
+        <h2 class="sec__title">Northbeam needs pipeline. It cannot afford a growth team.</h2>
+      </div>
+      <div class="sec__note reveal">business case · 30%</div>
+    </div>
+    <p class="sec__sub reveal">Take <strong>Northbeam</strong>, a seed-stage B2B SaaS with eight people and a fresh round: it needs qualified pipeline now,
+      but a single ramped SDR costs more than its monthly burn allows. So the founder does outbound herself, badly: a generic template
+      blasted to a scraped list, no research, no fact-checking, sent at the wrong time to the wrong person. It burns the list and the brand
+      at once. Outbound is slow, generic, and dangerously easy to get wrong — and getting it wrong is irreversible too.</p>
+
+    <div class="stats stagger reveal">
+      <div class="stat"><div class="fig" data-count="$84k+">$84k+</div><div class="lab">fully-loaded yearly cost of one ramped SDR — before tooling or a manager to run them</div></div>
+      <div class="stat"><div class="fig" data-count="~3.5h">~3.5h</div><div class="lab">to research + write one genuinely personalised sequence by hand; kural does it in parallel in minutes</div></div>
+      <div class="stat"><div class="fig" data-count="1 list">1 list</div><div class="lab">a founder gets one shot at a target account — a bad cold email burns it. The mistake doesn't undo.</div></div>
+    </div>
+
+    <div class="grid g3 stagger reveal">
+      <div class="card">
+        <div class="tag">Who buys it · e.g. Northbeam</div>
+        <h3>Seed → Series B startups</h3>
+        <p>Founders and tiny GTM teams who need outbound now and can't hire a full sales org. Northbeam buys kural instead of a headcount.</p>
+      </div>
+      <div class="card">
+        <div class="tag">Who buys it</div>
+        <h3>Lean revenue teams</h3>
+        <p>One RevOps lead who wants research-grade outbound at SDR-team volume, without the SDR team to manage.</p>
+      </div>
+      <div class="card">
+        <div class="tag">Who buys it</div>
+        <h3>Agencies & studios</h3>
+        <p>Run client outbound at scale with a per-client safety gate and an audit trail of every message sent.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================= 02 · WHAT IT DOES (PIPELINE) ========================= -->
+  <section class="sec" id="flow">
+    <div class="sec__head">
+      <div class="plate">02</div>
+      <div class="sec__meta reveal">
+        <div class="kicker">What it does · end to end</div>
+        <h2 class="sec__title">From a blank list to a booked meeting — one continuous run.</h2>
+      </div>
+      <div class="sec__note reveal">dispatch pipeline</div>
+    </div>
+    <p class="sec__sub reveal">kural runs a deterministic spine — an ADK <span class="mono">SequentialAgent</span> (qualify → research → market intel →
+      write → fact-check → send) — with a parallel research burst in the middle. Each stage hands its work to the next via
+      <span class="mono">output_key → {placeholder}</span> with a Pydantic <span class="mono">output_schema</span> and locked sub-agent
+      boundaries; nothing is sent until the after_agent LLM-as-judge gate clears it.</p>
+
+    <div class="pipe stagger reveal" id="pipe">
+      <div class="pipe__rail" aria-hidden="true"><span class="trav" id="trav"></span></div>
+      <div class="step">
+        <div class="num">1<small>FIND</small></div>
+        <div>
+          <h3>Discover &amp; qualify prospects</h3>
+          <p>The Coordinator builds the target set from your ideal-customer profile and decides what is actually worth
+            pursuing — not everyone makes the cut. Weak fits are dropped before a cent of research is spent.</p>
+          <div class="meta">Coordinator · Claude via Vertex AI · qualify decision</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="num">2<small>RESEARCH</small></div>
+        <div>
+          <h3>Research every prospect in parallel</h3>
+          <p>The Researcher is a real <span class="mono">ParallelAgent</span> fan-out — one research task per company, all at once —
+            grounded on live Google Search and Vertex AI Search. Funding, hiring, product launches, the named buyer, recent posts.
+            Real facts, with sources. The fan-out is modeled on the enterprise <span class="mono">parallel_task_decomposition_execution</span> sample.</p>
+          <div class="meta">Researcher · Gemini · ParallelAgent fan-out · modeled on parallel_task_decomposition_execution</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="num">3<small>ANGLE</small></div>
+        <div>
+          <h3>Read the signals, find the angle</h3>
+          <p>Market &amp; Growth Intelligence reads the research for the one reason this company should care right now —
+            the trigger event, the pain, the timing — and hands a sharp brief to the writer.</p>
+          <div class="meta">Market / Growth Intelligence · Gemini</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="num">4<small>WRITE</small></div>
+        <div>
+          <h3>Draft the tailored message</h3>
+          <p>The Personalisation Writer drafts outreach built on the angle and the facts — specific, short, and addressed
+            to a real person, not a merge field. One message per prospect, never a template blast.</p>
+          <div class="meta">Personalisation Writer · Gemini</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="num">5<small>VERIFY</small></div>
+        <div>
+          <h3>The after_agent judge — fact-check, score, gate</h3>
+          <p>The Fact-Checker runs as an <span class="mono">after_agent</span> LLM-as-judge: it verifies every claim against the cited
+            research and scores the message on a rubric (tone, anti-spam, brand policy, claim support). Below the <strong>0.8</strong> bar —
+            the same rubric-judge pattern as the <span class="mono">small-business-loan</span> sample — the message is sent back to the Writer, never sent out.</p>
+          <div class="meta">Fact-Checker · Claude via Vertex AI · after_agent LLM-as-judge gate @0.8 (small-business-loan rubric)</div>
+        </div>
+      </div>
+
+      <div class="step final">
+        <div class="num">6<small>SEND</small></div>
+        <div>
+          <h3>The judge clears the gate — then the safe-by-construction send</h3>
+          <p>Once the after_agent judge clears it, the Sender is <strong>safe by construction</strong>: a <span class="mono">before_tool</span>
+            callback re-checks eligibility and value caps, a confirm-before-send step gates the irreversible call, and a
+            <span class="mono">Firestore</span> pause / repair / resume ledger means a crash can never double-send. Only then does the Sender
+            <strong>send the email as the buyer (OAuth) and book the meeting</strong> on their calendar — OTel-traced, logged to BigQuery.</p>
+          <div class="fire"><span class="dot"></span>Irreversible action · email sent as the buyer + meeting booked · gated by the after_agent judge · before_tool-guarded</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================= 03 · THE AGENT TEAM ========================= -->
+  <section class="sec" id="team">
+    <div class="sec__head">
+      <div class="plate">03</div>
+      <div class="sec__meta reveal">
+        <div class="kicker">The agent team · the org chart</div>
+        <h2 class="sec__title">Seven specialists on a spine, two models. The team beats any single agent.</h2>
+      </div>
+      <div class="sec__note reveal">technical · 30%</div>
+    </div>
+    <p class="sec__sub reveal">A single chatbot writing a cold email is a toy. kural wins because work moves down a
+      <span class="mono">SequentialAgent</span> spine of specialists who each do one thing well, and the two highest-stakes
+      <em>judgments</em> — who is worth pursuing, and whether a message clears the send gate — run on
+      <strong class="acc">Claude via Vertex AI</strong>, while Gemini powers the high-volume routine agents. Both models, one Google Cloud runtime.
+      kural is the company's <strong>only mouth</strong>: the Coordinator decides, the spine works, and only the <strong>Sender</strong> (outreach email + booking) and the <strong>Publisher</strong> (the social channel keys) ever touch the outside world — each behind a gate.</p>
+
+    <div class="team stagger reveal">
+      <div class="agent lead">
+        <div class="role">
+          <h3>Coordinator</h3>
+          <span class="badge">qualify head of the spine</span>
+        </div>
+        <p>The entry of the <span class="mono">SequentialAgent</span> spine. It qualifies prospects and decides what's worth pursuing —
+          the highest-stakes <strong>who-do-we-pursue</strong> judgment — then emits a Pydantic <span class="mono">output_schema</span>
+          object under an <span class="mono">output_key</span> that the next agent reads. Sub-agent boundaries are locked, so it cannot
+          reach past its one job. Qualification can burn a list, so it runs on the strongest judgment model.</p>
+        <div class="adkkind">ADK · LlmAgent · spine entry · output_schema + output_key · locked boundaries</div>
+        <div class="modelline claude"><span class="dot"></span>Model · <span class="m">Claude via Vertex AI</span> — highest-stakes qualification judgment</div>
+      </div>
+
+      <div class="agent">
+        <div class="role"><h3>Researcher</h3><span class="badge">ParallelAgent fan-out</span></div>
+        <p>A real <span class="mono">ParallelAgent</span> — spins up one research task per prospect and runs them all at once, grounded on
+          live web sources so the facts are real and cited. The fan-out is modeled on the enterprise <span class="mono">parallel_task_decomposition_execution</span> sample (the GTM-cluster samples have none).</p>
+        <div class="adkkind">ADK · ParallelAgent · Google Search + Vertex AI Search grounding · modeled on parallel_task_decomposition_execution</div>
+        <div class="modelline"><span class="dot" style="background:var(--mute)"></span>Model · <span class="m">Gemini</span></div>
+      </div>
+
+      <div class="agent">
+        <div class="role"><h3>Market / Growth Intelligence</h3><span class="badge">finds the angle</span></div>
+        <p>Reads the research for the trigger event and the reason-to-care-now, then writes a tight brief for the writer.</p>
+        <div class="adkkind">ADK · LlmAgent</div>
+        <div class="modelline"><span class="dot" style="background:var(--mute)"></span>Model · <span class="m">Gemini</span></div>
+      </div>
+
+      <div class="agent">
+        <div class="role"><h3>Personalisation Writer</h3><span class="badge">drafts outreach</span></div>
+        <p>Turns the angle plus the verified facts into one short, specific message per prospect — addressed to a person, never a template.</p>
+        <div class="adkkind">ADK · LlmAgent</div>
+        <div class="modelline"><span class="dot" style="background:var(--mute)"></span>Model · <span class="m">Gemini</span></div>
+      </div>
+
+      <div class="agent">
+        <div class="role"><h3>Fact-Checker</h3><span class="badge">the after_agent judge · owns the gate</span></div>
+        <p>Runs as an <span class="mono">after_agent</span> LLM-as-judge: scores every claim against the cited research on a rubric
+          (claim support, tone, anti-spam, brand policy). Below the <strong>0.8</strong> bar the message goes back to the Writer, never out.
+          This is the send gate — the second highest-stakes judgment, so it too runs on the strongest model.</p>
+        <div class="adkkind">ADK · after_agent LLM-as-judge · rubric @0.8 · the send gate</div>
+        <div class="modelline claude"><span class="dot"></span>Model · <span class="m">Claude via Vertex AI</span> — the send-gate judgment</div>
+      </div>
+
+      <div class="agent">
+        <div class="role"><h3>Sender</h3><span class="badge">safe by construction</span></div>
+        <p>Only fires once the judge clears the gate. A <span class="mono">before_tool</span> callback re-checks eligibility + value caps,
+          a confirm-before-send step gates the call, and a <span class="mono">Firestore</span> pause / repair / resume ledger means a crash
+          never double-sends. It sends <strong>as the buyer (OAuth)</strong> — never a shared key — and books the meeting.</p>
+        <div class="adkkind">ADK · LlmAgent · before_tool gate + value caps + confirm + Firestore resume · OAuth send-as-buyer</div>
+        <div class="modelline"><span class="dot" style="background:var(--mute)"></span>Model · <span class="m">Gemini</span></div>
+      </div>
+
+      <div class="agent">
+        <div class="role"><h3>Publisher</h3><span class="badge">holds the channel keys · the only mouth</span></div>
+        <p>The <strong>only agent in the company with channel keys</strong> — <strong class="acc">X · Instagram · LinkedIn</strong>. It takes kalai's approved,
+          compliance-cleared creative master over A2A, formats it per channel, and publishes <strong>only after the founder's publish sign-off</strong>
+          (the day's second tap). It also posts the cleared comment-replies through this same spine. It never edits creative — a tweak goes back to kalai.</p>
+        <div class="adkkind">ADK · LlmAgent · channel keys (X / IG / LinkedIn) · per-channel formatter · founder publish gate · posts cleared replies</div>
+        <div class="modelline"><span class="dot" style="background:var(--mute)"></span>Model · <span class="m">Gemini</span></div>
+      </div>
+    </div>
+
+    <div class="handoff reveal">
+      <div class="k">How the spine hands off — output_key → {placeholder} — multi-agent beats single</div>
+      <div class="flowline" id="flowline">
+        <span class="node">Coordinator · <span class="acc">QUALIFY</span></span><span class="arr">→</span>
+        <span class="node">Researcher</span><span class="arr">→</span>
+        <span class="node">Intelligence</span><span class="arr">→</span>
+        <span class="node">Writer</span><span class="arr">→</span>
+        <span class="node gate"><span class="dot"></span>Fact-Checker <span class="acc">after_agent GATE</span></span><span class="arr">→</span>
+        <span class="node">Sender · <span class="acc">SEND + BOOK</span></span><span class="arr">→</span>
+        <span class="node gate"><span class="dot"></span>Publisher <span class="acc">PUBLISH (founder gate)</span></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================= 04 · THE ONLY MOUTH (publish · replies · gate) ========================= -->
+  <section class="sec" id="mouth">
+    <div class="sec__head">
+      <div class="plate">04</div>
+      <div class="sec__meta reveal">
+        <div class="kicker">The only mouth · publish, reply, gate</div>
+        <h2 class="sec__title">kural is the one system that speaks to the world — and the only one holding the keys.</h2>
+      </div>
+      <div class="sec__note reveal">engages · kural</div>
+    </div>
+    <p class="sec__sub reveal">Nothing else in the company touches the outside. The Coordinator decides who is worth pursuing, the spine
+      researches and writes, but only kural <em>engages</em> — and within kural only the <strong>Sender</strong> (outreach email + booking) and the
+      <strong>Publisher</strong> (the social channels) ever cross the line into the world. Both fire behind a gate, and the human gate that puts
+      creative live is the founder's <strong>second tap</strong>, held right here at the mouth.</p>
+
+    <!-- Publisher prominence — uniform hairline, accent only as text + <=12px dots/ring -->
+    <div class="card reveal" style="margin-top:24px">
+      <div class="tag">New seat · the company's only channel keys</div>
+      <h3 style="font-size:21px;margin-top:7px"><span class="dot" style="vertical-align:baseline;margin-right:9px"></span>Publisher — holds <span class="acc">X · Instagram · LinkedIn</span></h3>
+      <p style="margin-top:10px;max-width:74ch">No other agent in the company — not the Coordinator, not the Sender, not kalai — carries a social channel key. The Publisher takes
+        kalai's <strong>approved, compliance-cleared creative master</strong> over A2A, formats it per channel (caption length, aspect, tags, the platform's
+        own affordances), and publishes <strong>only after the founder's publish sign-off</strong>. It never writes or edits the creative; if a live piece
+        needs a tweak, the Publisher returns it to kalai and waits — kural carries, it does not author.</p>
+      <div class="chips" style="margin-top:14px">
+        <span class="chip"><span class="acc">X</span> · channel key</span>
+        <span class="chip"><span class="acc">Instagram</span> · channel key</span>
+        <span class="chip"><span class="acc">LinkedIn</span> · channel key</span>
+        <span class="chip">per-channel formatter</span>
+        <span class="chip">founder publish gate</span>
+        <span class="chip">Model · <span class="acc">Gemini</span></span>
+      </div>
+    </div>
+
+    <!-- THE HANDOFF — kalai makes, kural publishes; a tweak goes back to kalai -->
+    <div class="handoff reveal" style="margin-top:18px">
+      <div class="k">The handoff · kalai makes → kural publishes · a tweak goes BACK to kalai</div>
+      <div class="chips" style="margin-top:14px;align-items:center">
+        <span class="chip">kalai · approved master</span>
+        <span class="arr" style="font-family:var(--mono);color:var(--mute);font-weight:700">A2A →</span>
+        <span class="chip">kalai Compliance · fail-closed (internal)</span>
+        <span class="arr" style="font-family:var(--mono);color:var(--mute);font-weight:700">handoff →</span>
+        <span class="chip">kural Publisher · format per channel</span>
+        <span class="arr" style="font-family:var(--mono);color:var(--mute);font-weight:700">→</span>
+        <span class="chip"><span class="dot" style="width:8px;height:8px"></span>founder publish sign-off · <span class="acc">tap 2 / g2</span></span>
+        <span class="arr" style="font-family:var(--mono);color:var(--mute);font-weight:700">→</span>
+        <span class="chip"><span class="acc">live</span></span>
+      </div>
+      <p style="margin-top:14px;color:var(--ink);font-size:16px;max-width:78ch">kalai's <strong>Compliance check</strong> is an internal, fail-closed gate <em>before</em> the handoff; the <strong>human sign-off</strong>
+        is the founder's second tap at the Publisher, at the mouth, just before the world. <strong>arivu commands, kalai makes, kural speaks.</strong>
+        kural never edits creative — a tweak returns to kalai.</p>
+    </div>
+
+    <!-- COMMENT REPLIES — same safe spine as outreach -->
+    <h3 class="reveal" style="margin-top:34px;font-size:20px;letter-spacing:-.02em">Inbound engagement · comment &amp; mention replies — the same safe spine</h3>
+    <p class="sec__sub reveal" style="margin-top:14px">Conversations create replies. When a mention or comment comes in, it is <strong>not</strong> answered on some separate, weaker path — it flows through
+      the exact same <strong>writer → fact-check → send</strong> spine as outreach. kural listens through manas, drafts in the founder's voice, clears every
+      claim, and only then posts. Sensitive replies are held for the founder.</p>
+
+    <div class="pipe stagger reveal">
+      <div class="step">
+        <div class="num">A<small>LISTEN</small></div>
+        <div>
+          <h3>manas surfaces the inbound</h3>
+          <p>manas's <strong>Social Sentiment Imbiber</strong> pulls the mentions, comments and replies that kural's conversations generate and hands them over
+            <span class="mono">A2A</span> as cited candidate signals. manas knows; it never posts or decides.</p>
+          <div class="meta">manas · Social Sentiment Imbiber → kural · A2A</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="num">B<small>DRAFT</small></div>
+        <div>
+          <h3>Personalisation Writer drafts the reply</h3>
+          <p>The same Writer drafts the response <strong>in the founder's voice, grounded in manas</strong> — never out-of-corpus, never invented. One reply,
+            specific to what was actually said.</p>
+          <div class="meta">Personalisation Writer · Gemini · grounded in manas</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="num">C<small>VERIFY</small></div>
+        <div>
+          <h3>Fact-Checker clears it — same gate</h3>
+          <p>The reply clears the <strong>same after_agent LLM-as-judge gate @0.8</strong> as outreach — claim support, tone, anti-spam, brand policy. Below the
+            bar it goes back to the Writer, never out. No second, weaker path.</p>
+          <div class="meta">Fact-Checker · Claude via Vertex AI · after_agent gate @0.8</div>
+        </div>
+      </div>
+      <div class="step final">
+        <div class="num">D<small>POST</small></div>
+        <div>
+          <h3>Shipped through the Sender / Publisher spine — sensitive replies HELD</h3>
+          <p>Cleared replies post through the <strong>same Sender / Publisher spine</strong> — the Sender for direct/email channels, the Publisher for the social
+            channels it holds the keys to. A <strong>sensitive reply is held at a founder gate</strong> before it goes out. Same safety, no shortcut.</p>
+          <div class="fire"><span class="dot"></span>Same writer → fact-check → send spine as outreach · sensitive replies held for the founder</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BOUNDARIES — what kural never does -->
+    <div class="mandates stagger reveal" style="margin-top:24px">
+      <div class="mand">
+        <div class="h"><span class="dot"></span>Never edits creative</div>
+        <p>kural carries kalai's approved master and formats it per channel. It does not write or alter the creative — a tweak returns to kalai, who makes.</p>
+        <div class="ok"><span class="dot"></span>boundary</div>
+      </div>
+      <div class="mand">
+        <div class="h"><span class="dot"></span>Never says unverified things</div>
+        <p>Every outbound message and every reply clears the after_agent LLM-as-judge gate @0.8, grounded in manas's cited corpus — refuses out-of-corpus.</p>
+        <div class="ok"><span class="dot"></span>boundary</div>
+      </div>
+      <div class="mand">
+        <div class="h"><span class="dot"></span>Never blasts</div>
+        <p>One researched message per prospect, one grounded reply per comment — never a template blast. The list and the brand survive.</p>
+        <div class="ok"><span class="dot"></span>boundary</div>
+      </div>
+      <div class="mand">
+        <div class="h"><span class="dot"></span>Never publishes without the gate</div>
+        <p>Creative reaches the world only through the Publisher, behind the founder's publish sign-off — the day's second tap. The mouth waits for the human.</p>
+        <div class="ok"><span class="dot"></span>boundary</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================= 05 · HOW IT'S BUILT / STACK ========================= -->
+  <section class="sec" id="stack">
+    <div class="sec__head">
+      <div class="plate">05</div>
+      <div class="sec__meta reveal">
+        <div class="kicker">How it's built · the stack</div>
+        <h2 class="sec__title">A SequentialAgent spine, scaffolded, evaluated, observed, and deployed to Agent Engine.</h2>
+      </div>
+      <div class="sec__note reveal">technical · architecture</div>
+    </div>
+    <p class="sec__sub reveal">kural is scaffolded with the <strong>agent-starter-pack</strong> and built on Google's Agent Development Kit, running
+      entirely on Google Cloud. Gemini powers the many routine agents; <strong class="acc">Claude (Sonnet / Opus) runs through Vertex AI
+      Model Garden</strong> for the two highest-stakes decision agents. It ships with a checked-in eval set, OTel + BigQuery observability,
+      and a safe-by-construction action gate — the Google-grade bar, not a demo.</p>
+
+    <div class="arch reveal">
+      <div class="layer">
+        <div class="lk">Scaffold</div>
+        <div class="lv"><b>agent-starter-pack layout.</b> A <span class="mono">root_agent</span> in <span class="mono">agent.py</span>,
+          externalised <span class="mono">prompts/</span> and <span class="mono">tools/</span>, a checked-in <span class="mono">eval/</span>
+          set, <span class="mono">tests/</span>, and <span class="mono">deployment/deploy.py</span> — the standard Google-grade project shape,
+          not a single notebook.</div>
+      </div>
+      <div class="layer">
+        <div class="lk">Orchestration</div>
+        <div class="lv"><b>Google ADK SequentialAgent spine.</b> A <span class="mono">SequentialAgent</span> (qualify → research → market intel →
+          write → fact-check → send) hands each stage on via <span class="mono">output_key → {placeholder}</span> with a Pydantic
+          <span class="mono">output_schema</span> and locked sub-agent boundaries; a <span class="mono">ParallelAgent</span> fans research out;
+          the Fact-Checker runs as an <span class="mono">after_agent</span> LLM-as-judge gate that sends a failing draft back to the Writer.</div>
+      </div>
+      <div class="layer">
+        <div class="lk">Models</div>
+        <div class="lv"><b>Gemini</b> for the routine, high-volume agents · <b class="acc">Claude via Vertex AI Model Garden</b>
+          for the Coordinator's qualification and the Fact-Checker's after_agent judge gate.
+          <div class="chips">
+            <span class="chip">Researcher · <span class="acc">Gemini</span></span>
+            <span class="chip">Intelligence · <span class="acc">Gemini</span></span>
+            <span class="chip">Writer · <span class="acc">Gemini</span></span>
+            <span class="chip">Sender · <span class="acc">Gemini</span></span>
+            <span class="chip">Publisher · <span class="acc">Gemini</span></span>
+            <span class="chip">Coordinator · <span class="acc">Claude / Vertex</span></span>
+            <span class="chip">Fact-Checker · <span class="acc">Claude / Vertex</span></span>
+          </div>
+        </div>
+      </div>
+      <div class="layer">
+        <div class="lk">Grounding / RAG</div>
+        <div class="lv"><b>Vertex AI Search + Google Search</b> grounding on every research task, so outreach claims trace
+          back to real, cited sources — not model guesses.</div>
+      </div>
+      <div class="layer">
+        <div class="lk">Memory</div>
+        <div class="lv"><b>Sessions</b> hold a single dispatch run; <b>Memory Bank</b> remembers accounts, prior touches, and
+          what was already said — so kural never emails the same person the same thing twice.</div>
+      </div>
+      <div class="layer">
+        <div class="lk">Eval</div>
+        <div class="lv"><b>Checked-in eval set.</b> An <span class="mono">AgentEvaluator</span> runs the eval set in CI, plus a rubric
+          <b class="acc">LLM-as-judge</b> scoring outreach quality and claim support against a <b>0.8</b> bar — the same rubric-judge
+          pattern as the <span class="mono">small-business-loan</span> sample. Regressions fail the build, not the buyer's inbox.</div>
+      </div>
+      <div class="layer">
+        <div class="lk">Observability</div>
+        <div class="lv"><b>OpenTelemetry</b> traces every agent + tool span (<span class="mono">NO_CONTENT</span> so prospect data never
+          leaves the trace), and a <b>BigQuery analytics plugin</b> logs every run for reply-rate and cost analytics — mandatory
+          telemetry for a B2B agent a buyer actually hires.</div>
+      </div>
+      <div class="layer">
+        <div class="lk">Identity / Auth</div>
+        <div class="lv"><b>Real auth, per request.</b> The email + meeting are sent <b>as the buyer</b> over <span class="mono">OAuth</span>
+          (or a service account + IAM via <span class="mono">Secret Manager</span>) — never a shared key. Identity is propagated per
+          request so every action is attributable to a real principal.</div>
+      </div>
+      <div class="layer">
+        <div class="lk">Runtime</div>
+        <div class="lv"><b>Vertex AI Agent Engine (primary).</b> Deployed via <span class="mono">deployment/deploy.py</span>, managed and
+          autoscaling, with <b>Cloud Run + IAP</b> as the secondary path. Per-tenant isolated — a true Marketplace deployment a buyer
+          provisions into their own Google Cloud project. Always-on cadence via <b>Cloud Scheduler + OIDC</b>.</div>
+      </div>
+      <div class="layer">
+        <div class="lk">Interop</div>
+        <div class="lv"><b>A2A + MCP.</b> kural is exposed over A2A via <span class="mono">to_a2a()</span> with a published
+          <span class="mono">Agent Card</span> and a <b>StreamableHTTP MCP server</b>, so a buyer's existing CRM and calendar agents can
+          discover kural and <b>hire it</b> — coordinating work agent-to-agent.</div>
+      </div>
+      <div class="layer">
+        <div class="lk">Safe action</div>
+        <div class="lv"><b>Safe-by-construction send.</b> Email + calendar tools sit behind a <span class="mono">before_tool</span> eligibility
+          + value-cap gate, a confirm-before-send step, and a <span class="mono">Firestore</span> pause / repair / resume ledger so a crash
+          never double-sends. Only the Sender can fire them, and only after the judge clears — the live send is the credibility edge
+          (every GTM sample stubs it as a mock). The <b>Publisher</b> is the sole holder of the social channel keys (X / IG / LinkedIn);
+          it formats kalai's approved master per channel and posts only behind the <b>founder's publish sign-off</b> — kural is the company's only mouth.</div>
+      </div>
+    </div>
+
+    <!-- TRACK 3 — four mandates, visibly checked -->
+    <h3 class="reveal" style="margin-top:34px;font-size:20px;letter-spacing:-.02em">Track 3 fit — the four mandates, checked</h3>
+    <div class="mandates stagger reveal">
+      <div class="mand">
+        <div class="h"><span class="dot"></span>B2B focus · Marketplace</div>
+        <p>A product other companies buy on Google Cloud Marketplace and provision into their own org — Northbeam (our named seed-stage
+          B2B SaaS buyer) installs it into its own project, not a consumer app.</p>
+        <div class="ok"><span class="dot"></span>met</div>
+      </div>
+      <div class="mand">
+        <div class="h"><span class="dot"></span>Cloud-native runtime</div>
+        <p>Deployed to Vertex AI Agent Engine via <span class="mono">deployment/deploy.py</span> (Cloud Run + IAP secondary), autoscaling
+          and per-tenant isolated in the buyer's own project; always-on cadence via Cloud Scheduler + OIDC.</p>
+        <div class="ok"><span class="dot"></span>met</div>
+      </div>
+      <div class="mand">
+        <div class="h"><span class="dot"></span>Vertex-powered</div>
+        <p>Gemini plus Claude through Vertex AI Model Garden — every model call runs through Vertex on Google Cloud, grounded by Vertex AI Search.</p>
+        <div class="ok"><span class="dot"></span>met</div>
+      </div>
+      <div class="mand">
+        <div class="h"><span class="dot"></span>A2A + MCP · hireable</div>
+        <p>Exposed over A2A via <span class="mono">to_a2a()</span> with a published Agent Card and a StreamableHTTP MCP server, so a buyer's
+          CRM and calendar agents can discover kural and <strong>hire it</strong> — authenticated per request as the buyer.</p>
+        <div class="ok"><span class="dot"></span>met</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================= 06 · BUSINESS CASE / IMPACT ========================= -->
+  <section class="sec" id="impact">
+    <div class="sec__head">
+      <div class="plate">06</div>
+      <div class="sec__meta reveal">
+        <div class="kicker">Business case · impact</div>
+        <h2 class="sec__title">Buy a growth team for the price of the tooling, not the headcount.</h2>
+      </div>
+      <div class="sec__note reveal">why it matters</div>
+    </div>
+    <p class="sec__sub reveal">kural replaces the part of an SDR team Northbeam can't justify hiring: the research and the writing at
+      volume, done well, behind an LLM-as-judge gate and a safe-by-construction send the founder controls. The buyer keeps the judgment
+      that matters — who to target, what the offer is — and hands kural the grind. And because kural speaks A2A, Northbeam's own CRM agent
+      can hire it directly.</p>
+
+    <div class="priceline reveal">
+      <div>
+        <div class="big">vs. an SDR hire</div>
+        <div class="small">research-grade outbound · day one · no ramp · no management</div>
+      </div>
+      <div class="vs">A ramped SDR is <strong data-count="$84k+/yr">$84k+/yr</strong> loaded, takes months to ramp, and researches one account at a
+        time. kural researches every prospect in parallel, fact-checks before it sends, and never burns a list with a sloppy blast.</div>
+    </div>
+
+    <div class="buyers stagger reveal">
+      <div class="card">
+        <div class="tag">What it saves</div>
+        <h3>Time</h3>
+        <p>The ~3.5 hours of research-and-write per genuinely personalised sequence collapses into a parallel run measured in minutes.</p>
+      </div>
+      <div class="card">
+        <div class="tag">What it saves</div>
+        <h3>The list</h3>
+        <p>The send-safety gate + fact-check stop the one-shot mistake that quietly torches a target account forever.</p>
+      </div>
+      <div class="card">
+        <div class="tag">What it saves</div>
+        <h3>Headcount</h3>
+        <p>Outbound coverage at team scale before the company can justify — or manage — a sales org. Buy it, plug it in, grow.</p>
+      </div>
+    </div>
+
+    <div class="pull reveal">
+      <q>The agent doesn't just suggest the email. It researches the company, an LLM-as-judge checks every claim, it clears the
+        send gate, and then it actually sends it as the buyer and books the meeting. That last step — live, not a mock — is the product.</q>
+      <div class="by">kural · the irreversible action is the point</div>
+    </div>
+  </section>
+
+  <!-- ========================= FOOTER ========================= -->
+  <footer class="foot">
+    <div class="eyebrow reveal">The submission constellation · Google for Startups AI Agents Challenge</div>
+    <p class="sec__sub reveal" style="margin-top:14px">kural is one of four agent products in this founder's challenge submission —
+      each a real multi-agent system that takes a genuine irreversible action, built on ADK and Google Cloud, with the
+      highest-stakes decisions running on Claude via Vertex AI.</p>
+
+    <div class="trilogy stagger reveal">
+      <div class="tcard">
+        <div class="n">constellation · sibling</div>
+        <div class="nm">kalai</div>
+        <div class="ds">the creative / brand companion — warm consumer voice.</div>
+      </div>
+      <div class="tcard self">
+        <div class="n">constellation · this product</div>
+        <div class="nm">kural</div>
+        <div class="ds">the autonomous growth team — B2B outbound that finds, researches, and reaches.</div>
+      </div>
+      <div class="tcard">
+        <div class="n">constellation · siblings</div>
+        <div class="nm">manas · arivu</div>
+        <div class="ds">the mind (UNDERSTAND) and the decision chamber (DECIDE) completing the four-product set.</div>
+      </div>
+    </div>
+
+    <p class="reveal" style="margin-top:26px;font-family:var(--mono);font-size:13px;letter-spacing:.06em;color:var(--mute);line-height:1.8">
+      knows → manas &nbsp;·&nbsp; decides → arivu &nbsp;·&nbsp; makes → kalai &nbsp;·&nbsp; <span class="acc">engages → kural</span> &nbsp;·&nbsp; witnesses → saakshe
+    </p>
+
+    <div class="footmeta reveal">
+      kural · Tamil: voice, as in the Thirukkural &nbsp;·&nbsp; best-fit track · <span class="acc">Track 3 — Refactor for Marketplace &amp; Gemini Enterprise</span><br>
+      scaffolded with agent-starter-pack on Google ADK &nbsp;·&nbsp; Gemini + <span class="acc">Claude via Vertex AI</span> &nbsp;·&nbsp; Vertex AI Agent Engine (Cloud Run + IAP secondary) &nbsp;·&nbsp; <span class="acc">to_a2a()</span> + Agent Card + StreamableHTTP MCP<br>
+      modeled on the official samples · <span class="acc">retail-ai-location-strategy</span> (research→synthesis spine) · <span class="acc">currency-agent</span> (A2A) · <span class="acc">small-business-loan</span> + global-kyc (rubric-judge eval @0.8, regulated-B2B governance) · <span class="acc">parallel_task_decomposition_execution</span> (the fan-out)<br>
+      judged · 30% technical · 30% business case · 20% innovation · 20% demo
+    </div>
+  </footer>
+
+</main>
+
+<script>
+(function(){
+  "use strict";
+  var docEl = document.documentElement;
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // ---- helper: mark element revealed ----
+  function showAll(){
+    // failsafe — if anything went wrong, make everything visible
+    var hidden = document.querySelectorAll('.reveal,.hero-anim,.stagger > *');
+    for (var i=0;i<hidden.length;i++){ hidden[i].classList.add('in'); }
+    var groups = document.querySelectorAll('.mast,.sec,.stagger,.arch,.mandates,.flowline');
+    for (var j=0;j<groups.length;j++){ groups[j].classList.add('in'); }
+  }
+
+  if (reduce || !('IntersectionObserver' in window)){
+    showAll();
+    return;
+  }
+
+  // ---- hero load-in (decisive, after first paint) ----
+  requestAnimationFrame(function(){
+    requestAnimationFrame(function(){
+      var mast = document.querySelector('.mast');
+      if (mast) mast.classList.add('in');
+    });
+  });
+
+  // ---- stagger children: assign incremental transition-delay ----
+  function applyStagger(group){
+    var kids = group.children, step = 70, base = 0, idx = 0;
+    for (var i=0;i<kids.length;i++){
+      var el = kids[i];
+      // skip the absolutely-positioned pipe rail (not a content child)
+      if (el.classList && el.classList.contains('pipe__rail')) continue;
+      el.style.transitionDelay = (base + idx*step) + 'ms';
+      idx++;
+    }
+  }
+  var staggers = document.querySelectorAll('.stagger');
+  for (var s=0;s<staggers.length;s++){ applyStagger(staggers[s]); }
+
+  // ---- mandate "met" check-in stagger ----
+  var mandWrap = document.querySelector('.mandates');
+  if (mandWrap){
+    var oks = mandWrap.querySelectorAll('.ok');
+    for (var m=0;m<oks.length;m++){ oks[m].style.transitionDelay = (240 + m*120) + 'ms'; }
+  }
+
+  // ---- flowline node draw-in ----
+  var flow = document.getElementById('flowline');
+  if (flow){
+    var fkids = flow.children;
+    for (var f=0;f<fkids.length;f++){ fkids[f].style.transitionDelay = (f*60) + 'ms'; }
+  }
+
+  // ============ count-up for stat figures ============
+  // Parses a target string like "$84k+", "~3.5h", "$84k+/yr", "1 list".
+  // Animates the leading numeric token; preserves prefix/suffix exactly.
+  function parseCount(str){
+    var m = str.match(/^(\D*?)(\d+(?:\.\d+)?)(.*)$/s);
+    if (!m) return null;
+    return { prefix:m[1], value:parseFloat(m[2]), decimals:(m[2].split('.')[1]||'').length, suffix:m[3] };
+  }
+  function fmt(p, n, dec, sfx){ return p + (dec ? n.toFixed(dec) : Math.round(n).toLocaleString()) + sfx; }
+  function countUp(el){
+    var target = el.getAttribute('data-count');
+    var parsed = parseCount(target);
+    if (!parsed){ el.textContent = target; return; }
+    var dur = 1000, start = null, from = 0;
+    function frame(t){
+      if (start===null) start = t;
+      var p = Math.min((t-start)/dur, 1);
+      // ease-out cubic — snappy settle
+      var e = 1 - Math.pow(1-p, 3);
+      var cur = from + (parsed.value - from)*e;
+      el.textContent = fmt(parsed.prefix, cur, parsed.decimals, parsed.suffix);
+      if (p < 1) requestAnimationFrame(frame);
+      else el.textContent = target; // exact final string
+    }
+    requestAnimationFrame(frame);
+  }
+
+  // ============ pipeline travelling dot ============
+  // Animates a <=8px accent dot down the NEUTRAL rail once the pipe reveals.
+  function runTravel(){
+    var rail = document.querySelector('.pipe__rail');
+    var trav = document.getElementById('trav');
+    if (!rail || !trav) return;
+    var dur = 2200, start = null;
+    trav.style.opacity = '1';
+    function frame(t){
+      if (start===null) start = t;
+      var p = Math.min((t-start)/dur, 1);
+      var e = p<0.5 ? 2*p*p : 1-Math.pow(-2*p+2,2)/2; // ease-in-out quad
+      var h = rail.clientHeight - 8;
+      trav.style.transform = 'translateY(' + (e*h) + 'px)';
+      if (p < 1) requestAnimationFrame(frame);
+      else { trav.style.transition = 'opacity .5s ease'; trav.style.opacity = '0'; }
+    }
+    requestAnimationFrame(frame);
+  }
+
+  // ============ IntersectionObserver — reveal once ============
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(en){
+      if (!en.isIntersecting) return;
+      var el = en.target;
+      el.classList.add('in');
+      // sections also reveal their plate numeral
+      if (el.classList.contains('sec')) el.classList.add('in');
+      // count-up any figures within
+      var figs = el.querySelectorAll ? el.querySelectorAll('[data-count]') : [];
+      for (var i=0;i<figs.length;i++){
+        if (!figs[i].__counted){ figs[i].__counted = true; countUp(figs[i]); }
+      }
+      // pipeline travelling dot
+      if (el.id === 'pipe' && !el.__travelled){ el.__travelled = true; setTimeout(runTravel, 260); }
+      io.unobserve(el);
+    });
+  }, { rootMargin:'0px 0px -8% 0px', threshold:0.12 });
+
+  // observe: sections, every .reveal, every .stagger, the pipe & flowline & arch & mandates
+  var watch = document.querySelectorAll('.sec, .reveal, .stagger, #pipe, #flowline, .arch.reveal, .mandates.reveal');
+  for (var w=0; w<watch.length; w++){ io.observe(watch[w]); }
+
+  // also catch any standalone [data-count] not inside a watched wrapper (priceline)
+  var priceFig = document.querySelector('.priceline [data-count]');
+  if (priceFig){
+    var pio = new IntersectionObserver(function(ents){
+      ents.forEach(function(en){
+        if (en.isIntersecting && !en.target.__counted){
+          en.target.__counted = true; countUp(en.target); pio.unobserve(en.target);
+        }
+      });
+    }, { threshold:0.5 });
+    pio.observe(priceFig);
+  }
+
+  // safety net: after 4s, force-reveal anything still hidden (e.g. tall viewport)
+  setTimeout(function(){
+    var stillHidden = document.querySelectorAll('.reveal:not(.in)');
+    for (var i=0;i<stillHidden.length;i++){
+      var r = stillHidden[i].getBoundingClientRect();
+      if (r.top < window.innerHeight) stillHidden[i].classList.add('in');
+    }
+  }, 4000);
+})();
+</script>
+
+<!-- ===== THEME TOGGLE — separate block so it works for EVERYONE
+     (the reveal IIFE above early-returns for reduced-motion / no-IO users;
+     the theme switch must never be gated behind that). ===== -->
+<script>
+(function(){
+  "use strict";
+  var docEl = document.documentElement;
+  var btn = document.getElementById('themeToggle');
+  function isDark(){ return docEl.getAttribute('data-theme') === 'dark'; }
+  function syncBtn(){ if (btn) btn.setAttribute('aria-checked', isDark() ? 'true' : 'false'); }
+  syncBtn();
+  if (!btn) return;
+  btn.addEventListener('click', function(){
+    var next = isDark() ? 'light' : 'dark';
+    docEl.setAttribute('data-theme', next);
+    try { localStorage.setItem('kural-theme', next); } catch(e){}
+    syncBtn();
+  });
+})();
+</script>
+
+<!-- ===== WORKFLOW VIZ ENGINE — separate block.
+     Authored DOM is the COMPLETED team state, so JS-off renders fine.
+     For reduced-motion we DO NOT animate (rAF bypasses the CSS guard);
+     we just paint the requested mode's final state + full log. ===== -->
+<script>
+(function(){
+  "use strict";
+  var svg = document.getElementById('vizSvg');
+  if (!svg) return;
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  var $ = function(id){ return document.getElementById(id); };
+  var viz = $('viz');
+  var logEl = $('vizLog'), meter = $('vizMeter'), fill = $('vizFill'),
+      score = $('vizScore'), verdict = $('vizVerdict'),
+      runBtn = $('vizRun'), bSingle = $('modeSingle'), bTeam = $('modeTeam');
+
+  // team-graph node groups
+  var NODES = ['n-prospect','n-coord','n-res','n-sub1','n-sub2','n-sub3','n-intel','n-write','n-fact','n-send','n-booked']
+              .map(function(id){ return $(id); });
+  // lone-graph node groups (single mode)
+  var LONE_NODES = ['l-prospect','l-gen','l-action'].map(function(id){ return $(id); });
+  var tokens = [$('vizToken'),$('tok1'),$('tok2'),$('tok3')];
+  var loneTok = $('vizTokenLone');
+
+  var mode = 'team';        // default = team (the winning, complete state)
+  var running = false;
+  var raf = [];
+
+  function clearRaf(){ raf.forEach(function(h){ cancelAnimationFrame(h); }); raf = []; }
+  function setActive(node, cls){ if(node){ node.classList.remove('active','done'); if(cls) node.classList.add(cls); } }
+
+  // ---- reset visual state (used before each run / mode change) ----
+  function reset(showFinal){
+    clearRaf();
+    NODES.forEach(function(n){
+      if(!n) return;
+      n.classList.remove('active','done','missed');
+      // keep booked checkmark only in the showFinal team case
+      if (n.id === 'n-booked') n.classList.toggle('booked', showFinal && mode==='team');
+    });
+    LONE_NODES.forEach(function(n){ if(n) n.classList.remove('active','done','missed'); });
+    tokens.forEach(function(t){ if(t){ t.style.opacity='0'; t.classList.remove('glow'); }});
+    if (loneTok){ loneTok.style.opacity='0'; loneTok.classList.remove('glow'); }
+    // log
+    if (showFinal){ writeFinalLog(); paintMeter(true); }
+    else { logEl.innerHTML = '<span class="ln now">Dispatching a prospect…</span>'; }
+  }
+
+  // ---- log helpers ----
+  var TEAM_LINES = [
+    'Prospect enters the <b>SequentialAgent</b> spine. <b>Coordinator</b> <span class="acc">[Claude·Vertex]</span> qualifies the fit…',
+    'Qualified. <span class="acc">output_key</span> hands the spine on to the <b>Researcher</b>.',
+    '<b>Researcher</b> <span class="acc">[Gemini]</span> fans out — <b>3 research tasks in parallel</b> (ParallelAgent).',
+    'Research joined. <b>Market Intel</b> reads the signals, finds the angle.',
+    '<b>Writer</b> drafts one personalised message — addressed to a real person.',
+    '<b>Fact-Checker</b> <span class="acc">[Claude·Vertex]</span> runs as the <b>after_agent judge</b> @0.8 · deciding…',
+    'Gate cleared. Safe-by-construction <b>Sender</b> <span class="acc">[Gemini]</span> sends <b>as the buyer</b> (OAuth) + books the meeting.',
+    '<b>Meeting booked.</b> Irreversible action complete · OTel-traced, logged to BigQuery with its research trail.'
+  ];
+  var SINGLE_LINES = [
+    'Prospect received. One <b>generalist agent</b> takes the whole job…',
+    'No qualification step — it proceeds anyway.',
+    'No parallel research, no grounding — it guesses from the company name.',
+    'No angle, no trigger event — generic opener.',
+    'Drafts a templated message — "Hi {firstName}, I wanted to reach out…".',
+    'No independent fact-check — claims unverified.',
+    'No safety gate. It sends a generic, unresearched email…',
+    '<b>Missed.</b> Wrong angle, low trust — the account is likely burned.'
+  ];
+  function lineSet(){ return mode==='team' ? TEAM_LINES : SINGLE_LINES; }
+  function renderLog(uptoIdx){
+    var set = lineSet(), html = '';
+    for (var i=0;i<=uptoIdx && i<set.length;i++){
+      html += '<span class="ln'+(i===uptoIdx?' now':'')+'">'+set[i]+'</span>';
+    }
+    logEl.innerHTML = html;
+  }
+  function writeFinalLog(){ renderLog(lineSet().length - 1); }
+
+  // ---- meter ----
+  function paintMeter(animate){
+    if (mode==='team'){
+      meter.classList.add('team');
+      fill.style.width = '84%'; score.textContent = '84%';
+      verdict.innerHTML = '<b>Agent team:</b> researched, fact-checked, on-target — <span class="acc">high reply rate</span>.';
+    } else {
+      meter.classList.remove('team');
+      fill.style.width = '11%'; score.textContent = '11%';
+      verdict.innerHTML = '<b>Single agent:</b> generic, unresearched, unverified — <span class="acc">low reply rate</span>, list at risk.';
+    }
+    if (!animate){ /* width transition handles it */ }
+  }
+
+  // ---- geometry helper: animate a token along a path ----
+  function travel(token, path, dur, done){
+    if (!path){ if(done) done(); return; }
+    var len = path.getTotalLength();
+    var start = null;
+    token.style.opacity = '1'; token.classList.add('glow');
+    function frame(t){
+      if (start===null) start = t;
+      var p = Math.min((t-start)/dur, 1);
+      var e = p<0.5 ? 2*p*p : 1-Math.pow(-2*p+2,2)/2; // ease-in-out
+      var pt = path.getPointAtLength(e*len);
+      token.setAttribute('cx', pt.x); token.setAttribute('cy', pt.y);
+      if (p<1){ raf.push(requestAnimationFrame(frame)); }
+      else if (done) done();
+    }
+    raf.push(requestAnimationFrame(frame));
+  }
+  function pathOf(id){ return document.getElementById(id); }
+  function pulse(node, on){ if(node){ node.classList.toggle('active', !!on); } }
+
+  // ============ TEAM RUN (the full org) ============
+  function runTeam(){
+    var tok = tokens[0];
+    renderLog(0); pulse($('n-prospect'), true);
+    // 1: prospect -> coordinator
+    tok.setAttribute('cx',40); tok.setAttribute('cy',60);
+    travel(tok, pathOf('c-enter'), 600, function(){
+      pulse($('n-prospect'), false); $('n-prospect').classList.add('done');
+      pulse($('n-coord'), true); renderLog(1);
+      // 2: coordinator -> researcher
+      travel(tok, pathOf('c-coord-res'), 650, function(){
+        $('n-coord').classList.add('done'); pulse($('n-coord'), false);
+        pulse($('n-res'), true); renderLog(2);
+        // 3: FAN-OUT — 3 parallel sub-tokens at once (the highlight)
+        tok.style.opacity='0';
+        var fans = ['c-fan1','c-fan2','c-fan3'], subs=['n-sub1','n-sub2','n-sub3'], doneN=0;
+        [tokens[1],tokens[2],tokens[3]].forEach(function(ft, i){
+          ft.setAttribute('cx',520); ft.setAttribute('cy',90);
+          pulse($(subs[i]), true);
+          travel(ft, pathOf(fans[i]), 700+i*60, function(){
+            $(subs[i]).classList.add('done');
+            // join back in
+            travel(ft, pathOf('c-join'+(i+1)), 700, function(){
+              pulse($(subs[i]), false); ft.style.opacity='0';
+              doneN++;
+              if (doneN===3){ afterFan(); }
+            });
+          });
+        });
+        pulse($('n-res'), false); $('n-res').classList.add('done');
+      });
+    });
+    function afterFan(){
+      pulse($('n-intel'), true); renderLog(3);
+      // token stays hidden while Market Intel "thinks", then re-enters at the
+      // intel->writer path start (860,250) so there is NO positional jump.
+      tok.style.opacity='0'; tok.setAttribute('cx',860); tok.setAttribute('cy',250);
+      setTimeout(function(){
+        $('n-intel').classList.add('done'); pulse($('n-intel'), false);
+        pulse($('n-write'), true); renderLog(4);
+        travel(tok, pathOf('c-intel-write'), 700, function(){
+          $('n-write').classList.add('done'); pulse($('n-write'), false);
+          pulse($('n-fact'), true); renderLog(5);  // deciding ring already lit (Claude node)
+          travel(tok, pathOf('c-write-fact'), 650, function(){
+            $('n-fact').classList.add('done'); pulse($('n-fact'), false);
+            pulse($('n-send'), true); renderLog(6);
+            travel(tok, pathOf('c-fact-send'), 700, function(){
+              $('n-send').classList.add('done'); pulse($('n-send'), false);
+              travel(tok, pathOf('c-send-booked'), 600, function(){
+                tok.style.opacity='0';
+                $('n-booked').classList.add('booked','active'); renderLog(7);
+                paintMeter(true);
+                finish();
+              });
+            });
+          });
+        });
+      }, 520);
+    }
+  }
+
+  // ============ SINGLE RUN (one lone generalist · the DISTINCT lone graph) ============
+  // token: Prospect -> Generalist -> ships. The lone graph has no fan-out and no
+  // separate judge, so the message goes straight out unverified and lands low.
+  function runSingle(){
+    var tok = loneTok;
+    renderLog(0); pulse($('l-prospect'), true);
+    tok.setAttribute('cx',105); tok.setAttribute('cy',235);
+    // 1: prospect -> the lone generalist
+    travel(tok, pathOf('lc-enter'), 650, function(){
+      pulse($('l-prospect'), false); $('l-prospect').classList.add('done');
+      pulse($('l-gen'), true);
+      // the generalist churns through the whole job alone — narrate the missing steps
+      var seq = 1;
+      function step(){
+        renderLog(seq);
+        seq++;
+        if (seq <= 6){
+          raf.push(requestAnimationFrame(function(){ setTimeout(step, 720); }));
+        } else {
+          // 2: it ships — generalist -> action (no gate, no second read)
+          $('l-gen').classList.add('done'); pulse($('l-gen'), false);
+          renderLog(6); pulse($('l-action'), true);
+          travel(tok, pathOf('lc-ship'), 650, function(){
+            tok.style.opacity='0';
+            renderLog(lineSet().length-1);
+            pulse($('l-action'), false);
+            // it "misses" — the low, unverified outcome (the miss cross is authored
+            // into the l-action node; nothing else to toggle)
+            $('l-action').classList.add('missed');
+            paintMeter(true);
+            finish();
+          });
+        }
+      }
+      raf.push(requestAnimationFrame(function(){ setTimeout(step, 720); }));
+    });
+  }
+
+  function finish(){
+    running = false;
+    runBtn.disabled = false;
+    runBtn.innerHTML = '<span class="dot" style="background:var(--paper);width:8px;height:8px"></span>Replay';
+  }
+
+  function run(){
+    if (running) return;
+    running = true;
+    runBtn.disabled = true;
+    reset(false);
+    paintMeter(false); // meter animates up from 0 during the run start
+    fill.style.width = '0%'; score.textContent = '0%';
+    if (mode === 'team') runTeam(); else runSingle();
+  }
+
+  // ---- mode switch ----
+  function setMode(m){
+    mode = m;
+    bTeam.setAttribute('aria-pressed', m==='team' ? 'true':'false');
+    bSingle.setAttribute('aria-pressed', m==='single' ? 'true':'false');
+    // CSS swaps which SVG group shows based on this class
+    viz.classList.toggle('mode-team', m==='team');
+    viz.classList.toggle('mode-single', m==='single');
+    // show the final/static state of the chosen mode (no auto-run)
+    clearRaf(); running = false; runBtn.disabled = false;
+    NODES.forEach(function(n){ if(n) n.classList.remove('active','done','missed'); });
+    LONE_NODES.forEach(function(n){ if(n) n.classList.remove('active','done','missed'); });
+    if (m==='team'){
+      $('n-booked').classList.add('booked');
+    } else {
+      $('n-booked').classList.remove('booked');
+      // the lone action lands on the low/unverified outcome (miss cross is authored in)
+      $('l-action') && $('l-action').classList.add('missed');
+    }
+    tokens.forEach(function(t){ if(t){ t.style.opacity='0'; t.classList.remove('glow'); }});
+    if (loneTok){ loneTok.style.opacity='0'; loneTok.classList.remove('glow'); }
+    writeFinalLog(); paintMeter(true);
+    runBtn.innerHTML = '<span class="dot" style="background:var(--paper);width:8px;height:8px"></span>Run';
+  }
+
+  bTeam.addEventListener('click', function(){ setMode('team'); });
+  bSingle.addEventListener('click', function(){ setMode('single'); });
+  runBtn.addEventListener('click', run);
+
+  // ---- reduced-motion: NEVER rAF-animate. Paint the current mode's final state. ----
+  if (reduce){
+    // disable Run (no motion) but keep the diagram fully readable in its final state
+    setMode('team');
+    runBtn.disabled = true;
+    runBtn.innerHTML = 'Live run off · reduced motion';
+    runBtn.title = 'Motion is reduced — showing the completed workflow';
+    return;
+  }
+
+  // initial: leave the authored completed-team state as-is (DOM already shows it).
+})();
+</script>
+</body>
+</html>

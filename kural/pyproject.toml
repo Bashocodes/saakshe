@@ -1,0 +1,50 @@
+[project]
+name = "kural"
+version = "0.1.0"
+description = "kural — the company's only mouth. A multi-agent engagement pipeline on Google ADK: a Claude-via-Vertex Envoy Lead qualifies the campaign, two Gemini scouts research audience and timing in parallel, a Gemini writer drafts founder-voice outreach grounded in manas, a Claude-via-Vertex Claim-Judge fact-checks every claim at a numeric gate, and the run halts at the founder's publish sign-off. Holds the channel keys; sends as the buyer behind an eligibility/value-cap gate and a no-double-send ledger; never edits creative; never publishes without the gate. Submitted to the Google for Startups AI Agents Challenge — Track 1 · Build."
+authors = [{ name = "saakshe" }]
+license = { text = "Apache License 2.0" }
+readme = "README.md"
+requires-python = ">=3.10,<3.14"
+
+dependencies = [
+    "google-adk>=1.31.0",
+    "google-cloud-aiplatform[adk,agent-engines]>=1.93.0",
+    "google-genai>=1.9.0",
+    "anthropic[vertex]>=0.49.0",
+    "litellm>=1.0.0",
+    "pydantic>=2.10.6",
+    "python-dotenv>=1.0.0",
+    "httpx>=0.27.0",
+    "fastapi>=0.115.0",
+    "uvicorn>=0.30.0",
+]
+
+[dependency-groups]
+dev = [
+    "google-adk[eval]>=1.31.0",
+    "pytest>=8.3.5",
+    "pytest-asyncio>=0.26.0",
+]
+deployment = [
+    "absl-py>=2.2.1",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["."]
+
+[tool.pytest.ini_options]
+pythonpath = ".."
+asyncio_default_fixture_loop_scope = "function"
+asyncio_mode = "auto"
+testpaths = ["tests"]
+
+[tool.agent-starter-pack]
+example_question = "Announce: Raise Pro to $34, grandfather existing subscribers, 30-day notice."
+
+[tool.agent-starter-pack.settings]
+agent_directory = "."
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

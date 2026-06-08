@@ -1,0 +1,19 @@
+# keep the build context (and image) lean — none of this is needed at runtime
+.git/
+.venv/
+__pycache__/
+**/__pycache__/
+*.pyc
+.pytest_cache/
+**/.pytest_cache/
+.env
+.env.local
+.DS_Store
+*.log
+tests/
+**/tests/
+**/eval/
+deployment/
+**/deployment/
+docs/
+arivu/arivu_live.html

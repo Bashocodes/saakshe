@@ -1,0 +1,889 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="icon" href="data:,">
+<title>saakshe — the agentic company you talk to</title>
+<meta name="description" content="saakshe: one founder, a whole company, one witness. Three faculties — manas knows, kalai creates, kural engages — each deciding through arivu, the shared decision chamber. You talk only to saakshe, the witness. Built on Google's stack for the AI Agents Challenge.">
+<!-- no-flash theme: set before first paint, before any CSS applies -->
+<script>
+(function(){
+  try{
+    var p=new URLSearchParams(location.search).get('theme');
+    var t=(p==='dark'||p==='light')?p:(localStorage.getItem('saakshe-theme')||'light');
+    document.documentElement.setAttribute('data-theme',t);
+  }catch(e){document.documentElement.setAttribute('data-theme','light');}
+})();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Archivo:wght@500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Michroma&display=swap">
+<style>
+/* ════════════════════════════════════════════════════════════════════
+   saakshe — dual theme · BRUT (light, poster-brutalist) / OBSIDIAN (dark, phosphor-terminal)
+   Tokens default to BRUT (so JS-off = readable light baseline).
+   html[data-theme="dark"] overrides the token layer.
+   ════════════════════════════════════════════════════════════════════ */
+:root{
+  /* ── BRUT (light) tokens ── */
+  --paper:#F4EEE2;--paper-2:#ECE4D3;--card:#FBF7EE;--card-2:#F4EEE2;
+  --ink:#161410;--ink-2:#45413A;--ink-3:#6B6557;
+  --line:#161410;--line-w:2.5px;
+  /* per-faculty: manas(amber) kalai(red) kural(green) · arivu(blue, the chamber) */
+  --c-manas:#E3A52B;--c-kalai:#CC4632;--c-kural:#3E8F5E;--c-arivu:#3551C8;
+  --t-manas:#F1DC95;--t-kalai:#EBBAAC;--t-kural:#BFE0C6;--t-arivu:#C6CFF2;
+  /* TEXT-safe faculty hues (≥4.5:1 on cream/tints) — darkened from the vivid --c-* fills.
+     Light uses these for hue-as-text; dark re-aliases them to the bright phosphor hues. */
+  --tx-manas:#7F5A0F;--tx-kalai:#A33321;--tx-kural:#2C6B45;--tx-arivu:#2A41A0;
+  --on-manas:#161410;--on-kalai:#fff;--on-kural:#fff;--on-arivu:#fff;
+  --act:#CC4632;--on-act:#fff;            /* primary action = RED in light */
+  --act-text:#A33321;                     /* red TEXT on cream — darkened for ≥4.5:1 (button bg stays --act) */
+  --witness:#161410;
+  --shadow:5px 5px 0 var(--ink);
+  --offset:8px;                            /* hard accent offset block */
+  --glow:none;--glow-soft:none;
+  --grid:var(--paper-2);
+  --disp:'Space Grotesk','Archivo',system-ui,sans-serif;
+  --head:'Space Grotesk','Archivo',system-ui,sans-serif;
+  --body:'Space Grotesk',system-ui,sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,monospace;
+  --word:'Michroma',var(--disp);
+  --maxw:1140px;--radius:0px;
+}
+html[data-theme="dark"]{
+  /* ── OBSIDIAN (dark) tokens ── */
+  --paper:#0A0D0A;--paper-2:#0E120E;--card:#0F140F;--card-2:#0C100C;
+  --ink:#D4F5DE;--ink-2:#9DBBA6;--ink-3:#6F8C78;
+  --line:#1E2A20;--line-w:1px;
+  --c-manas:#E0B25A;--c-kalai:#E0685C;--c-kural:#5EF08A;--c-arivu:#7C97F2;
+  --t-manas:#19170F;--t-kalai:#1A1310;--t-kural:#0E1A11;--t-arivu:#10131F;
+  /* dark: text-safe hues = the bright phosphor hues themselves (already high-contrast on near-black) */
+  --tx-manas:var(--c-manas);--tx-kalai:var(--c-kalai);--tx-kural:var(--c-kural);--tx-arivu:var(--c-arivu);
+  --on-manas:#19170F;--on-kalai:#0A0D0A;--on-kural:#0A0D0A;--on-arivu:#0A0D0A;
+  --act:#5EF08A;--on-act:#06140A;          /* primary action = PHOSPHOR GREEN in dark */
+  --act-text:#5EF08A;                       /* dark: phosphor green text is already high-contrast on near-black */
+  --witness:#5EF08A;
+  --shadow:none;
+  --offset:0px;
+  --glow:none;
+  --glow-soft:none;
+  --grid:#13181300;
+  --head:'JetBrains Mono','IBM Plex Mono',monospace;
+  --body:'IBM Plex Mono',ui-monospace,monospace;
+  --radius:5px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--body);
+  font-size:17px;line-height:1.62;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+  overflow-x:hidden}
+html[data-theme="dark"] body{font-size:15.5px;line-height:1.66}
+
+/* faint grid wash */
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.55;
+  background:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:46px 46px;mask:linear-gradient(180deg,#000,transparent 78%)}
+html[data-theme="dark"] body::before{opacity:1;
+  background:linear-gradient(rgba(94,240,138,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(94,240,138,.045) 1px,transparent 1px);
+  background-size:38px 38px;mask:linear-gradient(180deg,#000,#000)}
+/* dark scanline veil */
+html[data-theme="dark"] body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:repeating-linear-gradient(0deg,rgba(0,0,0,0) 0px,rgba(0,0,0,0) 2px,rgba(0,0,0,.16) 3px);opacity:.5}
+
+.wrap{position:relative;z-index:1;max-width:var(--maxw);margin:0 auto;
+  padding:clamp(16px,3.5vw,40px) clamp(14px,5vw,40px) 120px}
+h1,h2,h3,h4{margin:0;font-family:var(--head);font-weight:700;letter-spacing:-.02em;color:var(--ink)}
+html[data-theme="dark"] h1,html[data-theme="dark"] h2,html[data-theme="dark"] h3,html[data-theme="dark"] h4{letter-spacing:0}
+p{margin:0}
+b,strong{font-weight:700;color:var(--ink)}
+em{font-style:italic}
+.mono{font-family:var(--mono)}
+.mute{color:var(--ink-2)}
+a{color:inherit}
+::selection{background:var(--c-manas);color:#161410}
+html[data-theme="dark"] ::selection{background:var(--c-kural);color:#06140A}
+
+/* ───────────────────────────── LOGO LOCKUP (CSS text) ───────────────────────────── */
+.logo{display:inline-flex;align-items:center;border:var(--line-w) solid var(--line);border-radius:var(--radius);
+  padding:11px 18px 11px 16px;background:var(--card);box-shadow:var(--shadow);
+  text-decoration:none;color:var(--ink)}
+html[data-theme="dark"] .logo{border-color:var(--line);box-shadow:none;background:var(--card)}
+.logo:hover{text-decoration:none}
+.logo .pr{font-family:var(--mono);font-weight:700;font-size:22px;line-height:1;color:var(--ink);letter-spacing:-.06em}
+.logo .dv{width:2px;height:24px;background:var(--line);margin:0 16px 0 15px}
+html[data-theme="dark"] .logo .pr{color:var(--ink)}
+html[data-theme="dark"] .logo .dv{background:var(--line);opacity:.6}
+.logo .wd{font-family:var(--word);font-size:18px;line-height:1;color:var(--ink);letter-spacing:.40em;padding-left:.40em}
+html[data-theme="dark"] .logo .wd{color:var(--ink)}
+@media(max-width:480px){.logo .wd{font-size:14px;letter-spacing:.26em}.logo .pr{font-size:18px}.logo{padding:9px 14px}}
+
+/* ───────────────────────────── TOPBAR (logo + toggle) ───────────────────────────── */
+.bar{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.toggle{display:inline-flex;align-items:center;gap:0;border:var(--line-w) solid var(--line);border-radius:var(--radius);
+  background:var(--card);font-family:var(--mono);font-size:11px;font-weight:600;overflow:hidden;cursor:pointer;
+  box-shadow:var(--shadow)}
+html[data-theme="dark"] .toggle{border-color:var(--line);box-shadow:none}
+.toggle button{appearance:none;border:0;background:transparent;color:var(--ink-2);font:inherit;letter-spacing:.1em;
+  text-transform:uppercase;padding:9px 13px;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.toggle button .dot{width:8px;height:8px;border:1.5px solid currentColor}
+.toggle button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.toggle button[aria-pressed="true"] .dot{background:currentColor;border-color:currentColor}
+html[data-theme="light"] .toggle button#tg-light[aria-pressed="true"] .dot{border-radius:50%}
+html[data-theme="dark"] .toggle button#tg-dark[aria-pressed="true"]{background:var(--c-kural);color:#06140A;text-shadow:none}
+html[data-theme="dark"] .toggle button#tg-dark[aria-pressed="true"] .dot{box-shadow:none}
+
+/* ───────────────────────────── HERO ───────────────────────────── */
+.hero{padding-top:26px}
+.kick{font-family:var(--mono);font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-2);
+  display:inline-flex;align-items:center;gap:9px}
+.kick::before{content:'';width:11px;height:11px;background:var(--c-kural);flex:none}
+html[data-theme="dark"] .kick::before{box-shadow:var(--glow)}
+html[data-theme="dark"] .kick::after{content:'';margin-left:2px}
+.h1wrap{margin:20px 0 0}
+.hero h1{font-size:clamp(40px,8vw,82px);line-height:.96;letter-spacing:-.04em;max-width:13ch}
+html[data-theme="dark"] .hero h1{font-size:clamp(28px,5.6vw,54px);letter-spacing:-.01em;line-height:1.04;max-width:24ch}
+@keyframes blink{50%{opacity:0}}
+.hero .sub{font-size:clamp(16px,2.3vw,20px);color:var(--ink-2);margin-top:22px;max-width:60ch;line-height:1.5}
+.hero .sub b{color:var(--ink)}
+html[data-theme="dark"] .hero .sub{font-size:clamp(14px,1.9vw,16.5px);max-width:72ch}
+
+/* hero motif: EXACTLY THREE shapes + arivu chamber implied between */
+.motif{display:flex;align-items:center;gap:0;margin:30px 0 6px;flex-wrap:wrap}
+.mshape{display:flex;flex-direction:column;align-items:center;gap:11px;padding:6px 4px}
+.mshape .gly{width:54px;height:54px;display:block}
+.gly.circ{border-radius:50%;background:var(--c-manas)}
+.gly.tri{width:0;height:0;border-left:30px solid transparent;border-right:30px solid transparent;border-bottom:54px solid var(--c-kalai)}
+.gly.sq{background:var(--c-kural)}
+html[data-theme="dark"] .gly.circ{background:transparent;border:2px solid var(--c-manas)}
+html[data-theme="dark"] .gly.sq{background:transparent;border:2px solid var(--c-kural)}
+html[data-theme="dark"] .gly.tri{border-bottom-color:var(--c-kalai)}
+.mshape .lab{font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-2)}
+.mshape .verb{font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3)}
+.mlink{align-self:center;flex:1;min-width:48px;height:2px;background:var(--line);position:relative;margin:0 -2px}
+.mlink .chamber{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--on-arivu);background:var(--c-arivu);padding:4px 8px;white-space:nowrap;border-radius:var(--radius)}
+html[data-theme="dark"] .mlink{background:linear-gradient(90deg,transparent,var(--c-arivu),transparent);opacity:.55}
+html[data-theme="dark"] .mlink .chamber{background:var(--paper);color:var(--c-arivu);border:1px solid var(--c-arivu)}
+@media(max-width:640px){.mlink{min-width:100%;height:auto;background:none;margin:6px 0;display:flex;justify-content:center}
+  .mlink::before,.mlink::after{display:none}.mlink .chamber{position:static;transform:none}}
+
+/* CTA buttons */
+.cta-row{display:flex;flex-wrap:wrap;gap:14px;margin-top:30px}
+.btn{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-weight:600;font-size:13px;
+  letter-spacing:.06em;text-transform:uppercase;padding:14px 22px;border:var(--line-w) solid var(--line);
+  border-radius:var(--radius);cursor:pointer;text-decoration:none;background:var(--card);color:var(--ink);
+  box-shadow:var(--shadow);transition:transform .12s ease,box-shadow .12s ease}
+.btn:hover{transform:translate(-2px,-2px);box-shadow:7px 7px 0 var(--ink)}
+.btn.prim{background:var(--act);color:var(--on-act);border-color:var(--line)}
+html[data-theme="dark"] .btn{border-color:var(--line);box-shadow:none;background:var(--card)}
+html[data-theme="dark"] .btn.prim{background:var(--act);color:var(--on-act)}
+html[data-theme="dark"] .btn:hover{transform:none;box-shadow:none}
+html[data-theme="dark"] .btn::before{content:'[ ';color:var(--ink-3)}
+html[data-theme="dark"] .btn::after{content:' ]';color:var(--ink-3)}
+html[data-theme="dark"] .btn.prim::before,html[data-theme="dark"] .btn.prim::after{color:var(--on-act)}
+
+/* ───────────────────────────── SECTIONS ───────────────────────────── */
+.sec{margin-top:clamp(56px,8vw,90px);border-top:3px solid var(--line);padding-top:22px}
+html[data-theme="dark"] .sec{border-top:1px solid var(--line)}
+.sec__n{display:inline-flex;align-items:center;gap:10px;font-family:var(--mono);font-size:12px;letter-spacing:.18em;
+  text-transform:uppercase;color:var(--ink-2)}
+.sec__n::before{content:'';width:13px;height:13px;background:var(--ink);flex:none}
+html[data-theme="dark"] .sec__n::before{display:none}
+/* dark section markers = // comments; the marker text carries the number too */
+html[data-theme="dark"] .sec__n{color:var(--ink-2)}
+html[data-theme="dark"] .sec__n .num::before{content:'// '}
+.s-manas .sec__n::before{background:var(--c-manas);border-radius:50%}
+.s-kalai .sec__n::before{background:var(--c-kalai)}
+.s-kural .sec__n::before{background:var(--c-kural)}
+.s-arivu .sec__n::before{background:var(--c-arivu)}
+.sec__t{font-size:clamp(26px,4vw,42px);line-height:1.04;margin-top:14px;max-width:24ch}
+html[data-theme="dark"] .sec__t{font-size:clamp(20px,3vw,32px);line-height:1.12}
+.sec__lead{color:var(--ink-2);font-size:clamp(15.5px,2vw,18px);margin-top:14px;max-width:74ch;line-height:1.55}
+
+/* ───────────────────────────── FACULTY CARDS ───────────────────────────── */
+.faculties{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:30px}
+@media(max-width:840px){.faculties{grid-template-columns:1fr;gap:30px}}
+.fac{position:relative;border:var(--line-w) solid var(--line);background:var(--card);border-radius:var(--radius)}
+/* hard offset accent block behind each card (brut) */
+.fac::after{content:'';position:absolute;inset:0;z-index:-1;border-radius:var(--radius);
+  transform:translate(var(--offset),var(--offset));background:var(--fc)}
+.fac.f-manas{--fc:var(--c-manas)}.fac.f-kalai{--fc:var(--c-kalai)}.fac.f-kural{--fc:var(--c-kural)}
+html[data-theme="dark"] .fac{border-color:var(--fc);background:var(--ft);box-shadow:none}
+html[data-theme="dark"] .fac.f-manas{--ft:var(--t-manas)}html[data-theme="dark"] .fac.f-kalai{--ft:var(--t-kalai)}html[data-theme="dark"] .fac.f-kural{--ft:var(--t-kural)}
+html[data-theme="dark"] .fac::after{display:none}
+.fac__h{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:15px 18px;
+  background:var(--ink);color:var(--paper);border-bottom:var(--line-w) solid var(--line)}
+html[data-theme="dark"] .fac__h{background:transparent;color:var(--fc);border-bottom:1px solid var(--fc)}
+.fac__h .nm{font-family:var(--head);font-weight:700;font-size:21px;letter-spacing:.01em}
+html[data-theme="dark"] .fac__h .nm{font-weight:500}
+html[data-theme="dark"] .fac__h .nm::before{content:'> '}
+.fac__h .gcorner{width:24px;height:24px;flex:none}
+.gcorner.circ{border-radius:50%;background:var(--fc)}
+.gcorner.tri{width:0;height:0;background:none;border-left:13px solid transparent;border-right:13px solid transparent;border-bottom:24px solid var(--fc)}
+.gcorner.sq{background:var(--fc)}
+html[data-theme="dark"] .gcorner{box-shadow:none}
+.fac__b{padding:18px}
+.verbpill{display:inline-flex;align-items:center;font-family:var(--mono);font-weight:700;font-size:11px;
+  letter-spacing:.14em;text-transform:uppercase;background:var(--ink);color:var(--paper);padding:6px 12px;border-radius:var(--radius)}
+html[data-theme="dark"] .verbpill{background:transparent;color:var(--fc);border:1px solid var(--fc)}
+html[data-theme="dark"] .verbpill::before{content:'[ '}html[data-theme="dark"] .verbpill::after{content:' ]'}
+.fac__b .does{margin-top:14px;color:var(--ink-2);font-size:15px;line-height:1.55}
+.fac__b .does b{color:var(--ink)}
+.fac__chamber{margin-top:16px;padding-top:14px;border-top:1.5px dashed var(--line);
+  font-family:var(--mono);font-size:11.5px;letter-spacing:.02em;color:var(--ink-2);display:flex;align-items:center;gap:8px}
+html[data-theme="dark"] .fac__chamber{border-top-color:var(--c-arivu);color:var(--ink-2)}
+.fac__chamber .ar{width:9px;height:9px;background:var(--c-arivu);flex:none}
+html[data-theme="dark"] .fac__chamber .ar{box-shadow:none}
+.fac__chamber b{color:var(--c-arivu);font-weight:700}
+html[data-theme="dark"] .fac__chamber b{text-shadow:none}
+
+/* ── arivu chamber panel (the SHARED decision chamber — not a faculty) ── */
+.chamber-panel{position:relative;margin-top:30px;border:var(--line-w) solid var(--line);background:var(--t-arivu);border-radius:var(--radius)}
+.chamber-panel::after{content:'';position:absolute;inset:0;z-index:-1;border-radius:var(--radius);transform:translate(var(--offset),var(--offset));background:var(--c-arivu)}
+html[data-theme="dark"] .chamber-panel{background:var(--t-arivu);border-color:var(--c-arivu);box-shadow:none}
+html[data-theme="dark"] .chamber-panel::after{display:none}
+/* focus brackets on the active/crown card (dark) — BLUE = arivu focus/active signal */
+html[data-theme="dark"] .chamber-panel .fb{position:absolute;width:16px;height:16px;border:2px solid var(--c-arivu)}
+html[data-theme="dark"] .chamber-panel .fb.tl{top:-2px;left:-2px;border-right:0;border-bottom:0}
+html[data-theme="dark"] .chamber-panel .fb.tr{top:-2px;right:-2px;border-left:0;border-bottom:0}
+html[data-theme="dark"] .chamber-panel .fb.bl{bottom:-2px;left:-2px;border-right:0;border-top:0}
+html[data-theme="dark"] .chamber-panel .fb.br{bottom:-2px;right:-2px;border-left:0;border-top:0}
+.chamber-panel .fb{display:none}
+html[data-theme="dark"] .chamber-panel .fb{display:block}
+.chamber__h{display:flex;align-items:center;gap:14px;padding:16px 20px;background:var(--c-arivu);color:#fff;border-bottom:var(--line-w) solid var(--line);flex-wrap:wrap}
+html[data-theme="dark"] .chamber__h{background:transparent;color:var(--c-arivu);border-bottom:1px solid var(--c-arivu)}
+.chamber__h .crown{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;background:#fff;color:var(--c-arivu);padding:5px 10px;border-radius:var(--radius);font-weight:700}
+html[data-theme="dark"] .chamber__h .crown{background:transparent;color:var(--c-arivu);border:1px solid var(--c-arivu)}
+.chamber__h .nm{font-family:var(--head);font-weight:700;font-size:24px}
+html[data-theme="dark"] .chamber__h .nm{font-weight:500}
+.chamber__h .nm small{font-family:var(--mono);font-weight:500;font-size:12px;letter-spacing:.08em;opacity:.85;margin-left:6px;text-transform:uppercase}
+.chamber__b{padding:20px}
+.flow{display:flex;align-items:stretch;gap:0;flex-wrap:wrap;margin-bottom:6px}
+.flow .stp{flex:1;min-width:120px;padding:12px 14px;border:1.5px solid var(--line);border-right:0;background:var(--card)}
+.flow .stp:last-child{border-right:1.5px solid var(--line)}
+html[data-theme="dark"] .flow .stp{border-color:var(--c-arivu);background:var(--card-2);opacity:.95}
+.flow .stp .k{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--c-arivu);font-weight:700}
+html[data-theme="dark"] .flow .stp .k{text-shadow:none}
+.flow .stp .v{margin-top:6px;font-size:13.5px;color:var(--ink);line-height:1.4;font-weight:600}
+.flow .stp .x{margin-top:3px;font-size:12px;color:var(--ink-2);line-height:1.4}
+@media(max-width:760px){.flow .stp{min-width:calc(50% - 0px);border-right:1.5px solid var(--line);border-bottom:0}
+  html[data-theme="dark"] .flow .stp{border-right:1.5px solid var(--c-arivu)}}
+.chamber__note{margin-top:16px;font-size:14.5px;color:var(--ink-2);line-height:1.55;max-width:80ch}
+.chamber__note b{color:var(--ink)}
+
+/* ── witness one-liner ── */
+.witness-line{margin-top:26px;border:var(--line-w) solid var(--line);background:var(--card);border-radius:var(--radius);
+  padding:18px 20px;display:flex;gap:16px;align-items:flex-start;box-shadow:var(--shadow)}
+html[data-theme="dark"] .witness-line{border-color:var(--line);box-shadow:none;background:var(--card)}
+.witness-line .eye{width:14px;height:14px;border-radius:50%;background:var(--act);flex:none;margin-top:5px}
+html[data-theme="dark"] .witness-line .eye{background:var(--c-kural);box-shadow:none}
+.witness-line .txt{font-size:15.5px;color:var(--ink-2);line-height:1.55}
+.witness-line .txt b{color:var(--ink)}
+.witness-line .nm{font-family:var(--head);font-weight:700;color:var(--ink)}
+html[data-theme="dark"] .witness-line .nm{color:var(--c-kural);font-weight:500}
+
+/* ───────────────────────────── FLYWHEEL ───────────────────────────── */
+.flywheel{display:flex;align-items:stretch;flex-wrap:wrap;gap:0;margin-top:30px;
+  border:var(--line-w) solid var(--line);border-radius:var(--radius);background:var(--card);overflow:hidden}
+html[data-theme="dark"] .flywheel{border-color:var(--line);box-shadow:none}
+.fw{flex:1;min-width:150px;padding:18px 16px;border-right:var(--line-w) solid var(--line);position:relative}
+.fw:last-child{border-right:0}
+html[data-theme="dark"] .fw{border-right-color:var(--line)}
+.fw .step{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3)}
+.fw .who{font-family:var(--head);font-weight:700;font-size:19px;margin-top:8px;display:flex;align-items:center;gap:9px}
+html[data-theme="dark"] .fw .who{font-weight:500}
+.fw .who .g{width:16px;height:16px;flex:none}
+.g.circ{border-radius:50%}
+.g.tri{width:0;height:0;border-left:9px solid transparent;border-right:9px solid transparent;border-bottom:16px solid currentColor}
+.fw.w-connect .who .g{background:var(--ink)}
+.fw.w-manas .who{color:var(--tx-manas)}.fw.w-manas .who .g{background:var(--c-manas)}
+.fw.w-arivu .who{color:var(--c-arivu)}.fw.w-arivu .who .g{background:var(--c-arivu)}
+.fw.w-kalai .who{color:var(--tx-kalai)}.fw.w-kalai .who .g{color:var(--c-kalai)}
+.fw.w-kural .who{color:var(--tx-kural)}.fw.w-kural .who .g{background:var(--c-kural)}
+html[data-theme="dark"] .fw .who .g{box-shadow:none}
+.fw .d{margin-top:8px;font-size:13px;color:var(--ink-2);line-height:1.45}
+.fw .tap{margin-top:10px;display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:10px;
+  font-weight:700;letter-spacing:.1em;text-transform:uppercase;background:var(--act);color:var(--on-act);padding:5px 9px;border-radius:var(--radius)}
+html[data-theme="dark"] .fw .tap{box-shadow:none}
+html[data-theme="dark"] .fw .tap::before{content:'['}html[data-theme="dark"] .fw .tap::after{content:']'}
+.fw-loop{margin-top:16px;font-family:var(--mono);font-size:12px;color:var(--ink-2);display:flex;align-items:center;gap:9px}
+.fw-loop::before{content:'↻';color:var(--c-kural);font-size:18px}
+html[data-theme="dark"] .fw-loop::before{color:var(--ink-3);text-shadow:none}
+@media(max-width:760px){.fw{min-width:calc(50% - 0px);border-bottom:var(--line-w) solid var(--line)}}
+
+/* ───────────────────────────── GOVERNED ACTION ───────────────────────────── */
+.gov{display:grid;grid-template-columns:repeat(2,1fr);gap:18px;margin-top:28px}
+@media(max-width:760px){.gov{grid-template-columns:1fr}}
+.gcard{border:var(--line-w) solid var(--line);background:var(--card);border-radius:var(--radius);padding:18px 20px;box-shadow:var(--shadow)}
+html[data-theme="dark"] .gcard{border-color:var(--line);box-shadow:none;background:var(--card)}
+.gcard .gh{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink);
+  display:flex;align-items:center;gap:9px;margin-bottom:12px;font-weight:700}
+.gcard .gh::before{content:'';width:12px;height:12px;background:var(--c-kural);flex:none}
+html[data-theme="dark"] .gcard .gh{color:var(--ink)}
+html[data-theme="dark"] .gcard .gh::before{background:var(--ink-3);box-shadow:none}
+html[data-theme="dark"] .gcard .gh .num::before{content:'// '}
+.gcard .gd{color:var(--ink-2);font-size:14.5px;line-height:1.55}
+.gcard .gd b{color:var(--ink)}
+.gates{display:flex;gap:12px;flex-wrap:wrap;margin-top:14px}
+.gate{flex:1;min-width:130px;border:1.5px solid var(--line);border-radius:var(--radius);padding:12px;background:var(--card-2)}
+html[data-theme="dark"] .gate{border-color:var(--act);background:var(--card-2)}
+.gate .gt{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--act-text);font-weight:700}
+.gate .gn{font-family:var(--head);font-weight:700;font-size:15px;margin-top:5px}
+html[data-theme="dark"] .gate .gn{font-weight:500}
+.gate .gx{font-size:12.5px;color:var(--ink-2);margin-top:4px;line-height:1.4}
+.tags{display:flex;flex-wrap:wrap;gap:9px;margin-top:14px}
+.tag{font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;
+  border:1.5px solid var(--line);padding:6px 11px;border-radius:var(--radius);color:var(--ink);background:var(--card-2)}
+html[data-theme="dark"] .tag{border-color:var(--line);color:var(--ink-2);background:transparent}
+html[data-theme="dark"] .tag::before{content:'[ '}html[data-theme="dark"] .tag::after{content:' ]'}
+.tag.no{border-color:var(--act);color:var(--act-text)}
+html[data-theme="dark"] .tag.no{border-color:var(--c-kalai);color:var(--c-kalai)}
+
+/* ───────────────────────────── GOOGLE STACK ───────────────────────────── */
+.stack{display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin-top:28px;border:var(--line-w) solid var(--line);border-radius:var(--radius);background:var(--card);overflow:hidden}
+@media(max-width:760px){.stack{grid-template-columns:1fr}}
+html[data-theme="dark"] .stack{border-color:var(--line);box-shadow:none}
+.st{padding:18px;border-right:var(--line-w) solid var(--line);border-bottom:var(--line-w) solid var(--line)}
+.st:nth-child(3n){border-right:0}
+.st:nth-last-child(-n+3){border-bottom:0}
+@media(max-width:760px){.st{border-right:0}}
+.st .sl{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
+.st .sv{font-family:var(--head);font-weight:700;font-size:16px;margin-top:7px;line-height:1.2}
+html[data-theme="dark"] .st .sv{font-weight:500;color:var(--ink)}
+.st .sx{font-size:13px;color:var(--ink-2);margin-top:7px;line-height:1.5}
+.honest{margin-top:20px;border-left:5px solid var(--c-arivu);padding:10px 0 10px 16px;background:var(--card-2);
+  font-family:var(--mono);font-size:13px;color:var(--ink-2);line-height:1.6;border-radius:var(--radius)}
+html[data-theme="dark"] .honest{border-left-color:var(--c-arivu);background:transparent}
+.honest b{color:var(--ink)}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   ★ COCKPIT SHOWCASE — re-skins fully per theme
+   ═══════════════════════════════════════════════════════════════════════ */
+.cockpit{margin-top:30px;border:3px solid var(--line);border-radius:var(--radius);background:var(--card-2);overflow:hidden;
+  box-shadow:var(--shadow)}
+html[data-theme="dark"] .cockpit{border:1px solid var(--line);box-shadow:none;background:var(--paper-2)}
+/* topbar */
+.cp-top{display:flex;align-items:center;gap:14px;padding:12px 16px;background:var(--ink);color:var(--paper);
+  border-bottom:3px solid var(--line);flex-wrap:wrap}
+html[data-theme="dark"] .cp-top{background:#070a07;color:var(--ink-2);border-bottom:1px solid var(--line)}
+.cp-top .wm{font-family:var(--word);font-size:13px;letter-spacing:.34em;font-weight:400}
+html[data-theme="dark"] .cp-top .wm{text-shadow:none}
+.cp-top .wm .pr{font-family:var(--mono);letter-spacing:-.06em;margin-right:8px}
+.cp-pills{display:flex;gap:8px;flex-wrap:wrap;margin-left:auto;align-items:center}
+.cp-pill{font-family:var(--mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;padding:5px 9px;
+  border:1.5px solid var(--paper);border-radius:var(--radius);color:var(--paper);display:inline-flex;align-items:center;gap:6px}
+html[data-theme="dark"] .cp-pill{border-color:var(--line);color:var(--ink-2)}
+html[data-theme="dark"] .cp-pill::before{content:'['}html[data-theme="dark"] .cp-pill::after{content:']'}
+.cp-pill .lv{width:7px;height:7px;border-radius:50%;background:var(--c-kural)}
+html[data-theme="dark"] .cp-pill .lv{background:var(--ink-3);box-shadow:none}
+.cp-chip{font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;padding:5px 9px;
+  background:var(--c-kural);color:#06140A;border-radius:var(--radius);font-weight:700}
+html[data-theme="dark"] .cp-chip{background:transparent;border:1.5px solid var(--line);color:var(--ink-2)}
+
+/* body grid: rail · center · witness */
+.cp-body{display:grid;grid-template-columns:170px 1fr 290px;gap:0}
+@media(max-width:1040px){.cp-body{grid-template-columns:150px 1fr}.cp-witness{grid-column:1/-1;border-left:0;border-top:3px solid var(--line)}html[data-theme="dark"] .cp-witness{border-top:1px solid var(--line)}}
+@media(max-width:680px){.cp-body{grid-template-columns:1fr}.cp-rail{display:none}}
+
+/* nav rail */
+.cp-rail{border-right:3px solid var(--line);padding:12px 0;background:var(--card)}
+html[data-theme="dark"] .cp-rail{border-right:1px solid var(--line);background:#0b0f0b}
+.cp-nav{font-family:var(--mono);font-size:12px;letter-spacing:.04em;color:var(--ink-2);padding:10px 16px;display:flex;align-items:center;gap:9px;cursor:default}
+.cp-nav .ni{width:9px;height:9px;flex:none;background:var(--ink-3)}
+.cp-nav.on{color:var(--ink);font-weight:700;background:var(--card-2);border-left:4px solid var(--act);padding-left:12px}
+html[data-theme="dark"] .cp-nav.on{color:var(--c-kural);background:rgba(94,240,138,.06);border-left-color:var(--c-kural)}
+.cp-nav.on .ni{background:var(--act)}
+html[data-theme="dark"] .cp-nav.on .ni{background:var(--c-kural);box-shadow:none}
+html[data-theme="dark"] .cp-nav.on::before{content:'> ';margin-right:-4px}
+.cp-nav .ni.c{border-radius:50%}
+.cp-nav .ni.t{width:0;height:0;background:none;border-left:5px solid transparent;border-right:5px solid transparent;border-bottom:9px solid var(--ink-3)}
+
+/* center */
+.cp-center{padding:16px 18px;min-width:0}
+.cp-h{font-family:var(--head);font-weight:700;font-size:15px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink);margin-bottom:14px}
+html[data-theme="dark"] .cp-h{font-weight:500;color:var(--ink)}
+html[data-theme="dark"] .cp-h::before{content:'// '}
+.cp-quads{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+@media(max-width:560px){.cp-quads{grid-template-columns:1fr}}
+.cq{position:relative;border:2px solid var(--line);border-radius:var(--radius);background:var(--card);padding:13px 14px;overflow:hidden}
+.cq.q-manas{--qc:var(--c-manas);--qt:var(--t-manas)}
+.cq.q-kalai{--qc:var(--c-kalai);--qt:var(--t-kalai)}
+.cq.q-kural{--qc:var(--c-kural);--qt:var(--t-kural)}
+html[data-theme="light"] .cq{border-color:var(--line);box-shadow:4px 4px 0 var(--qc)}
+html[data-theme="dark"] .cq{border-color:var(--qc);background:var(--qt);box-shadow:none}
+.cq .qcorner{position:absolute;top:11px;right:12px;width:18px;height:18px}
+.qcorner.circ{border-radius:50%;background:var(--qc)}
+.qcorner.tri{width:0;height:0;background:none;border-left:10px solid transparent;border-right:10px solid transparent;border-bottom:18px solid var(--qc)}
+.qcorner.sq{background:var(--qc)}
+html[data-theme="dark"] .qcorner{box-shadow:none}
+.cq .qn{font-family:var(--head);font-weight:700;font-size:17px;color:var(--ink)}
+html[data-theme="dark"] .cq .qn{font-weight:500;color:var(--qc)}
+html[data-theme="dark"] .cq .qn::before{content:'> '}
+.cq .qv{display:inline-block;margin-top:6px;font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:.12em;
+  text-transform:uppercase;background:var(--ink);color:var(--paper);padding:3px 7px;border-radius:var(--radius)}
+html[data-theme="dark"] .cq .qv{background:transparent;border:1px solid var(--qc);color:var(--qc)}
+.cq .qstate{margin-top:10px;font-size:12px;color:var(--ink-2);line-height:1.4}
+.cq .qstate b{color:var(--ink)}
+.spark{display:block;margin-top:10px;width:100%;height:26px}
+.spark path{fill:none;stroke:var(--qc);stroke-width:2}
+html[data-theme="dark"] .spark path{filter:none}
+.qchips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.qchip{font-family:var(--mono);font-size:9.5px;letter-spacing:.03em;border:1.2px solid var(--line);
+  padding:3px 7px;border-radius:var(--radius);color:var(--ink-2);background:var(--card-2)}
+html[data-theme="dark"] .qchip{border-color:var(--qc);color:var(--qc);background:transparent;opacity:.92}
+
+/* arivu strip in cockpit */
+.cp-arivu{margin-top:12px;border:2px solid var(--c-arivu);border-radius:var(--radius);background:var(--t-arivu);
+  padding:12px 14px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+html[data-theme="light"] .cp-arivu{box-shadow:4px 4px 0 var(--c-arivu)}
+html[data-theme="dark"] .cp-arivu{background:var(--t-arivu);box-shadow:none}
+.cp-arivu .al{font-family:var(--head);font-weight:700;font-size:14px;color:var(--tx-arivu);display:flex;align-items:center;gap:9px}
+html[data-theme="dark"] .cp-arivu .al{font-weight:500}
+.cp-arivu .al .sq{width:13px;height:13px;background:var(--c-arivu);flex:none}
+html[data-theme="dark"] .cp-arivu .al .sq{box-shadow:none}
+.cp-arivu .as{font-family:var(--mono);font-size:11.5px;color:var(--ink-2);line-height:1.4}
+.cp-arivu .as b{color:var(--tx-arivu)}
+.cp-arivu .meter{margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--ink);display:flex;align-items:center;gap:8px}
+.cp-arivu .meter .bar{width:80px;height:8px;border:1.5px solid var(--c-arivu);border-radius:var(--radius);overflow:hidden;background:var(--card)}
+.cp-arivu .meter .bar i{display:block;height:100%;width:84%;background:var(--c-arivu)}
+html[data-theme="dark"] .cp-arivu .meter .bar i{box-shadow:none}
+
+/* witness panel */
+.cp-witness{border-left:3px solid var(--line);background:var(--card);padding:14px}
+html[data-theme="dark"] .cp-witness{border-left:1px solid var(--line);background:#0b0f0b}
+.wt-h{display:flex;align-items:center;gap:9px;font-family:var(--head);font-weight:700;font-size:14px;color:var(--ink)}
+html[data-theme="dark"] .wt-h{font-weight:500;color:var(--c-kural)}
+.wt-h .live{width:9px;height:9px;border-radius:50%;background:var(--act)}
+html[data-theme="dark"] .wt-h .live{background:var(--c-kural);box-shadow:none}
+@media (prefers-reduced-motion:no-preference){.wt-h .live{animation:pulse 1.8s ease-in-out infinite}}
+@keyframes pulse{50%{opacity:.4}}
+.wt-h small{font-family:var(--mono);font-weight:500;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);margin-left:2px}
+.wt-tabs{display:flex;gap:0;margin-top:12px;border:1.5px solid var(--line);border-radius:var(--radius);overflow:hidden}
+html[data-theme="dark"] .wt-tabs{border-color:var(--line)}
+.wt-tab{flex:1;font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;text-align:center;
+  padding:7px 4px;color:var(--ink-2);border-right:1.5px solid var(--line)}
+.wt-tab:last-child{border-right:0}
+.wt-tab.on{background:var(--ink);color:var(--paper);font-weight:700}
+html[data-theme="dark"] .wt-tab{border-right-color:var(--line)}
+html[data-theme="dark"] .wt-tab.on{background:var(--c-kural);color:#06140A}
+.bubble{margin-top:12px;font-size:12.5px;line-height:1.5;border:1.5px solid var(--line);border-radius:var(--radius);padding:10px 12px;background:var(--card-2)}
+html[data-theme="dark"] .bubble{border-color:var(--line);background:#0d120d}
+.bubble.you{border-style:dashed;color:var(--ink-2)}
+.bubble.you .who{font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);margin-bottom:5px}
+.bubble.saakshe .who{font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--witness);margin-bottom:5px;display:flex;align-items:center;gap:6px}
+html[data-theme="dark"] .bubble.saakshe .who{color:var(--c-kural);text-shadow:var(--glow-soft)}
+.bubble.saakshe .who::before{content:'●';font-size:8px}
+.bubble b{color:var(--ink)}
+.factpills{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px}
+.fp{font-family:var(--mono);font-size:9px;letter-spacing:.02em;border:1.2px solid var(--c-kural);color:var(--kural,var(--c-kural));
+  padding:3px 6px;border-radius:var(--radius);background:var(--card)}
+html[data-theme="light"] .fp{color:#2c6b45;background:#EDF6EF}
+html[data-theme="dark"] .fp{color:var(--ink-2);border-color:var(--line);background:transparent}
+.fp::before{content:'✓ '}
+.wt-act{margin-top:14px;display:flex;flex-direction:column;gap:8px}
+.wt-primary{font-family:var(--mono);font-weight:700;font-size:12px;letter-spacing:.08em;text-transform:uppercase;
+  text-align:center;padding:12px;border:2px solid var(--line);border-radius:var(--radius);background:var(--act);color:var(--on-act)}
+html[data-theme="dark"] .wt-primary{border-color:var(--c-kural);box-shadow:none}
+html[data-theme="dark"] .wt-primary::before{content:'[ '}html[data-theme="dark"] .wt-primary::after{content:' ]'}
+.wt-chips{display:flex;gap:8px;flex-wrap:wrap}
+.wt-chip{flex:1;min-width:90px;font-family:var(--mono);font-size:10px;letter-spacing:.04em;text-transform:uppercase;text-align:center;
+  padding:9px 6px;border:1.5px solid var(--line);border-radius:var(--radius);color:var(--ink-2);background:var(--card-2)}
+html[data-theme="dark"] .wt-chip{border-color:var(--line);color:var(--ink-2);background:#0d120d}
+.cp-cap{font-family:var(--mono);font-size:11px;color:var(--ink-3);margin-top:14px;text-align:center;line-height:1.5}
+
+/* ───────────────────────────── CTA + FOOTER ───────────────────────────── */
+.endcta{margin-top:clamp(56px,8vw,90px);border:3px solid var(--line);border-radius:var(--radius);background:var(--card);
+  padding:clamp(28px,5vw,52px);text-align:center;box-shadow:var(--shadow)}
+html[data-theme="dark"] .endcta{border:1px solid var(--line);box-shadow:none;background:var(--card)}
+.endcta h2{font-size:clamp(28px,5vw,48px);line-height:1.02;letter-spacing:-.03em;max-width:18ch;margin:0 auto}
+html[data-theme="dark"] .endcta h2{letter-spacing:0;font-size:clamp(22px,4vw,38px)}
+.endcta p{margin:18px auto 0;max-width:54ch;color:var(--ink-2);font-size:16px}
+.endcta .cta-row{justify-content:center}
+
+.foot{margin-top:60px;border-top:3px solid var(--line);padding-top:26px;font-family:var(--mono);font-size:12px;
+  line-height:1.8;color:var(--ink-2);display:flex;flex-direction:column;gap:18px}
+html[data-theme="dark"] .foot{border-top:1px solid var(--line)}
+.foot .flogo{display:inline-flex;align-items:center}
+.foot .flogo .logo{box-shadow:none;padding:7px 13px}
+html[data-theme="dark"] .foot .flogo .logo{box-shadow:none}
+.vmap{display:flex;flex-wrap:wrap;gap:0 18px;color:var(--ink-2)}
+.vmap span{white-space:nowrap}
+.vmap b{color:var(--ink)}
+.vmap .a-manas{color:var(--tx-manas);font-weight:700}
+.vmap .a-arivu{color:var(--tx-arivu);font-weight:700}
+.vmap .a-kalai{color:var(--tx-kalai);font-weight:700}
+.vmap .a-kural{color:var(--tx-kural);font-weight:700}
+.vmap .a-saakshe{color:var(--witness);font-weight:700}
+html[data-theme="dark"] .vmap .a-kural,html[data-theme="dark"] .vmap .a-saakshe{text-shadow:none}
+.foot .meta{color:var(--ink-3)}
+.foot .meta b{color:var(--ink-2)}
+
+/* scroll-reveal */
+@media (prefers-reduced-motion:no-preference){
+  .reveal{opacity:0;transform:translateY(16px);transition:opacity .6s ease,transform .6s ease}
+  .reveal.in{opacity:1;transform:none}
+}
+@media(max-width:560px){
+  body{font-size:16px}
+  .hero h1{font-size:clamp(34px,11vw,52px)}
+  .flow .stp{min-width:100%;border-right:1.5px solid var(--line)!important}
+}
+</style>
+<!-- JS-off graceful degradation: scroll-reveal blocks are hidden via opacity:0 and only revealed
+     by the IntersectionObserver. With JS disabled the IO never runs, so force them visible. -->
+<noscript><style>.reveal{opacity:1!important;transform:none!important}</style></noscript>
+</head>
+<body>
+<main class="wrap">
+
+  <!-- ═══ TOPBAR: logo + theme toggle ═══ -->
+  <div class="bar">
+    <a class="logo" href="#top" aria-label="saakshe home">
+      <span class="pr">&gt;_</span><span class="dv"></span><span class="wd">SAAKSHE</span>
+    </a>
+    <div class="toggle" role="group" aria-label="Theme">
+      <button id="tg-light" type="button" aria-pressed="true"><span class="dot"></span>Brut</button>
+      <button id="tg-dark" type="button" aria-pressed="false"><span class="dot"></span>Obsidian</button>
+    </div>
+  </div>
+
+  <!-- ═══ HERO ═══ -->
+  <header class="hero" id="top">
+    <div class="kick"><span class="num">The agentic company you talk to</span> · Google for Startups AI Agents Challenge · Track 3</div>
+    <div class="h1wrap"><h1>One founder. A whole company. One witness.</h1></div>
+    <p class="sub">You connect your project — your repo, your site, your socials. <b>Three faculties</b> run it: <b>manas</b> knows, <b>kalai</b> creates, <b>kural</b> engages — each deciding through <b>arivu</b>, the shared decision chamber. And one witness, <b>saakshe</b>, you talk to in chat and voice. It answers only from what it can see, and refuses beyond it.</p>
+
+    <div class="motif" aria-label="The three faculties, deciding through the shared arivu chamber">
+      <div class="mshape"><span class="gly circ" aria-hidden="true"></span><span class="lab">manas</span><span class="verb">knows</span></div>
+      <div class="mlink"><span class="chamber">arivu · decides</span></div>
+      <div class="mshape"><span class="gly tri" aria-hidden="true"></span><span class="lab">kalai</span><span class="verb">creates</span></div>
+      <div class="mlink"><span class="chamber">arivu · decides</span></div>
+      <div class="mshape"><span class="gly sq" aria-hidden="true"></span><span class="lab">kural</span><span class="verb">engages</span></div>
+    </div>
+
+    <div class="cta-row">
+      <a class="btn prim" href="cockpit.html" data-cta="connect">Connect your project</a>
+      <a class="btn" href="#cockpit">See the cockpit ↓</a>
+    </div>
+  </header>
+
+  <!-- ═══ 01 · THE THREE + THE CHAMBER ═══ -->
+  <section class="sec s-manas reveal">
+    <div class="sec__n"><span class="num">01 — The three faculties</span></div>
+    <h2 class="sec__t">Three faculties. One shared judgment.</h2>
+    <p class="sec__lead">Each faculty is one Bauhaus shape with one verb. None of them decides alone — every hard call routes through <b>arivu</b>, the chamber they all share.</p>
+
+    <div class="faculties">
+      <!-- manas -->
+      <article class="fac f-manas">
+        <div class="fac__h"><span class="nm">manas</span><span class="gcorner circ" aria-hidden="true"></span></div>
+        <div class="fac__b">
+          <span class="verbpill">⬤ knows</span>
+          <p class="does"><b>The mind.</b> Imbibes your repo, your site and your socials into one cited, versioned memory — the Context Pack. Grounds every answer; <b>refuses anything out-of-corpus.</b></p>
+          <div class="fac__chamber"><span class="ar" aria-hidden="true"></span>decides through <b>arivu</b></div>
+        </div>
+      </article>
+      <!-- kalai -->
+      <article class="fac f-kalai">
+        <div class="fac__h"><span class="nm">kalai</span><span class="gcorner tri" aria-hidden="true"></span></div>
+        <div class="fac__b">
+          <span class="verbpill">▲ creates</span>
+          <p class="does"><b>The maker.</b> On-brand creative — image and copy — through a brand-fidelity loop with <b>fail-closed compliance.</b> Holds no channel keys; it creates, it never ships.</p>
+          <div class="fac__chamber"><span class="ar" aria-hidden="true"></span>runs hard calls through <b>arivu</b></div>
+        </div>
+      </article>
+      <!-- kural -->
+      <article class="fac f-kural">
+        <div class="fac__h"><span class="nm">kural</span><span class="gcorner sq" aria-hidden="true"></span></div>
+        <div class="fac__b">
+          <span class="verbpill">◼ engages</span>
+          <p class="does"><b>The only mouth.</b> Posts, outreach, replies — every claim fact-checked first. Nothing goes live until it clears <b>your publish tap.</b></p>
+          <div class="fac__chamber"><span class="ar" aria-hidden="true"></span>runs hard calls through <b>arivu</b></div>
+        </div>
+      </article>
+    </div>
+
+    <!-- arivu = the SHARED chamber, not a faculty -->
+    <div class="chamber-panel">
+      <span class="fb tl" aria-hidden="true"></span><span class="fb tr" aria-hidden="true"></span>
+      <span class="fb bl" aria-hidden="true"></span><span class="fb br" aria-hidden="true"></span>
+      <div class="chamber__h">
+        <span class="crown">crown jewel</span>
+        <span class="nm">arivu<small>the shared decision chamber</small></span>
+      </div>
+      <div class="chamber__b">
+        <p class="chamber__note" style="margin-top:0"><b>arivu is not another faculty — it is the judgment all three call.</b> manas decides through it; kalai and kural route their hard calls through it too. The principle: <b>multi-agent beats a single agent</b>, made shared.</p>
+        <div class="flow" style="margin-top:16px">
+          <div class="stp"><div class="k">01 advisors</div><div class="v">5 advisors argue</div><div class="x">from manas's cited memory</div></div>
+          <div class="stp"><div class="k">02 debate</div><div class="v">structured debate</div><div class="x">positions tested against each other</div></div>
+          <div class="stp"><div class="k">03 verdict</div><div class="v">Claude · Vertex verdict</div><div class="x">the high-stakes seat decides</div></div>
+          <div class="stp"><div class="k">04 prosecutor</div><div class="v">defensibility ≥ 0.80</div><div class="x">an adversary must clear the bar</div></div>
+          <div class="stp"><div class="k">05 commit</div><div class="v">one founder tap</div><div class="x">then — and only then — it commits</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- witness one-liner -->
+    <div class="witness-line">
+      <span class="eye" aria-hidden="true"></span>
+      <p class="txt"><span class="nm">saakshe — the witness.</span> One cockpit you talk to in chat and voice. It initiates nothing; it answers only from live telemetry and <b>refuses beyond what it can see.</b> That refusal is what makes it an agent, not an oracle.</p>
+    </div>
+  </section>
+
+  <!-- ═══ 02 · HOW IT WORKS — FLYWHEEL ═══ -->
+  <section class="sec s-kural reveal">
+    <div class="sec__n"><span class="num">02 — How it works</span></div>
+    <h2 class="sec__t">The flywheel. You tap two gates.</h2>
+    <p class="sec__lead">Connect your project once. The faculties turn the wheel; the witness watches it live; you tap only the two human gates — decide, and publish.</p>
+
+    <div class="flywheel">
+      <div class="fw w-connect">
+        <div class="step">00 · you</div>
+        <div class="who"><span class="g sq" aria-hidden="true"></span>connect</div>
+        <div class="d">Point it at your repo, site, socials.</div>
+      </div>
+      <div class="fw w-manas">
+        <div class="step">01 · knows</div>
+        <div class="who"><span class="g circ" aria-hidden="true"></span>manas learns</div>
+        <div class="d">Builds the cited Context Pack.</div>
+      </div>
+      <div class="fw w-arivu">
+        <div class="step">02 · decides</div>
+        <div class="who"><span class="g sq" aria-hidden="true"></span>arivu decides</div>
+        <div class="d">Advisors → debate → verdict → prosecutor.</div>
+        <div class="tap">tap 1 · decide</div>
+      </div>
+      <div class="fw w-kalai">
+        <div class="step">03 · creates</div>
+        <div class="who"><span class="g tri" aria-hidden="true"></span>kalai creates</div>
+        <div class="d">On-brand creative, compliance-checked.</div>
+      </div>
+      <div class="fw w-kural">
+        <div class="step">04 · engages</div>
+        <div class="who"><span class="g sq" aria-hidden="true"></span>kural engages</div>
+        <div class="d">Posts, outreach, replies — fact-checked.</div>
+        <div class="tap">tap 2 · publish</div>
+      </div>
+    </div>
+    <div class="fw-loop">…then <b style="color:inherit">kural's results feed manas</b> — the wheel learns and turns again. The witness watches every turn.</div>
+  </section>
+
+  <!-- ═══ 03 · GOVERNED, REAL ACTION ═══ -->
+  <section class="sec s-kalai reveal">
+    <div class="sec__n"><span class="num">03 — Governed, real action</span></div>
+    <h2 class="sec__t">It acts in the real world — on a leash you hold.</h2>
+    <p class="sec__lead">Real tools, real channels, real consequences — kept safe by your keys, two human gates, dry-run defaults, and a compliance layer that fails closed.</p>
+
+    <div class="gov">
+      <div class="gcard">
+        <div class="gh"><span class="num">BYOK — your keys, your spend</span></div>
+        <p class="gd">Bring your own keys: <b>your Gemini key</b>, <b>Claude via your Vertex AI</b>, and <b>your channel keys</b> for anywhere it engages. saakshe never holds the credentials that move money or post on your behalf — you do.</p>
+      </div>
+      <div class="gcard">
+        <div class="gh"><span class="num">Two human gates — the whole leash</span></div>
+        <p class="gd">Exactly two taps stand between intent and the world:</p>
+        <div class="gates">
+          <div class="gate"><div class="gt">gate 1</div><div class="gn">decide</div><div class="gx">at arivu — you approve the verdict before it commits.</div></div>
+          <div class="gate"><div class="gt">gate 2</div><div class="gn">publish</div><div class="gx">at kural — nothing goes live until you tap.</div></div>
+        </div>
+      </div>
+      <div class="gcard">
+        <div class="gh"><span class="num">Dry-run by default · fail-closed</span></div>
+        <p class="gd"><b>Dry-run is the default</b> — every action is previewed before it can fire. Compliance is <b>fail-closed</b>: when a check is unsure, the answer is no. The witness shows you exactly what would happen.</p>
+      </div>
+      <div class="gcard">
+        <div class="gh"><span class="num">Never writes a price column</span></div>
+        <p class="gd">A hard constitutional limit: saakshe <b>never writes a price or revenue figure.</b> It will not invent, set, or publish numbers it cannot see — that decision stays entirely yours.</p>
+        <div class="tags">
+          <span class="tag">BYOK</span><span class="tag">2 gates</span><span class="tag">dry-run default</span><span class="tag">fail-closed</span><span class="tag no">no price column</span><span class="tag">Track 3 · B2B · BYOK</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ 04 · BUILT ON GOOGLE'S STACK ═══ -->
+  <section class="sec s-arivu reveal">
+    <div class="sec__n"><span class="num">04 — Built on Google's stack</span></div>
+    <h2 class="sec__t">Gemini for the many. Claude·Vertex for the verdict.</h2>
+    <p class="sec__lead">Many seats run on Gemini for breadth; the high-stakes judgment seats run Claude via Vertex AI. Orchestrated with ADK, deployed on Agent Engine, evaluated, and observed.</p>
+
+    <div class="stack">
+      <div class="st"><div class="sl">orchestration</div><div class="sv">ADK</div><div class="sx">Sequential · Parallel · Loop — composes every faculty's run.</div></div>
+      <div class="st"><div class="sl">the many seats</div><div class="sv">Gemini (latest 3.x)</div><div class="sx">Breadth and speed across advisors, makers and checks.</div></div>
+      <div class="st"><div class="sl">the high-stakes seats</div><div class="sv">Claude · Vertex AI</div><div class="sx">The arivu verdict and the adversarial prosecutor.</div></div>
+      <div class="st"><div class="sl">deploy</div><div class="sv">Agent Engine</div><div class="sx">Production runtime — one deploy per faculty.</div></div>
+      <div class="st"><div class="sl">interop</div><div class="sv">A2A protocol</div><div class="sx">Agent-to-agent comms between the faculties.</div></div>
+      <div class="st"><div class="sl">trust</div><div class="sv">Eval @ 0.8 · OTel</div><div class="sx">Defensibility gate + OpenTelemetry observability.</div></div>
+    </div>
+    <p class="honest"><b>Honest about state:</b> live <b>Gemini today</b>; <b>Claude·Vertex on the high-stakes seats.</b> No vapor — the stack above is the architecture, marked for what runs now.</p>
+  </section>
+
+  <!-- ═══ 05 · ★ COCKPIT SHOWCASE ═══ -->
+  <section class="sec s-kural reveal" id="cockpit">
+    <div class="sec__n"><span class="num">05 — The cockpit</span></div>
+    <h2 class="sec__t">The company, watched — in one screen.</h2>
+    <p class="sec__lead">This is the cockpit, styled in the active theme. Toggle Brut / Obsidian above and watch it re-skin. Placeholder data — your company, freshly connected.</p>
+
+    <div class="cockpit">
+      <!-- topbar -->
+      <div class="cp-top">
+        <span class="wm"><span class="pr">&gt;_</span>SAAKSHE</span>
+        <div class="cp-pills">
+          <span class="cp-pill"><span class="lv"></span>connected</span>
+          <span class="cp-pill">Context Pack v3</span>
+          <span class="cp-pill">dry-run</span>
+          <span class="cp-chip" id="cp-theme-chip">brut</span>
+        </div>
+      </div>
+
+      <div class="cp-body">
+        <!-- nav rail -->
+        <nav class="cp-rail" aria-label="Cockpit navigation">
+          <div class="cp-nav on"><span class="ni sq"></span>Overview</div>
+          <div class="cp-nav"><span class="ni c"></span>manas</div>
+          <div class="cp-nav"><span class="ni t"></span>kalai</div>
+          <div class="cp-nav"><span class="ni sq"></span>kural</div>
+          <div class="cp-nav"><span class="ni"></span>Questions</div>
+          <div class="cp-nav"><span class="ni"></span>Activity</div>
+          <div class="cp-nav"><span class="ni"></span>Settings</div>
+        </nav>
+
+        <!-- center -->
+        <div class="cp-center">
+          <div class="cp-h">The company, watched</div>
+          <div class="cp-quads">
+            <!-- manas quad -->
+            <div class="cq q-manas">
+              <span class="qcorner circ" aria-hidden="true"></span>
+              <div class="qn">manas</div>
+              <span class="qv">knows</span>
+              <div class="qstate">Context Pack <b>v3</b> · fresh<br>corpus grounded · 0 drift</div>
+              <svg class="spark" viewBox="0 0 100 26" preserveAspectRatio="none" aria-hidden="true"><path d="M0,20 L14,17 L28,18 L42,11 L56,13 L70,7 L84,8 L100,4"/></svg>
+              <div class="qchips"><span class="qchip">312 docs</span><span class="qchip">98% cited</span><span class="qchip">~$1.10/d</span></div>
+            </div>
+            <!-- kalai quad -->
+            <div class="cq q-kalai">
+              <span class="qcorner tri" aria-hidden="true"></span>
+              <div class="qn">kalai</div>
+              <span class="qv">creates</span>
+              <div class="qstate">brand-fidelity <b>0.94</b><br>2 drafts in compliance</div>
+              <svg class="spark" viewBox="0 0 100 26" preserveAspectRatio="none" aria-hidden="true"><path d="M0,14 L14,16 L28,9 L42,12 L56,6 L70,11 L84,5 L100,9"/></svg>
+              <div class="qchips"><span class="qchip">8 made</span><span class="qchip">1 held</span><span class="qchip">~$0.80/d</span></div>
+            </div>
+            <!-- kural quad -->
+            <div class="cq q-kural">
+              <span class="qcorner sq" aria-hidden="true"></span>
+              <div class="qn">kural</div>
+              <span class="qv">engages</span>
+              <div class="qstate">all claims <b>fact-checked</b><br>1 await publish tap</div>
+              <svg class="spark" viewBox="0 0 100 26" preserveAspectRatio="none" aria-hidden="true"><path d="M0,18 L14,12 L28,14 L42,8 L56,10 L70,9 L84,4 L100,6"/></svg>
+              <div class="qchips"><span class="qchip">5 sent</span><span class="qchip">1 queued</span><span class="qchip">~$0.40/d</span></div>
+            </div>
+          </div>
+
+          <!-- arivu strip (shared chamber, not a quadrant) -->
+          <div class="cp-arivu">
+            <span class="al"><span class="sq" aria-hidden="true"></span>arivu · decision chamber</span>
+            <span class="as">5 advisors → debate → <b>Claude·Vertex verdict</b> → prosecutor → your tap</span>
+            <span class="meter">defensibility <b style="margin-left:4px">0.84</b><span class="bar"><i></i></span></span>
+          </div>
+        </div>
+
+        <!-- witness panel -->
+        <aside class="cp-witness" aria-label="Witness panel">
+          <div class="wt-h"><span class="live" aria-hidden="true"></span>SAAKSHE <small>the witness</small></div>
+          <div class="wt-tabs">
+            <div class="wt-tab on">ask</div>
+            <div class="wt-tab">taps</div>
+            <div class="wt-tab">today</div>
+          </div>
+          <div class="bubble you"><div class="who">you</div>What's waiting on me right now?</div>
+          <div class="bubble saakshe">
+            <div class="who">saakshe</div>
+            Two taps are open: <b>arivu</b> has a verdict ready to commit, and <b>kural</b> has one reply queued behind your publish tap. I won't act on either.
+            <div class="factpills"><span class="fp">from telemetry</span><span class="fp">defensibility 0.84</span><span class="fp">no price written</span></div>
+          </div>
+          <div class="wt-act">
+            <div class="wt-primary">Review the arivu verdict</div>
+            <div class="wt-chips"><span class="wt-chip">Open taps</span><span class="wt-chip">Ask voice</span></div>
+          </div>
+          <p class="cp-cap">your company · connected · Context Pack v3 · static showcase</p>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ END CTA ═══ -->
+  <section class="endcta reveal" id="connect">
+    <h2>Connect your project. Meet your company.</h2>
+    <p>One founder, a whole company behind a witness you talk to. Bring your keys, connect your repo and site, and tap the two gates that matter.</p>
+    <div class="cta-row">
+      <a class="btn prim" href="cockpit.html" data-cta="connect">Connect your project</a>
+      <a class="btn" href="#cockpit">See the cockpit ↑</a>
+    </div>
+  </section>
+
+  <!-- ═══ FOOTER ═══ -->
+  <footer class="foot">
+    <div class="flogo">
+      <a class="logo" href="#top" aria-label="saakshe"><span class="pr">&gt;_</span><span class="dv"></span><span class="wd">SAAKSHE</span></a>
+    </div>
+    <div class="vmap">
+      <span>knows&nbsp;→&nbsp;<b class="a-manas">manas</b></span>
+      <span>decides&nbsp;→&nbsp;<b class="a-arivu">arivu</b></span>
+      <span>creates&nbsp;→&nbsp;<b class="a-kalai">kalai</b></span>
+      <span>engages&nbsp;→&nbsp;<b class="a-kural">kural</b></span>
+      <span>witnesses&nbsp;→&nbsp;<b class="a-saakshe">saakshe</b></span>
+    </div>
+    <div class="meta">Track 3 · B2B · BYOK · <b>Google for Startups AI Agents Challenge</b>. Built on ADK · Gemini · Claude·Vertex · Agent Engine · A2A. The agentic company you talk to.</div>
+  </footer>
+
+</main>
+
+<script>
+(function(){
+  var root=document.documentElement;
+  var bL=document.getElementById('tg-light');
+  var bD=document.getElementById('tg-dark');
+  var chip=document.getElementById('cp-theme-chip');
+  function sync(t){
+    var dark=t==='dark';
+    bL.setAttribute('aria-pressed',String(!dark));
+    bD.setAttribute('aria-pressed',String(dark));
+    if(chip) chip.textContent=dark?'obsidian':'brut';
+  }
+  function setTheme(t){
+    root.setAttribute('data-theme',t);
+    try{localStorage.setItem('saakshe-theme',t);}catch(e){}
+    sync(t);
+  }
+  sync(root.getAttribute('data-theme')||'light');
+  bL.addEventListener('click',function(){setTheme('light');});
+  bD.addEventListener('click',function(){setTheme('dark');});
+
+  // scroll-reveal (respects reduced motion)
+  var rm=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(!rm && 'IntersectionObserver' in window){
+    var io=new IntersectionObserver(function(es){
+      es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target);} });
+    },{threshold:.12,rootMargin:'0px 0px -8% 0px'});
+    document.querySelectorAll('.reveal').forEach(function(el){io.observe(el);});
+  } else {
+    document.querySelectorAll('.reveal').forEach(function(el){el.classList.add('in');});
+  }
+})();
+</script>
+<script>
+  /* "Connect your project" -> the cockpit front door.
+     file:// (local/dev) keeps the sibling cockpit.html; served over http(s) -> "/" (the saakshe service serves the cockpit at root). */
+  (function(){
+    var dest = location.protocol === 'file:' ? 'cockpit.html' : '/';
+    var els = document.querySelectorAll('a[data-cta="connect"]');
+    for (var i = 0; i < els.length; i++){ els[i].setAttribute('href', dest); }
+  })();
+</script>
+</body>
+</html>

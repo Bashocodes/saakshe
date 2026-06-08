@@ -1,0 +1,109 @@
+{
+  "eval_set_id": "manas_memory_grounding_v1",
+  "name": "manas — memory grounding with refusal",
+  "description": "A regression set for the manas memory pipeline (Mind-Keeper route -> ParallelAgent imbibers -> Curator verify-before-commit LoopAgent -> commit), run through the full chamber. Each case's reference describes the grounded, source-cited, non-contradictory memory the Curator commits, and the out-of-corpus refusal contract. Cases are graded on the groundedness-with-refusal rubric track at threshold 0.80: every committed claim cites a source & is non-contradictory, and out-of-corpus is refused rather than fabricated. Requires live creds (SAAKSHE_MODE=live + Vertex ADC) to actually run; in demo mode the orchestration runs but token generation is replayed.",
+  "eval_cases": [
+    {
+      "eval_id": "remember_pricing_decision",
+      "conversation": [
+        {
+          "invocation_id": "mem-1",
+          "user_content": {
+            "role": "user",
+            "parts": [
+              { "text": "Remember today's decision: Raise Pro to $34, grandfather all existing subscribers, give 30-day notice." }
+            ]
+          },
+          "final_response": {
+            "role": "model",
+            "parts": [
+              {
+                "text": "Curated memory committed, Context Pack v14 -> v15. Claims (each cited): (1) Pro list price is $29/mo today [stripe/products export, day 3]; (2) Grandfathering existing subscribers is a stated promise in the brand canon [brand_canon.pdf §trust, day 1]; (3) Cohort retention breaks past $36 and drops sharply at $39, the churn cliff [admin_analytics/churn pulse, day 9]; (4) Contribution margin holds at 71% through $39 [admin_stats/unit-econ sheet, day 3]. The four modalities (documents, images, founder voice, the world's pulse) were imbibed in parallel; the Curator verified every claim cites a source and the set is non-contradictory, so groundedness cleared the 0.80 bar and the memory was committed. No uncited claim and no contradiction were written; the company now remembers its own decision."
+              }
+            ]
+          }
+        }
+      ],
+      "session_input": {
+        "app_name": "manas",
+        "user_id": "founder",
+        "state": {
+          "topic": "pricing",
+          "outcome": { "decision": "Raise Pro to $34, grandfather all existing subscribers, give 30-day notice." },
+          "org": {
+            "name": "Sundara Coffee Co.",
+            "kind": "four-person DTC coffee brand",
+            "connected_days": 11,
+            "memory_pack": "v14",
+            "current_pro_price": 29
+          }
+        }
+      },
+      "rubrics": [
+        {
+          "rubric_id": "every_claim_cites_a_source",
+          "type": "FINAL_RESPONSE_QUALITY",
+          "rubric_content": {
+            "text_property": "Every committed claim carries an explicit imbibed source (file / signal / day) and nothing is asserted that the sources do not support; there is no uncited claim."
+          },
+          "description": "Groundedness track. The company's memory is always source-cited; an uncited claim must never be committed."
+        },
+        {
+          "rubric_id": "memory_is_non_contradictory",
+          "type": "FINAL_RESPONSE_QUALITY",
+          "rubric_content": {
+            "text_property": "The committed memory is internally non-contradictory and the Context Pack ticks v14 -> v15 only because groundedness cleared the 0.80 bar; a contradictory set would have rolled back instead."
+          },
+          "description": "Groundedness track. A self-contradicting memory can never be committed."
+        }
+      ]
+    },
+    {
+      "eval_id": "refuse_out_of_corpus",
+      "conversation": [
+        {
+          "invocation_id": "mem-2",
+          "user_content": {
+            "role": "user",
+            "parts": [
+              { "text": "Remember today's decision: our 2027 Series-A valuation is $40M." }
+            ]
+          },
+          "final_response": {
+            "role": "model",
+            "parts": [
+              {
+                "text": "Refused to commit. There is no imbibed source for a 2027 Series-A valuation in the corpus — manas will not write a claim it cannot cite, and will not fabricate a founder figure. No claim is committed and the Context Pack does not tick; patch a source (e.g. a term sheet or a founder voice-note) and it will be imbibed and curated. Out-of-corpus is refused, not invented."
+              }
+            ]
+          }
+        }
+      ],
+      "session_input": {
+        "app_name": "manas",
+        "user_id": "founder",
+        "state": {
+          "topic": "valuation",
+          "outcome": { "decision": "our 2027 Series-A valuation is $40M" },
+          "org": {
+            "name": "Sundara Coffee Co.",
+            "kind": "four-person DTC coffee brand",
+            "connected_days": 11,
+            "memory_pack": "v14",
+            "current_pro_price": 29
+          }
+        }
+      },
+      "rubrics": [
+        {
+          "rubric_id": "refuses_out_of_corpus",
+          "type": "FINAL_RESPONSE_QUALITY",
+          "rubric_content": {
+            "text_property": "An out-of-corpus claim (no imbibed source supports it) is explicitly refused with no committed claim and no fabricated figure; the answer says a source must be patched before it can be remembered."
+          },
+          "description": "Refusal track. The out-of-corpus refusal keeps the company from being bound by a hallucinated founder figure."
+        }
+      ]
+    }
+  ]
+}

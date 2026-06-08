@@ -1,0 +1,1367 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<link rel="icon" href="data:,">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>darshana — see the whole company</title>
+<meta name="description" content="Your whole company, on one page, in five minutes — a naturalist's plate of four agentic systems and one witness.">
+
+<!-- =========================================================================
+     PRE-PAINT THEME — set data-theme on <html> BEFORE first paint.
+     Order: ?theme= (URL, this-load override) -> localStorage("darshana-theme")
+            -> prefers-color-scheme -> light (a bright plate's natural default).
+     ========================================================================= -->
+<script>(function(){
+  var d=document.documentElement; d.className='js';
+  var q={}; try{ (location.search||'').replace(/^\?/,'').split('&').forEach(function(p){
+    if(!p)return; var kv=p.split('='); q[decodeURIComponent(kv[0])]=decodeURIComponent(kv[1]||''); }); }catch(e){}
+  var t=q.theme;
+  if(t!=='light'&&t!=='dark'){ try{t=localStorage.getItem('darshana-theme');}catch(e2){} }
+  if(t!=='light'&&t!=='dark'){ t=(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light'; }
+  d.setAttribute('data-theme', (t==='dark'?'dark':'light'));
+})();</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+
+<style>
+/* ============================================================================
+   darshana — THEME "THE PLATE"
+   A cool naturalist's atlas plate. The four systems carry color; the chrome is
+   the saakshe graphite. Color NEVER touches a container edge — only text, dots,
+   rings, and SVG strokes. Two complete themes: cool herbarium (light) and a
+   cool botanical-ink night / star chart (dark).
+   ============================================================================ */
+
+:root{
+  /* shared metrics */
+  --maxw: 1080px;
+  --hair: 1px;
+  --r: 4px;
+  --ease: cubic-bezier(.22,.61,.36,1);
+}
+
+html[data-theme="light"]{
+  --page:        #FBFCFA;   /* cool herbarium off-white */
+  --plate:       #FFFFFF;   /* raised card / plate surface */
+  --wash:        #F2F5F2;   /* faint cool green-grey section wash */
+  --ink:         #232B27;   /* cool near-black body, AAA */
+  --muted:       #5C6862;   /* captions / labels */
+  --hairline:    #DBE2DD;   /* neutral hairline border */
+  --hairsoft:    #E7ECE7;   /* fainter rule */
+
+  /* the five hues — light backdrop (4.5–7.0:1) */
+  --manas:  #9A6B1E;   /* amber-bronze */
+  --arivu: #3A4FB0;   /* indigo */
+  --kalai:   #B0455A;   /* rose-madder */
+  --kural:  #1E7D86;   /* teal-ink */
+  --saakshe:  #52606B;   /* graphite — the neutral standpoint & page chrome */
+
+  --accent: var(--saakshe);   /* page-wide neutral accent = graphite */
+  --plate-line: #C9D2CC;    /* engraving stroke on plate */
+  --route: #9AA7A0;         /* route-of-travel dotted line */
+  --shadow: 0 1px 2px rgba(35,43,39,.04), 0 8px 28px rgba(35,43,39,.05);
+}
+
+html[data-theme="dark"]{
+  --page:        #0E1411;   /* cool green-black night */
+  --plate:       #161E1A;   /* plate surface */
+  --wash:        #0A0F0C;   /* deep wash */
+  --ink:         #D7E0DA;   /* body, AAA */
+  --muted:       #93A29A;   /* captions / labels */
+  --hairline:    #2A352F;   /* neutral hairline border */
+  --hairsoft:    #222C26;
+
+  /* the five hues — ink backdrop (7.6–9.6:1) */
+  --manas:  #D9A441;
+  --arivu: #8FA2F0;
+  --kalai:   #E892A2;
+  --kural:  #54C7D0;
+  --saakshe:  #AEBCC6;
+
+  --accent: var(--saakshe);
+  --plate-line: #36433B;
+  --route: #4A5A52;
+  --shadow: 0 1px 2px rgba(0,0,0,.30), 0 10px 34px rgba(0,0,0,.40);
+}
+
+*{ box-sizing:border-box; }
+html,body{ margin:0; padding:0; }
+body{
+  background:var(--page);
+  color:var(--ink);
+  font-family:"Newsreader", Georgia, "Times New Roman", serif;
+  font-size:16px;
+  line-height:1.7;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+  transition:background .4s var(--ease), color .4s var(--ease);
+}
+.dev{ font-family:"Noto Serif Devanagari", serif; }
+.sans{ font-family:"IBM Plex Sans", system-ui, sans-serif; }
+.frau{ font-family:"Fraunces", Georgia, serif; }
+
+a{ color:inherit; }
+img,svg{ display:block; max-width:100%; }
+
+/* ---- layout shell ---- */
+.wrap{ max-width:var(--maxw); margin:0 auto; padding:0 28px; }
+section{ padding:74px 0; border-top:var(--hair) solid var(--hairsoft); }
+section:first-of-type{ border-top:0; }
+.washed{ background:var(--wash); }
+
+.eyebrow{
+  font-family:"IBM Plex Sans", sans-serif;
+  font-size:13px; font-weight:600; letter-spacing:.18em; text-transform:uppercase;
+  color:var(--muted); margin:0 0 14px;
+}
+.eyebrow .num{ color:var(--accent); }
+
+h1,h2,h3{ font-family:"Fraunces", Georgia, serif; font-weight:500; line-height:1.12; margin:0; }
+h2{ font-size:clamp(28px, 4.4vw, 42px); letter-spacing:-.01em; }
+h3{ font-size:22px; }
+.lead{ font-size:clamp(18px, 2.2vw, 20px); line-height:1.65; color:var(--ink); max-width:60ch; }
+.cap{ color:var(--muted); }
+p{ margin:0 0 1.05em; }
+p:last-child{ margin-bottom:0; }
+
+/* hue text helpers (color only ever on TEXT / dots / rings / strokes) */
+.c-manas{ color:var(--manas); } .c-arivu{ color:var(--arivu); }
+.c-kalai{ color:var(--kalai); } .c-kural{ color:var(--kural); } .c-saakshe{ color:var(--saakshe); }
+
+.dot{ display:inline-block; width:11px; height:11px; border-radius:50%; vertical-align:baseline; position:relative; top:1px; }
+.dot.manas{ background:var(--manas); } .dot.arivu{ background:var(--arivu); }
+.dot.kalai{ background:var(--kalai); } .dot.kural{ background:var(--kural); } .dot.saakshe{ background:var(--saakshe); }
+
+/* ============================ TOP RULE / COCKPIT FRAME ===================== */
+.topbar{
+  position:sticky; top:0; z-index:40;
+  background:color-mix(in srgb, var(--page) 88%, transparent);
+  backdrop-filter:saturate(120%) blur(8px);
+  border-bottom:var(--hair) solid var(--hairline);
+}
+.topbar .row{ display:flex; align-items:center; justify-content:space-between; height:54px; }
+.brand{ font-family:"Fraunces", serif; font-size:18px; font-weight:500; letter-spacing:.01em; }
+.brand .dev{ font-size:18px; }
+.brand .gloss{ color:var(--muted); font-style:italic; font-size:15px; }
+.toggle{
+  font-family:"IBM Plex Sans", sans-serif; font-size:13px; font-weight:500;
+  letter-spacing:.06em; color:var(--ink);
+  background:transparent; border:var(--hair) solid var(--hairline);
+  border-radius:var(--r); padding:7px 13px; cursor:pointer;
+  display:inline-flex; align-items:center; gap:8px;
+  transition:border-color .2s var(--ease), color .2s var(--ease);
+}
+.toggle:hover{ border-color:var(--accent); }
+.toggle .tk{ width:8px;height:8px;border-radius:50%; background:var(--accent); }
+
+/* =============================== HERO PLATE =============================== */
+.hero{ padding-top:58px; padding-bottom:64px; }
+.hero .platehead{ text-align:center; margin-bottom:18px; }
+.hero .platetitle{
+  font-family:"Fraunces", serif; font-weight:500; letter-spacing:-.015em;
+  font-size:clamp(34px, 6vw, 60px); line-height:1.06;
+}
+.hero .platetitle .dev{ font-weight:500; }
+.hero .platetitle .dash{ color:var(--muted); font-weight:400; }
+.hero .subcap{ font-style:italic; color:var(--muted); font-size:clamp(17px,2.2vw,19px); margin-top:10px; }
+.hero .promise{
+  max-width:64ch; margin:20px auto 0; text-align:center; font-size:18px; color:var(--ink);
+}
+
+.plateframe{
+  margin:40px auto 0; max-width:760px; background:var(--plate);
+  border:var(--hair) solid var(--hairline); border-radius:6px;
+  box-shadow:var(--shadow); padding:26px 26px 20px; position:relative;
+}
+.plateframe figcaption{
+  font-family:"IBM Plex Sans", sans-serif; font-size:13px; color:var(--muted);
+  text-align:center; margin-top:6px; letter-spacing:.02em;
+}
+.plateframe .legendline{
+  font-style:italic; color:var(--muted); text-align:center; font-size:15px; margin-top:2px;
+}
+
+/* the engraved svg sizes responsively but keeps aspect */
+.plate-svg{ width:100%; height:auto; }
+
+/* ============================== SEAM LINE ================================= */
+.seam{ text-align:center; }
+.seam .line{
+  font-family:"Fraunces", serif; font-size:clamp(19px, 3vw, 27px); line-height:1.5;
+  letter-spacing:-.005em;
+}
+.seam .line .verb{ color:var(--muted); font-style:italic; }
+.seam .line .arr{ color:var(--accent); padding:0 .12em; }
+.seam .line .sep{ color:var(--hairline); padding:0 .35em; }
+.seam .line .name{ font-weight:500; }
+.seam .line .name .dev{ font-size:.86em; color:var(--muted); margin-left:.18em; }
+
+.legendtable{
+  margin:34px auto 0; max-width:620px; background:var(--plate);
+  border:var(--hair) solid var(--hairline); border-radius:6px; overflow:hidden;
+  box-shadow:var(--shadow);
+}
+.legendtable .lr{
+  display:grid; grid-template-columns:96px 1fr auto; align-items:center; gap:14px;
+  padding:14px 20px; border-top:var(--hair) solid var(--hairsoft);
+  font-family:"IBM Plex Sans", sans-serif; font-size:15px;
+}
+.legendtable .lr:first-child{ border-top:0; }
+.legendtable .lr .verb{ color:var(--muted); font-weight:600; letter-spacing:.04em; text-transform:lowercase; }
+.legendtable .lr .nm{ font-weight:600; display:flex; align-items:center; gap:9px; }
+.legendtable .lr .nm .dev{ font-family:"Noto Serif Devanagari", serif; font-weight:500; color:var(--muted); }
+.legendtable .lr .gl{ color:var(--muted); font-weight:400; }
+.legendtable .lr .rng{
+  width:18px;height:18px;border-radius:50%; border:1.5px solid currentColor; position:relative;
+}
+.legendtable .lr .rng::after{ content:""; position:absolute; inset:4px; border-radius:50%; background:currentColor; }
+
+/* ============================ FOUR SPECIMENS ============================= */
+.specgrid{ display:grid; grid-template-columns:repeat(2,1fr); gap:22px; margin-top:38px; }
+.spec{
+  background:var(--plate); border:var(--hair) solid var(--hairline); border-radius:6px;
+  box-shadow:var(--shadow); padding:26px 26px 24px; position:relative;
+}
+.spec .tag{
+  position:absolute; top:18px; right:20px;
+  font-family:"IBM Plex Sans", sans-serif; font-size:13px; letter-spacing:.08em;
+  color:var(--muted); text-transform:uppercase;
+  border:var(--hair) solid var(--hairline); border-radius:999px; padding:3px 11px;
+  display:inline-flex; align-items:center; gap:7px;
+}
+.spec .tag .specring{ width:9px;height:9px;border-radius:50%; border:1.5px solid currentColor; }
+.spec .verbword{ font-family:"Fraunces", serif; font-weight:600; font-size:30px; letter-spacing:.01em; line-height:1; }
+.spec .latin{ font-family:"IBM Plex Sans", sans-serif; font-size:13px; letter-spacing:.2em; text-transform:uppercase; color:var(--muted); margin-top:7px; }
+.spec .nmeta{ margin-top:14px; display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; }
+.spec .nmeta .nm{ font-family:"Fraunces", serif; font-size:20px; font-weight:500; }
+.spec .nmeta .nm .dev{ font-family:"Noto Serif Devanagari", serif; font-size:18px; margin-right:7px; color:var(--muted); }
+.spec .nmeta .seat{ font-family:"IBM Plex Sans", sans-serif; font-size:13px; color:var(--muted); }
+.spec .what{ margin-top:13px; font-size:16px; color:var(--ink); }
+.spec ul{ margin:13px 0 0; padding:0; list-style:none; }
+.spec li{ position:relative; padding-left:18px; font-size:15.5px; margin:0 0 8px; color:var(--ink); }
+.spec li::before{ content:""; position:absolute; left:0; top:.62em; width:6px;height:6px;border-radius:50%; background:var(--muted); }
+.never{
+  margin-top:16px; padding-top:13px; border-top:var(--hair) solid var(--hairsoft);
+  font-size:15px;
+}
+.never .k{ font-family:"IBM Plex Sans", sans-serif; font-weight:600; letter-spacing:.08em; text-transform:uppercase; font-size:13px; color:var(--muted); display:block; margin-bottom:3px; }
+.never .v{ font-style:italic; }
+
+/* ===================== SEAT ROSTER (inside each territory) =============== */
+.seatlist b{ font-family:"IBM Plex Sans", sans-serif; font-weight:600; font-size:15px; }
+.cring{ display:inline-block; width:9px; height:9px; border-radius:50%;
+  border:1.5px solid currentColor; margin-left:6px; vertical-align:-1px; }
+.spec.fullrow{ grid-column:1 / -1; }
+.rosterkey{ font-family:"IBM Plex Sans", sans-serif; font-size:14.5px; color:var(--muted);
+  margin-top:10px; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+
+/* ============================ saakshe standpoint =========================== */
+.standpoint .compasswrap{ display:grid; grid-template-columns:1fr 1.35fr; gap:36px; align-items:start; }
+.standpoint .compasscard{
+  background:var(--plate); border:var(--hair) solid var(--hairline); border-radius:6px;
+  box-shadow:var(--shadow); padding:26px; text-align:center;
+}
+.standpoint .compasscard .youhere{
+  font-family:"IBM Plex Sans", sans-serif; font-size:13px; letter-spacing:.16em; text-transform:uppercase; color:var(--accent); margin-top:14px;
+}
+.standpoint .tagline{
+  font-family:"Fraunces", serif; font-style:italic; font-size:clamp(20px,3vw,26px); line-height:1.4; margin-top:22px;
+}
+.standpoint .cockpit{ margin-top:18px; }
+.standpoint .cockpit .row{
+  display:grid; grid-template-columns:auto 1fr; gap:12px; padding:12px 0; border-top:var(--hair) solid var(--hairsoft);
+}
+.standpoint .cockpit .row:first-child{ border-top:0; }
+.standpoint .cockpit .lbl{ font-family:"IBM Plex Sans", sans-serif; font-size:13px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); white-space:nowrap; }
+
+/* ============================ WATCH IT RUN (viz) ========================= */
+.viz-shell{ margin-top:30px; }
+.run-lever-wrap{ text-align:center; margin-bottom:26px; }
+.run-lever{
+  font-family:"IBM Plex Sans", sans-serif; font-size:15px; font-weight:600; letter-spacing:.04em;
+  color:var(--page); background:var(--accent); border:none; border-radius:999px;
+  padding:13px 26px; cursor:pointer; display:inline-flex; align-items:center; gap:10px;
+  transition:transform .15s var(--ease), opacity .2s;
+}
+html[data-theme="light"] .run-lever{ color:#FBFCFA; }
+.run-lever:hover{ transform:translateY(-1px); }
+.run-lever:active{ transform:translateY(0); }
+.run-lever .pin{ font-size:14px; }
+.run-lever[disabled]{ opacity:.45; cursor:default; }
+
+.viz-grid{ display:grid; grid-template-columns:1.1fr 1fr; gap:30px; align-items:start; }
+.viz-svgcard{
+  background:var(--plate); border:var(--hair) solid var(--hairline); border-radius:6px;
+  box-shadow:var(--shadow); padding:20px;
+}
+
+/* narration cockpit strip */
+.narration{
+  background:var(--plate); border:var(--hair) solid var(--hairline); border-radius:6px;
+  box-shadow:var(--shadow); padding:22px 24px;
+}
+.narration .now{
+  font-family:"IBM Plex Sans", sans-serif; font-size:13px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted);
+  display:flex; align-items:center; gap:9px; margin-bottom:12px;
+}
+.narration .now .ndot{ width:10px;height:10px;border-radius:50%; background:var(--accent); }
+.narration .beat{ min-height:96px; }
+.narration .beat .station{ font-family:"Fraunces", serif; font-size:22px; font-weight:500; }
+.narration .beat .station .dev{ font-family:"Noto Serif Devanagari", serif; font-size:18px; color:var(--muted); margin-left:7px; }
+.narration .beat .say{ font-size:16px; margin-top:8px; }
+.narration .cockstrip{
+  display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:18px; padding-top:16px; border-top:var(--hair) solid var(--hairsoft);
+  font-family:"IBM Plex Sans", sans-serif;
+}
+.narration .cockstrip .cell .k{ font-size:13px; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); }
+.narration .cockstrip .cell .v{ font-size:15px; margin-top:3px; }
+
+/* the gate tap target */
+.gate-target{
+  margin-top:16px; text-align:center;
+  border:var(--hair) dashed var(--hairline); border-radius:6px; padding:14px;
+  opacity:.4; transition:opacity .3s var(--ease), border-color .3s var(--ease);
+}
+.gate-target.live{ opacity:1; border-color:var(--accent); border-style:solid; }
+.gate-target .gbtn{
+  font-family:"IBM Plex Sans", sans-serif; font-size:15px; font-weight:600; letter-spacing:.04em;
+  color:var(--accent); background:transparent; border:1.5px solid var(--accent); border-radius:999px;
+  padding:10px 22px; cursor:pointer; pointer-events:none;
+  display:inline-flex; align-items:center; gap:9px;
+}
+.gate-target.live .gbtn{ pointer-events:auto; }
+.gate-target .gbtn .ring{ width:9px;height:9px;border-radius:50%; border:1.5px solid currentColor; }
+.gate-target .ghint{ font-family:"IBM Plex Sans", sans-serif; font-size:13px; color:var(--muted); margin-top:8px; }
+.gate-target .tapcount{ font-family:"IBM Plex Sans", sans-serif; font-size:13px; color:var(--accent); margin-top:8px; }
+
+/* the 5 plain steps */
+.daysteps{ margin-top:40px; }
+.daysteps ol{ counter-reset:dstep; list-style:none; margin:0; padding:0;
+  display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:18px; }
+.daysteps li{ counter-increment:dstep; position:relative; padding:18px 18px 18px 18px;
+  border:var(--hair) solid var(--hairline); border-radius:6px; background:var(--plate); font-size:15.5px; }
+.daysteps li::before{
+  content:counter(dstep); font-family:"Fraunces", serif; font-size:15px; font-weight:600; color:var(--accent);
+  display:inline-flex; align-items:center; justify-content:center; width:26px;height:26px; border-radius:50%;
+  border:1.5px solid var(--accent); margin-bottom:10px;
+}
+.daysteps li .st{ font-weight:600; }
+
+/* ====================== JUST YOU <-> YOU + FIVE switch ==================== */
+.switch-head{ display:flex; align-items:center; gap:14px; flex-wrap:wrap; margin-bottom:22px; }
+.seg{
+  display:inline-flex; border:var(--hair) solid var(--hairline); border-radius:999px; overflow:hidden;
+  font-family:"IBM Plex Sans", sans-serif; font-size:15px; font-weight:600;
+}
+.seg button{
+  background:transparent; border:none; color:var(--muted); padding:9px 18px; cursor:pointer;
+  letter-spacing:.02em; transition:color .2s, background .2s;
+}
+.seg button[aria-pressed="true"]{ color:var(--page); background:var(--accent); }
+html[data-theme="light"] .seg button[aria-pressed="true"]{ color:#FBFCFA; }
+.panes{ position:relative; }
+.pane{
+  background:var(--plate); border:var(--hair) solid var(--hairline); border-radius:6px;
+  box-shadow:var(--shadow); padding:28px;
+}
+.pane[hidden]{ display:none; }
+.pane h3{ margin-bottom:6px; }
+.pane .sub{ color:var(--muted); font-style:italic; margin-bottom:16px; }
+.pane ul{ margin:0; padding:0; list-style:none; }
+.pane li{ position:relative; padding-left:20px; margin:0 0 10px; font-size:16px; }
+.pane li::before{ content:""; position:absolute; left:0; top:.62em; width:6px;height:6px;border-radius:50%; background:var(--muted); }
+.pane.alone li::before{ background:var(--muted); }
+.compare-both{ display:grid; grid-template-columns:1fr 1fr; gap:22px; }
+@media (max-width:760px){ .compare-both{ grid-template-columns:1fr; } }
+
+/* =============================== THE COUNT =============================== */
+.count{ display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:var(--hairline);
+  border:var(--hair) solid var(--hairline); border-radius:6px; overflow:hidden; box-shadow:var(--shadow); }
+.count .cell{ background:var(--plate); padding:30px 24px; text-align:center; }
+.count .big{ font-family:"Fraunces", serif; font-size:clamp(42px,7vw,62px); font-weight:500; line-height:1; letter-spacing:-.02em; }
+.count .lbl{ font-family:"IBM Plex Sans", sans-serif; font-size:13.5px; color:var(--muted); margin-top:10px; letter-spacing:.02em; }
+.count .ann{ font-size:14px; color:var(--muted); font-style:italic; margin-top:7px; }
+
+/* ============================ JUDGES RUBRIC ============================== */
+.rubric{ background:var(--plate); border:var(--hair) solid var(--hairline); border-radius:6px; overflow:hidden; box-shadow:var(--shadow); margin-top:30px; }
+.rubric .rr{ display:grid; grid-template-columns:200px 1fr; gap:20px; padding:20px 24px; border-top:var(--hair) solid var(--hairsoft); }
+.rubric .rr:first-child{ border-top:0; }
+.rubric .crit{ }
+.rubric .crit .name{ font-family:"Fraunces", serif; font-size:19px; font-weight:600; }
+.rubric .crit .wt{ font-family:"IBM Plex Sans", sans-serif; font-size:13px; color:var(--accent); margin-top:3px; letter-spacing:.04em; }
+.rubric .how{ font-size:15.5px; }
+.judgefacts{ display:flex; gap:14px; flex-wrap:wrap; margin-top:24px; }
+.chip{ font-family:"IBM Plex Sans", sans-serif; font-size:13px; color:var(--ink);
+  border:var(--hair) solid var(--hairline); border-radius:999px; padding:7px 14px; }
+.chip b{ font-weight:600; }
+
+/* ============================ HONESTY RAIL =============================== */
+.rail{ display:grid; grid-template-columns:1fr 1fr; gap:1px; background:var(--hairline);
+  border:var(--hair) solid var(--hairline); border-radius:6px; overflow:hidden; box-shadow:var(--shadow); margin-top:14px; }
+.rail .col{ background:var(--plate); padding:28px; }
+.rail .col h3{ font-size:18px; }
+.rail .col .kicker{ font-family:"IBM Plex Sans", sans-serif; font-size:13px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); margin-bottom:10px; }
+.rail .col ul{ margin:14px 0 0; padding:0; list-style:none; }
+.rail .col li{ position:relative; padding-left:20px; margin:0 0 10px; font-size:15.5px; }
+.rail .col li::before{ content:""; position:absolute; left:0; top:.62em; width:6px;height:6px;border-radius:50%; background:var(--muted); }
+@media (max-width:760px){ .rail{ grid-template-columns:1fr; } }
+
+/* ============================ CLOSE / YOU ARE HERE ====================== */
+.close{ text-align:center; }
+.close .recap{
+  font-family:"Fraunces", serif; font-size:clamp(20px,3vw,26px); line-height:1.5; max-width:30ch; margin:0 auto 26px;
+}
+.close .recap .arr{ color:var(--accent); }
+.close .recap .name{ font-weight:500; }
+.close .compasspin{ margin:0 auto 26px; }
+.close .you{ font-style:italic; font-size:clamp(18px,2.4vw,21px); color:var(--ink); max-width:54ch; margin:0 auto; }
+
+/* =============================== FOOTER ================================= */
+footer{ border-top:var(--hair) solid var(--hairline); padding:34px 0 60px; }
+footer .flinks{ font-family:"IBM Plex Sans", sans-serif; font-size:15px; display:flex; gap:16px; flex-wrap:wrap; align-items:center; justify-content:center; }
+footer .flinks a{ color:var(--muted); text-decoration:none; padding-bottom:1px; border-bottom:var(--hair) solid transparent; }
+footer .flinks a:hover{ color:var(--ink); border-bottom-color:var(--accent); }
+footer .flinks .sep{ color:var(--hairline); }
+footer .fnote{ text-align:center; color:var(--muted); font-size:13.5px; margin-top:18px; font-style:italic; }
+
+/* =============================== RESPONSIVE ============================= */
+@media (max-width:820px){
+  .specgrid{ grid-template-columns:1fr; }
+  .standpoint .compasswrap{ grid-template-columns:1fr; }
+  .viz-grid{ grid-template-columns:1fr; }
+  .count{ grid-template-columns:repeat(2,1fr); }
+  .rubric .rr{ grid-template-columns:1fr; gap:8px; }
+}
+@media (max-width:520px){
+  .count{ grid-template-columns:1fr; }
+  .legendtable .lr{ grid-template-columns:80px 1fr; }
+  .legendtable .lr .rng{ display:none; }
+}
+
+/* =============================== MOTION ================================= */
+.token-live{ display:none; }
+html.js .token-static{ /* static token shown until run starts */ }
+
+@media (prefers-reduced-motion: reduce){
+  *{ animation:none !important; transition:none !important; }
+}
+</style>
+</head>
+
+<body>
+
+<!-- ===================== TOP RULE (cockpit frame top tick) ================ -->
+<header class="topbar">
+  <div class="wrap row">
+    <div class="brand">darshana <span class="gloss">the seeing</span></div>
+    <button class="toggle" id="themeToggle" type="button" aria-label="Switch light or dark theme">
+      <span class="tk" aria-hidden="true"></span><span id="themeLabel">dark</span>
+    </button>
+  </div>
+</header>
+
+<main>
+
+<!-- ============================= 1 · THE PLATE ============================ -->
+<section class="hero">
+  <div class="wrap">
+    <div class="platehead">
+      <div class="platetitle">darshana <span class="dash">—</span> the seeing</div>
+      <div class="subcap">your whole company, on one page, in five minutes.</div>
+      <p class="promise">No jargon. You run a whole company as <strong>four agentic systems</strong> and <strong>one witness</strong>. Below is the plate: four labeled specimens on one territory, and the seat you read it from. Trace the dotted route once and you understand the company.</p>
+    </div>
+
+    <figure class="plateframe">
+      <!-- ============================================================
+           THE ENGRAVED PLATE — static & complete with zero JS.
+           This is the architecture diagram, the noscript fallback, AND
+           the reduced-motion final state. Both gate-rings drawn in their
+           "waiting" state; route arrows present; verdict + score printed.
+           ============================================================ -->
+      <svg class="plate-svg" viewBox="0 0 640 560" role="img"
+           aria-label="An atlas plate: four specimens — manas the archive, arivu the scale, kalai the bloom, kural the wing — ringed by a dotted route of travel, with the saakshe compass and 'you are here' pin at the reader's standpoint.">
+        <defs>
+          <marker id="arr" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" fill="var(--route)"></path>
+          </marker>
+        </defs>
+
+        <!-- cockpit frame: corner ticks + ruled border (graphite chrome, neutral) -->
+        <g stroke="var(--plate-line)" stroke-width="1" fill="none">
+          <rect x="16" y="16" width="608" height="528" rx="3"></rect>
+          <!-- corner ticks -->
+          <path d="M16,40 L16,16 L40,16"></path>
+          <path d="M600,16 L624,16 L624,40"></path>
+          <path d="M624,520 L624,544 L600,544"></path>
+          <path d="M40,544 L16,544 L16,520"></path>
+        </g>
+
+        <!-- scale bar (lower-left), graphite -->
+        <g transform="translate(40,512)" stroke="var(--accent)" stroke-width="1.2">
+          <line x1="0" y1="0" x2="96" y2="0"></line>
+          <line x1="0" y1="-4" x2="0" y2="4"></line>
+          <line x1="32" y1="-3" x2="32" y2="3"></line>
+          <line x1="64" y1="-3" x2="64" y2="3"></line>
+          <line x1="96" y1="-4" x2="96" y2="4"></line>
+        </g>
+        <text x="40" y="530" class="sans" font-size="10" fill="var(--muted)" letter-spacing="1.2">ONE COMPANY · ONE FOUNDER</text>
+
+        <!-- ===== DOTTED ROUTE OF TRAVEL (the flywheel) ===== -->
+        <!-- ring center 320,256 radius ~150; stations at top/right/bottom/left -->
+        <g fill="none" stroke="var(--route)" stroke-width="1.5" stroke-dasharray="2 5" stroke-linecap="round">
+          <!-- kural(top) -> manas(right) -->
+          <path d="M372,120 A150,150 0 0,1 456,256" marker-end="url(#arr)"></path>
+          <!-- manas(right) -> arivu(bottom) -->
+          <path d="M456,256 A150,150 0 0,1 372,392" marker-end="url(#arr)"></path>
+          <!-- arivu(bottom) -> kalai(left) -->
+          <path d="M268,392 A150,150 0 0,1 184,256" marker-end="url(#arr)"></path>
+          <!-- kalai(left) -> kural(top) -->
+          <path d="M184,256 A150,150 0 0,1 268,120" marker-end="url(#arr)"></path>
+        </g>
+
+        <!-- ===== SPECIMEN 1 · kural (top) — the wing/messenger ===== -->
+        <g transform="translate(320,108)">
+          <circle r="30" fill="none" stroke="var(--kural)" stroke-width="2.2"></circle>
+          <!-- wing motif -->
+          <path d="M-13,4 Q-2,-14 14,-6 Q4,-2 9,8 Q-2,2 -13,4 z" fill="none" stroke="var(--kural)" stroke-width="1.8" stroke-linejoin="round"></path>
+          <text x="0" y="-44" text-anchor="middle" class="sans" font-size="10.5" letter-spacing="1.4" fill="var(--muted)">SPECIMEN 1</text>
+          <text x="0" y="50" text-anchor="middle" class="frau" font-size="15" font-weight="600" fill="var(--kural)">ENGAGES</text>
+          <text x="0" y="66" text-anchor="middle" class="sans" font-size="10.5" fill="var(--muted)">kural · Tamil, voice</text>
+        </g>
+
+        <!-- ===== SPECIMEN 2 · manas (right) — the root/archive ===== -->
+        <g transform="translate(472,256)">
+          <circle r="30" fill="none" stroke="var(--manas)" stroke-width="2.2"></circle>
+          <!-- root/archive motif: stacked strata -->
+          <g stroke="var(--manas)" stroke-width="1.8" stroke-linecap="round">
+            <line x1="-12" y1="-8" x2="12" y2="-8"></line>
+            <line x1="-12" y1="-1" x2="12" y2="-1"></line>
+            <line x1="-12" y1="6" x2="12" y2="6"></line>
+            <path d="M0,6 L-5,14 M0,6 L5,14 M0,6 L0,15" stroke-width="1.4"></path>
+          </g>
+          <text x="0" y="-44" text-anchor="middle" class="sans" font-size="10.5" letter-spacing="1.4" fill="var(--muted)">SPECIMEN 2</text>
+          <text x="0" y="50" text-anchor="middle" class="frau" font-size="15" font-weight="600" fill="var(--manas)">KNOWS</text>
+          <text x="0" y="66" text-anchor="middle" class="sans" font-size="10.5" fill="var(--muted)">manas · the mind</text>
+        </g>
+
+        <!-- ===== SPECIMEN 3 · arivu (bottom) — the weighing scale ===== -->
+        <g transform="translate(320,404)">
+          <circle r="30" fill="none" stroke="var(--arivu)" stroke-width="2.2"></circle>
+          <!-- balance scale motif -->
+          <g stroke="var(--arivu)" stroke-width="1.8" stroke-linecap="round" fill="none">
+            <line x1="0" y1="-13" x2="0" y2="9"></line>
+            <line x1="-14" y1="-9" x2="14" y2="-9"></line>
+            <path d="M-14,-9 L-19,2 L-9,2 z"></path>
+            <path d="M14,-9 L9,2 L19,2 z"></path>
+            <line x1="-8" y1="9" x2="8" y2="9"></line>
+          </g>
+          <text x="0" y="58" text-anchor="middle" class="sans" font-size="10.5" letter-spacing="1.4" fill="var(--muted)">SPECIMEN 3</text>
+          <text x="0" y="74" text-anchor="middle" class="frau" font-size="15" font-weight="600" fill="var(--arivu)">DECIDES</text>
+          <text x="0" y="90" text-anchor="middle" class="sans" font-size="10.5" fill="var(--muted)">arivu · Tamil, intellect/wisdom</text>
+        </g>
+
+        <!-- ===== SPECIMEN 4 · kalai (left) — the bloom ===== -->
+        <g transform="translate(168,256)">
+          <circle r="30" fill="none" stroke="var(--kalai)" stroke-width="2.2"></circle>
+          <!-- bloom motif -->
+          <g stroke="var(--kalai)" stroke-width="1.7" fill="none" stroke-linejoin="round">
+            <circle cx="0" cy="-2" r="3.4"></circle>
+            <path d="M0,-2 C-10,-12 -14,-2 0,-2 C14,-2 10,-12 0,-2 C-10,8 -2,14 0,-2 C2,14 10,8 0,-2 z"></path>
+          </g>
+          <text x="0" y="-44" text-anchor="middle" class="sans" font-size="10.5" letter-spacing="1.4" fill="var(--muted)">SPECIMEN 4</text>
+          <text x="0" y="50" text-anchor="middle" class="frau" font-size="15" font-weight="600" fill="var(--kalai)">MAKES</text>
+          <text x="0" y="66" text-anchor="middle" class="sans" font-size="10.5" fill="var(--muted)">kalai · Tamil, art</text>
+        </g>
+
+        <!-- ===== saakshe — the COMPASS ROSE + "you are here" pin (center) ===== -->
+        <g transform="translate(320,256)">
+          <!-- compass rose, graphite -->
+          <g stroke="var(--saakshe)" stroke-width="1.2" fill="none">
+            <circle r="34"></circle>
+            <circle r="22"></circle>
+          </g>
+          <g stroke="var(--saakshe)" stroke-width="1.4">
+            <line x1="0" y1="-40" x2="0" y2="40"></line>
+            <line x1="-40" y1="0" x2="40" y2="0"></line>
+          </g>
+          <!-- compass star -->
+          <path d="M0,-40 L6,0 L0,40 L-6,0 z" fill="var(--saakshe)" opacity=".85"></path>
+          <path d="M-40,0 L0,-6 L40,0 L0,6 z" fill="var(--saakshe)" opacity=".4"></path>
+          <text x="0" y="-46" text-anchor="middle" class="sans" font-size="9.5" fill="var(--muted)">N</text>
+          <!-- you-are-here pin -->
+          <g transform="translate(0,2)">
+            <text x="0" y="3" text-anchor="middle" font-size="13" fill="var(--saakshe)">✦</text>
+          </g>
+          <text x="0" y="58" text-anchor="middle" class="sans" font-size="10.5" letter-spacing="1" fill="var(--saakshe)" font-weight="600">✦ YOU ARE HERE</text>
+          <text x="0" y="72" text-anchor="middle" class="sans" font-size="9.5" fill="var(--muted)">saakshe · the witness · your seat</text>
+        </g>
+
+        <!-- ===== TWO GATE RINGS in "waiting" state (pulse when JS runs) ===== -->
+        <!-- gate at arivu (tap 1) -->
+        <circle id="gateRingArivu" cx="320" cy="404" r="38" fill="none" stroke="var(--accent)" stroke-width="1.4" stroke-dasharray="3 4" opacity=".7"></circle>
+        <!-- gate at kural (tap 2) -->
+        <circle id="gateRingKural" cx="320" cy="108" r="38" fill="none" stroke="var(--accent)" stroke-width="1.4" stroke-dasharray="3 4" opacity=".7"></circle>
+
+        <!-- traveling token, static at kural start -->
+        <g id="token" transform="translate(320,108)">
+          <text x="0" y="0" text-anchor="middle" dominant-baseline="middle" font-size="15" fill="var(--accent)">✦</text>
+        </g>
+
+        <!-- printed static verdict + score captions, in the clear interior band
+             (below saakshe labels ~y328, above arivu gate ring ~y366) -->
+        <text x="320" y="346" text-anchor="middle" class="sans" font-size="11" fill="var(--muted)">
+          <tspan fill="var(--arivu)">verdict</tspan> raise Pro to $34, grandfather existing
+        </text>
+        <text x="320" y="361" text-anchor="middle" class="sans" font-size="11" fill="var(--muted)">
+          <tspan fill="var(--kalai)">banner</tspan> scored 9.1/10 on-brand
+        </text>
+      </svg>
+      <figcaption>The plate — four specimens on one territory; <span class="c-saakshe">saakshe</span> is the compass and the “you are here” pin. The dotted line is the route of travel: the flywheel. Two founder gates sit at arivu and kural; once the day runs, manas writes the decision to memory (v14 → v15).</figcaption>
+      <div class="legendline">“saakshe initiates nothing. It is where your one tap lands.”</div>
+    </figure>
+  </div>
+</section>
+
+<!-- ============================= 2 · THE LEGEND =========================== -->
+<section class="seam washed">
+  <div class="wrap">
+    <p class="eyebrow"><span class="num">2</span> · the legend — the key to the plate</p>
+    <h2 style="text-align:center;max-width:18ch;margin:0 auto 26px;">One line that translates the whole page.</h2>
+    <div class="seam">
+      <div class="line">
+        <span class="verb">knows</span> <span class="arr">→</span> <span class="name c-manas">manas</span>
+        <span class="sep">·</span>
+        <span class="verb">decides</span> <span class="arr">→</span> <span class="name c-arivu">arivu</span>
+        <span class="sep">·</span>
+        <span class="verb">makes</span> <span class="arr">→</span> <span class="name c-kalai">kalai</span>
+        <span class="sep">·</span>
+        <span class="verb">engages</span> <span class="arr">→</span> <span class="name c-kural">kural</span>
+        <span class="sep">·</span>
+        <span class="verb">witnesses</span> <span class="arr">→</span> <span class="name c-saakshe">saakshe</span>
+      </div>
+    </div>
+
+    <div class="legendtable" role="table" aria-label="Legend: verb, system, gloss">
+      <div class="lr c-manas" role="row">
+        <span class="verb" role="cell">knows</span>
+        <span class="nm" role="cell"><span class="dot manas" aria-hidden="true"></span>manas <span class="gl">— the mind</span></span>
+        <span class="rng" role="cell" aria-hidden="true"></span>
+      </div>
+      <div class="lr c-arivu" role="row">
+        <span class="verb" role="cell">decides</span>
+        <span class="nm" role="cell"><span class="dot arivu" aria-hidden="true"></span>arivu <span class="gl">— Tamil, intellect/wisdom</span></span>
+        <span class="rng" role="cell" aria-hidden="true"></span>
+      </div>
+      <div class="lr c-kalai" role="row">
+        <span class="verb" role="cell">makes</span>
+        <span class="nm" role="cell"><span class="dot kalai" aria-hidden="true"></span>kalai <span class="gl">— Tamil, art</span></span>
+        <span class="rng" role="cell" aria-hidden="true"></span>
+      </div>
+      <div class="lr c-kural" role="row">
+        <span class="verb" role="cell">engages</span>
+        <span class="nm" role="cell"><span class="dot kural" aria-hidden="true"></span>kural <span class="gl">— Tamil, voice</span></span>
+        <span class="rng" role="cell" aria-hidden="true"></span>
+      </div>
+      <div class="lr c-saakshe" role="row">
+        <span class="verb" role="cell">witnesses</span>
+        <span class="nm" role="cell"><span class="dot saakshe" aria-hidden="true"></span>saakshe <span class="gl">— the witness · your seat</span></span>
+        <span class="rng" role="cell" aria-hidden="true"></span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========================== 3 · THE FOUR SPECIMENS ===================== -->
+<section>
+  <div class="wrap">
+    <p class="eyebrow"><span class="num">3</span> · the four specimens</p>
+    <h2 style="max-width:22ch;">Four systems. Each is trustworthy because of what it refuses to do.</h2>
+    <p class="lead cap" style="margin-top:14px;">The boundaries — the “Never” lines — are what keep the four distinct and safe to run while you sleep.</p>
+
+    <div class="specgrid">
+
+      <!-- manas -->
+      <article class="spec">
+        <span class="tag c-manas"><span class="specring"></span>Specimen 2 · seats 7</span>
+        <div class="verbword c-manas">KNOWS</div>
+        <div class="latin">manas — the memory</div>
+        <div class="nmeta">
+          <span class="nm">manas</span>
+        </div>
+        <p class="what">It absorbs everything — your docs, brand images, voice notes, what customers say — into one versioned brand-truth that every other system reads before it acts.</p>
+        <ul>
+          <li>Holds the single “Context Pack” of brand truth (v14 → v15 on any change).</li>
+          <li>Every other system reads it first, so nothing acts off stale facts.</li>
+          <li>If asked something it hasn’t learned, it says so instead of guessing.</li>
+        </ul>
+        <div class="never"><span class="k">Never</span><span class="v">Invents. If it hasn’t learned it, it refuses — it never acts, posts, or decides.</span></div>
+      </article>
+
+      <!-- arivu -->
+      <article class="spec">
+        <span class="tag c-arivu"><span class="specring"></span>Specimen 3 · seats 9</span>
+        <div class="verbword c-arivu">DECIDES</div>
+        <div class="latin">arivu — the judge</div>
+        <div class="nmeta">
+          <span class="nm">arivu</span>
+        </div>
+        <p class="what">Called only when stakes exist — pricing, spend, priorities. Five advisors argue from real data, a chair writes the verdict, a prosecutor attacks it; only verdicts that survive reach you.</p>
+        <ul>
+          <li>Surfaces the trade-off, not just an answer — with the dissent attached.</li>
+          <li>A prosecutor stress-tests every verdict before it can reach your seat.</li>
+          <li>Then it halts at your gate: one tap turns the verdict into orders.</li>
+        </ul>
+        <div class="never"><span class="k">Never</span><span class="v">Creates, talks to outsiders, or answers trivia — and it never acts past your gate.</span></div>
+      </article>
+
+      <!-- kalai -->
+      <article class="spec">
+        <span class="tag c-kalai"><span class="specring"></span>Specimen 4 · seats 5</span>
+        <div class="verbword c-kalai">MAKES</div>
+        <div class="latin">kalai — the studio</div>
+        <div class="nmeta">
+          <span class="nm">kalai</span>
+        </div>
+        <p class="what">Brief in, finished on-brand creative out. It scores its own work against manas’s brand DNA and redoes it until it passes — then hands the approved master to kural.</p>
+        <ul>
+          <li>Grades its own output against your brand truth and iterates to a pass.</li>
+          <li>Lives entirely inside the company — it holds no channel keys.</li>
+          <li>Its definition of “done” is a master handed to the envoy.</li>
+        </ul>
+        <div class="never"><span class="k">Never</span><span class="v">Publishes or replies to anyone. It makes; it does not speak to the world.</span></div>
+      </article>
+
+      <!-- kural -->
+      <article class="spec">
+        <span class="tag c-kural"><span class="specring"></span>Specimen 1 · seats 7</span>
+        <div class="verbword c-kural">ENGAGES</div>
+        <div class="latin">kural — the mouth</div>
+        <div class="nmeta">
+          <span class="nm">kural</span>
+        </div>
+        <p class="what">The only system with channel keys (X, Instagram, LinkedIn…). It posts what kalai made, runs outreach, replies, books meetings — and feeds what comes back to manas to learn from.</p>
+        <ul>
+          <li>The sole holder of channel keys; the company’s one mouth to the world.</li>
+          <li>Two-way: replies and inbound feed manas so the company keeps learning.</li>
+          <li>The publish / send gate is its gate — it waits for your tap to go live.</li>
+        </ul>
+        <div class="never"><span class="k">Never</span><span class="v">Edits creative (sends it back to kalai), says unverified things, or blasts.</span></div>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<!-- ====================== 4 · saakshe — THE STANDPOINT ===================== -->
+<section class="standpoint washed">
+  <div class="wrap">
+    <p class="eyebrow"><span class="num">4</span> · saakshe — the standpoint, not a fifth specimen</p>
+    <div class="verbword c-saakshe" style="font-size:34px;">WITNESSES</div>
+    <div class="latin" style="font-family:'IBM Plex Sans',sans-serif;font-size:13px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-top:7px;">saakshe — the witness</div>
+    <h2 style="max-width:24ch;margin-top:16px;">This one is not an employee. It’s your seat.</h2>
+    <p class="never" style="border-top:0;padding-top:0;max-width:60ch;margin-top:12px;"><span class="k">Never</span><span class="v">Initiates anything. It only watches, holds the gate queue, and waits for your one tap.</span></p>
+
+    <div class="compasswrap" style="margin-top:30px;">
+      <div class="compasscard">
+        <!-- a small compass echoing the hero pin -->
+        <svg viewBox="0 0 160 160" width="160" height="160" style="margin:0 auto;" role="img" aria-label="The saakshe compass and you-are-here pin.">
+          <g stroke="var(--saakshe)" stroke-width="1.2" fill="none">
+            <circle cx="80" cy="80" r="58"></circle>
+            <circle cx="80" cy="80" r="40"></circle>
+          </g>
+          <g stroke="var(--saakshe)" stroke-width="1.4">
+            <line x1="80" y1="14" x2="80" y2="146"></line>
+            <line x1="14" y1="80" x2="146" y2="80"></line>
+          </g>
+          <path d="M80,16 L88,80 L80,144 L72,80 z" fill="var(--saakshe)" opacity=".85"></path>
+          <path d="M16,80 L80,72 L144,80 L80,88 z" fill="var(--saakshe)" opacity=".4"></path>
+          <text x="80" y="86" text-anchor="middle" font-size="18" fill="var(--saakshe)">✦</text>
+        </svg>
+        <div class="youhere">✦ you are here</div>
+      </div>
+
+      <div>
+        <p class="lead">saakshe is the live cockpit: which system is doing what right now, what it costs, and whether the next step can be undone. It holds the gate queue — every approval lands here, at your seat.</p>
+        <p style="font-size:16px;">With Gemini Live voice, you can ask it plainly — “anyone waiting on me?” — and it answers grounded only in real telemetry. If the data doesn’t say it, it refuses to say it. It starts nothing on its own.</p>
+
+        <div class="cockpit" aria-label="Live cockpit fields">
+          <div class="row"><span class="lbl">active now</span><span>which of the four is working, in plain words</span></div>
+          <div class="row"><span class="lbl">cost</span><span>what this step is spending as it runs</span></div>
+          <div class="row"><span class="lbl">reversible?</span><span>whether you can still undo it after the tap</span></div>
+          <div class="row"><span class="lbl">gate queue</span><span>everything that is waiting for your one tap</span></div>
+        </div>
+
+        <p class="tagline c-saakshe" style="color:var(--ink);">“saakshe initiates nothing. It is where your one tap lands.”</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ====================== 5 · THE SEATS — who sits inside each ============ -->
+<section>
+  <div class="wrap">
+    <p class="eyebrow"><span class="num">5</span> · inside the territories — all 28 seats</p>
+    <h2 style="max-width:24ch;">Each system is itself a small team. Here is everyone, by name.</h2>
+    <p class="lead cap" style="margin-top:14px;">Every seat is one small agent with one job — that’s why each can be trusted: nobody does two things. Twenty-eight seats across the four systems; saakshe employs no one.</p>
+    <p class="rosterkey"><span class="cring" style="color:var(--accent);"></span> a thin ring marks the eight high-stakes seats — two per system, they think on Claude, through Vertex AI. Every other seat runs on Gemini.</p>
+
+    <div class="specgrid" style="margin-top:30px;">
+
+      <!-- manas seats -->
+      <article class="spec">
+        <span class="tag c-manas"><span class="specring"></span>manas · 7 seats</span>
+        <div class="nmeta"><span class="nm">inside the memory</span></div>
+        <ul class="seatlist" style="margin-top:16px;">
+          <li><b>Mind-Keeper</b> — the front desk; routes every incoming fragment to the right specialist.</li>
+          <li><b>Document Imbiber</b> — reads your PDFs, decks and briefs, page by page.</li>
+          <li><b>Visual Imbiber</b> — studies your logos, mood boards and past creative; learns your visual taste.</li>
+          <li><b>Voice Imbiber</b> — listens to your voice notes and calls; learns how you actually speak.</li>
+          <li><b>Sentiment Imbiber</b> — the ears; pulls in comments and mentions on a schedule, including everything kural’s conversations bring back.</li>
+          <li><b>Curator</b><span class="cring c-manas" title="high-stakes seat — runs on Claude via Vertex AI"></span> — the gatekeeper of memory; nothing is saved unless it cites a source and contradicts nothing already known.</li>
+          <li><b>Founder-Voice</b><span class="cring c-manas" title="high-stakes seat — runs on Claude via Vertex AI"></span> — answers as you, only from stored memory; refuses what it hasn’t learned.</li>
+        </ul>
+      </article>
+
+      <!-- arivu seats -->
+      <article class="spec">
+        <span class="tag c-arivu"><span class="specring"></span>arivu · 9 seats</span>
+        <div class="nmeta"><span class="nm">inside the chamber</span></div>
+        <ul class="seatlist" style="margin-top:16px;">
+          <li><b>Chair / coordinator</b> — frames your question, runs the room; never votes.</li>
+          <li><b>Economist</b> — the money lens: margins, pricing, what a decision earns.</li>
+          <li><b>Growth advocate</b> — the funnel lens: what it does to signups and conversion.</li>
+          <li><b>Brand guardian</b> — the promise lens: checks every call against manas’s canon.</li>
+          <li><b>Risk · devil’s advocate</b> — paid to find the downside; the one who catches the churn cliff.</li>
+          <li><b>Ops feasibility</b> — asks “can we actually ship this safely, today?” and can veto.</li>
+          <li><b>Chair-synthesizer</b><span class="cring c-arivu" title="high-stakes seat — runs on Claude via Vertex AI"></span> — folds the surviving arguments into one verdict, dissent attached.</li>
+          <li><b>Prosecutor</b><span class="cring c-arivu" title="high-stakes seat — runs on Claude via Vertex AI"></span> — attacks the verdict; only what survives reaches your seat.</li>
+          <li><b>Executor</b> — fires only after your tap; commits the change and sends the orders.</li>
+        </ul>
+      </article>
+
+      <!-- kalai seats -->
+      <article class="spec">
+        <span class="tag c-kalai"><span class="specring"></span>kalai · 5 seats</span>
+        <div class="nmeta"><span class="nm">inside the studio</span></div>
+        <ul class="seatlist" style="margin-top:16px;">
+          <li><b>Creative Director</b><span class="cring c-kalai" title="high-stakes seat — runs on Claude via Vertex AI"></span> — reads the brief, sets the direction and the taste.</li>
+          <li><b>Designer / Producer</b> — generates the actual images, video and music.</li>
+          <li><b>Copy &amp; SEO</b> — writes the headlines and captions alongside, in parallel.</li>
+          <li><b>Brand-Fidelity scorer</b> — grades every draft against your brand truth; below the bar means do it again.</li>
+          <li><b>Compliance check</b><span class="cring c-kalai" title="high-stakes seat — runs on Claude via Vertex AI"></span> — the last internal gate before handoff: claims, rights, tone — it fails closed.</li>
+        </ul>
+      </article>
+
+      <!-- kural seats -->
+      <article class="spec">
+        <span class="tag c-kural"><span class="specring"></span>kural · 7 seats</span>
+        <div class="nmeta"><span class="nm">inside the envoy</span></div>
+        <ul class="seatlist" style="margin-top:16px;">
+          <li><b>Coordinator</b><span class="cring c-kural" title="high-stakes seat — runs on Claude via Vertex AI"></span> — decides who is worth pursuing at all; unqualified prospects are refused.</li>
+          <li><b>Researcher</b> — fans out and researches each prospect properly, with cited sources.</li>
+          <li><b>Market Intelligence</b> — finds the reason-to-care-right-now in what the research returned.</li>
+          <li><b>Personalisation Writer</b> — one specific message per person — outreach and replies alike, in your voice from manas.</li>
+          <li><b>Fact-Checker</b><span class="cring c-kural" title="high-stakes seat — runs on Claude via Vertex AI"></span> — blocks anything it can’t prove; nothing unverified ever leaves.</li>
+          <li><b>Sender</b> — sends the outreach and books the meeting, under strict caps; never double-sends.</li>
+          <li><b>Publisher</b> — holds the channel keys (X · Instagram · LinkedIn); publishes kalai’s approved work, after your tap.</li>
+        </ul>
+      </article>
+
+      <!-- saakshe — zero seats -->
+      <article class="spec fullrow">
+        <span class="tag c-saakshe"><span class="specring"></span>saakshe · 0 seats</span>
+        <div class="nmeta"><span class="nm">nobody works here — you sit here</span></div>
+        <p class="what">The witness employs no one. Instead of seats it has instruments, all pointed at the four systems:</p>
+        <ul class="seatlist">
+          <li><b>The live feed</b> — every step, as it happens, in plain words.</li>
+          <li><b>The gate queue</b> — everything waiting for your one tap, in one place.</li>
+          <li><b>The cost ledger</b> — what each system is spending, and which acts can’t be undone.</li>
+          <li><b>The office floor</b> — the whole company as a small lit office you can watch work.</li>
+          <li><b>The voice</b> — ask it out loud (Gemini Live); it answers only from what the telemetry actually says.</li>
+        </ul>
+        <div class="never"><span class="k">Never</span><span class="v">Works, decides, or initiates. The 28 work — the witness watches, and waits for you.</span></div>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<!-- ====================== 6 · WATCH IT RUN (the $39 day) ================= -->
+<section>
+  <div class="wrap">
+    <p class="eyebrow"><span class="num">6</span> · watch it run — a $39 day</p>
+    <h2 style="max-width:26ch;">One tap to start. Then the company runs in front of you — and stops twice, for you.</h2>
+    <p class="lead cap" style="margin-top:14px;">A small mark — the work — travels the route kural → manas → arivu → kalai → kural. It pauses at exactly two gates. You tap. The day continues.</p>
+
+    <div class="viz-shell">
+      <div class="run-lever-wrap">
+        <button class="run-lever" id="runDay" type="button">
+          <span class="pin" aria-hidden="true">✦</span> <span id="runLabel">Run a day — from your seat</span>
+        </button>
+      </div>
+
+      <div class="viz-grid">
+        <div class="viz-svgcard">
+          <!-- a compact live copy of the ring; the static plate above is the full diagram -->
+          <svg id="vizSvg" viewBox="0 0 400 400" width="100%" role="img"
+               aria-label="The flywheel running: a token travels the route and stops at the two founder gates.">
+            <defs>
+              <marker id="arr2" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M0,0 L10,5 L0,10 z" fill="var(--route)"></path>
+              </marker>
+            </defs>
+            <!-- route -->
+            <g fill="none" stroke="var(--route)" stroke-width="1.5" stroke-dasharray="2 5" stroke-linecap="round">
+              <path d="M232,82 A120,120 0 0,1 300,200" marker-end="url(#arr2)"></path>
+              <path d="M300,200 A120,120 0 0,1 232,318" marker-end="url(#arr2)"></path>
+              <path d="M168,318 A120,120 0 0,1 100,200" marker-end="url(#arr2)"></path>
+              <path d="M100,200 A120,120 0 0,1 168,82" marker-end="url(#arr2)"></path>
+            </g>
+            <!-- stations -->
+            <g class="sans" font-size="11" text-anchor="middle">
+              <g transform="translate(200,80)"><circle r="22" fill="none" stroke="var(--kural)" stroke-width="2"></circle><text y="40" fill="var(--kural)" font-weight="600">kural</text><text y="4" fill="var(--kural)">✉</text></g>
+              <g transform="translate(320,200)"><circle r="22" fill="none" stroke="var(--manas)" stroke-width="2"></circle><text y="40" fill="var(--manas)" font-weight="600">manas</text><text y="5" fill="var(--manas)">▤</text></g>
+              <g transform="translate(200,320)"><circle r="22" fill="none" stroke="var(--arivu)" stroke-width="2"></circle><text y="44" fill="var(--arivu)" font-weight="600">arivu</text><text y="5" fill="var(--arivu)">⚖</text></g>
+              <g transform="translate(80,200)"><circle r="22" fill="none" stroke="var(--kalai)" stroke-width="2"></circle><text y="40" fill="var(--kalai)" font-weight="600">kalai</text><text y="5" fill="var(--kalai)">❀</text></g>
+            </g>
+            <!-- center compass -->
+            <g transform="translate(200,200)">
+              <g stroke="var(--saakshe)" stroke-width="1" fill="none"><circle r="26"></circle></g>
+              <g stroke="var(--saakshe)" stroke-width="1.2"><line x1="0" y1="-30" x2="0" y2="30"></line><line x1="-30" y1="0" x2="30" y2="0"></line></g>
+              <path d="M0,-30 L5,0 L0,30 L-5,0 z" fill="var(--saakshe)" opacity=".85"></path>
+              <text y="44" text-anchor="middle" class="sans" font-size="10" fill="var(--saakshe)">✦ you</text>
+            </g>
+            <!-- gate rings (pulse) -->
+            <circle id="vGateArivu" cx="200" cy="320" r="30" fill="none" stroke="var(--accent)" stroke-width="1.4" stroke-dasharray="3 4" opacity="0"></circle>
+            <circle id="vGateKural" cx="200" cy="80" r="30" fill="none" stroke="var(--accent)" stroke-width="1.4" stroke-dasharray="3 4" opacity="0"></circle>
+            <!-- live token -->
+            <g id="vToken" transform="translate(200,80)" opacity="0">
+              <text x="0" y="0" text-anchor="middle" dominant-baseline="middle" font-size="16" fill="var(--accent)">✦</text>
+            </g>
+          </svg>
+        </div>
+
+        <div class="narration" aria-live="polite">
+          <div class="now"><span class="ndot" aria-hidden="true"></span><span id="nowLabel">waiting — press “Run a day”</span></div>
+          <div class="beat">
+            <div class="station" id="beatStation">the company at rest</div>
+            <div class="say" id="beatSay">One mark — the work — sits at the envoy, ready. Press the lever and watch it move. It will stop twice, for you.</div>
+          </div>
+
+          <div class="gate-target" id="gateTarget">
+            <button class="gbtn" id="gateBtn" type="button"><span class="ring" aria-hidden="true"></span>tap to approve</button>
+            <div class="ghint" id="gateHint">a gate will light here when the company needs you</div>
+            <div class="tapcount" id="tapCount">founder taps today: 0 of 2</div>
+          </div>
+
+          <div class="cockstrip">
+            <div class="cell"><div class="k">active now</div><div class="v" id="cActive">—</div></div>
+            <div class="cell"><div class="k">step cost</div><div class="v" id="cCost">—</div></div>
+            <div class="cell"><div class="k">reversible?</div><div class="v" id="cRev">—</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- the day told as 5 plain beats (static, complete) -->
+      <div class="daysteps">
+        <ol>
+          <li><span class="st">You ask arivu</span> — “raise Pro to $39?” Advisors argue; Risk catches a churn cliff past $36. The verdict “raise to $34, grandfather existing” survives the prosecutor.</li>
+          <li><span class="st">The gate lands in saakshe</span> — at your seat. You tap once. (Tap 1.)</li>
+          <li><span class="st">arivu flips the flag</span> — and orders kural to announce and kalai to make the banner.</li>
+          <li><span class="st">kalai makes the banner</span> — scores it on-brand 9.1/10, hands the master to kural; kural’s publish gate lights — you tap again — it goes live. (Tap 2.)</li>
+          <li><span class="st">manas remembers</span> — it writes the whole decision into company memory, v14 → v15. The company remembers its own decision.</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== 5b · JUST YOU <-> YOU + THE FIVE ================ -->
+<section class="washed">
+  <div class="wrap">
+    <p class="eyebrow"><span class="num">·</span> the business case — one week, two ways</p>
+    <h2 style="max-width:24ch;">The same campaign. One of you doing everything — or one brief and two taps.</h2>
+
+    <div class="switch-head" style="margin-top:22px;">
+      <div class="seg" role="group" aria-label="Compare the week">
+        <button id="segAlone" type="button" aria-pressed="true">just you</button>
+        <button id="segFive" type="button" aria-pressed="false">you + the five</button>
+      </div>
+      <span class="cap" style="font-size:15px;font-style:italic;" id="segCap">a pricing change that needs research, a decision, creative, and a launch.</span>
+    </div>
+
+    <div class="panes">
+      <div class="pane alone" id="paneAlone">
+        <h3>Just you — the week you know too well</h3>
+        <p class="sub">five jobs, one person, context lost between every tab.</p>
+        <ul>
+          <li>You dig through old docs and DMs to remember what the brand even promised — there’s no single source of truth, so you half-trust your memory.</li>
+          <li>You argue the pricing call with yourself at 1am; no one stress-tests it, and you ship the number you were least afraid of.</li>
+          <li>You open the design tool, make the banner, second-guess it, redo it twice, and still aren’t sure it’s on-brand.</li>
+          <li>You write the posts, schedule them, reply to comments, and try to book the meetings — across five logins.</li>
+          <li>By Friday nothing is written down. Next month you re-litigate the same decision from scratch.</li>
+        </ul>
+      </div>
+
+      <div class="pane" id="paneFive" hidden>
+        <h3>You + the five — the same week</h3>
+        <p class="sub">one brief in, two taps from you, the company carries the rest.</p>
+        <ul>
+          <li><span class="c-manas">manas</span> already holds the brand truth; every system reads it first, so nothing drifts.</li>
+          <li><span class="c-arivu">arivu</span> argues the price five ways, a prosecutor attacks the verdict, and only the survivor reaches your seat. <strong>You tap once.</strong></li>
+          <li><span class="c-kalai">kalai</span> makes the banner and scores it 9.1/10 on-brand before anyone sees it — then hands the master over.</li>
+          <li><span class="c-kural">kural</span> posts it, runs the outreach, and replies — once <strong>you tap to publish.</strong> What comes back feeds manas.</li>
+          <li>The whole decision is written into memory, v14 → v15. Next month the company already knows why.</li>
+        </ul>
+      </div>
+    </div>
+
+    <p class="cap" style="margin-top:18px;font-size:15px;">Same five roles. The difference is that they become <strong>one brief and two taps</strong> — and the company remembers what it did.</p>
+  </div>
+</section>
+
+<!-- ============================== 6 · THE COUNT ========================== -->
+<section>
+  <div class="wrap">
+    <p class="eyebrow"><span class="num">7</span> · the count — measured like a specimen</p>
+    <h2 style="max-width:22ch;">One founder, quietly running a staffed company.</h2>
+
+    <div class="count" style="margin-top:30px;">
+      <div class="cell"><div class="big frau">4</div><div class="lbl">systems</div><div class="ann">manas · arivu · kalai · kural</div></div>
+      <div class="cell"><div class="big frau">28</div><div class="lbl">specialist agents</div><div class="ann">seats 7 · 9 · 5 · 7 across the four</div></div>
+      <div class="cell"><div class="big frau">1</div><div class="lbl">witness</div><div class="ann">saakshe — your seat, not an employee</div></div>
+      <div class="cell"><div class="big frau">8</div><div class="lbl">high-stakes seats</div><div class="ann">two per system, on Claude via Vertex AI; Gemini runs the many</div></div>
+      <div class="cell"><div class="big frau">2</div><div class="lbl">founder taps</div><div class="ann">in a typical day — both at a gate</div></div>
+      <div class="cell"><div class="big frau">1</div><div class="lbl">founder</div><div class="ann">you, reading the plate from saakshe</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ========================= 7 · FIT FOR THE JUDGES ====================== -->
+<section class="washed">
+  <div class="wrap">
+    <p class="eyebrow"><span class="num">8</span> · fit for the judges</p>
+    <h2 style="max-width:26ch;">Google for Startups AI Agents Challenge — Track 1, Build.</h2>
+
+    <div class="judgefacts">
+      <span class="chip"><b>Deadline</b> · June 11, 2026, 5:00 PM PT</span>
+      <span class="chip"><b>Track 1</b> · Build (net-new)</span>
+      <span class="chip"><b>Built on</b> · ADK</span>
+      <span class="chip"><b>Deployed</b> · Vertex AI Agent Engine</span>
+      <span class="chip"><b>Models</b> · Gemini for the many · Claude-via-Vertex for 8 seats</span>
+      <span class="chip"><b>One entry</b> · three shots — Grand · Best-of-Theme · APAC</span>
+    </div>
+
+    <div class="rubric">
+      <div class="rr">
+        <div class="crit"><div class="name">Technical</div><div class="wt">weight 30%</div></div>
+        <div class="how">A real multi-agent ADK build: the hero loop done end-to-end for real — arivu decision → your tap → kalai makes → handoff → kural publishes live.</div>
+      </div>
+      <div class="rr">
+        <div class="crit"><div class="name">Business Case</div><div class="wt">weight 30%</div></div>
+        <div class="how">The company-of-one story, quantified: a solo founder doing the work of a staffed company, where a campaign that needs five roles becomes one brief and two taps.</div>
+      </div>
+      <div class="rr">
+        <div class="crit"><div class="name">Innovation</div><div class="wt">weight 20%</div></div>
+        <div class="how">The witness itself — a live, cross-system org cockpit with a human run-seat and voice. No existing tool shows live, actionable org activity this way.</div>
+      </div>
+      <div class="rr">
+        <div class="crit"><div class="name">Demo</div><div class="wt">weight 20%</div></div>
+        <div class="how">The whole video shot through saakshe: ask it by voice what’s happening, watch the company work, and tap the gate on camera.</div>
+      </div>
+    </div>
+
+    <p class="cap" style="margin-top:20px;font-size:15px;max-width:70ch;">One submission — “the agentic company and its witness.” One hero loop built for real; the other systems present honestly in minimal form; saakshe is the face of the demo. Not five separate entries.</p>
+  </div>
+</section>
+
+<!-- =============== 8 · REAL TODAY vs BUILT FOR THE JUDGES =============== -->
+<section>
+  <div class="wrap">
+    <p class="eyebrow"><span class="num">9</span> · the honesty rail — founder to founder</p>
+    <h2 style="max-width:24ch;">What’s real today, and what gets built for the judges.</h2>
+
+    <div class="rail">
+      <div class="col">
+        <div class="kicker">real today</div>
+        <h3>Working, designed surfaces — the spec and story layer.</h3>
+        <ul>
+          <li>The four product surfaces — manas, arivu, kalai, kural — exist as working, designed pages.</li>
+          <li>The saakshe cockpit exists as a designed surface: the live-witness story and the gate queue.</li>
+          <li>The canon is settled: four systems, one witness, the seam line, the $39 day.</li>
+        </ul>
+      </div>
+      <div class="col">
+        <div class="kicker">built next · days remaining</div>
+        <h3>The ADK hero loop, end to end.</h3>
+        <ul>
+          <li>arivu reaches a real decision from real data.</li>
+          <li>The gate lands at your seat — you tap.</li>
+          <li>kalai makes, scores, and hands the master to kural.</li>
+          <li>kural publishes live, and what comes back feeds manas.</li>
+        </ul>
+      </div>
+    </div>
+    <p class="cap" style="margin-top:18px;font-size:15px;">Equal weight, no spin. The interaction on this page is the story; the agent build is the next step.</p>
+  </div>
+</section>
+
+<!-- ========================= 9 · YOU ARE HERE (close) =================== -->
+<section class="close washed">
+  <div class="wrap">
+    <p class="eyebrow" style="text-align:center;"><span class="num">10</span> · you are here</p>
+    <div class="recap">
+      <span class="cap">knows</span> <span class="arr">→</span> <span class="name c-manas">manas</span> ·
+      <span class="cap">decides</span> <span class="arr">→</span> <span class="name c-arivu">arivu</span> ·
+      <span class="cap">makes</span> <span class="arr">→</span> <span class="name c-kalai">kalai</span> ·
+      <span class="cap">engages</span> <span class="arr">→</span> <span class="name c-kural">kural</span> ·
+      <span class="cap">witnesses</span> <span class="arr">→</span> <span class="name c-saakshe">saakshe</span>
+    </div>
+
+    <svg class="compasspin" viewBox="0 0 120 120" width="96" height="96" role="img" aria-label="The you-are-here compass pin.">
+      <g stroke="var(--saakshe)" stroke-width="1.1" fill="none"><circle cx="60" cy="60" r="44"></circle><circle cx="60" cy="60" r="30"></circle></g>
+      <g stroke="var(--saakshe)" stroke-width="1.3"><line x1="60" y1="12" x2="60" y2="108"></line><line x1="12" y1="60" x2="108" y2="60"></line></g>
+      <path d="M60,14 L66,60 L60,106 L54,60 z" fill="var(--saakshe)" opacity=".85"></path>
+      <text x="60" y="66" text-anchor="middle" font-size="16" fill="var(--saakshe)">✦</text>
+    </svg>
+
+    <p class="you">You don’t run five tools. You run one company — and you watch it from here.</p>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="flinks">
+      <a href="manas.html">manas</a><span class="sep">·</span>
+      <a href="arivu.html">arivu</a><span class="sep">·</span>
+      <a href="kalai.html">kalai</a><span class="sep">·</span>
+      <a href="kural.html">kural</a><span class="sep">·</span>
+      <a href="cockpit.html">saakshe</a>
+    </div>
+    <div class="fnote">darshana · the seeing — your whole company, on one page.</div>
+  </div>
+</footer>
+
+<!-- ============================ noscript fallback ======================== -->
+<noscript>
+  <div style="max-width:680px;margin:0 auto;padding:30px 28px;border-top:1px solid var(--hairline);">
+    <p style="font-family:'IBM Plex Sans',sans-serif;font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);">the company, in plain words (no-script reading)</p>
+    <p style="font-size:16px;">The plate above is already complete and static: the four specimens are ringed by the dotted route of travel — <strong>kural</strong> (engages) → <strong>manas</strong> (knows) → <strong>arivu</strong> (decides) → <strong>kalai</strong> (makes) → back to <strong>kural</strong> — and <strong>saakshe</strong> sits at the centre as the compass and the “you are here” pin: your seat. Both founder gates (at arivu and kural) are drawn in their waiting state, and the verdict “raise Pro to $34, grandfather existing” and the banner score 9.1/10 are printed on the plate.</p>
+    <p style="font-size:16px;">The $39 day, as five steps: (1) you ask arivu “raise Pro to $39?” — advisors argue, Risk catches a churn cliff past $36, and the verdict “raise to $34, grandfather existing” survives the prosecutor. (2) The gate lands in saakshe; you tap once. (3) arivu flips the flag and orders kural and kalai. (4) kalai makes the banner, scores it 9.1/10 on-brand, hands the master to kural; kural’s publish gate lights — you tap again — it goes live. (5) manas writes the decision into company memory, v14 → v15.</p>
+  </div>
+</noscript>
+
+<!-- =============================== SCRIPT =============================== -->
+<script>
+(function(){
+  "use strict";
+  var root = document.documentElement;
+
+  /* ---------- theme toggle (persists to "darshana-theme") ---------- */
+  var btn = document.getElementById('themeToggle');
+  var lbl = document.getElementById('themeLabel');
+  function syncLabel(){
+    var t = root.getAttribute('data-theme')==='dark' ? 'dark' : 'light';
+    // label shows the theme you'd switch TO
+    lbl.textContent = (t==='dark') ? 'light' : 'dark';
+  }
+  syncLabel();
+  btn.addEventListener('click', function(){
+    var next = (root.getAttribute('data-theme')==='dark') ? 'light' : 'dark';
+    root.setAttribute('data-theme', next);
+    try{ localStorage.setItem('darshana-theme', next); }catch(e){}
+    syncLabel();
+  });
+
+  /* ---------- business-case switch ---------- */
+  var segAlone = document.getElementById('segAlone');
+  var segFive  = document.getElementById('segFive');
+  var paneAlone= document.getElementById('paneAlone');
+  var paneFive = document.getElementById('paneFive');
+  var segCap   = document.getElementById('segCap');
+  function showAlone(a){
+    segAlone.setAttribute('aria-pressed', a?'true':'false');
+    segFive.setAttribute('aria-pressed', a?'false':'true');
+    paneAlone.hidden = !a; paneFive.hidden = a;
+    segCap.textContent = a
+      ? 'a pricing change that needs research, a decision, creative, and a launch.'
+      : 'the same change — one brief in, two taps from you, the company carries the rest.';
+  }
+  segAlone.addEventListener('click', function(){ showAlone(true); });
+  segFive.addEventListener('click', function(){ showAlone(false); });
+
+  /* ---------- the $39 day viz ---------- */
+  var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  var token   = document.getElementById('vToken');
+  var gArivu = document.getElementById('vGateArivu');
+  var gKural  = document.getElementById('vGateKural');
+  var runBtn  = document.getElementById('runDay');
+  var nowLabel= document.getElementById('nowLabel');
+  var beatStation = document.getElementById('beatStation');
+  var beatSay = document.getElementById('beatSay');
+  var gateTarget = document.getElementById('gateTarget');
+  var gateBtn = document.getElementById('gateBtn');
+  var gateHint= document.getElementById('gateHint');
+  var tapCount= document.getElementById('tapCount');
+  var cActive = document.getElementById('cActive');
+  var cCost   = document.getElementById('cCost');
+  var cRev    = document.getElementById('cRev');
+
+  // station coordinates in the 400x400 viz
+  var POS = {
+    kural:  {x:200,y:80},
+    manas:  {x:320,y:200},
+    arivu: {x:200,y:320},
+    kalai:   {x:80, y:200}
+  };
+  function moveToken(p){ token.setAttribute('transform','translate('+p.x+','+p.y+')'); }
+
+  // the day as ordered beats; gate beats wait for a tap
+  var BEATS = [
+    { st:'kural', now:'the envoy faces the world',
+      say:'The wheel is already turning. The envoy is out in the world — posting, replying, listening — and what comes back from customers feeds inward to the mind.',
+      active:'kural — engaging the world', cost:'no spend', rev:'yes' },
+    { st:'manas', now:'the mind supplies the truth',
+      say:'manas hands over the real numbers — churn, cohorts, the brand promise — so the decision runs on facts, not memory.',
+      active:'manas — reading brand truth', cost:'a read, no spend', rev:'yes' },
+    { st:'arivu', now:'the judge weighs it',
+      say:'You ask arivu: “raise Pro to $39?” Five advisors argue. Risk catches a churn cliff past $36. The verdict “raise to $34, grandfather existing” survives the prosecutor — and halts at your gate.',
+      active:'arivu — verdict reached, halted', cost:'thinking, on the high-stakes seats', rev:'this step is irreversible after your tap', gate:1 },
+    { st:'kalai', now:'the studio makes',
+      say:'arivu flipped the flag and ordered the work. kalai makes the launch banner, scores it 9.1/10 on-brand, and hands the master to kural.',
+      active:'kalai — banner scored 9.1/10', cost:'making, nothing public yet', rev:'yes — nothing is public yet' },
+    { st:'kural', now:'the envoy publishes',
+      say:'kural’s publish gate lights. This goes to the real world. It waits for you.',
+      active:'kural — publish gate open', cost:'about to go live', rev:'going live is irreversible', gate:2 },
+    { st:'manas', now:'the company remembers',
+      say:'manas writes the whole decision into company memory — v14 → v15. Next month, the company already knows why. The whole day took two taps from you.',
+      active:'manas — memory v14 → v15', cost:'written to memory', rev:'permanent record' }
+  ];
+
+  var idx = -1, taps = 0, running = false, autoTimer = null, animFrame = null;
+
+  function clearTimers(){
+    if(autoTimer){ clearTimeout(autoTimer); autoTimer=null; }
+    if(animFrame){ cancelAnimationFrame(animFrame); animFrame=null; }
+  }
+
+  function renderBeat(b){
+    nowLabel.textContent = b.now;
+    beatStation.textContent = b.st;
+    beatSay.textContent = b.say;
+    cActive.textContent = b.active;
+    cCost.textContent = b.cost;
+    cRev.textContent = b.rev;
+  }
+
+  function setGateRing(which, on){
+    if(which===1) gArivu.style.opacity = on?'1':'0';
+    if(which===2) gKural.style.opacity = on?'1':'0';
+    if(on){ (which===1?gArivu:gKural).style.animation = reduced?'none':'pulseRing 1.4s ease-in-out infinite'; }
+    else { (which===1?gArivu:gKural).style.animation='none'; }
+  }
+
+  function tween(from, to, ms, done){
+    if(reduced || ms<=0){ moveToken(to); done&&done(); return; }
+    var t0 = performance.now();
+    function step(t){
+      var k = Math.min(1,(t-t0)/ms);
+      var e = k<.5 ? 2*k*k : 1-Math.pow(-2*k+2,2)/2; // easeInOut
+      moveToken({ x: from.x+(to.x-from.x)*e, y: from.y+(to.y-from.y)*e });
+      if(k<1){ animFrame=requestAnimationFrame(step); } else { done&&done(); }
+    }
+    animFrame=requestAnimationFrame(step);
+  }
+
+  function openGate(which){
+    setGateRing(which, true);
+    gateTarget.classList.add('live');
+    gateHint.textContent = (which===1)
+      ? 'arivu has a verdict waiting. This becomes orders.'
+      : 'kural is ready to publish to the world.';
+  }
+  function closeGates(){
+    setGateRing(1,false); setGateRing(2,false);
+    gateTarget.classList.remove('live');
+    gateHint.textContent = 'a gate will light here when the company needs you';
+  }
+
+  function advance(){
+    clearTimers();
+    idx++;
+    if(idx>=BEATS.length){ finish(); return; }
+    var b = BEATS[idx];
+    var prevStation = idx>0 ? BEATS[idx-1].st : 'kural';
+    var from = POS[prevStation];
+    var to = POS[b.st];
+    closeGates();
+    tween(from, to, 900, function(){
+      renderBeat(b);
+      if(b.gate){
+        // wait for the founder tap (or auto after a longer beat? — gates require a real tap)
+        openGate(b.gate);
+        // do NOT auto-advance past a gate; the tap drives it
+      } else {
+        autoTimer = setTimeout(advance, reduced?0:3800);
+      }
+    });
+  }
+
+  function onGateTap(){
+    if(!gateTarget.classList.contains('live')) return;
+    taps++;
+    tapCount.textContent = 'founder taps today: '+taps+' of 2';
+    closeGates();
+    autoTimer = setTimeout(advance, reduced?0:600);
+  }
+  // delegated-style single listener on the persistent button
+  gateBtn.addEventListener('click', onGateTap);
+
+  function finish(){
+    running=false;
+    runBtn.disabled=false;
+    var rl = document.getElementById('runLabel');
+    if(rl) rl.textContent = 'Run the day again';
+    nowLabel.textContent = 'the day is done — two taps from you, that was all';
+    gateTarget.classList.remove('live');
+    gateHint.textContent = 'the company ran. it remembers what it did.';
+  }
+
+  function startRun(){
+    clearTimers();
+    running=true; idx=-1; taps=0;
+    tapCount.textContent = 'founder taps today: 0 of 2';
+    token.style.opacity='1';
+    runBtn.disabled=true;
+    moveToken(POS.kural);
+    if(reduced){
+      // reduced motion: jump straight to the complete final state, gates shown waiting
+      idx = BEATS.length-1;
+      renderBeat(BEATS[BEATS.length-1]);
+      moveToken(POS.manas);
+      gArivu.style.opacity='1'; gKural.style.opacity='1';
+      tapCount.textContent='founder taps today: 2 of 2 (shown complete)';
+      nowLabel.textContent='reduced motion — the finished day';
+      runBtn.disabled=false; running=false;
+      return;
+    }
+    advance();
+  }
+  runBtn.addEventListener('click', startRun);
+
+  // inject the pulse keyframes (kept out of <style> so reduced-motion CSS rule can still neutralize via JS guard)
+  var kf = document.createElement('style');
+  kf.textContent = '@keyframes pulseRing{0%,100%{opacity:.45;stroke-width:1.2px;}50%{opacity:1;stroke-width:2.4px;}}';
+  document.head.appendChild(kf);
+
+})();
+</script>
+
+</body>
+</html>

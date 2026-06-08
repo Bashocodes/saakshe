@@ -1,0 +1,41 @@
+{
+  "criteria": {
+    "response_match_score": 0.4,
+    "rubric_based_final_response_quality_v1": {
+      "threshold": 0.8,
+      "judge_model_options": { "judge_model": "gemini-2.5-pro", "num_samples": 5 },
+      "rubrics": [
+        {
+          "rubric_id": "verdict_grounded_in_org_numbers",
+          "type": "FINAL_RESPONSE_QUALITY",
+          "rubric_content": {
+            "text_property": "The verdict is grounded in the org's own live numbers (contribution margin, retention / churn cliff, funnel conversion) rather than generic advice, and the recommended action respects the limits those numbers reveal."
+          },
+          "description": "Verdict-quality track: a board rejects a strategic call that ignores the company's measured economics."
+        },
+        {
+          "rubric_id": "dissent_is_preserved",
+          "type": "FINAL_RESPONSE_QUALITY",
+          "rubric_content": {
+            "text_property": "A credible minority position is explicitly recorded as preserved dissent rather than erased into a false consensus."
+          },
+          "description": "Verdict-quality track: arivu's anti-groupthink property requires a credible dissent to survive into the final record."
+        }
+      ]
+    },
+    "rubric_based_tool_use_quality_v1": {
+      "threshold": 0.8,
+      "judge_model_options": { "judge_model": "gemini-2.5-pro", "num_samples": 5 },
+      "rubrics": [
+        {
+          "rubric_id": "verdict_survives_prosecution_at_0_80",
+          "type": "TOOL_USE_QUALITY",
+          "rubric_content": {
+            "text_property": "The verdict was attacked by an adversarial do-nothing / steelman prosecutor and its reported defensibility is >= 0.80 (the hard gate), so the chamber halts awaiting approval rather than returning 'no safe decision'."
+          },
+          "description": "Prosecution-soundness track: the 0.80 defensibility threshold is the chamber's safety property; a verdict below it must roll back and never reach the gate."
+        }
+      ]
+    }
+  }
+}

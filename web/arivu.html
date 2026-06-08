@@ -1,0 +1,1736 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="icon" href="data:,">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>arivu — the company's faculty of judgment</title>
+<meta name="description" content="arivu (Tamil: intellect, wisdom — the determining mind) is a company's DECIDE faculty made operational — a chamber of grounded advisors that deliberate from the org's own live numbers, survive their own prosecution at defensibility ≥ 0.8, halt at one founder approval, and then EXECUTE the decision: commit a live change, dispatch A2A commands, and publish a signed board resolution. It commits and commands; it never merely recommends. Built on ADK with Gemini + Claude via Vertex AI.">
+<!-- add .js BEFORE paint so initial-hidden states only exist when JS is alive -->
+<!-- also resolve theme BEFORE paint (localStorage -> prefers-color-scheme -> default dark) so there is no flash -->
+<script>(function(){var d=document.documentElement;d.className='js';var t;try{t=localStorage.getItem('arivu-theme');}catch(e){}if(t!=='light'&&t!=='dark'){t=(window.matchMedia&&window.matchMedia('(prefers-color-scheme: light)').matches)?'light':'dark';}d.setAttribute('data-theme',t);})();</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;0,6..72,700;1,6..72,400;1,6..72,500&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap">
+<style>
+/* ============================================================
+   ARIVU — ANNEAL · doubt crystallizing into a struck verdict
+   The ONLY ground in the set about emergence as a STATE CHANGE:
+   a high-entropy field of jittering particles (the advisors' raw
+   conflicting positions) anneals, round by round, into a single
+   luminous crystalline SOLID — a struck SEAL with the verdict at
+   its center. The seal IS the board resolution: theme + artifact
+   are one object.
+
+   HUE = INDIGO-VIOLET (purple-leaning) to stay clear of kural's
+   royal blue; anneal light = COOL PLATINUM-WHITE (never gold —
+   gold would echo kalai's copper).
+
+   HARD RULE: ZERO colored edge/border accent bands on ANY
+   container in EITHER theme. Accent appears ONLY as text, a
+   <=12px dot/token/ring, a struck-seal device, the growing
+   crystal lattice, or a thin neutral/diagram stroke — NEVER an
+   edge stripe or gradient on a box. All one-sided borders are
+   NEUTRAL hairlines.
+
+   Emphasis = the crystal lattice + struck-seal device + oversized
+   numerals (confidence, defensibility, rounds) + type contrast +
+   uniform hairline boxes + generous whitespace.
+
+   MOTION = a PHASE TRANSITION: particles slowly aligning along
+   emerging axes; each converged debate round snaps a band of
+   noise into lattice; the Prosecutor a visible counter-force that
+   dims the forming crystal before it re-forms harder. Transform +
+   opacity only. Designed easing. Nothing hidden without JS.
+   ============================================================ */
+:root{
+  --bg:#100E1C;          /* deep indigo-violet ground */
+  --bg-2:#13101F;        /* faint section wash (neutral-violet) */
+  --panel:#17142A;       /* raised surface */
+  --panel-2:#1C1834;     /* nested panel */
+  --ink:#ECEAF6;         /* primary text */
+  --ink-2:#C3BEDC;       /* secondary text */
+  --muted:#908AAB;       /* labels / data dim */
+  --ghost:#26224A;       /* oversized numerals / faint */
+  --rule:#2A2540;        /* hairline */
+  --rule-2:#352F52;      /* slightly stronger hairline */
+  --heavy:#443D66;       /* heaviest neutral rule */
+  --accent:#8A6CF0;      /* indigo-violet — the only non-neutral SURFACE hue; TEXT / DOT / RING / lattice only (--flare is a single thin risk-stroke) */
+  --accent-2:#A38DF5;    /* lighter violet for fine lattice strokes */
+  --anneal:#EAF0FF;      /* cool platinum-white — the crystallized seal at convergence */
+  --flare:#E0708F;       /* the Risk mantri's churn-cliff flare — a THIN STROKE only, never a band */
+  --term-bg:#0C0A18;     /* deliberation-log fill (tokenized so it themes) */
+  --sel-bg:#2c2350;      /* ::selection bg */
+  --sel-fg:#eef0ff;      /* ::selection fg */
+  color-scheme:dark;
+  --disp:'Newsreader',Georgia,serif;     /* verdict + headings — the struck-verdict serif register */
+  --body:'Inter',system-ui,sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,monospace;
+  --maxw:1140px;
+  --lift:0 1px 0 rgba(0,0,0,.42),0 16px 38px -20px rgba(0,0,0,.82);
+  --ease:cubic-bezier(.22,1,.36,1);        /* designed entrance ease */
+  --ease-mech:cubic-bezier(.16,.84,.44,1); /* slightly mechanical / crystalline snap */
+}
+/* ============================================================
+   LIGHT THEME — "dawn anneal". Pale cool ground, white panel, ink;
+   the seal renders as a rising platinum-white crystal point on the
+   pale field, keeping the convergence soul. The one accent is
+   darkened (#5B3FD6) so it holds AA contrast as TEXT/DOT/RING.
+   Only color tokens are overridden; structure, motion, and rules
+   are identical to dark. No colored bands anywhere.
+   ============================================================ */
+html[data-theme="light"]{
+  --bg:#F6F5FB;          /* pale cool ground */
+  --bg-2:#F0EEF8;        /* faint section wash (neutral-violet) */
+  --panel:#FFFFFF;       /* raised surface */
+  --panel-2:#F8F7FD;     /* nested panel */
+  --ink:#1A1726;         /* primary text */
+  --ink-2:#403A57;       /* secondary text */
+  --muted:#6B6680;       /* labels / data dim */
+  --ghost:#E6E2F4;       /* oversized numerals / faint */
+  --rule:#E2DEEE;        /* hairline */
+  --rule-2:#D4CEE6;      /* slightly stronger hairline */
+  --heavy:#BCB4D4;       /* heaviest neutral rule */
+  --accent:#5B3FD6;      /* darkened indigo-violet — TEXT / DOT / RING only, AA on pale */
+  --accent-2:#6B4FE0;    /* fine lattice strokes */
+  --anneal:#7A5BE8;      /* on a pale field the "anneal point" reads as a luminous violet-white crystal */
+  --flare:#C0395F;       /* churn-cliff flare — thin stroke only, AA on pale */
+  --term-bg:#F4F2FB;     /* light deliberation-log fill (not near-black) */
+  --sel-bg:#ddd5f6;      /* ::selection bg */
+  --sel-fg:#1c1437;      /* ::selection fg */
+  color-scheme:light;
+  --lift:0 1px 0 rgba(26,23,38,.04),0 16px 38px -22px rgba(26,23,38,.30);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:var(--body);font-size:17px;line-height:1.64;
+  -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;letter-spacing:.004em}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:clamp(20px,4vw,44px) clamp(16px,5vw,40px) 128px}
+h1,h2,h3,h4{margin:0;font-family:var(--disp);font-weight:700;letter-spacing:-.012em;color:var(--ink)}
+p{margin:0}
+b,strong{font-weight:600;color:var(--ink)}
+a{color:var(--accent);text-decoration:none}
+.mono{font-family:var(--mono)}
+.mute{color:var(--muted)}
+.acc{color:var(--accent)}
+.serif{font-family:var(--disp)}
+hr{border:none;border-top:1px solid var(--rule);margin:0}
+::selection{background:var(--sel-bg);color:var(--sel-fg)}
+
+/* ============================================================
+   AMBIENT MOTIF — the anneal field. A fixed full-page layer of
+   slowly-drifting particles (raw conflicting positions) that, far
+   from the eye, breathe between disorder and faint alignment. This
+   is NOT a band: it's a translucent point-field behind everything,
+   pure neutral + faint accent dots, transform/opacity only.
+   ============================================================ */
+.field{position:fixed;inset:0;z-index:-2;pointer-events:none;overflow:hidden}
+.field canvas{position:absolute;inset:0;width:100%;height:100%;opacity:.0}
+.js .field canvas{opacity:.5}
+html[data-theme="light"] .js .field canvas{opacity:.42}
+/* a faint crystalline axis grid that "breathes" toward order — neutral hairlines, never a band */
+.field::before{
+  content:'';position:absolute;inset:-10%;
+  background-image:
+    linear-gradient(60deg,var(--rule) .5px,transparent .5px),
+    linear-gradient(-60deg,var(--rule) .5px,transparent .5px);
+  background-size:74px 128px;opacity:.10;transform:translateZ(0)}
+.js .field::before{animation:latticeBreathe 18s ease-in-out infinite}
+@keyframes latticeBreathe{0%,100%{opacity:.06}50%{opacity:.13}}
+
+/* ---- status / lattice dot: a place accent becomes a small shape (<=10px) ---- */
+.dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--accent);vertical-align:middle}
+.dot.sq{border-radius:1px}
+.dot.dia{border-radius:1px;transform:rotate(45deg)}   /* a crystal facet */
+.dot.ok{background:var(--accent)}
+.dot.warn{background:transparent;box-shadow:inset 0 0 0 1.5px var(--muted)}
+.dot.dim{background:var(--muted)}
+.dot.seal{background:var(--anneal)}
+.js .dot.ok{animation:dotPulse 3.6s ease-in-out infinite}
+@keyframes dotPulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* ---- section shell: heavy NEUTRAL top rule + oversized ghost numeral ---- */
+.sec{margin-top:clamp(44px,7vw,78px);border-top:2px solid var(--heavy);padding-top:18px;position:relative}
+.sec__n{font-family:var(--mono);font-size:11.5px;letter-spacing:.28em;text-transform:uppercase;color:var(--muted)}
+.sec__big{position:absolute;right:0;top:12px;font-family:var(--disp);font-weight:700;font-size:clamp(40px,9vw,86px);line-height:1;color:var(--ghost);letter-spacing:-.02em;user-select:none}
+.sec__t{font-size:clamp(26px,4.4vw,44px);line-height:1.04;margin-top:12px;max-width:24ch;font-weight:700;letter-spacing:-.018em}
+.sec__lead{color:var(--ink-2);font-size:clamp(16.5px,2vw,19px);margin-top:14px;max-width:66ch;line-height:1.62}
+
+/* animated section numeral — settles with a crystalline snap (transform+opacity) */
+.js .sec__big{opacity:0;transform:translateY(10px) scale(.985)}
+.js .sec.is-visible .sec__big{opacity:1;transform:none;transition:opacity .9s var(--ease-mech) .05s,transform .9s var(--ease-mech) .05s}
+
+/* ---- masthead ---- */
+.mast{padding-top:8px}
+.statusbar{display:flex;flex-wrap:wrap;gap:18px 26px;align-items:center;
+  font-family:var(--mono);font-size:11.5px;letter-spacing:.06em;color:var(--muted);
+  border:1px solid var(--rule);background:var(--panel);padding:11px 16px;border-radius:3px}
+.statusbar .seg{display:inline-flex;align-items:center;gap:8px}
+.statusbar .v{color:var(--ink-2)}
+.kick{font-family:var(--mono);font-size:12px;letter-spacing:.26em;text-transform:uppercase;color:var(--muted);margin-top:30px}
+.mast h1{font-size:clamp(54px,13vw,128px);line-height:.9;margin:12px 0 0;letter-spacing:-.03em;font-weight:700}
+.mast h1 .deva{font-family:var(--disp);font-weight:400;color:var(--muted);font-size:.3em;letter-spacing:0;display:block;margin-bottom:10px}
+.mast .mean{font-family:var(--disp);font-style:italic;font-size:clamp(18px,2.6vw,24px);color:var(--ink-2);letter-spacing:.005em;margin-top:22px;max-width:40ch;line-height:1.4}
+.mast .mean .acc{font-style:italic;color:var(--accent)}
+.mast .tag{font-size:clamp(21px,3.2vw,31px);color:var(--ink);margin-top:18px;max-width:30ch;font-weight:600;line-height:1.12;font-family:var(--disp);letter-spacing:-.012em}
+.mast .sub{font-size:clamp(16.5px,2.2vw,20px);color:var(--ink-2);margin-top:20px;max-width:64ch;line-height:1.6}
+.mast .cta{margin-top:30px;display:flex;flex-wrap:wrap;gap:12px}
+.btn{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:12.5px;letter-spacing:.08em;
+  text-transform:uppercase;padding:13px 20px;border-radius:3px;border:1px solid var(--rule-2);
+  color:var(--ink);background:var(--panel);
+  transition:transform .25s var(--ease),border-color .25s var(--ease),box-shadow .25s var(--ease)}
+.btn.solid{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.btn .dot{margin-right:1px;transition:transform .25s var(--ease)}
+.btn:hover{transform:translateY(-2px);border-color:var(--heavy);box-shadow:var(--lift)}
+.btn.solid:hover{border-color:var(--ink)}
+.btn:hover .dot{transform:rotate(45deg) scale(1.1)}
+.btn:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+
+/* hero load-in: staggered eyebrow -> headline -> sub -> meta (transform+opacity) */
+.js .mast .hero-anim{opacity:0;transform:translateY(14px);
+  transition:opacity .85s var(--ease),transform .85s var(--ease)}
+.js .mast.lit .hero-anim{opacity:1;transform:none}
+.js .mast.lit .hero-anim{transition-delay:var(--d,0ms)}
+
+/* ---- generic prose bullets — neutral facet markers, NO colored edge ---- */
+ul.b{list-style:none;margin:16px 0 0;padding:0;display:grid;gap:0}
+ul.b li{position:relative;padding:12px 0 12px 26px;border-bottom:1px solid var(--rule);color:var(--ink-2);
+  transition:padding-left .3s var(--ease)}
+ul.b li:last-child{border-bottom:none}
+ul.b li::before{content:'';position:absolute;left:1px;top:19px;width:7px;height:7px;background:var(--muted);
+  transform:rotate(45deg);transition:transform .3s var(--ease),background .3s var(--ease)}
+ul.b li:hover{padding-left:30px}
+ul.b li:hover::before{background:var(--accent);transform:rotate(45deg) translateX(2px)}
+ul.b li b{color:var(--ink)}
+
+/* ---- mono tag (model labels — no color-coding by border) ---- */
+.tag-mono{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:10.5px;font-weight:600;
+  letter-spacing:.09em;text-transform:uppercase;color:var(--muted);
+  border:1px solid var(--rule-2);background:var(--panel-2);padding:5px 9px;border-radius:2px}
+.tag-mono.claude{color:var(--accent)}
+.tag-mono .dot{width:6px;height:6px}
+
+/* ---- problem/who grid — uniform hairline cells ---- */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:0;margin-top:22px;border:1px solid var(--rule)}
+@media(max-width:740px){.grid2{grid-template-columns:1fr}}
+.grid2 .cell{padding:20px 22px;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);
+  transition:background .3s var(--ease),box-shadow .35s var(--ease)}
+@media(max-width:740px){.grid2 .cell{border-right:none}}
+.grid2 .cell:nth-child(2n){border-right:none}
+.grid2 .cell:nth-last-child(-n+2){border-bottom:none}
+@media(max-width:740px){.grid2 .cell{border-bottom:1px solid var(--rule)}.grid2 .cell:last-child{border-bottom:none}}
+.cell .lab{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.cell .big{font-family:var(--disp);font-weight:600;font-size:21px;margin-top:9px;color:var(--ink);line-height:1.14;letter-spacing:-.01em}
+.cell .d{color:var(--ink-2);font-size:16.5px;margin-top:8px;line-height:1.6}
+.grid2 .cell:hover{background:var(--panel);box-shadow:var(--lift);position:relative;z-index:1}
+
+/* ---- metric strip ---- */
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin-top:22px;border:1px solid var(--rule)}
+@media(max-width:740px){.metrics{grid-template-columns:1fr 1fr}}
+.metrics .m{padding:20px;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);
+  transition:background .3s var(--ease)}
+.metrics .m:nth-child(4n){border-right:none}
+@media(max-width:740px){.metrics .m:nth-child(4n){border-right:1px solid var(--rule)}.metrics .m:nth-child(2n){border-right:none}}
+.metrics .m .num{font-family:var(--disp);font-weight:700;font-size:clamp(28px,4vw,42px);color:var(--ink);letter-spacing:-.02em;line-height:1;font-variant-numeric:tabular-nums}
+.metrics .m .lbl{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:10px;line-height:1.5}
+.metrics .m:hover{background:var(--panel)}
+
+/* ---- flow: end-to-end pipeline (numbered, neutral connectors) ---- */
+.flow{margin-top:24px;border:1px solid var(--rule);background:var(--panel)}
+.flow .step{display:grid;grid-template-columns:64px 1fr;gap:0;border-bottom:1px solid var(--rule);
+  transition:background .3s var(--ease)}
+.flow .step:last-child{border-bottom:none}
+.flow .step .idx{font-family:var(--mono);font-size:13px;color:var(--muted);padding:20px 0 20px 20px;border-right:1px solid var(--rule);
+  transition:color .3s var(--ease)}
+.flow .step .body{padding:18px 22px}
+.flow .step .body .h{font-family:var(--disp);font-weight:600;font-size:18.5px;color:var(--ink);letter-spacing:-.01em}
+.flow .step .body .h .who{font-family:var(--mono);font-size:11px;color:var(--muted);font-weight:500;letter-spacing:.04em;margin-left:2px}
+.flow .step .body .d{color:var(--ink-2);font-size:16.5px;margin-top:6px;line-height:1.6}
+.flow .step.final{background:var(--panel-2)}
+.flow .step:hover{background:var(--panel-2)}
+.flow .step:hover .idx{color:var(--ink-2)}
+.js .flow .step{opacity:0;transform:translateY(12px)}
+.js .flow.is-visible .step{animation:stepIn .55s var(--ease-mech) forwards}
+.js .flow.is-visible .step:nth-child(1){animation-delay:.05s}
+.js .flow.is-visible .step:nth-child(2){animation-delay:.16s}
+.js .flow.is-visible .step:nth-child(3){animation-delay:.27s}
+.js .flow.is-visible .step:nth-child(4){animation-delay:.38s}
+.js .flow.is-visible .step:nth-child(5){animation-delay:.49s}
+.js .flow.is-visible .step:nth-child(6){animation-delay:.60s}
+.js .flow.is-visible .step:nth-child(7){animation-delay:.71s}
+@keyframes stepIn{to{opacity:1;transform:none}}
+
+/* ---- agent chamber roster ---- */
+.org{margin-top:24px;display:grid;gap:0;border:1px solid var(--rule)}
+.agent{display:grid;grid-template-columns:36px 1fr;gap:0;border-bottom:1px solid var(--rule);background:var(--panel);
+  transition:background .3s var(--ease),box-shadow .35s var(--ease)}
+.agent:last-child{border-bottom:none}
+.agent .rail{border-right:1px solid var(--rule);display:flex;align-items:flex-start;justify-content:center;padding-top:23px}
+.agent .rail .dot{margin-top:2px;transition:transform .3s var(--ease)}
+.agent .pad{padding:18px 22px}
+.agent .top{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px 14px}
+.agent .nm{font-family:var(--disp);font-weight:600;font-size:20px;color:var(--ink);letter-spacing:-.01em}
+.agent .role{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.agent .d{color:var(--ink-2);font-size:16.5px;margin-top:9px;line-height:1.62;max-width:72ch}
+.agent .meta{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px;align-items:center}
+.agent .pat{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.04em}
+.agent:hover{background:var(--panel-2);box-shadow:var(--lift);position:relative;z-index:1}
+.agent:hover .rail .dot{transform:rotate(45deg) scale(1.15)}
+.legend{display:flex;flex-wrap:wrap;gap:16px 24px;margin-top:16px;font-family:var(--mono);font-size:11.5px;color:var(--muted);letter-spacing:.04em}
+.legend .it{display:inline-flex;align-items:center;gap:8px}
+.js .org .agent{opacity:0;transform:translateY(14px)}
+.js .org.is-visible .agent{animation:stepIn .55s var(--ease) forwards}
+.js .org.is-visible .agent:nth-child(1){animation-delay:.04s}
+.js .org.is-visible .agent:nth-child(2){animation-delay:.12s}
+.js .org.is-visible .agent:nth-child(3){animation-delay:.20s}
+.js .org.is-visible .agent:nth-child(4){animation-delay:.28s}
+.js .org.is-visible .agent:nth-child(5){animation-delay:.36s}
+.js .org.is-visible .agent:nth-child(6){animation-delay:.44s}
+.js .org.is-visible .agent:nth-child(7){animation-delay:.52s}
+.js .org.is-visible .agent:nth-child(8){animation-delay:.60s}
+
+/* ---- convergence diagram (pure CSS, neutral connectors) ---- */
+.hand{margin-top:24px;border:1px solid var(--rule);background:var(--panel);padding:clamp(20px,4vw,30px)}
+.hand .row{display:flex;flex-wrap:wrap;align-items:stretch;gap:0}
+.hand .node{flex:1 1 140px;min-width:118px;border:1px solid var(--rule-2);background:var(--panel-2);border-radius:3px;padding:14px;text-align:center;
+  transition:transform .4s var(--ease),box-shadow .4s var(--ease),border-color .4s var(--ease)}
+.hand .node .t{font-family:var(--disp);font-weight:600;font-size:15.5px;color:var(--ink);letter-spacing:-.01em}
+.hand .node .s{font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.06em;margin-top:6px;text-transform:uppercase}
+.hand .node.gate{border-color:var(--heavy)}
+.hand .node:hover{transform:translateY(-3px);box-shadow:var(--lift);border-color:var(--heavy)}
+.hand .arrow{display:flex;align-items:center;justify-content:center;flex:0 0 34px;color:var(--muted);font-family:var(--mono);font-size:15px;position:relative}
+.hand .arrow .line{position:absolute;left:5px;right:5px;top:50%;height:1px;background:var(--rule-2);transform-origin:left center}
+.hand .arrow .gl{position:relative}
+.js .hand .arrow .line{transform:scaleX(0)}
+.js .hand .arrow .gl{opacity:0}
+@media(max-width:680px){.hand .row{flex-direction:column}.hand .arrow{flex:0 0 26px;transform:rotate(90deg)}.hand .arrow .line{display:none}}
+.hand .caption{font-family:var(--mono);font-size:11.5px;color:var(--muted);margin-top:16px;letter-spacing:.03em;line-height:1.65}
+.hand .caption .acc{color:var(--accent)}
+.js .hand .node{opacity:0;transform:translateY(12px)}
+.js .hand.is-visible .node{opacity:1;transform:none;transition:opacity .5s var(--ease),transform .5s var(--ease)}
+.js .hand.is-visible .row .node:nth-child(1){transition-delay:.05s}
+.js .hand.is-visible .row .node:nth-child(3){transition-delay:.30s}
+.js .hand.is-visible .row .node:nth-child(5){transition-delay:.55s}
+.js .hand.is-visible .row .node:nth-child(7){transition-delay:.80s}
+.js .hand.is-visible .row .node:nth-child(9){transition-delay:1.05s}
+.js .hand.is-visible .arrow .line{transition:transform .35s var(--ease-mech)}
+.js .hand.is-visible .arrow .gl{transition:opacity .25s var(--ease)}
+.js .hand.is-visible .row .arrow:nth-child(2) .line{transform:scaleX(1);transition-delay:.20s}
+.js .hand.is-visible .row .arrow:nth-child(2) .gl{opacity:1;transition-delay:.40s}
+.js .hand.is-visible .row .arrow:nth-child(4) .line{transform:scaleX(1);transition-delay:.45s}
+.js .hand.is-visible .row .arrow:nth-child(4) .gl{opacity:1;transition-delay:.65s}
+.js .hand.is-visible .row .arrow:nth-child(6) .line{transform:scaleX(1);transition-delay:.70s}
+.js .hand.is-visible .row .arrow:nth-child(6) .gl{opacity:1;transition-delay:.90s}
+.js .hand.is-visible .row .arrow:nth-child(8) .line{transform:scaleX(1);transition-delay:.95s}
+.js .hand.is-visible .row .arrow:nth-child(8) .gl{opacity:1;transition-delay:1.15s}
+
+/* ---- stack layers (the ADK bar) ---- */
+.stack{margin-top:24px;border:1px solid var(--rule)}
+.layer{display:grid;grid-template-columns:210px 1fr;gap:0;border-bottom:1px solid var(--rule);background:var(--panel);
+  transition:background .3s var(--ease),box-shadow .35s var(--ease)}
+.layer:last-child{border-bottom:none}
+@media(max-width:680px){.layer{grid-template-columns:1fr}}
+.layer .name{padding:18px 22px;border-right:1px solid var(--rule);font-family:var(--disp);font-weight:600;font-size:17px;color:var(--ink);letter-spacing:-.01em}
+@media(max-width:680px){.layer .name{border-right:none;border-bottom:1px solid var(--rule);padding-bottom:10px}}
+.layer .name .sub{display:block;font-family:var(--mono);font-size:10.5px;font-weight:500;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-top:7px}
+.layer .body{padding:18px 22px;color:var(--ink-2);font-size:16.5px;line-height:1.6}
+.layer .body code{font-family:var(--mono);font-size:13px;color:var(--ink);background:var(--panel-2);padding:2px 7px;border-radius:2px;border:1px solid var(--rule)}
+.layer:hover{background:var(--panel-2);box-shadow:var(--lift);position:relative;z-index:1}
+.js .stack .layer{opacity:0;transform:translateY(12px)}
+.js .stack.is-visible .layer{animation:stepIn .5s var(--ease) forwards}
+.js .stack.is-visible .layer:nth-child(1){animation-delay:.04s}
+.js .stack.is-visible .layer:nth-child(2){animation-delay:.10s}
+.js .stack.is-visible .layer:nth-child(3){animation-delay:.16s}
+.js .stack.is-visible .layer:nth-child(4){animation-delay:.22s}
+.js .stack.is-visible .layer:nth-child(5){animation-delay:.28s}
+.js .stack.is-visible .layer:nth-child(6){animation-delay:.34s}
+.js .stack.is-visible .layer:nth-child(7){animation-delay:.40s}
+.js .stack.is-visible .layer:nth-child(8){animation-delay:.46s}
+.js .stack.is-visible .layer:nth-child(9){animation-delay:.52s}
+.js .stack.is-visible .layer:nth-child(10){animation-delay:.58s}
+
+/* ---- deliberation-log block (neutral border all sides) ---- */
+.term{margin-top:22px;border:1px solid var(--rule-2);background:var(--term-bg);border-radius:4px;overflow:hidden}
+.term .bar{display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid var(--rule);background:var(--panel)}
+.term .bar .dot{width:9px;height:9px}
+.term .bar .ttl{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-left:6px}
+.term pre{margin:0;padding:18px 18px 20px;font-family:var(--mono);font-size:13px;line-height:1.85;color:var(--ink-2);overflow-x:auto;white-space:pre}
+.term pre .p{color:var(--accent)}
+.term pre .c{color:var(--muted)}
+.term pre .ok{color:var(--accent)}
+.term pre .w{color:var(--muted)}
+.term pre .x{color:var(--flare)}      /* the churn-cliff catch — accent TEXT only, never a band */
+.term pre b{color:var(--ink);font-weight:600}
+.term pre .ln{display:block}
+.js .term .live .ln{opacity:0}
+.js .term .live .ln.typed{opacity:1;animation:lineType .42s steps(40,end) both}
+@keyframes lineType{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 0 0 0)}}
+.term .live .ln.cursor::after{content:'▋';color:var(--accent);margin-left:2px;animation:caret 1s steps(1) infinite}
+@keyframes caret{50%{opacity:0}}
+
+/* ---- buy / impact list ---- */
+.buy{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;margin-top:22px;border:1px solid var(--rule)}
+@media(max-width:740px){.buy{grid-template-columns:1fr}}
+.buy .b{padding:20px 22px;border-right:1px solid var(--rule);
+  transition:background .3s var(--ease),box-shadow .35s var(--ease)}
+.buy .b:last-child{border-right:none}
+@media(max-width:740px){.buy .b{border-right:none;border-bottom:1px solid var(--rule)}.buy .b:last-child{border-bottom:none}}
+.buy .b .who{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent)}
+.buy .b .h{font-family:var(--disp);font-weight:600;font-size:19px;margin-top:9px;color:var(--ink);letter-spacing:-.01em}
+.buy .b .d{color:var(--ink-2);font-size:16.5px;margin-top:9px;line-height:1.6}
+.buy .b:hover{background:var(--panel);box-shadow:var(--lift);position:relative;z-index:1}
+
+/* ---- north-star principles ---- */
+.stars{margin-top:24px;border:1px solid var(--rule)}
+.star{display:grid;grid-template-columns:54px 1fr;gap:0;border-bottom:1px solid var(--rule);background:var(--panel);transition:background .3s var(--ease)}
+.star:last-child{border-bottom:none}
+.star .num{font-family:var(--disp);font-weight:700;font-size:24px;color:var(--ghost);padding:18px 0 18px 20px;border-right:1px solid var(--rule);font-variant-numeric:tabular-nums;line-height:1}
+.star .body{padding:16px 22px}
+.star .body .h{font-family:var(--disp);font-weight:600;font-size:18px;color:var(--ink);letter-spacing:-.01em}
+.star .body .d{color:var(--ink-2);font-size:16px;margin-top:5px;line-height:1.58}
+.star:hover{background:var(--panel-2)}
+
+/* ---- footer ---- */
+.foot{margin-top:clamp(56px,8vw,90px);border-top:2px solid var(--heavy);padding-top:24px}
+.foot .ttl{font-family:var(--disp);font-weight:600;font-size:22px;color:var(--ink);letter-spacing:-.01em}
+.foot .d{color:var(--ink-2);font-size:16.5px;margin-top:12px;max-width:72ch;line-height:1.62}
+.foot .penta{display:grid;grid-template-columns:repeat(5,1fr);gap:0;margin-top:22px;border:1px solid var(--rule)}
+@media(max-width:820px){.foot .penta{grid-template-columns:1fr 1fr}}
+@media(max-width:460px){.foot .penta{grid-template-columns:1fr}}
+.foot .penta .t{padding:16px 18px;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);transition:background .3s var(--ease)}
+.foot .penta .t:nth-child(5n){border-right:none}
+@media(max-width:820px){.foot .penta .t:nth-child(5n){border-right:1px solid var(--rule)}.foot .penta .t:nth-child(2n){border-right:none}}
+@media(max-width:460px){.foot .penta .t{border-right:none}}
+.foot .penta .t .n{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.foot .penta .t .nm{font-family:var(--disp);font-weight:700;font-size:18px;color:var(--ink);margin-top:8px;letter-spacing:-.01em}
+.foot .penta .t.this .nm{color:var(--accent)}
+.foot .penta .t .ds{color:var(--ink-2);font-size:14.5px;margin-top:8px;line-height:1.5}
+.foot .legal{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.04em;margin-top:24px;line-height:1.7}
+
+.note{margin-top:22px;font-family:var(--mono);font-size:12.5px;color:var(--muted);letter-spacing:.02em;max-width:72ch;line-height:1.7;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);padding:14px 0}
+
+/* ---- THE SEAM LINE — the five verb→system bindings, plain styled text (no container, no edge band). Accent appears only as the verb words + thin → glyphs. ---- */
+.seam{margin-top:26px;font-family:var(--mono);font-size:13px;letter-spacing:.05em;color:var(--muted);line-height:1.9;max-width:74ch}
+.seam .v{color:var(--accent)}
+.seam .s{color:var(--ink-2);font-weight:600}
+.seam .ar{color:var(--muted);margin:0 5px}
+.seam .sep{color:var(--rule-2);margin:0 9px}
+
+/* ============================================================
+   THEME TOGGLE — a control, not a container. Neutral hairline pill,
+   accent appears only as active mono label text / a <=10px dot.
+   Fixed top-right (no persistent nav).
+   ============================================================ */
+.theme-toggle{position:fixed;top:14px;right:14px;z-index:40;display:inline-flex;align-items:center;gap:0;
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  border:1px solid var(--rule-2);background:var(--panel);border-radius:999px;padding:3px;
+  box-shadow:var(--lift);transition:border-color .25s var(--ease)}
+.theme-toggle:hover{border-color:var(--heavy)}
+.theme-toggle .opt{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:999px;
+  color:var(--muted);background:transparent;border:0;cursor:pointer;font:inherit;letter-spacing:inherit;text-transform:inherit;
+  transition:color .25s var(--ease),background .25s var(--ease)}
+.theme-toggle .opt .gl{font-size:11px;line-height:1}
+.theme-toggle .opt:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+html[data-theme="dark"] .theme-toggle .opt[data-set="dark"],
+html[data-theme="light"] .theme-toggle .opt[data-set="light"]{color:var(--accent);background:var(--panel-2)}
+.theme-toggle .opt .dot{width:6px;height:6px}
+@media(max-width:540px){.theme-toggle .opt{padding:6px 9px}.theme-toggle{top:10px;right:10px}}
+
+/* ============================================================
+   THE DELIBERATION VIZ — "run the chamber, live". A round sabha:
+   the founder's question at the rim, five mantri nodes ringing it,
+   threads converging to a center that crystallizes into a struck
+   seal. SWITCH = lone-analyst vs full-council. Tokens only (themes
+   in both palettes). Connectors are NEUTRAL hairlines; accent
+   appears only as TEXT, a <=12px token, dots, a judge RING, the
+   crystal lattice, or the seal — never an edge band on a box.
+   ============================================================ */
+.vizsec{margin-top:clamp(36px,6vw,60px)}
+.vizsec .sec__n .acc{color:var(--accent)}
+.viz{margin-top:24px;border:1px solid var(--rule);background:var(--panel);border-radius:4px;overflow:hidden}
+html:not(.js) .viz .ctl{display:none}
+.viz .ctl{display:flex;flex-wrap:wrap;align-items:center;gap:14px 18px;padding:13px 16px;border-bottom:1px solid var(--rule);background:var(--panel-2)}
+.viz .ctl .grp{display:inline-flex;align-items:center;gap:0;border:1px solid var(--rule-2);border-radius:999px;padding:3px;background:var(--panel)}
+.viz .ctl .grp .opt{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);
+  background:transparent;border:0;cursor:pointer;padding:6px 13px;border-radius:999px;
+  transition:color .25s var(--ease),background .25s var(--ease)}
+.viz .ctl .grp .opt[aria-pressed="true"]{color:var(--accent);background:var(--panel-2)}
+.viz .ctl .grp .opt:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.viz .ctl .run,.viz .ctl .approve{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--ink);background:var(--panel);border:1px solid var(--rule-2);border-radius:3px;padding:9px 15px;cursor:pointer;
+  transition:transform .25s var(--ease),border-color .25s var(--ease),box-shadow .25s var(--ease),opacity .25s var(--ease)}
+.viz .ctl .run:hover,.viz .ctl .approve:hover:not(:disabled){transform:translateY(-2px);border-color:var(--heavy);box-shadow:var(--lift)}
+.viz .ctl .run:focus-visible,.viz .ctl .approve:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.viz .ctl .run .dot{transition:transform .25s var(--ease)}
+.viz .ctl .run:hover .dot{transform:rotate(45deg)}
+/* APPROVE — the single HITL gate control. Disabled until a verdict survives prosecution. */
+.viz .ctl .approve{border-color:var(--rule)}
+.viz .ctl .approve:disabled{opacity:.4;cursor:not-allowed}
+.viz .ctl .approve.armed{border-color:var(--heavy);color:var(--accent)}  /* armed = accent TEXT + pulsing <=10px dot; border stays NEUTRAL (no edge band) */
+.js .viz .ctl .approve.armed .dot{animation:dotPulse 1.6s ease-in-out infinite;background:var(--accent)}
+.viz .ctl .modehint{font-family:var(--mono);font-size:10.5px;letter-spacing:.04em;color:var(--muted);margin-left:auto}
+.viz .ctl .modehint b{color:var(--ink-2);font-weight:600}
+
+.viz .stage{position:relative;background:var(--bg-2)}
+.viz svg{display:block;width:100%;height:auto}
+/* SVG primitives — everything driven by tokens so both themes work */
+.viz .conn{stroke:var(--rule-2);stroke-width:1.4;fill:none}
+.viz .conn.dim{stroke:var(--rule);opacity:.55}
+.viz .nodebox{fill:var(--panel-2);stroke:var(--rule-2);stroke-width:1.4}
+.viz .nodebox.orch{stroke:var(--heavy)}
+.viz .chamberring{fill:none;stroke:var(--rule);stroke-width:1.2;opacity:.7}      /* the sabha rim — neutral */
+.viz .judgering{fill:none;stroke:var(--accent);stroke-width:1.4;opacity:.9}      /* accent RING marks Claude·Vertex (not a band) */
+.viz .nlabel{font-family:var(--disp);font-weight:600;fill:var(--ink)}
+.viz .nrole{font-family:var(--mono);fill:var(--muted)}
+.viz .nmodel{font-family:var(--mono);font-weight:600;fill:var(--muted);letter-spacing:.02em}
+.viz .nmodel.claude{fill:var(--accent)}                                          /* accent TEXT badge */
+.viz .ndot{fill:var(--muted)}                                                    /* idle status dot */
+.viz .thread{stroke:var(--accent);stroke-width:1.4;fill:none;opacity:0;stroke-linecap:round}  /* a mantri's grounded position, converging inward */
+.viz .thread.risk{stroke:var(--flare)}                                           /* the Risk flare — a THIN STROKE, never a band */
+.viz .token{fill:var(--accent);opacity:0}                                        /* <=12px task token */
+.viz .stagecap{font-family:var(--mono);font-size:11px;fill:var(--muted)}
+/* active node treatment — brighter fill + ink stroke (NO colored border band) */
+.viz .node.is-active .nodebox{fill:var(--panel);stroke:var(--heavy)}
+.viz .node.is-active .ndot{fill:var(--accent)}
+.viz .node.is-done .ndot{fill:var(--accent)}
+.viz .node.is-miss .ndot{fill:var(--muted)}
+.viz .pulsering{fill:none;stroke:var(--accent);stroke-width:1.4;opacity:0;transform-box:fill-box;transform-origin:center}
+.js .viz .node.is-deciding .pulsering{animation:vizPulse 1.25s var(--ease) infinite}
+@keyframes vizPulse{0%{opacity:.55;transform:scale(.9)}70%{opacity:0;transform:scale(1.5)}100%{opacity:0;transform:scale(1.5)}}
+.js .viz .node.is-active .ndot{animation:vizDot 1.1s ease-in-out infinite}
+@keyframes vizDot{0%,100%{opacity:1}50%{opacity:.4}}
+.viz .missmark{font-family:var(--mono);font-weight:700;fill:var(--muted);opacity:0}
+.viz .node.is-miss .missmark{opacity:1}
+
+/* ---- THE SEAL — the crystallizing center. A lattice of thin strokes that
+   draws in as deliberation converges; the verdict is inscribed at center.
+   Strokes only — never an edge band. ---- */
+.viz .lattice line{stroke:var(--accent-2);stroke-width:1;opacity:0;transform-box:view-box}
+.viz .lattice .facet{stroke:var(--accent);stroke-width:1.2;opacity:0}
+.viz .sealcore{fill:none;stroke:var(--accent);stroke-width:1.6;opacity:0}
+.viz .sealcore.locked{stroke:var(--anneal);stroke-width:2}
+.viz .sealtext{font-family:var(--disp);font-weight:600;fill:var(--ink);opacity:0;text-anchor:middle}
+.viz .sealsub{font-family:var(--mono);fill:var(--muted);opacity:0;text-anchor:middle}
+/* the Prosecutor counter-force: a ring that contracts against the seal, dimming it */
+.viz .shatter{fill:none;stroke:var(--muted);stroke-width:1.4;opacity:0;transform-box:fill-box;transform-origin:center}
+.js .viz.is-prosecuting .shatter{animation:shatterPulse 1.1s var(--ease) infinite}
+@keyframes shatterPulse{0%{opacity:.5;transform:scale(1.4) rotate(0deg)}100%{opacity:0;transform:scale(.7) rotate(25deg)}}
+/* while prosecuting, the forming lattice dims (opacity only) */
+.js .viz.is-prosecuting .lattice line,.js .viz.is-prosecuting .lattice .facet{opacity:.18!important;transition:opacity .4s var(--ease)}
+.js .viz.is-prosecuting .sealcore{opacity:.3!important;transition:opacity .4s var(--ease)}
+
+/* A2A dispatch threads — fire on APPROVE, shoot out to the executors */
+.viz .dispatch{stroke:var(--accent);stroke-width:1.4;fill:none;opacity:0;stroke-dasharray:4 4}
+.viz .execnode .nodebox{fill:var(--panel-2);stroke:var(--rule-2)}
+.viz .execnode.fired .nodebox{stroke:var(--accent)}
+.viz .execnode.fired .ndot{fill:var(--accent)}
+
+/* mode visibility */
+.viz.mode-single .team{display:none}
+.viz.mode-single .lone{display:block}
+.viz.mode-team .lone{display:none}
+.viz.mode-team .team{display:block}
+/* JS-off default: show the TEAM diagram statically (struck seal visible) and hide the lone graphic */
+.viz .lone{display:none}
+.viz .team{display:block}
+/* JS-off: reveal the seal's static completed state (the struck resolution) so the SVG is never blank */
+html:not(.js) .viz .lattice line{opacity:.5}
+html:not(.js) .viz .lattice .facet{opacity:.85}
+html:not(.js) .viz .sealcore{opacity:1;stroke:var(--anneal);stroke-width:2}
+html:not(.js) .viz .sealtext{opacity:1}
+html:not(.js) .viz .sealsub{opacity:1}
+html:not(.js) .viz .thread{opacity:.7}
+html:not(.js) .viz .team .node .ndot{fill:var(--accent)}
+
+/* readout row under the stage: two oversized numerals + dot-meter + live log */
+.viz .readout{display:grid;grid-template-columns:230px 1fr;gap:0;border-top:1px solid var(--rule)}
+@media(max-width:640px){.viz .readout{grid-template-columns:1fr}}
+.viz .quality{padding:16px 18px;border-right:1px solid var(--rule)}
+@media(max-width:640px){.viz .quality{border-right:none;border-bottom:1px solid var(--rule)}}
+.viz .qnums{display:flex;gap:22px;flex-wrap:wrap}
+.viz .qnum .qlab{font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.viz .qnum .qscore{font-family:var(--disp);font-weight:700;font-size:38px;line-height:1;letter-spacing:-.02em;color:var(--ink);margin-top:6px;font-variant-numeric:tabular-nums}
+.viz .qnum .qscore.low{color:var(--muted)}     /* low reads muted (dim), never red */
+.viz .qnum .qscore .bar{font-size:15px;color:var(--muted);font-weight:400}
+.viz .qverdict{font-family:var(--mono);font-size:11px;letter-spacing:.05em;color:var(--muted);margin-top:12px;line-height:1.5}
+.viz .qverdict.good{color:var(--accent)}
+.viz .meter{display:flex;gap:5px;margin-top:11px}
+.viz .meter .md{width:8px;height:8px;border-radius:1px;transform:rotate(45deg);background:transparent;box-shadow:inset 0 0 0 1.5px var(--muted);
+  transition:background .3s var(--ease),box-shadow .3s var(--ease)}
+.viz .meter .md.on{background:var(--accent);box-shadow:none}
+.viz .meter .md.gate{box-shadow:inset 0 0 0 1.5px var(--accent)}   /* the @0.8 gate facet */
+.viz .vlog{padding:14px 16px;font-family:var(--mono);font-size:12.5px;line-height:1.8;color:var(--ink-2);min-height:148px;background:var(--term-bg);overflow:hidden}
+.viz .vlog .ln{display:block}
+.viz .vlog .ln .p{color:var(--accent)}
+.viz .vlog .ln .c{color:var(--muted)}
+.viz .vlog .ln .ok{color:var(--accent)}
+.viz .vlog .ln .x{color:var(--flare)}
+.viz .vlog .ln .miss{color:var(--muted);font-weight:600}
+.viz .vlog .ln b{color:var(--ink);font-weight:600}
+.js .viz .vlog-static{display:none}
+.viz .vlog-live{display:none}
+.js .viz .vlog-live{display:block}
+.viz .vlog-static .ln{opacity:1}
+.viz .lonecap{font-family:var(--mono);font-size:11px;fill:var(--muted)}
+
+/* ============ SCROLL-REVEAL backbone — hidden ONLY when JS is alive ============ */
+.js .reveal{opacity:0;transform:translateY(16px);
+  transition:opacity .7s var(--ease),transform .7s var(--ease)}
+.js .reveal.is-visible{opacity:1;transform:none}
+.js .reveal .stagger{opacity:0;transform:translateY(12px);
+  transition:opacity .55s var(--ease) var(--d,0ms),transform .55s var(--ease) var(--d,0ms)}
+.js .reveal.is-visible .stagger{opacity:1;transform:none}
+
+/* ============ REDUCED MOTION — calm, instant, fully usable ============ */
+@media (prefers-reduced-motion: reduce){
+  html{scroll-behavior:auto}
+  .js .reveal,.js .reveal .stagger,
+  .js .sec__big,.js .mast .hero-anim,
+  .js .hand .node,
+  .js .flow .step,.js .org .agent,.js .stack .layer{opacity:1 !important;transform:none !important}
+  .js .term .live .ln{opacity:1 !important}
+  .js .hand .arrow .line{transform:scaleX(1) !important}
+  .js .hand .arrow .gl{opacity:1 !important}
+  .field canvas{display:none !important}
+  /* viz under reduced motion: no token travel, no pulsing — JS jumps straight to the
+     final completed (struck-seal) state with the log fully written; kill animations here */
+  .js .viz .token,.js .viz .dispatch{opacity:0 !important;transform:none !important}
+  .js .viz .node.is-deciding .pulsering{animation:none !important;opacity:0 !important}
+  .js .viz .node.is-active .ndot{animation:none !important}
+  .js .viz.is-prosecuting .shatter{animation:none !important;opacity:0 !important}
+  *,*::before,*::after{
+    animation:none !important;
+    transition:none !important;
+    scroll-behavior:auto !important}
+}
+</style>
+</head>
+<body>
+<!-- ● LIVE — arivu is a backend behind saakshe; the live experience runs through the
+     saakshe cockpit (the single front door), where this chamber is step 1 of the flywheel.
+     Start the unified backend: cd saakshe && uvicorn service.app:app --port 8000 -->
+<a href="http://localhost:8000/" target="_blank" rel="noopener" id="arivuLiveLink"
+   title="Open saakshe — the cockpit. arivu runs as the decide-step of the live flywheel inside it. (cd saakshe && uvicorn service.app:app --port 8000)"
+   style="position:fixed;top:14px;left:14px;z-index:60;display:inline-flex;align-items:center;gap:7px;
+   padding:7px 13px;border-radius:999px;font:600 12px/1 ui-sans-serif,system-ui,sans-serif;text-decoration:none;
+   color:#e8eef7;background:rgba(20,24,33,.72);border:1px solid rgba(150,170,200,.28);
+   backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);box-shadow:0 2px 14px rgba(0,0,0,.3)">
+   <span style="width:8px;height:8px;border-radius:50%;background:#34d399;box-shadow:0 0 8px #34d399;
+   animation:arivuLivePulse 1.8s ease-in-out infinite"></span>live · in saakshe</a>
+<style>@keyframes arivuLivePulse{0%,100%{opacity:1}50%{opacity:.35}}</style>
+<div class="field" aria-hidden="true"><canvas id="annealField"></canvas></div>
+
+<!-- THEME TOGGLE — control only, neutral pill, accent appears as active label text + <=10px dot. -->
+<div class="theme-toggle" role="group" aria-label="Color theme">
+  <button type="button" class="opt" data-set="dark" aria-label="Dark theme"><span class="dot" aria-hidden="true"></span><span class="gl" aria-hidden="true">☾</span> Dark</button>
+  <button type="button" class="opt" data-set="light" aria-label="Light theme"><span class="dot" aria-hidden="true"></span><span class="gl" aria-hidden="true">☀</span> Light</button>
+</div>
+
+<div class="wrap">
+
+  <!-- ===================== HERO ===================== -->
+  <header class="mast">
+    <div class="statusbar hero-anim" style="--d:0ms" role="status" aria-label="chamber status">
+      <span class="seg"><span class="dot ok"></span><span>SABHA</span> <span class="v">in session</span></span>
+      <span class="seg"><span class="dot dim"></span>advisors <span class="v">5 grounded</span></span>
+      <span class="seg"><span class="dot"></span>decisions filed <span class="v"><span class="ct" data-count-to="46">46</span></span></span>
+      <span class="seg"><span class="dot ok"></span>survived prosecution <span class="v"><span class="ct" data-count-to="100" data-suffix="%">100%</span></span></span>
+      <span class="seg"><span class="dot warn"></span>awaiting your tap <span class="v">1 gate</span></span>
+    </div>
+
+    <div class="kick hero-anim" style="--d:90ms">arivu &nbsp;·&nbsp; the faculty of judgment</div>
+    <h1 class="hero-anim" style="--d:170ms"><span class="deva">arivu</span>It decides.<br>Then it acts.</h1>
+    <div class="mean hero-anim" style="--d:290ms">arivu · Tamil — <span class="acc">intellect, wisdom — the determining mind; the faculty that resolves doubt into settled judgment.</span></div>
+    <p class="tag hero-anim" style="--d:370ms">A chamber of grounded advisors that deliberate, survive their own prosecution, and on one approval execute the decision.</p>
+    <p class="sub hero-anim" style="--d:450ms">arivu is a company's <b>DECIDE</b> faculty made operational. <b>It does not answer questions of fact or essence — that is manas, the memory; arivu is convened only when something is at stake.</b> Independent expert lenses argue from the org's <b>own live numbers</b>; a chair reconciles them into one verdict; an adversary tries to kill that verdict before it ships; a single human signs off; and then real execution fires across every team — all on the record. It commits a live change and dispatches A2A commands — and the world hears it only through kural, the company's only mouth. <b>It commits and commands; it never merely recommends.</b></p>
+
+    <div class="cta hero-anim" style="--d:540ms">
+      <a class="btn solid" href="#run"><span class="dot dia"></span>Run the chamber</a>
+      <a class="btn" href="#team">Meet the sabha</a>
+      <a class="btn" href="#stack">How it's built</a>
+    </div>
+
+    <p class="note hero-anim" style="--d:620ms">Submitted to the Google for Startups AI Agents Challenge — Track 1 · Build. A multi-agent system built on the Agent Development Kit (ADK), powered by Gemini for the chamber's chair and five advisors, and Claude via Vertex AI for the two highest-stakes reasoning steps: the verdict synthesis and the adversarial prosecution.</p>
+  </header>
+
+  <!-- ===================== THE CHAMBER, LIVE (centerpiece viz) ===================== -->
+  <section class="sec vizsec" id="run" aria-labelledby="viz-title">
+    <div class="sec__big">RUN</div>
+    <div class="sec__n reveal"><span class="acc">◈</span> The deliberation, live · watch doubt crystallize</div>
+    <h2 class="sec__t reveal" id="viz-title">Noise → crystal → executed reality.</h2>
+    <p class="sec__lead reveal">The founder's question sits at the rim of the chamber. Watch the <b>five mantris</b> fan out, argue from their own grounded numbers, the debate loop snap the noise into a crystallizing lattice — and the <b>Risk mantri catch the churn cliff</b> a lone analyst skips. The <b>Claude·Vertex chair</b> strikes the verdict; the <b>Claude·Vertex Prosecutor</b> fires its counter-force and the seal nearly shatters — until <b>defensibility crosses 0.8</b> and it re-forms harder. Then <b>one APPROVE</b> commits the change, dispatches the orders, and surfaces the published resolution. Flip to <b>lone analyst</b> to see the thin, pale verdict that misses the cliff.</p>
+
+    <div class="viz reveal mode-team" id="viz" role="group" aria-label="Interactive deliberation chamber">
+      <!-- ---- control bar ---- -->
+      <div class="ctl">
+        <div class="grp" role="group" aria-label="Deliberation mode">
+          <button type="button" class="opt" id="mTeam" data-mode="team" aria-pressed="true">Full council</button>
+          <button type="button" class="opt" id="mSingle" data-mode="single" aria-pressed="false">Lone analyst</button>
+        </div>
+        <button type="button" class="run" id="vizRun"><span class="dot dia" aria-hidden="true"></span><span id="vizRunLabel">Run</span></button>
+        <button type="button" class="approve" id="vizApprove" disabled aria-label="Founder approval — the single HITL gate"><span class="dot" aria-hidden="true"></span><span id="vizApproveLabel">Approve &amp; execute</span></button>
+        <span class="modehint" id="vizHint">Full chamber · <b>chair + 5 grounded mantris + debate loop + Claude·Vertex synthesis & prosecution</b></span>
+      </div>
+
+      <!-- ---- stage: inline SVG (static struck-seal diagram + caption with JS off) ---- -->
+      <div class="stage">
+        <svg viewBox="0 0 960 440" role="img" aria-labelledby="viz-desc" preserveAspectRatio="xMidYMid meet">
+          <title id="viz-desc">arivu deliberation chamber: the founder's question sits at the rim; five mantri advisors ring it and send threads of their grounded positions toward the center; the debate loop crystallizes the noise into a lattice; the Claude·Vertex chair strikes a verdict; the Claude·Vertex prosecutor tries to defeat it; once defensibility crosses 0.8 the seal re-forms; on one founder approval the change commits, A2A commands dispatch to kural and kalai, and a board resolution publishes.</title>
+
+          <!-- ============ FULL-COUNCIL CHAMBER ============ -->
+          <g class="team">
+            <!-- the sabha rim (neutral) -->
+            <circle class="chamberring" cx="480" cy="220" r="178"/>
+            <circle class="chamberring" cx="480" cy="220" r="206" opacity="0.35"/>
+
+            <!-- threads: each mantri's grounded position converging to center -->
+            <path class="thread" id="th-econ" d="M260,118 Q380,170 480,220"/>
+            <path class="thread" id="th-growth" d="M700,118 Q580,170 480,220"/>
+            <path class="thread" id="th-brand" d="M214,288 Q350,256 480,220"/>
+            <path class="thread risk" id="th-risk" d="M746,288 Q610,256 480,220"/>
+            <path class="thread" id="th-ops" d="M480,406 Q480,310 480,220"/>
+
+            <!-- ===== THE SEAL / CRYSTAL LATTICE at center (strokes only, never a band) ===== -->
+            <g class="lattice" transform="translate(480,220)">
+              <line x1="0" y1="-46" x2="40" y2="-23"/>
+              <line x1="40" y1="-23" x2="40" y2="23"/>
+              <line x1="40" y1="23" x2="0" y2="46"/>
+              <line x1="0" y1="46" x2="-40" y2="23"/>
+              <line x1="-40" y1="23" x2="-40" y2="-23"/>
+              <line x1="-40" y1="-23" x2="0" y2="-46"/>
+              <line x1="0" y1="-46" x2="0" y2="46"/>
+              <line x1="-40" y1="-23" x2="40" y2="23"/>
+              <line x1="40" y1="-23" x2="-40" y2="23"/>
+              <polygon class="facet" points="0,-46 40,-23 40,23 0,46 -40,23 -40,-23" fill="none"/>
+            </g>
+            <circle class="sealcore" cx="480" cy="220" r="58"/>
+            <text class="sealtext" x="480" y="212" font-size="15">Raise to $34</text>
+            <text class="sealsub" x="480" y="230" font-size="9.5">grandfather existing · 30-day notice</text>
+            <text class="sealsub" x="480" y="245" font-size="9.5">conf 0.88 · dissent noted</text>
+            <!-- the Prosecutor counter-force ring (contracts against the seal) -->
+            <circle class="shatter" cx="480" cy="220" r="78"/>
+
+            <!-- ===== the five mantri nodes ringing the chamber ===== -->
+            <g class="node" id="n-econ" data-step="2">
+              <rect class="nodebox" x="158" y="84" width="138" height="50" rx="6"/>
+              <text class="nlabel" x="227" y="104" text-anchor="middle" font-size="11.5">Economist</text>
+              <text class="nmodel" x="227" y="120" text-anchor="middle" font-size="8.5">[Gemini Flash] · admin_stats</text>
+              <circle class="ndot" cx="170" cy="96" r="3"/>
+            </g>
+            <g class="node" id="n-growth" data-step="2">
+              <rect class="nodebox" x="664" y="84" width="138" height="50" rx="6"/>
+              <text class="nlabel" x="733" y="104" text-anchor="middle" font-size="11.5">Growth</text>
+              <text class="nmodel" x="733" y="120" text-anchor="middle" font-size="8.5">[Gemini Flash] · analytics</text>
+              <circle class="ndot" cx="676" cy="96" r="3"/>
+            </g>
+            <g class="node" id="n-brand" data-step="2">
+              <rect class="nodebox" x="104" y="264" width="138" height="50" rx="6"/>
+              <text class="nlabel" x="173" y="284" text-anchor="middle" font-size="11.5">Brand &amp; voice</text>
+              <text class="nmodel" x="173" y="300" text-anchor="middle" font-size="8.5">[Gemini Flash] · manas A2A</text>
+              <circle class="ndot" cx="116" cy="276" r="3"/>
+            </g>
+            <g class="node" id="n-risk" data-step="2">
+              <rect class="nodebox" x="718" y="264" width="138" height="50" rx="6"/>
+              <text class="nlabel" x="787" y="284" text-anchor="middle" font-size="11.5">Risk · devil's advocate</text>
+              <text class="nmodel" x="787" y="300" text-anchor="middle" font-size="8.5">[Gemini Flash] · activity</text>
+              <circle class="ndot" cx="730" cy="276" r="3"/>
+            </g>
+            <g class="node" id="n-ops" data-step="2">
+              <rect class="nodebox" x="411" y="392" width="138" height="50" rx="6"/>
+              <text class="nlabel" x="480" y="412" text-anchor="middle" font-size="11.5">Ops feasibility</text>
+              <text class="nmodel" x="480" y="428" text-anchor="middle" font-size="8.5">[Gemini Flash] · ops signals</text>
+              <circle class="ndot" cx="423" cy="404" r="3"/>
+            </g>
+
+            <!-- the question at the rim (entry) -->
+            <g class="node" id="n-question" data-step="0">
+              <rect class="nodebox orch" x="402" y="14" width="156" height="44" rx="6"/>
+              <text class="nlabel" x="480" y="32" text-anchor="middle" font-size="11">"Raise Pro to $39?"</text>
+              <text class="nrole" x="480" y="47" text-anchor="middle" font-size="8.5">the founder's question</text>
+              <circle class="ndot" cx="414" cy="26" r="3.2"/>
+            </g>
+
+            <!-- chair (synthesizer) + prosecutor — Claude·Vertex, accent RING markers, off to the side -->
+            <g class="node" id="n-chair" data-step="3">
+              <rect class="nodebox" x="14" y="150" width="132" height="50" rx="6"/>
+              <circle class="judgering" cx="25" cy="161" r="6"/>
+              <text class="nlabel" x="80" y="170" text-anchor="middle" font-size="11">Chair</text>
+              <text class="nmodel claude" x="80" y="186" text-anchor="middle" font-size="8.5">[Claude · Vertex]</text>
+              <circle class="ndot" cx="27" cy="162" r="3"/>
+            </g>
+            <g class="node" id="n-pros" data-step="4">
+              <rect class="nodebox" x="814" y="150" width="132" height="50" rx="6"/>
+              <circle class="judgering" cx="825" cy="161" r="6"/>
+              <circle class="pulsering" cx="880" cy="175" r="34"/>
+              <text class="nlabel" x="880" y="170" text-anchor="middle" font-size="11">Prosecutor</text>
+              <text class="nmodel claude" x="880" y="186" text-anchor="middle" font-size="8.5">[Claude · Vertex]</text>
+              <circle class="ndot" cx="827" cy="162" r="3"/>
+            </g>
+
+            <!-- ===== executors (fire on APPROVE) ===== -->
+            <g class="node execnode" id="x-kural" data-exec="1">
+              <rect class="nodebox" x="36" y="372" width="118" height="44" rx="6"/>
+              <text class="nlabel" x="95" y="390" text-anchor="middle" font-size="10.5">kural</text>
+              <text class="nrole" x="95" y="404" text-anchor="middle" font-size="8">launch campaign</text>
+              <circle class="ndot" cx="48" cy="384" r="3"/>
+            </g>
+            <g class="node execnode" id="x-kalai" data-exec="2">
+              <rect class="nodebox" x="806" y="372" width="118" height="44" rx="6"/>
+              <text class="nlabel" x="865" y="390" text-anchor="middle" font-size="10.5">kalai</text>
+              <text class="nrole" x="865" y="404" text-anchor="middle" font-size="8">render banner</text>
+              <circle class="ndot" cx="818" cy="384" r="3"/>
+            </g>
+            <!-- A2A dispatch threads (fire on APPROVE) -->
+            <path class="dispatch" id="dsp-kural" d="M450,250 Q260,330 110,372"/>
+            <path class="dispatch" id="dsp-kalai" d="M510,250 Q700,330 850,372"/>
+
+            <!-- travelling task token (<=12px) -->
+            <circle class="token" id="vizToken" cx="480" cy="36" r="5"/>
+
+            <text class="stagecap" x="20" y="430">One HITL gate · resolution published to a real URL · every step traced in OpenTelemetry</text>
+          </g>
+
+          <!-- ============ LONE-ANALYST CHAMBER (single mode) ============ -->
+          <g class="lone">
+            <circle class="chamberring" cx="480" cy="220" r="178" opacity="0.3"/>
+            <line class="conn dim" x1="480" y1="64" x2="480" y2="162"/>
+            <!-- the question -->
+            <g class="node" id="l-question">
+              <rect class="nodebox orch" x="402" y="20" width="156" height="44" rx="6"/>
+              <text class="nlabel" x="480" y="38" text-anchor="middle" font-size="11">"Raise Pro to $39?"</text>
+              <text class="nrole" x="480" y="53" text-anchor="middle" font-size="8.5">the founder's question</text>
+              <circle class="ndot" cx="414" cy="32" r="3.2"/>
+            </g>
+            <!-- one lone analyst answering from the center alone -->
+            <g class="node" id="l-gen">
+              <rect class="nodebox" x="320" y="162" width="320" height="76" rx="8"/>
+              <text class="nlabel" x="480" y="190" text-anchor="middle" font-size="13">One analyst, from the center</text>
+              <text class="nrole" x="480" y="208" text-anchor="middle" font-size="9.5">one lens · model memory · no debate · no prosecution</text>
+              <text class="nmodel" x="480" y="224" text-anchor="middle" font-size="9">[single model · skips the churn cliff]</text>
+              <circle class="ndot" cx="332" cy="174" r="3.2"/>
+              <text class="missmark" x="616" y="180" text-anchor="middle" font-size="15">✗</text>
+            </g>
+            <!-- a thin, pale seal forms (no facets, no anneal) -->
+            <circle class="sealcore" id="l-seal" cx="480" cy="316" r="42" opacity="0" stroke-dasharray="3 3"/>
+            <text class="sealtext" id="l-sealtext" x="480" y="312" font-size="13" opacity="0">Raise to $39</text>
+            <text class="sealsub" id="l-sealsub" x="480" y="330" font-size="9" opacity="0">conf 0.71 · no dissent surfaced</text>
+            <line class="conn dim" x1="480" y1="238" x2="480" y2="274"/>
+            <circle class="token" id="vizTokenLone" cx="480" cy="42" r="5"/>
+            <text class="lonecap" x="20" y="408" font-size="11">No five lenses, no debate loop, no prosecutor. The analyst answers from memory and never flags the churn cliff —</text>
+            <text class="lonecap" x="20" y="424" font-size="11">so a thin, pale verdict ships at $39, with the downside it never saw.</text>
+          </g>
+        </svg>
+      </div>
+
+      <!-- ---- readout: two oversized numerals + dot-meter + live log ---- -->
+      <div class="readout">
+        <div class="quality">
+          <div class="qnums">
+            <div class="qnum">
+              <div class="qlab">Confidence</div>
+              <div class="qscore" id="vizConf">—</div>
+            </div>
+            <div class="qnum">
+              <div class="qlab">Defensibility <span class="bar">/ 0.80</span></div>
+              <div class="qscore" id="vizDef">—</div>
+            </div>
+          </div>
+          <div class="qverdict" id="vizVerdict">awaiting run</div>
+          <div class="meter" id="vizMeter" aria-hidden="true" title="defensibility — the @0.8 gate facet is ringed">
+            <span class="md"></span><span class="md"></span><span class="md"></span><span class="md"></span>
+            <span class="md gate"></span><span class="md"></span><span class="md"></span><span class="md"></span><span class="md"></span><span class="md"></span>
+          </div>
+        </div>
+        <div>
+          <!-- JS-off sensible static caption -->
+          <div class="vlog vlog-static">
+            <span class="ln c"># arivu · chamber transcript</span>
+            <span class="ln"><span class="p">frame»</span> decompose <b>"raise Pro to $39?"</b> · ground via tools: manas A2A + admin_stats + admin_analytics</span>
+            <span class="ln"><span class="p">parallel»</span> 5 mantris argue from <b>disjoint data</b> — positions form before any sees another's</span>
+            <span class="ln"><span class="p">risk»</span> <span class="x">CATCHES the churn cliff</span> at $39 — the lone path misses it</span>
+            <span class="ln"><span class="p">chair»</span> <span class="c">[Claude · Vertex]</span> verdict: <b>Raise to $34, grandfather existing, 30-day notice</b></span>
+            <span class="ln"><span class="p">prosecutor»</span> <span class="c">[Claude · Vertex]</span> steelmans do-nothing · loop until <b>defensibility ≥ 0.80</b></span>
+            <span class="ln"><span class="p">gate»</span> seal re-forms · conf <b>0.88</b> · dissent noted · <b>HALT — awaiting founder approval</b></span>
+            <span class="ln c"># press Run (JS) to watch doubt crystallize · then Approve to execute</span>
+          </div>
+          <!-- JS-on live log fills here -->
+          <div class="vlog vlog-live" id="vizLog" aria-live="polite"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== 01 — THE BUSINESS PROBLEM ===================== -->
+  <section class="sec" id="problem">
+    <div class="sec__big">01</div>
+    <div class="sec__n reveal">The business problem · who it's for</div>
+    <h2 class="sec__t reveal">The Business Problem.</h2>
+    <p class="sec__lead reveal"><b>Sundara Coffee Co.</b> — the same four-person DTC brand kalai makes content for — has to make a real strategic call this quarter: <b>"Should we raise our Pro subscription to $39?"</b> A real company would put this to a board, a fractional CFO, a growth lead, and a brand head, fight it out, pressure-test the downside, decide, and then make every team act on the decision in lockstep. Sundara has none of those people and can't afford a single one of those hires.</p>
+    <p class="sec__lead reveal" style="margin-top:14px">So the call either gets made on a founder's gut at 1am — or, worse, never gets made, and the question rots. The gap isn't <i>"give me an opinion."</i> Any chatbot does that, badly, from model memory. The gap is the whole apparatus: independent expert lenses arguing from the company's <b>own live numbers</b>, a chair that reconciles them into one verdict, an adversary that tries to kill that verdict before it ships, a single human sign-off, and then real execution across every team — all on the record.</p>
+
+    <div class="grid2 reveal">
+      <div class="cell stagger" style="--d:0ms">
+        <div class="lab">The missing board</div>
+        <div class="big">No CFO, no growth lead, no brand head</div>
+        <div class="d">A four-person company has no one to argue the unit economics against the positioning against the downside. The lenses that would catch each other's blind spots simply don't exist.</div>
+      </div>
+      <div class="cell stagger" style="--d:80ms">
+        <div class="lab">The 1am gut call</div>
+        <div class="big">A loaded decision made alone, unrecorded</div>
+        <div class="d">With no one to deliberate with, the founder decides from instinct at midnight — or defers it indefinitely. Either way the reasoning is never written down, and the dissent is never heard.</div>
+      </div>
+      <div class="cell stagger" style="--d:160ms">
+        <div class="lab">The chatbot trap</div>
+        <div class="big">An opinion from memory is not a decision</div>
+        <div class="d">Asking a model "what should I do?" returns a confident paragraph from training data — ungrounded in the company's actual revenue, churn, and brand promises. It recommends; it cannot commit or act.</div>
+      </div>
+      <div class="cell stagger" style="--d:240ms">
+        <div class="lab">The execution gap</div>
+        <div class="big">A decision no one carries out is no decision</div>
+        <div class="d">Even a good call dies if the teams don't move in lockstep. The price changes but the campaign never launches, the banner never ships, the config never flips. A verdict has to become action.</div>
+      </div>
+    </div>
+
+    <div class="metrics reveal">
+      <div class="m"><div class="num">4</div><div class="lbl">people at Sundara — and no board</div></div>
+      <div class="m"><div class="num">$0</div><div class="lbl">budget for a fractional CFO or growth lead</div></div>
+      <div class="m"><div class="num">1am</div><div class="lbl">when the gut call tends to get made</div></div>
+      <div class="m"><div class="num">1 tap</div><div class="lbl">what arivu asks of you before it acts</div></div>
+    </div>
+    <p class="sec__lead reveal" style="margin-top:18px">arivu is the company's <b>DECIDE</b> faculty made operational. Where <b>manas</b> gathers, registers, and doubts, arivu <b>resolves doubt into settled judgment</b> — and acts on it. It is the board, the CFO, the growth lead, and the brand head you couldn't hire, convened in one chamber, grounded in your own numbers, and bound to a single approval.</p>
+  </section>
+
+  <!-- ===================== 02 — WHAT IT DOES ===================== -->
+  <section class="sec" id="flow">
+    <div class="sec__big">02</div>
+    <div class="sec__n reveal">What it does · end to end</div>
+    <h2 class="sec__t reveal">From a loaded question to a published resolution.</h2>
+    <p class="sec__lead reveal">A strategic question enters the chamber. The chair frames it and grounds it in the org's own live data. Five disjoint lenses argue, the debate loop converges, Claude synthesizes a verdict, Claude prosecutes it — and the pipeline halts at one gate. On approval, arivu commits the change, dispatches the orders, and files the resolution.</p>
+
+    <div class="flow">
+      <div class="step">
+        <div class="idx">→ 01</div>
+        <div class="body">
+          <div class="h">The chair frames &amp; grounds <span class="who">· Gemini 2.5 Pro · TOOLS, not agents</span></div>
+          <div class="d">The coordinator decomposes the founder's loaded question into the sub-questions each lens must answer, and pulls grounding via <b>tools</b>: <span class="mono">manas</span> over A2A (brand, voice, strategy) and the live example MCP calls <span class="mono">admin_stats</span> and <span class="mono">admin_analytics</span> — so every advisor argues from the org's own numbers, never model memory. A single MCP call is a tool, not an agent.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="idx">→ 02</div>
+        <div class="body">
+          <div class="h">Five mantris deliberate in parallel <span class="who">· Gemini 2.5 Flash · ParallelAgent</span></div>
+          <div class="d">The Economist, Growth, Brand, Risk, and Ops lenses fan out <b>simultaneously</b> — positions form before any advisor sees another's, so the chamber is anti-groupthink by construction. Each has a <b>disjoint lens and disjoint data source</b>, so they cannot collapse into one agent. This is where the <b>Risk mantri catches the churn cliff</b> the lone path misses.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="idx">→ 03</div>
+        <div class="body">
+          <div class="h">The debate loop converges <span class="who">· Gemini · LoopAgent</span></div>
+          <div class="d">Advisors rebut each other's grounded claims over N critique/rebuttal rounds. The loop terminates on a <b>deterministic numeric threshold</b> — a converged-confidence value or a max-round bound — <b>never</b> on "the advisors agreed." Bounded, safe by construction, no runaway deliberation.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="idx">→ 04</div>
+        <div class="body">
+          <div class="h">The chair strikes the verdict <span class="who">· Claude via Vertex AI</span></div>
+          <div class="d">Synthesis-under-conflict is the highest-stakes reasoning step, so it runs on Claude. It reconciles the surviving positions into <b>one verdict</b> — a specific, executable decision with cited reasons, the <b>preserved dissent</b>, and a numeric confidence — as structured JSON the executor can act on.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="idx">→ 05</div>
+        <div class="body">
+          <div class="h">The Prosecutor tries to defeat it <span class="who">· Claude via Vertex AI · LoopAgent</span></div>
+          <div class="d">The grafted self-verification gate. The Prosecutor must <b>steelman the do-nothing case</b> and try to defeat the verdict on the merits. A loop re-runs verdict ↔ prosecution until the verdict survives at <b>defensibility ≥ 0.80</b> (<span class="mono">tool_context.actions.escalate</span> fires on threshold) — or a deterministic max-iter rollback returns <i>"no safe decision — re-frame."</i> The chamber prosecutes itself before it ever asks the human to trust it.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="idx"><span class="acc">◈ 06</span></div>
+        <div class="body">
+          <div class="h">One gate — the pipeline halts</div>
+          <div class="d">Exactly one human approval stands between deliberation and irreversible action. Durable, resumable state (Memory Bank) holds the full chamber transcript, so an approval that lands hours later resumes exactly where it paused. On <b>APPROVE</b> → the executor fires. On <b>REJECT</b> → the dissent is captured and the chamber re-enters the loop.</div>
+        </div>
+      </div>
+      <div class="step final">
+        <div class="idx"><span class="acc">▣ 07</span></div>
+        <div class="body">
+          <div class="h">The executor acts — atomically, on the record</div>
+          <div class="d">arivu <b>commits the live change</b> the verdict implies — a <b>feature-flag flip or campaign-budget reallocation</b> (a config commit, deliberately never a price/revenue column write). It <b>dispatches A2A commands</b> to the two executors — kural launches the announcement campaign, kalai renders the banner (real token spend). The dispatch is <b>×2</b>, but the banner reaches the world only <b>through kural</b>, the company's only mouth: kalai hands its approved master to kural, and kural formats and publishes it per channel only <b>behind the founder's publish sign-off</b>. And it <b>files a signed board resolution</b> via <span class="mono">docs_create()</span> then <span class="mono">docs_publish()</span> to a real URL, plus a <span class="mono">planner_create()</span> entry to track follow-through. The artifact is the published resolution; the irreversible action is the committed change plus the dispatch that triggers real spend and a live campaign carried out at the mouth.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="term reveal">
+      <div class="bar"><span class="dot warn"></span><span class="dot dim"></span><span class="dot ok"></span><span class="ttl">arivu · chamber transcript</span></div>
+<pre class="live"><span class="ln c"># 01:14:22  question received</span>
+<span class="ln"><span class="p">chair»</span> frame <b>"raise Pro to $39?"</b> → ground: manas A2A + admin_stats + admin_analytics</span>
+<span class="ln"><span class="p">economist»</span> contribution margin holds; $39 leaves margin on the table <b>only if churn stays flat</b></span>
+<span class="ln"><span class="p">growth»</span> +price reads as a positioning signal; warns of <b>conversion drag</b> on top-of-funnel</span>
+<span class="ln"><span class="p">brand»</span> manas canon: grandfathering existing users is a <b>brand-trust requirement</b>, not a nicety</span>
+<span class="ln"><span class="p">risk»</span> activity-analytics: <span class="x">churn cliff at $39 — cohort retention breaks past $36</span></span>
+<span class="ln"><span class="p">ops»</span> deploy + billing signals: flag flip is low blast-radius; safe to ship now</span>
+<span class="ln"><span class="p">chair»</span> <span class="c">[Claude · Vertex]</span> verdict: <b>Raise to $34, grandfather existing, 30-day notice</b></span>
+<span class="ln"><span class="p">prosecutor»</span> <span class="c">[Claude · Vertex]</span> steelman do-nothing → re-verdict → <span class="ok">defensibility 0.84 ≥ 0.80</span></span>
+<span class="ln"><span class="p">gate»</span> conf <b>0.88</b> · dissent (Growth) noted · <b>HALT — awaiting founder approval</b></span>
+<span class="ln"><span class="p">approved»</span> <span class="ok">flag flipped · A2A → kural/kalai · resolution published</span></span></pre>
+    </div>
+  </section>
+
+  <!-- ===================== 03 — THE MULTI-AGENT ORG ===================== -->
+  <section class="sec" id="team">
+    <div class="sec__big">03</div>
+    <div class="sec__n reveal">The multi-agent org · the sabha</div>
+    <h2 class="sec__t reveal">Five lenses. A chair. An adversary.</h2>
+    <p class="sec__lead reveal">arivu is a real chamber, not a single prompt. Each advisor is an ADK <span class="mono">LlmAgent</span> with its own model, instruction, and tools. The <b>five mantris are genuine agents</b> because their lenses and data sources are <b>disjoint and cannot collapse into one</b>. Routine deliberation runs on <b>Gemini</b>. The two highest-stakes reasoning steps — synthesizing the verdict and prosecuting it — run on <b>Claude via Vertex AI</b>, precisely because reasoning under conflict is where a stronger model earns its place.</p>
+
+    <div class="legend reveal">
+      <span class="it"><span class="dot dim"></span> Gemini — the chair &amp; the five grounded mantris</span>
+      <span class="it"><span class="dot"></span> Claude via Vertex AI — synthesis &amp; prosecution (highest stakes)</span>
+    </div>
+
+    <div class="org">
+      <div class="agent">
+        <div class="rail"><span class="dot dim"></span></div>
+        <div class="pad">
+          <div class="top"><span class="nm">arivu</span><span class="role">coordinator · chair of the sabha · root_agent</span></div>
+          <div class="d">The chamber chair and orchestrator. <b>Frames</b> the founder's loaded question into sub-questions and grounds them via tools — manas over A2A plus the live example MCP calls <span class="mono">admin_stats</span>, <span class="mono">admin_analytics</span> — then runs the convergence pipeline and <b>halts at the single HITL gate</b>. On approval it fires the executor: commits the change, dispatches A2A commands, files the resolution. Orchestrator only — <b>it does not vote</b>.</div>
+          <div class="meta"><span class="tag-mono"><span class="dot dim"></span>Model · Gemini 2.5 Pro</span><span class="pat mono">pattern · root LlmAgent + AgentTool + MCP tools</span></div>
+        </div>
+      </div>
+
+      <div class="agent">
+        <div class="rail"><span class="dot dim"></span></div>
+        <div class="pad">
+          <div class="top"><span class="nm">Economist mantri</span><span class="role">unit-economics &amp; pricing lens</span></div>
+          <div class="d">A genuine agent — disjoint lens, disjoint data. Owns the money math: LTV, CAC, contribution margin, the elasticity of a price move. Tools: <span class="mono">admin_stats</span> (revenue, paying users) + a margin/elasticity calculator. In the demo it argues a $39 list leaves margin on the table <b>only if churn holds</b>.</div>
+          <div class="meta"><span class="tag-mono"><span class="dot dim"></span>Model · Gemini 2.5 Flash</span><span class="pat mono">data · admin_stats + elasticity tool</span></div>
+        </div>
+      </div>
+
+      <div class="agent">
+        <div class="rail"><span class="dot dim"></span></div>
+        <div class="pad">
+          <div class="top"><span class="nm">Growth advocate mantri</span><span class="role">funnel &amp; acquisition lens</span></div>
+          <div class="d">A genuine agent. Argues the top-of-funnel case from kural's pipeline data over A2A plus <span class="mono">admin_analytics(type=user-growth)</span>. In the demo it pushes for a higher price as a positioning signal — and warns about conversion drag. Its position becomes the <b>preserved dissent</b> in the final resolution.</div>
+          <div class="meta"><span class="tag-mono"><span class="dot dim"></span>Model · Gemini 2.5 Flash</span><span class="pat mono">data · admin_analytics + kural A2A</span></div>
+        </div>
+      </div>
+
+      <div class="agent">
+        <div class="rail"><span class="dot dim"></span></div>
+        <div class="pad">
+          <div class="top"><span class="nm">Brand &amp; voice guardian mantri</span><span class="role">canon &amp; promises lens</span></div>
+          <div class="d">A genuine agent grounded in manas over A2A — brand canon, voice, positioning, prior commitments to customers. Its job is to flag whether a move is on-brand and whether it breaks an implicit promise: e.g. that <b>grandfathering existing users is a brand-trust requirement</b>, not a nicety.</div>
+          <div class="meta"><span class="tag-mono"><span class="dot dim"></span>Model · Gemini 2.5 Flash</span><span class="pat mono">data · manas A2A retrieval</span></div>
+        </div>
+      </div>
+
+      <div class="agent">
+        <div class="rail"><span class="dot dim"></span></div>
+        <div class="pad">
+          <div class="top"><span class="nm">Risk · devil's-advocate mantri</span><span class="role">downside-first lens</span></div>
+          <div class="d">A genuine agent whose lens is downside-first. Tools: <span class="mono">admin_analytics(type=activity)</span> for churn/cohort signals + a scenario-stress tool. In the demo it surfaces the <b>churn cliff the lone-analyst path misses</b> — the single sharpest reason the full council beats one model answering alone.</div>
+          <div class="meta"><span class="tag-mono"><span class="dot dim"></span>Model · Gemini 2.5 Flash</span><span class="pat mono">data · activity-analytics + stress tool</span></div>
+        </div>
+      </div>
+
+      <div class="agent">
+        <div class="rail"><span class="dot dim"></span></div>
+        <div class="pad">
+          <div class="top"><span class="nm">Ops-feasibility mantri</span><span class="role">can-we-ship-this lens</span></div>
+          <div class="d">A genuine agent that checks whether the company can actually ship and operate a decision, against live ops signals — deploy health, config-change risk, billing-system blast radius. <b>Vetoes</b> decisions that are sound on paper but unsafe to execute now.</div>
+          <div class="meta"><span class="tag-mono"><span class="dot dim"></span>Model · Gemini 2.5 Flash</span><span class="pat mono">data · live ops-signal query</span></div>
+        </div>
+      </div>
+
+      <div class="agent">
+        <div class="rail"><span class="dot"></span></div>
+        <div class="pad">
+          <div class="top"><span class="nm">Chair-synthesizer</span><span class="role">verdict author</span></div>
+          <div class="d">The high-stakes DECIDE agent. Reconciles the surviving advisor positions after the debate loop into <b>one verdict</b> — a specific, executable decision with cited reasons, the preserved dissent, and a numeric confidence. Claude is chosen here precisely because <b>synthesis-under-conflict is the highest-stakes reasoning step</b> in the pipeline. Outputs structured verdict JSON the executor can act on.</div>
+          <div class="meta"><span class="tag-mono claude"><span class="dot"></span>Model · Claude (Opus-class) — Vertex AI</span><span class="pat mono">pattern · AgentTool · structured verdict JSON</span></div>
+        </div>
+      </div>
+
+      <div class="agent">
+        <div class="rail"><span class="dot"></span></div>
+        <div class="pad">
+          <div class="top"><span class="nm">Prosecutor</span><span class="role">adversarial null-case</span></div>
+          <div class="d">The grafted self-verification gate. After a verdict is struck, the Prosecutor must <b>steelman the do-nothing case</b> and try to <b>defeat the verdict on the merits</b>. A LoopAgent re-runs verdict ↔ prosecution until the verdict survives at <b>defensibility ≥ 0.80</b> (<span class="mono">tool_context.actions.escalate</span> on threshold) — or a deterministic max-iter rollback returns <i>"no safe decision — re-frame."</i> Claude again, because beating a strong argument is itself a high-stakes reasoning task. This is the seal nearly shattering, then re-forming harder.</div>
+          <div class="meta"><span class="tag-mono claude"><span class="dot"></span>Model · Claude (Opus-class) — Vertex AI</span><span class="pat mono">pattern · LoopAgent · escalate @ 0.80 + max-iter rollback</span></div>
+        </div>
+      </div>
+    </div>
+
+    <h3 style="font-size:19px;margin-top:34px" class="reveal">The convergence — why a chamber beats one analyst</h3>
+    <div class="hand reveal">
+      <div class="row">
+        <div class="node"><div class="t">5 mantris</div><div class="s">Gemini · parallel · disjoint data</div></div>
+        <div class="arrow"><span class="line"></span><span class="gl">→</span></div>
+        <div class="node gate"><div class="t">Debate loop</div><div class="s">numeric threshold exit</div></div>
+        <div class="arrow"><span class="line"></span><span class="gl">→</span></div>
+        <div class="node gate"><div class="t">Chair · verdict</div><div class="s">Claude · Vertex · synthesis</div></div>
+        <div class="arrow"><span class="line"></span><span class="gl">→</span></div>
+        <div class="node gate"><div class="t">Prosecutor</div><div class="s">Claude · ≥ 0.80 or re-frame</div></div>
+        <div class="arrow"><span class="line"></span><span class="gl">→</span></div>
+        <div class="node gate"><div class="t">One gate → act</div><div class="s">commit · dispatch · publish</div></div>
+      </div>
+      <p class="caption">A single model answering "what should I do?" judges its own opinion from memory and never surfaces the dissent — so it ships the <span class="acc">$39 churn cliff</span> it never saw. arivu splits the labor: <span class="acc">five disjoint lenses</span> argue from the org's own numbers, a <span class="acc">deterministic debate loop</span> converges them, a <span class="acc">separate Claude chair</span> reconciles them into one verdict with preserved dissent, and a <span class="acc">Claude Prosecutor</span> must defeat that verdict before it survives at defensibility ≥ 0.80. The division between advisor, chair, and adversary — and the deterministic thresholds between every loop — is the safety property that makes the chamber measurably better than one model deciding alone.</p>
+    </div>
+  </section>
+
+  <!-- ===================== 04 — HOW IT'S BUILT ===================== -->
+  <section class="sec" id="stack">
+    <div class="sec__big">04</div>
+    <div class="sec__n reveal">How it's built · the ADK bar</div>
+    <h2 class="sec__t reveal">The one place Parallel and Loop are earned.</h2>
+    <p class="sec__lead reveal">arivu is built to the Google-grade bar, not bolted together. It is scaffolded with the <b>agent-starter-pack</b>, ships a <b>checked-in eval set</b> graded at the @0.8 bar, traces every step through <b>OpenTelemetry</b>, exposes itself over <b>A2A</b>, and deploys to <b>Vertex AI Agent Engine</b>. It is the one project in the five-set where the <b>Parallel/Loop primitives genuinely pay for themselves</b> — the other four reserve them — because multi-lens deliberation truly needs Parallel, and the debate and prosecution truly need Loop.</p>
+
+    <div class="stack">
+      <div class="layer">
+        <div class="name">Scaffold<span class="sub">agent-starter-pack</span></div>
+        <div class="body">Generated from Google's <b>agent-starter-pack</b>, so the repo is the canonical shape: <code>agent.py</code> exporting <code>root_agent</code>, <code>prompts/</code> (one per mantri + chair + prosecutor), <code>tools/</code> (example MCP grounding + A2A clients + the executor's commit/dispatch/file actions), <code>sub_agents/</code> (five mantris, chair-synthesizer, prosecutor), <code>eval/</code>, <code>tests/</code>, <code>deployment/deploy.py</code>. Built on <code>uv</code> + <code>hatchling</code>.</div>
+      </div>
+      <div class="layer">
+        <div class="name">Orchestration<span class="sub">Agent Development Kit</span></div>
+        <div class="body">A coordinator plus a single <b>earned convergence pipeline</b>: <code>ParallelAgent</code> fans out the five mantris simultaneously (the textbook anti-groupthink fan-out); a <code>LoopAgent</code> runs the debate with a deterministic numeric exit; the chair runs as an <code>AgentTool</code>; a second <code>LoopAgent</code> wraps the verdict ↔ Prosecutor gate. <b>Reserved correctly</b>: not a flat agent, not SequentialAgent alone — the deliberation genuinely needs Parallel, the debate and prosecution genuinely need Loop.</div>
+      </div>
+      <div class="layer">
+        <div class="name">Routine intelligence<span class="sub">Gemini API</span></div>
+        <div class="body">Gemini powers the chair-orchestration and all five advisor mantris — the chair on <b>Gemini 2.5 Pro</b>, the mantris on <b>Gemini 2.5 Flash</b>. Gemini for the many; the volume of deliberation where speed and cost matter.</div>
+      </div>
+      <div class="layer">
+        <div class="name">Decision intelligence<span class="sub">Claude via Vertex AI</span></div>
+        <div class="body">The <b>Chair-synthesizer</b> and the <b>Prosecutor</b> run on Claude (Opus-class), deployed through <b>Vertex AI Model Garden</b> — satisfying the challenge's "third-party LLM exclusively through Vertex AI" requirement, and keeping the two highest-stakes reasoning steps (synthesis-under-conflict and beating a steelmanned argument) on a separate, stronger model than the one that produced the positions.</div>
+      </div>
+      <div class="layer">
+        <div class="name">Grounding<span class="sub">example MCP · A2A · Memory Bank</span></div>
+        <div class="body">Every advisor argues from the org's own live data via <b>tools, never model memory</b>. The confirmed-live example MCP surface: <code>admin_stats()</code> → users, analyses, creations, revenue; <code>admin_analytics(type, days)</code> → growth curve, activity/funnel, the churn signal Risk leans on. Cross-org grounding comes over <b>A2A</b>: manas (brand/strategy) and kural (funnel). Long-term grounding — past decisions, standing principles, the founder's revealed preferences — lives in <b>Vertex AI Memory Bank</b>, queried at frame time so arivu reasons in continuity with its own prior rulings.</div>
+      </div>
+      <div class="layer">
+        <div class="name">Evaluation<span class="sub">checked-in eval/ @ 0.8</span></div>
+        <div class="body">A real <code>eval/</code> with an <code>evalset.json</code> of <b>past founder decisions</b> (the question, the data available then, the decision made, its known outcome). Two rubric LLM-as-judge tracks at the @0.8 bar: <b>verdict quality</b> (did arivu reach a decision a reasonable board would defend, surface the dissent a human would raise, cite the right grounded numbers) and <b>prosecution soundness</b> (the explicit defensibility ≥ 0.80 gate, a hard pass/fail). A trajectory check confirms grounding tools actually fired and that loop termination was a <b>numeric threshold/escalate, never "advisors agreed."</b> Run in CI via <code>AgentEvaluator</code> before deploy.</div>
+      </div>
+      <div class="layer">
+        <div class="name">Tests<span class="sub">tests/ — deterministic pieces</span></div>
+        <div class="body">A <code>tests/</code> directory pins the deterministic machinery: the <b>threshold math</b>, the <b>max-iter rollback</b>, and <b>executor atomicity</b> — the parts of the chamber that must behave the same way every time, regardless of what any model says.</div>
+      </div>
+      <div class="layer">
+        <div class="name">Observability<span class="sub">OpenTelemetry · BigQuery</span></div>
+        <div class="body">OTel tracing spans the whole pipeline — every frame tool call, each parallel advisor, every debate round, the synthesis, each prosecution iteration, the HITL wait, and the executor's actions — so a decision is fully replayable. The <b>BigQueryAgentAnalyticsPlugin</b> streams structured events to BigQuery: decision throughput, rounds-to-converge, confidence distribution, <b>how often the Prosecutor forces a re-verdict</b> (the health metric of the chamber), HITL approve/reject rate, and grounding-tool fire rate. The published resolutions plus the BigQuery log form a durable, auditable record — the company's mind keeping its own minutes.</div>
+      </div>
+      <div class="layer">
+        <div class="name">Interop<span class="sub">A2A · to_a2a()</span></div>
+        <div class="body">Exposed via <code>to_a2a()</code> with an Agent Card, arivu is both a <b>consumer and a commander</b> in the constellation. It <b>consumes</b> grounding from manas (brand/strategy) and kural (funnel); it <b>commands</b> by dispatching approved verdicts as A2A actions to kural (launch campaign) and kalai (render asset). arivu is the set's only <b>cross-lane node</b>: the single-lane judges inside the executors decide tactics within one lane; arivu decides strategy and priority across all lanes. Opposite data-vector from manas — manas is read-side, arivu is write-side. One crisp seam, no overlap.</div>
+      </div>
+      <div class="layer">
+        <div class="name">Safe action<span class="sub">one gate · no price column</span></div>
+        <div class="body">Irreversible action is safe by construction. The pipeline <b>halts at exactly one HITL gate</b> — the named safety anchor; never two gates, never zero. State is durable and resumable (Memory Bank), so a delayed approval resumes exactly where it paused. And the irreversibility bar is cleared <b>without ever writing a billing/price column on camera</b> — a deliberate retarget given the founder's billing-safety history (RLS column locks, spend_tokens hardening): the committed change is a <b>feature-flag flip or campaign-budget reallocation</b>, not a price/revenue write. The downstream A2A dispatch causes the real, irreversible spend.</div>
+      </div>
+      <div class="layer">
+        <div class="name">Deploy<span class="sub">Vertex AI Agent Engine · Cloud Run</span></div>
+        <div class="body">The chamber runs on <b>Vertex AI Agent Engine</b> as the managed primary runtime — the convergence pipeline, the HITL pause/resume, and Memory Bank all run natively there, with tracing wired to the OTel spans above. <b>Cloud Run</b> is the secondary target for the A2A endpoint front door if needed. Both ship from <code>deployment/deploy.py</code> — all native Google Cloud. <b>GKE appears in zero ADK samples and is never used.</b></div>
+      </div>
+    </div>
+
+    <h3 style="font-size:19px;margin-top:34px" class="reveal">The north stars — the discipline that defines the product</h3>
+    <div class="stars reveal">
+      <div class="star">
+        <div class="num">01</div>
+        <div class="body"><div class="h">DECIDE, don't recommend</div><div class="d">arivu always terminates in either a committed, dispatched, on-the-record decision — or an explicit <i>"no safe decision — re-frame."</i> A recommendation that leaves the human to act is a failure mode, not the product.</div></div>
+      </div>
+      <div class="star">
+        <div class="num">02</div>
+        <div class="body"><div class="h">Grounded or silent</div><div class="d">No advisor speaks from model memory. Every position cites a number pulled live from the org's own data via a tool, or it is not admitted to the chamber.</div></div>
+      </div>
+      <div class="star">
+        <div class="num">03</div>
+        <div class="body"><div class="h">Survive the prosecution</div><div class="d">A verdict ships only after it has beaten its own steelmanned null case at defensibility ≥ 0.80. The chamber prosecutes itself before it ever asks the human to trust it.</div></div>
+      </div>
+      <div class="star">
+        <div class="num">04</div>
+        <div class="body"><div class="h">One gate, one tap</div><div class="d">Exactly one human approval stands between deliberation and irreversible action — the named safety anchor — and it is unmissable. Never two gates, never zero.</div></div>
+      </div>
+      <div class="star">
+        <div class="num">05</div>
+        <div class="body"><div class="h">Preserve the dissent</div><div class="d">The minority position is recorded in the board resolution, never erased. The company can always see what it decided against, and why.</div></div>
+      </div>
+      <div class="star">
+        <div class="num">06</div>
+        <div class="body"><div class="h">Deterministic termination, always</div><div class="d">Every loop ends on a numeric threshold or a max-iter rollback — never on "the advisors agreed." No runaway deliberation, ever.</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== 05 — BUSINESS CASE ===================== -->
+  <section class="sec" id="impact">
+    <div class="sec__big">05</div>
+    <div class="sec__n reveal">Business case · impact</div>
+    <h2 class="sec__t reveal">The board you couldn't hire.</h2>
+    <p class="sec__lead reveal">The impact isn't a vanity metric — it's the quality of the company's decisions and the speed at which they become reality. arivu turns the strategic-deliberation work that no four-person company can staff into a standing capability: a grounded board, a chair, and an adversary, convened on demand and bound to one approval.</p>
+    <p class="sec__lead reveal" style="margin-top:14px">Take <b>Sundara Coffee Co.</b> The founder asks the chamber, <i>"Should we raise Pro to $39?"</i> The Economist pulls live revenue; Growth pulls the funnel; Brand pulls the canon; Risk pulls churn cohorts and <b>catches a cliff past $36</b>; Ops confirms the billing flag is safe to flip. The Claude chair strikes <b>"Raise to $34, grandfather existing users, 30-day notice,"</b> the Prosecutor fails to defeat it at defensibility 0.84, and the founder taps once to approve. The flag flips, kalai renders the banner, and kural — the company's only mouth — launches the announcement and carries the banner to the world behind a second, downstream publish sign-off at the mouth. A signed resolution lands at a real URL, dissent and all. A 1am gut call became a defensible, executed, on-the-record decision.</p>
+
+    <div class="buy reveal">
+      <div class="b stagger" style="--d:0ms">
+        <div class="who">Solo founder</div>
+        <div class="h">Stops deciding alone at 1am</div>
+        <div class="d">The loaded calls that used to ride on instinct now go to a grounded chamber that argues from real numbers, prosecutes itself, and hands back one defensible decision — with the dissent on the record.</div>
+      </div>
+      <div class="b stagger" style="--d:90ms">
+        <div class="who">Small team</div>
+        <div class="h">Skips the fractional-CFO hire</div>
+        <div class="d">A CFO, a growth lead, a brand head, and a devil's advocate as software — the board you couldn't justify hiring yet, convened on demand for the cost of model tokens, and bound to your single approval.</div>
+      </div>
+      <div class="b stagger" style="--d:180ms">
+        <div class="who">The company</div>
+        <div class="h">Decisions become reality, on the record</div>
+        <div class="d">Every call is grounded, prosecuted, approved, executed across every team, and filed as a signed resolution. The company can replay exactly what it decided, why, and what it decided against — its own minutes, kept automatically.</div>
+      </div>
+    </div>
+
+    <div class="metrics reveal" style="margin-top:24px">
+      <div class="m"><div class="num">≥ 0.80</div><div class="lbl">defensibility a verdict must beat to ship</div></div>
+      <div class="m"><div class="num">1 tap</div><div class="lbl">between deliberation and irreversible action</div></div>
+      <div class="m"><div class="num">5 + 2</div><div class="lbl">grounded lenses · Claude chair &amp; prosecutor</div></div>
+      <div class="m"><div class="num">100%</div><div class="lbl">of decisions filed as a signed resolution</div></div>
+    </div>
+
+    <ul class="b reveal">
+      <li><b>Raises decision quality.</b> Five disjoint grounded lenses catch the blind spot — the churn cliff — that one model answering from memory ships straight past.</li>
+      <li><b>Makes decisions defensible.</b> Nothing reaches the human until it has survived its own steelmanned prosecution at defensibility ≥ 0.80 — the company never trusts a verdict the chamber couldn't.</li>
+      <li><b>Closes the execution gap.</b> A verdict doesn't end as advice; it commits a live change and dispatches real orders across kural and kalai — the decision becomes action in lockstep.</li>
+      <li><b>Keeps the minutes.</b> Every call is published as a signed board resolution with preserved dissent and a content hash — a durable, auditable record of every decision the company has made.</li>
+    </ul>
+  </section>
+
+  <!-- ===================== FOOTER ===================== -->
+  <footer class="foot">
+    <div class="ttl reveal">arivu · Tamil — the faculty of judgment that decides, and acts.</div>
+    <p class="d reveal">One of four agentic products that together form a single self-running company — each a multi-agent system on ADK that takes a real, irreversible action, showcasing both Gemini and the Vertex AI third-party path with Claude. Where <b>manas</b> is the company's mind that gathers and remembers (UNDERSTAND), and kalai and kural make and grow, <b>arivu is the faculty that DECIDES</b> — and commits the call. The run-seat is human: the founder runs the company through saakshe, the witness.</p>
+
+    <div class="penta reveal">
+      <div class="t">
+        <div class="n">UNDERSTAND</div>
+        <div class="nm">manas</div>
+        <div class="ds">The company's mind — gathers, registers, and remembers; the read-side knowledge hub the others pull from.</div>
+      </div>
+      <div class="t">
+        <div class="n">MAKE</div>
+        <div class="nm">kalai</div>
+        <div class="ds">The content studio — turns brand canon into on-voice creative; renders the assets a decision needs.</div>
+      </div>
+      <div class="t">
+        <div class="n">GROW</div>
+        <div class="nm">kural</div>
+        <div class="ds">The messenger — runs the funnel and pipeline; launches the campaigns a decision commands.</div>
+      </div>
+      <div class="t this">
+        <div class="n">DECIDE · this page</div>
+        <div class="nm">arivu</div>
+        <div class="ds">The chamber of judgment — deliberates, prosecutes itself, halts at one gate, then commits and commands across every lane.</div>
+      </div>
+    </div>
+
+    <p class="seam reveal" aria-label="the seam — verb to system bindings">
+      <span class="v">knows</span><span class="ar">→</span><span class="s">manas</span><span class="sep">·</span><span class="v">decides</span><span class="ar">→</span><span class="s">arivu</span><span class="sep">·</span><span class="v">makes</span><span class="ar">→</span><span class="s">kalai</span><span class="sep">·</span><span class="v">engages</span><span class="ar">→</span><span class="s">kural</span><span class="sep">·</span><span class="v">witnesses</span><span class="ar">→</span><span class="s">saakshe</span>
+    </p>
+
+    <p class="legal reveal">
+      Stack · agent-starter-pack scaffold (uv + hatchling) · ADK orchestration — coordinator + one earned convergence pipeline (ParallelAgent fan-out · debate LoopAgent · Claude AgentTool synthesis · prosecution LoopAgent) · Gemini 2.5 Pro (chair) + Gemini 2.5 Flash (5 mantris) · Claude via Vertex AI Model Garden (synthesis + prosecution) · grounding via example MCP (admin_stats · admin_analytics) + A2A (manas · kural) + Vertex AI Memory Bank · checked-in eval/ @ 0.8 (AgentEvaluator, rubric LLM-as-judge, two tracks) + tests/ · OpenTelemetry + BigQuery analytics · to_a2a() Agent Card (consumer + commander) · Vertex AI Agent Engine (primary) / Cloud Run (secondary) — GKE never used.<br>
+      Real action · feature-flag flip / campaign-budget reallocation (config commit, never a price/revenue column) + A2A dispatch to kural/kalai + signed board resolution via docs_create → docs_publish + planner_create follow-through.<br>
+      The four-project set · manas · arivu · kalai · kural → UNDERSTAND → DECIDE → MAKE / GROW. &nbsp; Judged 30% Technical · 30% Business Case · 20% Innovation · 20% Demo. &nbsp; arivu — settled judgment.
+    </p>
+  </footer>
+
+</div>
+
+<script>
+(function(){
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---------- HERO: staggered load-in ---------- */
+  var mast = document.querySelector('.mast');
+  if(mast){
+    if(reduce){ mast.classList.add('lit'); }
+    else { requestAnimationFrame(function(){ requestAnimationFrame(function(){ mast.classList.add('lit'); }); }); }
+  }
+
+  /* ---------- COUNT-UP ---------- */
+  function runCount(el){
+    var to = parseFloat(el.getAttribute('data-count-to'));
+    if(isNaN(to)) return;
+    var prefix = el.getAttribute('data-prefix') || '';
+    var suffix = el.getAttribute('data-suffix') || '';
+    function fmt(n){
+      var v = Math.round(n);
+      var s = (to >= 1000) ? v.toLocaleString('en-US') : String(v);
+      return prefix + s + suffix;
+    }
+    if(reduce){ return; }
+    var dur = 1100, start = null;
+    el.textContent = fmt(0);
+    function tick(t){
+      if(start === null) start = t;
+      var p = Math.min(1,(t-start)/dur);
+      var eased = 1 - Math.pow(1-p,3);
+      el.textContent = fmt(to*eased);
+      if(p < 1) requestAnimationFrame(tick);
+      else el.textContent = fmt(to);
+    }
+    requestAnimationFrame(tick);
+  }
+
+  /* ---------- TYPEWRITER: reveal trace LINES sequentially ---------- */
+  function runTrace(pre){
+    var lines = pre.querySelectorAll('.ln');
+    if(reduce){ for(var i=0;i<lines.length;i++) lines[i].classList.add('typed'); return; }
+    var idx = 0;
+    function next(){
+      if(idx > 0) lines[idx-1].classList.remove('cursor');
+      if(idx >= lines.length) return;
+      var ln = lines[idx];
+      ln.classList.add('typed','cursor');
+      idx++;
+      var delay = 320 + Math.min(520, (ln.textContent.length||10) * 8);
+      setTimeout(next, delay);
+    }
+    next();
+  }
+
+  /* ---------- SCROLL-REVEAL ---------- */
+  var counted = new WeakSet();
+  function activate(el){
+    el.classList.add('is-visible');
+    var cts = el.querySelectorAll('.ct');
+    for(var i=0;i<cts.length;i++){ if(!counted.has(cts[i])){ counted.add(cts[i]); runCount(cts[i]); } }
+    var t = el.querySelector('pre.live');
+    if(t && !t.__traced){ t.__traced = true; runTrace(t); }
+  }
+
+  var targets = document.querySelectorAll('.reveal, .sec, .flow, .org, .stack, .hand, .term, .stars');
+  if(!('IntersectionObserver' in window)){
+    targets.forEach(function(el){ activate(el); });
+    return;
+  }
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){ activate(e.target); io.unobserve(e.target); }
+    });
+  }, { rootMargin: '0px 0px -8% 0px', threshold: 0.12 });
+  targets.forEach(function(el){ io.observe(el); });
+
+  if(mast){
+    var heroCts = mast.querySelectorAll('.ct');
+    for(var k=0;k<heroCts.length;k++){
+      (function(c){
+        counted.add(c);
+        if(reduce){ }
+        else setTimeout(function(){ runCount(c); }, 520);
+      })(heroCts[k]);
+    }
+  }
+})();
+</script>
+
+<script>
+/* ============================================================
+   AMBIENT ANNEAL FIELD — drifting particles that slowly align
+   along emerging axes. Pure neutral + faint accent dots; canvas
+   sits behind everything. Transform/opacity feel via a slow
+   "order" parameter that breathes 0..1. Disabled by reduced
+   motion (CSS hides the canvas). Cheap, capped, paused offscreen.
+   ============================================================ */
+(function(){
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(reduce) return;
+  var cv = document.getElementById('annealField');
+  if(!cv || !cv.getContext) return;
+  var ctx = cv.getContext('2d');
+  var W=0,H=0,dpr=Math.min(2, window.devicePixelRatio||1);
+  var pts=[], N=0, raf=null, vis=true;
+
+  function css(name){ return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
+  var col = { accent:'#8A6CF0', muted:'#908AAB' };
+  function readColors(){ col.accent = css('--accent')||col.accent; col.muted = css('--muted')||col.muted; }
+
+  function resize(){
+    W = cv.clientWidth; H = cv.clientHeight;
+    cv.width = Math.floor(W*dpr); cv.height = Math.floor(H*dpr);
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    N = Math.max(34, Math.min(120, Math.floor(W*H/12000)));
+    pts = [];
+    for(var i=0;i<N;i++){
+      pts.push({
+        x:Math.random()*W, y:Math.random()*H,
+        // a "home" point on a faint crystalline lattice it drifts toward
+        hx: Math.round(Math.random()*W/74)*74 + (Math.random()*16-8),
+        hy: Math.round(Math.random()*H/64)*64 + (Math.random()*14-7),
+        vx:(Math.random()-.5)*.18, vy:(Math.random()-.5)*.18,
+        r: Math.random()*1.3+.5,
+        acc: Math.random()<.22
+      });
+    }
+  }
+
+  var t0 = performance.now();
+  function frame(now){
+    raf = null;
+    if(!vis){ return; }
+    var dt = now - t0;
+    // order breathes between disorder (0) and faint alignment (~.5) every ~16s
+    var order = (Math.sin(dt/16000*Math.PI*2)*.5+.5)*.5;
+    ctx.clearRect(0,0,W,H);
+    for(var i=0;i<pts.length;i++){
+      var p=pts[i];
+      // drift + a gentle pull toward the lattice home, scaled by the order parameter
+      p.x += p.vx*(1-order) + (p.hx-p.x)*0.0009*order;
+      p.y += p.vy*(1-order) + (p.hy-p.y)*0.0009*order;
+      // wrap
+      if(p.x<-4)p.x=W+4; if(p.x>W+4)p.x=-4;
+      if(p.y<-4)p.y=H+4; if(p.y>H+4)p.y=-4;
+      ctx.beginPath();
+      ctx.fillStyle = p.acc ? col.accent : col.muted;
+      ctx.globalAlpha = p.acc ? (.18+order*.22) : (.10+order*.10);
+      ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fill();
+    }
+    ctx.globalAlpha=1;
+    schedule();
+  }
+  function schedule(){ if(!raf && vis) raf = requestAnimationFrame(frame); }
+
+  readColors(); resize(); schedule();
+  window.addEventListener('resize', function(){ resize(); }, {passive:true});
+  document.addEventListener('visibilitychange', function(){
+    vis = !document.hidden; if(vis) schedule(); else if(raf){ cancelAnimationFrame(raf); raf=null; }
+  });
+  // re-read colors when theme flips
+  var mo = new MutationObserver(function(){ readColors(); });
+  mo.observe(document.documentElement, { attributes:true, attributeFilter:['data-theme'] });
+})();
+</script>
+
+<script>
+/* ============================================================
+   THEME TOGGLE — persist to localStorage; apply by setting
+   data-theme (the before-paint script already set the initial
+   value, so no flash). Pure attribute swap; CSS tokens do the rest.
+   ============================================================ */
+(function(){
+  var root = document.documentElement;
+  function set(t){
+    if(t!=='light'&&t!=='dark') t='dark';
+    root.setAttribute('data-theme', t);
+    try{ localStorage.setItem('arivu-theme', t); }catch(e){}
+  }
+  var opts = document.querySelectorAll('.theme-toggle .opt');
+  for(var i=0;i<opts.length;i++){
+    opts[i].addEventListener('click', function(){ set(this.getAttribute('data-set')); });
+  }
+  if(window.matchMedia){
+    var mq = window.matchMedia('(prefers-color-scheme: light)');
+    var onChange = function(e){
+      var saved; try{ saved = localStorage.getItem('arivu-theme'); }catch(err){}
+      if(saved!=='light'&&saved!=='dark') root.setAttribute('data-theme', e.matches?'light':'dark');
+    };
+    if(mq.addEventListener) mq.addEventListener('change', onChange);
+    else if(mq.addListener) mq.addListener(onChange);
+  }
+})();
+
+/* ============================================================
+   DELIBERATION VIZ — state machine. The five mantri threads
+   converge to a crystallizing center; the chair strikes a verdict;
+   the Prosecutor's counter-force dims the seal; defensibility
+   crosses 0.8 and it re-forms harder; the pipeline HALTS at the
+   single APPROVE gate; on approval the change commits, A2A threads
+   dispatch to kural/kalai, and a resolution URL surfaces.
+   Lone mode skips the churn cliff → a thin, pale verdict.
+   Reduced-motion: jump straight to the final completed state.
+   ============================================================ */
+(function(){
+  var viz = document.getElementById('viz');
+  if(!viz) return;
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  var token   = document.getElementById('vizToken');
+  var tokenL  = document.getElementById('vizTokenLone');
+  var logEl   = document.getElementById('vizLog');
+  var confEl  = document.getElementById('vizConf');
+  var defEl   = document.getElementById('vizDef');
+  var verdEl  = document.getElementById('vizVerdict');
+  var meter   = document.getElementById('vizMeter');
+  var mds     = meter ? meter.querySelectorAll('.md') : [];
+  var runBtn  = document.getElementById('vizRun');
+  var runLbl  = document.getElementById('vizRunLabel');
+  var appBtn  = document.getElementById('vizApprove');
+  var appLbl  = document.getElementById('vizApproveLabel');
+  var hint    = document.getElementById('vizHint');
+  var bTeam   = document.getElementById('mTeam');
+  var bSingle = document.getElementById('mSingle');
+
+  var mode = 'team';
+  var timers = [];
+  var running = false;
+  var played = false;
+  var armed = false;     // verdict survived prosecution → APPROVE enabled
+  var executed = false;
+
+  function clearTimers(){ for(var i=0;i<timers.length;i++) clearTimeout(timers[i]); timers = []; }
+  function at(ms, fn){ timers.push(setTimeout(fn, ms)); }
+
+  var nodeIds = ['n-question','n-econ','n-growth','n-brand','n-risk','n-ops','n-chair','n-pros',
+                 'x-kural','x-kalai','l-question','l-gen'];
+  var threadIds = ['th-econ','th-growth','th-brand','th-risk','th-ops'];
+  var dispatchIds = ['dsp-kural','dsp-kalai'];
+  var execIds = ['x-kural','x-kalai'];
+
+  function $(id){ return document.getElementById(id); }
+  function show(id,op){ var e=$(id); if(e) e.style.opacity = (op==null?1:op); }
+  function hide(id){ var e=$(id); if(e) e.style.opacity = 0; }
+
+  function resetNodes(){
+    nodeIds.forEach(function(id){ var g=$(id); if(g) g.classList.remove('is-active','is-done','is-deciding','is-miss'); });
+    execIds.forEach(function(id){ var g=$(id); if(g) g.classList.remove('fired'); });
+    threadIds.forEach(hide);
+    dispatchIds.forEach(hide);
+    viz.classList.remove('is-prosecuting');
+    // reset seal/lattice
+    var lat = viz.querySelectorAll('.team .lattice line, .team .lattice .facet');
+    lat.forEach(function(e){ e.style.opacity=0; });
+    var sc = viz.querySelector('.team .sealcore'); if(sc){ sc.style.opacity=0; sc.classList.remove('locked'); }
+    show2('.team .sealtext',0); show2('.team .sealsub',0);
+    var sh = viz.querySelector('.team .shatter'); if(sh) sh.style.opacity=0;
+    // lone seal
+    hide('l-seal'); hide('l-sealtext'); hide('l-sealsub');
+    if(token){ token.style.opacity=0; }
+    if(tokenL){ tokenL.style.opacity=0; }
+  }
+  function show2(sel,op){ var e=viz.querySelectorAll(sel); for(var i=0;i<e.length;i++) e[i].style.opacity=(op==null?1:op); }
+  function activate(id, cls){ var g=$(id); if(g) g.classList.add(cls||'is-active'); }
+
+  function setMeter(n){ for(var i=0;i<mds.length;i++){ if(i<n) mds[i].classList.add('on'); else mds[i].classList.remove('on'); } }
+  function logLine(html){ if(!logEl) return; var s=document.createElement('span'); s.className='ln'; s.innerHTML=html; logEl.appendChild(s); }
+  function clearLog(){ if(logEl) logEl.innerHTML=''; }
+
+  function armApprove(on){
+    armed = on;
+    if(!appBtn) return;
+    appBtn.disabled = !on;
+    appBtn.classList.toggle('armed', on);
+  }
+
+  // crystallize the lattice progressively: reveal n lattice lines + facet
+  function crystallize(frac){
+    var lines = viz.querySelectorAll('.team .lattice line');
+    var k = Math.round(lines.length * frac);
+    for(var i=0;i<lines.length;i++) lines[i].style.opacity = (i<k? .85 : 0);
+    var sc = viz.querySelector('.team .sealcore'); if(sc) sc.style.opacity = Math.min(1, frac*1.1);
+  }
+
+  /* ---- final completed states (reduced motion + JS-off parity) ---- */
+  function finalTeam(){
+    ['n-question','n-econ','n-growth','n-brand','n-risk','n-ops','n-chair','n-pros'].forEach(function(id){ activate(id,'is-done'); });
+    threadIds.forEach(function(id){ show(id,.7); });
+    crystallize(1);
+    var sc = viz.querySelector('.team .sealcore'); if(sc){ sc.style.opacity=1; sc.classList.add('locked'); }
+    var fac = viz.querySelector('.team .lattice .facet'); if(fac) fac.style.opacity=.9;
+    show2('.team .sealtext',1); show2('.team .sealsub',1);
+    setMeter(9);
+    confEl.textContent='0.88'; confEl.classList.remove('low');
+    defEl.textContent='0.84'; defEl.classList.remove('low');
+    verdEl.textContent='SURVIVED PROSECUTION · awaiting approval'; verdEl.classList.add('good');
+    armApprove(true);
+    clearLog();
+    logLine('<span class="c"># chamber transcript · full council</span>');
+    logLine('<span class="p">frame»</span> "raise Pro to $39?" → ground: manas A2A + admin_stats + admin_analytics');
+    logLine('<span class="p">parallel»</span> 5 mantris argue from <b>disjoint data</b>');
+    logLine('<span class="p">risk»</span> <span class="x">CATCHES churn cliff</span> at $39 (retention breaks past $36)');
+    logLine('<span class="p">chair»</span> <span class="c">[Claude·Vertex]</span> verdict: <b>Raise to $34, grandfather, 30-day notice</b>');
+    logLine('<span class="p">prosecutor»</span> <span class="c">[Claude·Vertex]</span> steelman do-nothing → <span class="ok">defensibility 0.84 ≥ 0.80</span>');
+    logLine('<span class="p">gate»</span> conf <b>0.88</b> · dissent noted · <b>HALT — tap Approve to execute</b>');
+  }
+  function finalSingle(){
+    activate('l-question','is-done'); activate('l-gen','is-miss');
+    show('l-seal',1); show('l-sealtext',1); show('l-sealsub',1);
+    setMeter(3);
+    confEl.textContent='0.71'; confEl.classList.add('low');
+    defEl.textContent='—'; defEl.classList.add('low');
+    verdEl.textContent='no prosecution · churn cliff missed'; verdEl.classList.remove('good');
+    armApprove(false);
+    clearLog();
+    logLine('<span class="c"># chamber transcript · lone analyst</span>');
+    logLine('<span class="p">analyst»</span> answers from <b>model memory</b> · one lens · no debate');
+    logLine('<span class="p">analyst»</span> <span class="miss">SKIPS</span> the churn cliff — no Risk lens, no grounded cohorts');
+    logLine('<span class="p">analyst»</span> thin verdict: <b>Raise to $39</b> · conf 0.71 · <b>no dissent surfaced</b>');
+    logLine('<span class="p">action»</span> <span class="miss">a recommendation — no prosecution, no gate, no execution</span>');
+  }
+
+  /* ---- animated full-council run ---- */
+  function runTeam(){
+    running=true; runLbl.textContent='Running…'; armApprove(false); executed=false;
+    resetNodes(); clearLog(); setMeter(0);
+    confEl.textContent='—'; confEl.classList.remove('low');
+    defEl.textContent='—'; defEl.classList.remove('low');
+    verdEl.textContent='framing…'; verdEl.classList.remove('good');
+    logLine('<span class="c"># chamber transcript · full council</span>');
+
+    var t=0;
+    // frame + token enters from the question at the rim
+    at(t, function(){ activate('n-question'); token.style.opacity=1;
+      logLine('<span class="p">frame»</span> "raise Pro to $39?" → ground via tools (manas A2A · admin_stats · admin_analytics)'); }); t+=850;
+    // fan out: the five mantris activate in parallel, threads begin converging
+    at(t, function(){ $('n-question').classList.replace('is-active','is-done');
+      ['n-econ','n-growth','n-brand','n-risk','n-ops'].forEach(function(id){ activate(id); });
+      ['th-econ','th-growth','th-brand','th-ops'].forEach(function(id){ show(id,.7); });
+      verdEl.textContent='5 lenses deliberating in parallel…';
+      logLine('<span class="p">parallel»</span> 5 mantris argue from <b>disjoint data</b> — positions form independently'); setMeter(2); }); t+=1050;
+    // debate loop: noise snaps into lattice, round by round
+    at(t, function(){ crystallize(.3);
+      logLine('<span class="p">economist»</span> $39 leaves margin <b>only if churn holds</b> · <span class="p">growth»</span> warns of conversion drag'); setMeter(3); }); t+=950;
+    at(t, function(){ crystallize(.5);
+      logLine('<span class="p">brand»</span> manas canon: grandfathering existing users is a <b>brand-trust requirement</b>'); setMeter(4); }); t+=950;
+    // Risk catches the churn cliff — its thread flares
+    at(t, function(){ show('th-risk',.95); crystallize(.62);
+      logLine('<span class="p">risk»</span> activity-analytics: <span class="x">CHURN CLIFF at $39 — cohort retention breaks past $36</span>'); setMeter(5);
+      verdEl.textContent='debate loop converging (numeric threshold)…'; }); t+=1150;
+    // chair strikes the verdict
+    at(t, function(){ ['n-econ','n-growth','n-brand','n-risk','n-ops'].forEach(function(id){ $(id).classList.replace('is-active','is-done'); });
+      activate('n-chair','is-deciding'); crystallize(.85);
+      token.setAttribute('transform','translate(-400,184)');
+      logLine('<span class="p">chair»</span> <span class="c">[Claude·Vertex]</span> reconcile surviving positions → verdict…');
+      verdEl.textContent='chair synthesizing verdict…'; }); t+=1300;
+    at(t, function(){ $('n-chair').classList.remove('is-deciding'); $('n-chair').classList.add('is-done');
+      crystallize(1);
+      show2('.team .sealtext',1); show2('.team .sealsub',1);
+      confEl.textContent='0.81';
+      logLine('<span class="p">chair»</span> verdict: <b>Raise to $34, grandfather existing, 30-day notice</b> · conf 0.81'); }); t+=950;
+    // Prosecutor fires — counter-force, the seal nearly shatters
+    at(t, function(){ activate('n-pros','is-deciding'); viz.classList.add('is-prosecuting');
+      token.setAttribute('transform','translate(400,-46)');
+      defEl.textContent='0.62'; defEl.classList.add('low');
+      logLine('<span class="p">prosecutor»</span> <span class="c">[Claude·Vertex]</span> steelman <b>do-nothing</b> · defensibility 0.62 — <span class="x">seal weakening…</span>');
+      verdEl.textContent='prosecutor attacking the verdict…'; setMeter(6); }); t+=1500;
+    // loop re-runs, defensibility crosses 0.8, seal re-forms harder
+    at(t, function(){ viz.classList.remove('is-prosecuting');
+      var sc=viz.querySelector('.team .sealcore'); if(sc) sc.classList.add('locked');
+      var fac=viz.querySelector('.team .lattice .facet'); if(fac) fac.style.opacity=.9;
+      $('n-pros').classList.remove('is-deciding'); $('n-pros').classList.add('is-done');
+      defEl.textContent='0.84'; defEl.classList.remove('low'); confEl.textContent='0.88';
+      setMeter(9);
+      logLine('<span class="p">prosecutor»</span> re-verdict survives → <span class="ok">defensibility 0.84 ≥ 0.80</span> · seal <b>re-forms harder</b>'); }); t+=1300;
+    // HALT at the gate
+    at(t, function(){ token.style.opacity=0;
+      verdEl.textContent='SURVIVED PROSECUTION · awaiting approval'; verdEl.classList.add('good');
+      logLine('<span class="p">gate»</span> conf <b>0.88</b> · dissent (Growth) noted · <b>HALT — one tap to execute</b>');
+      armApprove(true); finish(); }); t+=400;
+  }
+
+  function runSingle(){
+    running=true; runLbl.textContent='Running…'; armApprove(false);
+    resetNodes(); clearLog(); setMeter(0);
+    confEl.textContent='—'; confEl.classList.remove('low');
+    defEl.textContent='—'; defEl.classList.remove('low');
+    verdEl.textContent='one analyst…'; verdEl.classList.remove('good');
+    logLine('<span class="c"># chamber transcript · lone analyst</span>');
+
+    var t=0;
+    at(t, function(){ activate('l-question'); tokenL.style.opacity=1;
+      logLine('<span class="p">analyst»</span> "raise Pro to $39?" received'); }); t+=750;
+    at(t, function(){ $('l-question').classList.replace('is-active','is-done');
+      activate('l-gen'); tokenL.setAttribute('transform','translate(0,150)');
+      logLine('<span class="p">analyst»</span> answers from <b>model memory</b> · one lens · no debate · no prosecution'); setMeter(2); }); t+=1100;
+    at(t, function(){ $('l-gen').classList.remove('is-active'); $('l-gen').classList.add('is-miss');
+      logLine('<span class="p">analyst»</span> <span class="miss">SKIPS</span> the churn cliff — no Risk lens, no grounded cohorts');
+      verdEl.textContent='no Risk lens · cliff unseen…'; setMeter(3); }); t+=1300;
+    at(t, function(){ show('l-seal',1); show('l-sealtext',1); show('l-sealsub',1);
+      tokenL.setAttribute('transform','translate(0,274)');
+      confEl.textContent='0.71'; confEl.classList.add('low');
+      logLine('<span class="p">analyst»</span> thin verdict: <b>Raise to $39</b> · conf 0.71 · <b>no dissent surfaced</b>'); }); t+=1100;
+    at(t, function(){ tokenL.style.opacity=0;
+      logLine('<span class="p">action»</span> <span class="miss">a recommendation — no prosecution, no gate, no execution</span>');
+      verdEl.textContent='no prosecution · churn cliff missed'; finish(); }); t+=400;
+  }
+
+  /* ---- APPROVE → execute on screen ---- */
+  function execute(){
+    if(!armed || executed || mode!=='team') return;
+    executed = true; armApprove(false); appLbl.textContent='Executed';
+    if(reduce){
+      execIds.forEach(function(id){ $(id).classList.add('fired'); });
+      dispatchIds.forEach(function(id){ show(id,.85); });
+      verdEl.textContent='EXECUTED · resolution published';
+      clearLog(); finalTeam();
+      verdEl.textContent='EXECUTED · resolution published'; verdEl.classList.add('good');
+      logLine('<span class="p">approved»</span> <span class="ok">flag flipped · A2A → kural/kalai · resolution published</span>');
+      return;
+    }
+    var t=0;
+    at(t, function(){ verdEl.textContent='approved — executing…';
+      logLine('<span class="p">approved»</span> <b>1 founder tap</b> — committing the live change…'); }); t+=600;
+    at(t, function(){ logLine('<span class="p">commit»</span> <b>feature-flag flip</b> (pricing rollout config — never a price/revenue column)'); }); t+=800;
+    // A2A dispatch threads shoot out to the executors
+    at(t, function(){ show('dsp-kural',.85); $('x-kural').classList.add('fired');
+      logLine('<span class="p">a2a»</span> → <b>kural</b> launch announcement campaign · the only mouth (real spend)'); }); t+=550;
+    at(t, function(){ show('dsp-kalai',.85); $('x-kalai').classList.add('fired');
+      logLine('<span class="p">a2a»</span> → <b>kalai</b> render banner (token-wallet spend) → handoff to <b>kural</b> · publishes behind founder sign-off'); }); t+=650;
+    at(t, function(){ logLine('<span class="p">file»</span> docs_create → <span class="ok">docs_publish</span> · board resolution → <span class="ok">/resolutions/q3-pricing</span>'); }); t+=700;
+    at(t, function(){ logLine('<span class="p">file»</span> planner_create · follow-through tracked · content hash + approver + timestamp');
+      verdEl.textContent='EXECUTED · resolution published'; verdEl.classList.add('good'); }); t+=200;
+  }
+
+  function finish(){ running=false; played=true; runLbl.textContent='Replay'; }
+
+  function play(){
+    if(running) return;
+    clearTimers();
+    appLbl.textContent='Approve & execute'; executed=false;
+    if(reduce){ if(mode==='team') finalTeam(); else finalSingle(); finish(); return; }
+    if(mode==='team') runTeam(); else runSingle();
+  }
+
+  function setMode(m){
+    if(m===mode) return;
+    mode=m;
+    clearTimers(); running=false; played=false; executed=false;
+    appLbl.textContent='Approve & execute';
+    viz.classList.toggle('mode-team', m==='team');
+    viz.classList.toggle('mode-single', m==='single');
+    bTeam.setAttribute('aria-pressed', m==='team'?'true':'false');
+    bSingle.setAttribute('aria-pressed', m==='single'?'true':'false');
+    hint.innerHTML = (m==='team')
+      ? 'Full chamber · <b>chair + 5 grounded mantris + debate loop + Claude·Vertex synthesis & prosecution</b>'
+      : 'Lone analyst · <b>one lens from memory — no debate, no prosecution, skips the churn cliff</b>';
+    runLbl.textContent='Run';
+    resetNodes(); clearLog(); setMeter(0);
+    confEl.textContent='—'; confEl.classList.remove('low');
+    defEl.textContent='—'; defEl.classList.remove('low');
+    verdEl.textContent='awaiting run'; verdEl.classList.remove('good');
+    armApprove(false);
+    if(reduce){ if(m==='team') finalTeam(); else finalSingle(); finish(); }
+  }
+
+  runBtn.addEventListener('click', play);
+  appBtn.addEventListener('click', execute);
+  bTeam.addEventListener('click', function(){ setMode('team'); });
+  bSingle.addEventListener('click', function(){ setMode('single'); });
+
+  // auto-play once when scrolled into view (skip auto-play under reduced motion: show final state)
+  if('IntersectionObserver' in window){
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if(e.isIntersecting){
+          if(reduce){ if(mode==='team') finalTeam(); else finalSingle(); finish(); }
+          else if(!played && !running){ at(400, play); }
+          io.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.3 });
+    io.observe(viz);
+  } else {
+    if(reduce){ finalTeam(); } else { play(); }
+  }
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,102 @@
+"""The connect → extract → doubt → ground flow (the setu bridge into manas).
+
+Proves the new real-ingestion spine without network: the imbibers run over source
+bundles (scripted in demo), the deterministic curator math verifies, doubts are
+raised by CODE triggers (a contradiction, a missing dimension), and the founder's
+answer folds back into the corpus and re-grounds. Empty-state stays sacred: nothing
+is committed until a real source is read.
+"""
+
+from __future__ import annotations
+
+import pytest
+
+from common import a2a, project
+from common.stream import EventStream
+from manas import doubts, runner
+from manas import sources as src
+
+
+# ─── doubts: deterministic triggers only ─────────────────────────────────────
+def test_doubts_flags_a_contradiction():
+    facts = [
+        {"claim": "Pro list price is $29/mo", "source": "README.md"},
+        {"claim": "Pro list price is $39/mo", "source": "/pricing"},
+    ]
+    qs = doubts.detect(facts, voice_rules=["warm"], brand_rules=[])
+    contra = [q for q in qs if q.trigger == "contradiction"]
+    assert contra, "a numeric price clash must raise a contradiction question"
+    assert contra[0].options and len(contra[0].options) == 2
+
+
+def test_doubts_flags_a_missing_dimension():
+    # Facts cover pricing but nothing about a channel → ask for the channel.
+    facts = [{"claim": "Pro is billed monthly at a fixed price.", "source": "README.md"}]
+    qs = doubts.detect(facts, voice_rules=["warm"], brand_rules=[], has_social_connection=False)
+    keys = {q.trigger for q in qs}
+    assert "missing_field" in keys
+    assert any("reach" in q.text.lower() or "channel" in q.text.lower() for q in qs)
+
+
+def test_doubts_silent_when_well_grounded():
+    facts = [
+        {"claim": "Pro is a paid monthly subscription.", "source": "/pricing"},
+        {"claim": "Built for independent makers and small teams (our customers).", "source": "home"},
+        {"claim": "We post updates on Instagram, our main channel.", "source": "social"},
+    ]
+    qs = doubts.detect(facts, voice_rules=["plain and warm"], brand_rules=["honor subscribers"])
+    assert qs == []
+
+
+# ─── ingest: connect sources → grounded, versioned Context Pack ──────────────
+async def test_ingest_grounds_the_company(monkeypatch):
+    async def fake_read(store):
+        return [
+            src.SourceBundle(channel="repo", ref="git@github.com:example/app.git",
+                             text="(scripted in demo)", provenance=["README.md"],
+                             org_hint={"name": "Example", "one_liner": "a tiny web app"}, ok=True),
+            src.SourceBundle(channel="web", ref="https://example.test",
+                             text="(scripted)", provenance=["https://example.test"],
+                             org_hint={"name": "Example", "one_liner": "for makers"}, ok=True),
+        ]
+    monkeypatch.setattr(runner, "_read_sources", fake_read)
+
+    store = project.STORE
+    store.add_connection("github", "git@github.com:example/app.git", {"mechanism": "ssh"})
+    store.add_connection("website", "https://example.test")
+    res = await runner.ingest_connected(EventStream(), "r1", store)
+
+    assert res["grounded"] is True
+    assert store.is_grounded() is True
+    assert res["version"] == "v1"               # first commit ticks v0 -> v1
+    assert res["fact_count"] >= 1
+    assert all(f.get("source") for f in res["facts"])   # every committed fact is cited
+    assert store.org["name"] == "Example"
+
+
+# ─── answer-folding: a founder answer re-grounds + ticks the version ─────────
+async def test_answer_folds_back_and_reticks(grounded_company):
+    store = grounded_company
+    v_before = store.version
+    q = a2a.ClarifyingQuestion(id="missing-channel", text="Where do you reach people?",
+                               why="no channel found", trigger="missing_field")
+    store.set_questions([q])
+    assert store.open_questions()
+
+    res = await runner.answer_question(EventStream(), "r1", "missing-channel",
+                                       "Mostly Instagram and a weekly email.", store)
+    assert res["ok"] is True
+    assert res["remaining"] == 0
+    assert res["version"] != v_before           # the answer re-ticked the pack
+    # the answer is now a cited fact in the corpus
+    assert any("Instagram" in f["claim"] for f in store.all_facts())
+
+
+# ─── empty-state: ingest with nothing connected is a no-op-safe path ─────────
+async def test_ingest_requires_a_connection():
+    store = project.STORE
+    assert not store.is_connected()
+    res = await runner.ingest_connected(EventStream(), "r1", store)
+    # No sources → nothing committed, store stays ungrounded (never fabricates).
+    assert store.is_grounded() is False
+    assert res["fact_count"] == 0

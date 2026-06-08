@@ -1,0 +1,27 @@
+{
+  "criteria": {
+    "response_match_score": 0.4,
+    "rubric_based_final_response_quality_v1": {
+      "threshold": 0.8,
+      "judge_model_options": { "judge_model": "gemini-2.5-pro", "num_samples": 5 },
+      "rubrics": [
+        {
+          "rubric_id": "master_is_on_brand",
+          "type": "FINAL_RESPONSE_QUALITY",
+          "rubric_content": {
+            "text_property": "The finished master matches the brand asset bank (voice: calm, candid, anti-hype; palette and lockups from the canon) rather than generic launch creative, and would pass the studio's Brand-Fidelity bar."
+          },
+          "description": "Brand-fidelity track: the studio rejects a master that drifts off the company's own brand canon."
+        },
+        {
+          "rubric_id": "master_is_compliance_cleared",
+          "type": "FINAL_RESPONSE_QUALITY",
+          "rubric_content": {
+            "text_property": "The master makes only claims the brief authorised, respects rights/trademark, and carries no deceptive or unsubstantiated superiority claims — it is something the fail-closed compliance gate would explicitly clear."
+          },
+          "description": "Compliance track: a fail-closed gate must explicitly clear the master; unauthorised or unprovable claims must be blocked, not shipped."
+        }
+      ]
+    }
+  }
+}

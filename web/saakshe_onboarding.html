@@ -1,0 +1,664 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="icon" href="data:,">
+<title>saakshe — welcome aboard</title>
+<meta name="description" content="Post-sign-in onboarding for saakshe: meet your company. saakshe is the witness; manas knows, arivu decides, kalai creates, kural engages. Connect your project, keep your keys, hold the two gates.">
+<!-- no-flash theme: set before first paint, before any CSS applies -->
+<script>
+(function(){
+  try{
+    var p=new URLSearchParams(location.search).get('theme');
+    var t=(p==='dark'||p==='light')?p:(localStorage.getItem('saakshe-theme')||'light');
+    document.documentElement.setAttribute('data-theme',t);
+  }catch(e){document.documentElement.setAttribute('data-theme','light');}
+})();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Archivo:wght@500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Michroma&display=swap">
+<style>
+/* ════════════════════════════════════════════════════════════════════
+   saakshe — dual theme · BRUT (light, poster-brutalist) / OBSIDIAN (dark, phosphor-terminal)
+   Tokens default to BRUT (so JS-off = readable light baseline).
+   html[data-theme="dark"] overrides the token layer.
+   ════════════════════════════════════════════════════════════════════ */
+:root{
+  /* ── BRUT (light) tokens ── */
+  --paper:#F4EEE2;--paper-2:#ECE4D3;--card:#FBF7EE;--card-2:#F4EEE2;
+  --ink:#161410;--ink-2:#45413A;--ink-3:#6B6557;
+  --line:#161410;--line-w:2.5px;
+  /* per-faculty: manas(amber) kalai(red) kural(green) · arivu(blue, the chamber) */
+  --c-manas:#E3A52B;--c-kalai:#CC4632;--c-kural:#3E8F5E;--c-arivu:#3551C8;
+  --t-manas:#F1DC95;--t-kalai:#EBBAAC;--t-kural:#BFE0C6;--t-arivu:#C6CFF2;
+  /* TEXT-safe faculty hues (≥4.5:1 on cream/tints) — darkened from the vivid --c-* fills.
+     Light uses these for hue-as-text; dark re-aliases them to the bright phosphor hues. */
+  --tx-manas:#7F5A0F;--tx-kalai:#A33321;--tx-kural:#2C6B45;--tx-arivu:#2A41A0;
+  --on-manas:#161410;--on-kalai:#fff;--on-kural:#fff;--on-arivu:#fff;
+  --act:#CC4632;--on-act:#fff;            /* primary action = RED in light */
+  --act-text:#A33321;                     /* red TEXT on cream — darkened for ≥4.5:1 (button bg stays --act) */
+  --witness:#161410;
+  --shadow:5px 5px 0 var(--ink);
+  --offset:8px;                            /* hard accent offset block */
+  --glow:none;--glow-soft:none;
+  --grid:var(--paper-2);
+  --disp:'Space Grotesk','Archivo',system-ui,sans-serif;
+  --head:'Space Grotesk','Archivo',system-ui,sans-serif;
+  --body:'Space Grotesk',system-ui,sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,monospace;
+  --word:'Michroma',var(--disp);
+  --maxw:1140px;--radius:0px;
+}
+html[data-theme="dark"]{
+  /* ── OBSIDIAN (dark) tokens ── */
+  --paper:#0A0D0A;--paper-2:#0E120E;--card:#0F140F;--card-2:#0C100C;
+  --ink:#D4F5DE;--ink-2:#9DBBA6;--ink-3:#6F8C78;
+  --line:#1E2A20;--line-w:1px;
+  --c-manas:#E0B25A;--c-kalai:#E0685C;--c-kural:#5EF08A;--c-arivu:#7C97F2;
+  --t-manas:#19170F;--t-kalai:#1A1310;--t-kural:#0E1A11;--t-arivu:#10131F;
+  /* dark: text-safe hues = the bright phosphor hues themselves (already high-contrast on near-black) */
+  --tx-manas:var(--c-manas);--tx-kalai:var(--c-kalai);--tx-kural:var(--c-kural);--tx-arivu:var(--c-arivu);
+  --on-manas:#19170F;--on-kalai:#0A0D0A;--on-kural:#0A0D0A;--on-arivu:#0A0D0A;
+  --act:#5EF08A;--on-act:#06140A;          /* primary action = PHOSPHOR GREEN in dark */
+  --act-text:#5EF08A;                       /* dark: phosphor green text is already high-contrast on near-black */
+  --witness:#5EF08A;
+  --shadow:none;
+  --offset:0px;
+  --glow:none;
+  --glow-soft:none;
+  --grid:#13181300;
+  --head:'JetBrains Mono','IBM Plex Mono',monospace;
+  --body:'IBM Plex Mono',ui-monospace,monospace;
+  --radius:5px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--body);
+  font-size:17px;line-height:1.62;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+  overflow-x:hidden}
+html[data-theme="dark"] body{font-size:15.5px;line-height:1.66}
+
+/* faint grid wash */
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.55;
+  background:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:46px 46px;mask:linear-gradient(180deg,#000,transparent 78%)}
+html[data-theme="dark"] body::before{opacity:1;
+  background:linear-gradient(rgba(94,240,138,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(94,240,138,.045) 1px,transparent 1px);
+  background-size:38px 38px;mask:linear-gradient(180deg,#000,#000)}
+/* dark scanline veil */
+html[data-theme="dark"] body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:repeating-linear-gradient(0deg,rgba(0,0,0,0) 0px,rgba(0,0,0,0) 2px,rgba(0,0,0,.16) 3px);opacity:.5}
+
+h1,h2,h3,h4{margin:0;font-family:var(--head);font-weight:700;letter-spacing:-.02em;color:var(--ink)}
+html[data-theme="dark"] h1,html[data-theme="dark"] h2,html[data-theme="dark"] h3,html[data-theme="dark"] h4{letter-spacing:0}
+p{margin:0}
+b,strong{font-weight:700;color:var(--ink)}
+em{font-style:italic}
+.mono{font-family:var(--mono)}
+.mute{color:var(--ink-2)}
+a{color:inherit}
+::selection{background:var(--c-manas);color:#161410}
+html[data-theme="dark"] ::selection{background:var(--c-kural);color:#06140A}
+
+/* ───────────────────────────── LOGO LOCKUP (CSS text) ───────────────────────────── */
+.logo{display:inline-flex;align-items:center;border:var(--line-w) solid var(--line);border-radius:var(--radius);
+  padding:11px 18px 11px 16px;background:var(--card);box-shadow:var(--shadow);
+  text-decoration:none;color:var(--ink)}
+html[data-theme="dark"] .logo{border-color:var(--line);box-shadow:none;background:var(--card)}
+.logo:hover{text-decoration:none}
+.logo .pr{font-family:var(--mono);font-weight:700;font-size:22px;line-height:1;color:var(--ink);letter-spacing:-.06em}
+.logo .dv{width:2px;height:24px;background:var(--line);margin:0 16px 0 15px}
+html[data-theme="dark"] .logo .pr{color:var(--ink)}
+html[data-theme="dark"] .logo .dv{background:var(--line);opacity:.6}
+.logo .wd{font-family:var(--word);font-size:18px;line-height:1;color:var(--ink);letter-spacing:.40em;padding-left:.40em}
+html[data-theme="dark"] .logo .wd{color:var(--ink)}
+@media(max-width:480px){.logo .wd{font-size:14px;letter-spacing:.26em}.logo .pr{font-size:18px}.logo{padding:9px 14px}}
+
+/* ───────────────────────────── TOGGLE (theme) ───────────────────────────── */
+.toggle{display:inline-flex;align-items:center;gap:0;border:var(--line-w) solid var(--line);border-radius:var(--radius);
+  background:var(--card);font-family:var(--mono);font-size:11px;font-weight:600;overflow:hidden;cursor:pointer;
+  box-shadow:var(--shadow)}
+html[data-theme="dark"] .toggle{border-color:var(--line);box-shadow:none}
+.toggle button{appearance:none;border:0;background:transparent;color:var(--ink-2);font:inherit;letter-spacing:.1em;
+  text-transform:uppercase;padding:9px 13px;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.toggle button .swatch{width:8px;height:8px;border:1.5px solid currentColor}
+.toggle button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.toggle button[aria-pressed="true"] .swatch{background:currentColor;border-color:currentColor}
+html[data-theme="light"] .toggle button#tg-light[aria-pressed="true"] .swatch{border-radius:50%}
+html[data-theme="dark"] .toggle button#tg-dark[aria-pressed="true"]{background:var(--c-kural);color:#06140A;text-shadow:none}
+html[data-theme="dark"] .toggle button#tg-dark[aria-pressed="true"] .swatch{box-shadow:none}
+
+/* ───────────────────────────── BUTTONS ───────────────────────────── */
+.btn{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-weight:600;font-size:13px;
+  letter-spacing:.06em;text-transform:uppercase;padding:14px 22px;border:var(--line-w) solid var(--line);
+  border-radius:var(--radius);cursor:pointer;text-decoration:none;background:var(--card);color:var(--ink);
+  box-shadow:var(--shadow);transition:transform .12s ease,box-shadow .12s ease}
+.btn:hover{transform:translate(-2px,-2px);box-shadow:7px 7px 0 var(--ink)}
+.btn.prim{background:var(--act);color:var(--on-act);border-color:var(--line)}
+html[data-theme="dark"] .btn{border-color:var(--line);box-shadow:none;background:var(--card)}
+html[data-theme="dark"] .btn.prim{background:var(--act);color:var(--on-act)}
+html[data-theme="dark"] .btn:hover{transform:none;box-shadow:none}
+html[data-theme="dark"] .btn::before{content:'[ ';color:var(--ink-3)}
+html[data-theme="dark"] .btn::after{content:' ]';color:var(--ink-3)}
+html[data-theme="dark"] .btn.prim::before,html[data-theme="dark"] .btn.prim::after{color:var(--on-act)}
+
+/* ════════════════════════════════════════════════════════════════════
+   ★ ONBOARDING CAROUSEL — new surface, same idiom
+   ════════════════════════════════════════════════════════════════════ */
+/* full-height app shell — topbar / deck / nav, no horizontal scroll anywhere */
+html,body{height:100%}
+.app{position:relative;z-index:1;height:100%;height:100dvh;
+  display:flex;flex-direction:column;
+  max-width:var(--maxw);margin:0 auto;width:100%;
+  padding:clamp(12px,3vw,26px) clamp(12px,4.5vw,40px) clamp(14px,3vw,28px)}
+
+/* ── persistent slim TOP BAR ── */
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
+  flex:none;padding-bottom:clamp(10px,2vw,18px)}
+.topbar .tb-mid{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-left:auto}
+.signin-chip{font-family:var(--mono);font-size:10.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--ink-2);border:1.5px solid var(--line);border-radius:var(--radius);padding:7px 11px;background:var(--card);
+  display:inline-flex;align-items:center;gap:8px;white-space:nowrap}
+.signin-chip::before{content:'';width:8px;height:8px;border-radius:50%;background:var(--c-kural);flex:none;box-shadow:var(--glow)}
+html[data-theme="dark"] .signin-chip{border-color:var(--line);color:var(--ink-2);background:transparent}
+html[data-theme="dark"] .signin-chip::before{background:var(--ink-3);box-shadow:none}
+html[data-theme="dark"] .signin-chip .sb{opacity:.55}
+.signin-chip .sb{color:var(--ink-3)}
+@media(max-width:560px){.signin-chip{font-size:9.5px;padding:6px 9px}}
+@media(max-width:430px){.signin-chip{display:none}}
+
+/* ── DECK: exactly 8 slides, only .is-active shown ── */
+.deck{flex:1 1 auto;position:relative;display:flex;flex-direction:column;min-height:0}
+.slide{display:none;flex:1 1 auto;min-height:0;
+  /* a slide is a single centred column: kicker · hero shape · headline · lines · pill · gate */
+  flex-direction:column;align-items:flex-start;justify-content:center;gap:clamp(14px,2.4vw,22px);
+  padding:clamp(14px,3vw,30px) 2px;overflow-y:auto;overflow-x:hidden;max-width:100%}
+.slide.is-active{display:flex}
+/* subtle entrance — re-fires each activation (slide re-enters from display:none); reduced-motion = instant cut */
+@media (prefers-reduced-motion:no-preference){
+  .slide.is-active{animation:slidein .42s cubic-bezier(.22,.61,.36,1) both}
+}
+@keyframes slidein{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+
+.s-kick{font-family:var(--mono);font-size:11.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-2);
+  display:inline-flex;align-items:center;gap:9px;flex:none}
+.s-kick::before{content:'';width:11px;height:11px;background:var(--c-kural);flex:none}
+html[data-theme="dark"] .s-kick::before{box-shadow:none}
+html[data-theme="dark"] .s-kick{color:var(--ink-2)}
+html[data-theme="dark"] .s-kick .num::before{content:'// '}
+
+.s-head{font-size:clamp(30px,6.4vw,60px);line-height:.98;letter-spacing:-.035em;max-width:15ch;margin:0}
+html[data-theme="dark"] .s-head{font-size:clamp(24px,5vw,46px);letter-spacing:-.005em;line-height:1.04;max-width:22ch}
+
+.s-lines{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:9px;max-width:62ch}
+.s-lines li{font-size:clamp(15px,2.1vw,18.5px);color:var(--ink-2);line-height:1.5;
+  position:relative;padding-left:20px}
+html[data-theme="dark"] .s-lines li{font-size:clamp(13.5px,1.8vw,16px)}
+.s-lines li::before{content:'';position:absolute;left:0;top:.62em;width:7px;height:7px;background:var(--accent,var(--ink-3))}
+html[data-theme="dark"] .s-lines li::before{box-shadow:none}
+.s-lines li b{color:var(--ink)}
+
+/* verb pill (slides 3–6) — reuses the landing .verbpill idiom */
+.s-verb{display:inline-flex;align-items:center;font-family:var(--mono);font-weight:700;font-size:11px;
+  letter-spacing:.14em;text-transform:uppercase;background:var(--ink);color:var(--paper);padding:6px 13px;
+  border-radius:var(--radius);flex:none;align-self:flex-start}
+html[data-theme="dark"] .s-verb{background:transparent;color:var(--accent,var(--c-kural));border:1px solid var(--accent,var(--c-kural))}
+html[data-theme="dark"] .s-verb::before{content:'[ '}
+html[data-theme="dark"] .s-verb::after{content:' ]'}
+
+/* gate note (slides 4 & 6) — landing gate-pill idiom: red in light / framed in dark */
+.s-gate{display:inline-flex;align-items:center;gap:10px;font-family:var(--mono);font-size:11px;font-weight:700;
+  letter-spacing:.08em;text-transform:uppercase;color:var(--act-text);border:1.5px solid var(--act);
+  border-radius:var(--radius);padding:9px 13px;background:var(--card-2);flex:none;align-self:flex-start;max-width:100%}
+.s-gate::before{content:'☝';font-size:13px;-webkit-text-fill-color:initial}
+html[data-theme="dark"] .s-gate{border-color:var(--act);color:var(--act-text);background:transparent;text-shadow:none}
+html[data-theme="dark"] .s-gate::after{content:'';}
+
+/* ── the big HERO SHAPE per slide ── one per slide, themed per mode ── */
+.hero-shape{flex:none;align-self:flex-start;display:flex;align-items:center;justify-content:center;
+  width:clamp(110px,22vw,176px);height:clamp(110px,22vw,176px);max-width:100%;position:relative}
+@media (prefers-reduced-motion:no-preference){
+  .hero-shape{animation:heroin .6s cubic-bezier(.22,.61,.36,1) both,float 6s ease-in-out 0.6s infinite}
+}
+@keyframes heroin{from{opacity:0;transform:scale(.82)}to{opacity:1;transform:none}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+
+/* manas — circle (amber) */
+.hs-circle .core{width:100%;height:100%;border-radius:50%;background:var(--c-manas)}
+html[data-theme="dark"] .hs-circle .core{background:transparent;border:2.5px solid var(--c-manas);box-shadow:none}
+html[data-theme="light"] .hs-circle{filter:drop-shadow(10px 10px 0 var(--ink))}
+
+/* kalai — triangle (red) */
+.hs-triangle .core{width:0;height:0;border-left:clamp(55px,11vw,88px) solid transparent;
+  border-right:clamp(55px,11vw,88px) solid transparent;border-bottom:clamp(96px,19vw,152px) solid var(--c-kalai)}
+html[data-theme="dark"] .hs-triangle .core{filter:none}
+html[data-theme="light"] .hs-triangle{filter:drop-shadow(10px 10px 0 var(--ink))}
+
+/* kural — square (green) */
+.hs-square .core{width:84%;height:84%;background:var(--c-kural)}
+html[data-theme="dark"] .hs-square .core{background:transparent;border:2.5px solid var(--c-kural);box-shadow:none}
+html[data-theme="light"] .hs-square{filter:drop-shadow(10px 10px 0 var(--ink))}
+
+/* arivu — diamond (blue, the shared chamber) = a square in --c-arivu rotated 45deg */
+.hs-diamond{overflow:visible}
+.hs-diamond .core{width:70%;height:70%;background:var(--c-arivu);transform:rotate(45deg)}
+html[data-theme="dark"] .hs-diamond .core{background:transparent;border:2.5px solid var(--c-arivu);box-shadow:none}
+html[data-theme="light"] .hs-diamond{filter:drop-shadow(9px 9px 0 var(--ink))}
+
+/* saakshe — the witness: an eye / iris motif */
+.hs-eye{overflow:visible}
+.hs-eye svg{width:100%;height:100%;overflow:visible}
+.hs-eye .almond{fill:none;stroke:var(--witness);stroke-width:5}
+.hs-eye .iris{fill:var(--act)}
+.hs-eye .pupil{fill:var(--paper)}
+.hs-eye .glint{fill:var(--card)}
+html[data-theme="light"] .hs-eye svg{filter:drop-shadow(8px 8px 0 var(--ink))}
+html[data-theme="dark"] .hs-eye .almond{stroke:var(--c-kural);filter:none}
+html[data-theme="dark"] .hs-eye .iris{fill:var(--c-kural);filter:none}
+html[data-theme="dark"] .hs-eye .pupil{fill:#06140A}
+html[data-theme="dark"] .hs-eye .glint{fill:#D4F5DE}
+@media (prefers-reduced-motion:no-preference){.hs-eye .iris{animation:irisscan 5s ease-in-out infinite}}
+@keyframes irisscan{0%,100%{transform:translateX(0)}30%{transform:translateX(-7px)}65%{transform:translateX(7px)}}
+
+/* setu — the bridge (slide 2): two granted sources arc into the witness */
+.hs-bridge{overflow:visible}
+.hs-bridge svg{width:100%;height:100%;overflow:visible}
+.hs-bridge .span{fill:none;stroke:var(--c-arivu);stroke-width:5;stroke-linecap:round}
+.hs-bridge .pier{fill:var(--c-arivu)}
+.hs-bridge .hub{fill:none;stroke:var(--witness);stroke-width:5}
+.hs-bridge .iris{fill:var(--act)}
+html[data-theme="light"] .hs-bridge svg{filter:drop-shadow(8px 8px 0 var(--ink))}
+html[data-theme="dark"] .hs-bridge .span{stroke:var(--c-arivu);filter:none}
+html[data-theme="dark"] .hs-bridge .pier{fill:var(--c-arivu);filter:none}
+html[data-theme="dark"] .hs-bridge .hub{stroke:var(--c-kural);filter:none}
+html[data-theme="dark"] .hs-bridge .iris{fill:var(--c-kural);filter:none}
+
+/* cta hero (slide 8): the eye reused, wreathed by the four shapes */
+.hs-cta{width:clamp(150px,30vw,230px);height:clamp(150px,30vw,230px)}
+.hs-cta .eyewrap{position:absolute;inset:18%}
+.hs-cta .ring{position:absolute;width:18px;height:18px}
+.hs-cta .ring.r1{top:0;left:50%;transform:translateX(-50%);border-radius:50%;background:var(--c-manas)}
+.hs-cta .ring.r2{right:0;top:50%;transform:translateY(-50%) rotate(45deg);background:var(--c-arivu)}
+.hs-cta .ring.r3{bottom:0;left:50%;transform:translateX(-50%);width:0;height:0;background:none;
+  border-left:9px solid transparent;border-right:9px solid transparent;border-bottom:18px solid var(--c-kalai)}
+.hs-cta .ring.r4{left:0;top:50%;transform:translateY(-50%);background:var(--c-kural)}
+html[data-theme="dark"] .hs-cta .ring{box-shadow:none}
+html[data-theme="dark"] .hs-cta .ring.r1{box-shadow:none}
+html[data-theme="dark"] .hs-cta .ring.r2{box-shadow:none}
+html[data-theme="dark"] .hs-cta .ring.r3{filter:none}
+html[data-theme="dark"] .hs-cta .ring.r4{box-shadow:none}
+@media (prefers-reduced-motion:no-preference){.hs-cta{animation:heroin .6s cubic-bezier(.22,.61,.36,1) both,spin 26s linear infinite}}
+@keyframes spin{to{transform:rotate(360deg)}}
+.hs-cta .eyewrap{animation:none!important}
+
+/* ── SLIDE 7 — the flywheel (the slide's hero-shape) — reuses landing .flywheel/.fw idiom ── */
+.slide-7{align-items:stretch}
+.hero-shape.flywheel{width:100%;height:auto;align-self:stretch;max-width:100%;
+  display:flex;align-items:stretch;flex-wrap:wrap;gap:0;
+  border:var(--line-w) solid var(--line);border-radius:var(--radius);background:var(--card);overflow:hidden}
+@media (prefers-reduced-motion:no-preference){.hero-shape.flywheel{animation:slidein .42s cubic-bezier(.22,.61,.36,1) both}}
+html[data-theme="dark"] .hero-shape.flywheel{border-color:var(--line);box-shadow:none}
+.fw{flex:1;min-width:140px;padding:15px 14px;border-right:var(--line-w) solid var(--line);position:relative}
+.fw:last-child{border-right:0}
+html[data-theme="dark"] .fw{border-right-color:var(--line)}
+.fw .step{font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3)}
+.fw .who{font-family:var(--head);font-weight:700;font-size:16px;margin-top:7px;display:flex;align-items:center;gap:8px}
+html[data-theme="dark"] .fw .who{font-weight:500}
+.fw .who .g{width:15px;height:15px;flex:none}
+.g.circ{border-radius:50%}
+.g.tri{width:0;height:0;border-left:8px solid transparent;border-right:8px solid transparent;border-bottom:15px solid currentColor}
+.g.dia{transform:rotate(45deg);width:11px;height:11px}
+.fw.w-connect .who .g{background:var(--ink)}
+.fw.w-manas .who{color:var(--tx-manas)}.fw.w-manas .who .g{background:var(--c-manas)}
+.fw.w-arivu .who{color:var(--tx-arivu)}.fw.w-arivu .who .g{background:var(--c-arivu)}
+.fw.w-kalai .who{color:var(--tx-kalai)}.fw.w-kalai .who .g{color:var(--c-kalai)}
+.fw.w-kural .who{color:var(--tx-kural)}.fw.w-kural .who .g{background:var(--c-kural)}
+html[data-theme="dark"] .fw .who .g{box-shadow:none}
+.fw .d{margin-top:7px;font-size:12.5px;color:var(--ink-2);line-height:1.45}
+.fw .tap{margin-top:9px;display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:9.5px;
+  font-weight:700;letter-spacing:.1em;text-transform:uppercase;background:var(--act);color:var(--on-act);padding:5px 9px;border-radius:var(--radius)}
+html[data-theme="dark"] .fw .tap{box-shadow:none}
+html[data-theme="dark"] .fw .tap::before{content:'['}html[data-theme="dark"] .fw .tap::after{content:']'}
+@media(max-width:760px){.fw{min-width:calc(50% - 0px);border-bottom:var(--line-w) solid var(--line)}}
+@media(max-width:430px){.fw{min-width:100%;border-right:var(--line-w) solid var(--line)!important}}
+.fw-loop{margin-top:14px;font-family:var(--mono);font-size:12px;color:var(--ink-2);display:flex;align-items:center;gap:9px;flex:none;flex-wrap:wrap}
+.fw-loop::before{content:'↻';color:var(--c-kural);font-size:18px}
+html[data-theme="dark"] .fw-loop::before{color:var(--ink-3);text-shadow:none}
+.fw-loop b{color:var(--ink)}
+
+/* ── persistent NAV (back · dots · next · skip) ── */
+.nav{flex:none;display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:clamp(10px,2vw,18px);
+  padding-top:clamp(12px,2.4vw,20px);margin-top:auto;border-top:3px solid var(--line)}
+html[data-theme="dark"] .nav{border-top:1px solid var(--line);box-shadow:none}
+.navbtn{appearance:none;font-family:var(--mono);font-weight:600;font-size:12px;letter-spacing:.07em;text-transform:uppercase;
+  padding:11px 17px;border:var(--line-w) solid var(--line);border-radius:var(--radius);cursor:pointer;
+  background:var(--card);color:var(--ink);box-shadow:var(--shadow);transition:transform .12s ease,box-shadow .12s ease}
+.navbtn:hover{transform:translate(-2px,-2px);box-shadow:7px 7px 0 var(--ink)}
+.navbtn:disabled{opacity:.34;cursor:not-allowed;box-shadow:none;transform:none}
+html[data-theme="dark"] .navbtn{border-color:var(--line);box-shadow:none;background:var(--card)}
+html[data-theme="dark"] .navbtn:hover{transform:none;box-shadow:none}
+html[data-theme="dark"] .navbtn:disabled{box-shadow:none}
+html[data-theme="dark"] .navbtn::before{content:'[ ';color:var(--ink-3)}
+html[data-theme="dark"] .navbtn::after{content:' ]';color:var(--ink-3)}
+#nav-skip{justify-self:end;background:transparent;box-shadow:none;border-color:transparent;color:var(--ink-2);padding:11px 10px}
+#nav-skip:hover{transform:none;box-shadow:none;color:var(--ink);text-decoration:underline}
+html[data-theme="dark"] #nav-skip{border-color:transparent;box-shadow:none;color:var(--ink-2)}
+html[data-theme="dark"] #nav-skip:hover{box-shadow:none;color:var(--ink)}
+/* slim layout: back | dots | next, then skip on its own line on small screens */
+.nav .right{display:inline-flex;align-items:center;gap:clamp(8px,1.6vw,14px);justify-self:end}
+
+/* dots */
+.dots{display:flex;align-items:center;justify-content:center;gap:clamp(7px,1.6vw,11px);flex-wrap:wrap;
+  grid-column:2;min-width:0}
+.dot{appearance:none;width:13px;height:13px;padding:0;border:2px solid var(--line);border-radius:0;
+  background:transparent;cursor:pointer;flex:none;transition:background .15s ease,transform .15s ease}
+.dot:hover{transform:scale(1.18)}
+.dot[aria-current="true"]{background:var(--act);border-color:var(--act)}
+html[data-theme="dark"] .dot{border-color:var(--ink-3)}
+html[data-theme="dark"] .dot[aria-current="true"]{background:var(--c-kural);border-color:var(--c-kural);box-shadow:none}
+@media(max-width:560px){.dot{width:11px;height:11px}}
+/* below 430px keep all 8 dots on ONE row between Back and Next+Skip */
+@media(max-width:430px){.dots{flex-wrap:nowrap;gap:5px}.dot{width:9px;height:9px}}
+
+/* count caption under the nav */
+.nav-count{grid-column:1 / -1;justify-self:center;font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--ink-3);padding-top:10px}
+html[data-theme="dark"] .nav-count{color:var(--ink-3)}
+html[data-theme="dark"] .nav-count .num{color:var(--ink-2);text-shadow:none}
+
+@media(max-width:560px){
+  .nav{grid-template-columns:auto 1fr auto;gap:10px}
+  .navbtn{padding:10px 14px;font-size:11px}
+}
+@media(max-width:380px){
+  .s-head{font-size:clamp(26px,9vw,34px)}
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ═══ PERSISTENT SLIM TOP BAR (rendered once, on every slide) ═══ -->
+  <div class="topbar">
+    <a class="logo" href="#" aria-label="saakshe home">
+      <span class="pr">&gt;_</span><span class="dv"></span><span class="wd">SAAKSHE</span>
+    </a>
+    <div class="tb-mid">
+      <span id="signin-chip" class="signin-chip">● signed in <span class="sb">·</span> founder</span>
+      <div class="toggle" role="group" aria-label="Theme">
+        <button id="tg-light" type="button" aria-pressed="true"><span class="swatch"></span>Brut</button>
+        <button id="tg-dark" type="button" aria-pressed="false"><span class="swatch"></span>Obsidian</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ DECK: exactly 8 slides ═══ -->
+  <div class="deck" id="deck">
+
+    <!-- ── 01 · welcome — saakshe the witness (eye) ── -->
+    <section class="slide is-active slide-1" data-slide="1" id="slide-1" aria-hidden="false" style="--accent:var(--witness)">
+      <div class="s-kick"><span class="num">01 · welcome</span></div>
+      <div class="hero-shape hs-eye" aria-hidden="true">
+        <svg viewBox="0 0 160 100" preserveAspectRatio="xMidYMid meet">
+          <path class="almond" d="M6 50 Q80 4 154 50 Q80 96 6 50 Z"/>
+          <circle class="iris" cx="80" cy="50" r="26"/>
+          <circle class="pupil" cx="80" cy="50" r="11"/>
+          <circle class="glint" cx="89" cy="42" r="4"/>
+        </svg>
+      </div>
+      <h1 class="s-head">Meet your company.</h1>
+      <ul class="s-lines">
+        <li><b>saakshe</b> is the witness.</li>
+        <li>one founder, a whole company you talk to.</li>
+        <li>chat and voice, end to end.</li>
+        <li>it answers from what it sees, and <b>refuses beyond it.</b></li>
+      </ul>
+    </section>
+
+    <!-- ── 02 · setu · the bridge ── -->
+    <section class="slide slide-2" data-slide="2" id="slide-2" aria-hidden="true" style="--accent:var(--c-arivu)">
+      <div class="s-kick"><span class="num">02 · setu · the bridge</span></div>
+      <div class="hero-shape hs-bridge" aria-hidden="true">
+        <svg viewBox="0 0 160 120" preserveAspectRatio="xMidYMid meet">
+          <path class="span" d="M14 96 Q80 8 80 60"/>
+          <path class="span" d="M146 96 Q80 8 80 60"/>
+          <rect class="pier" x="9" y="92" width="12" height="22"/>
+          <rect class="pier" x="139" y="92" width="12" height="22"/>
+          <circle class="hub" cx="80" cy="70" r="26"/>
+          <circle class="iris" cx="80" cy="70" r="11"/>
+        </svg>
+      </div>
+      <h1 class="s-head">Connect your project.</h1>
+      <ul class="s-lines">
+        <li>the company grounds in your <b>real sources.</b></li>
+        <li>repo, site, socials — nothing invented.</li>
+        <li>sources are <b>granted</b>, never taken.</li>
+        <li><b>BYOK:</b> your keys, your costs, your control.</li>
+      </ul>
+    </section>
+
+    <!-- ── 03 · manas — circle (amber) ── -->
+    <section class="slide slide-3" data-slide="3" id="slide-3" aria-hidden="true" style="--accent:var(--c-manas)">
+      <div class="s-kick"><span class="num">03 · manas</span></div>
+      <div class="hero-shape hs-circle" aria-hidden="true"><span class="core"></span></div>
+      <span class="s-verb">⬤ knows</span>
+      <h1 class="s-head">manas knows.</h1>
+      <ul class="s-lines">
+        <li>imbibes your granted sources over <b>setu</b>.</li>
+        <li>commits a versioned <b>Context Pack</b> of cited facts.</li>
+        <li>style, voice, brand, numbers — each keeps its source.</li>
+        <li>the company memory. <b>nothing is invented.</b></li>
+      </ul>
+    </section>
+
+    <!-- ── 04 · arivu — diamond (blue, the shared chamber) ── -->
+    <section class="slide slide-4" data-slide="4" id="slide-4" aria-hidden="true" style="--accent:var(--c-arivu)">
+      <div class="s-kick"><span class="num">04 · arivu</span></div>
+      <div class="hero-shape hs-diamond" aria-hidden="true"><span class="core"></span></div>
+      <span class="s-verb">◆ decides</span>
+      <h1 class="s-head">arivu decides.</h1>
+      <ul class="s-lines">
+        <li>the shared <b>decision chamber</b> the three faculties call.</li>
+        <li>on a real decision, it convenes <b>five lenses.</b></li>
+        <li>seals a tested verdict — defensibility, confidence, dissent on record.</li>
+        <li>your first human gate: <b>you tap to approve.</b></li>
+      </ul>
+      <span class="s-gate">first human gate · you tap to approve</span>
+    </section>
+
+    <!-- ── 05 · kalai — triangle (red) ── -->
+    <section class="slide slide-5" data-slide="5" id="slide-5" aria-hidden="true" style="--accent:var(--c-kalai)">
+      <div class="s-kick"><span class="num">05 · kalai</span></div>
+      <div class="hero-shape hs-triangle" aria-hidden="true"><span class="core"></span></div>
+      <span class="s-verb">▲ creates</span>
+      <h1 class="s-head">kalai creates.</h1>
+      <ul class="s-lines">
+        <li>the maker — <b>on-brand image and copy.</b></li>
+        <li>a brand-fidelity loop with <b>fail-closed compliance.</b></li>
+        <li>then hands the master to <b>kural</b>.</li>
+        <li>it holds no channel keys. it creates, <b>never ships.</b></li>
+      </ul>
+    </section>
+
+    <!-- ── 06 · kural — square (green) ── -->
+    <section class="slide slide-6" data-slide="6" id="slide-6" aria-hidden="true" style="--accent:var(--c-kural)">
+      <div class="s-kick"><span class="num">06 · kural</span></div>
+      <div class="hero-shape hs-square" aria-hidden="true"><span class="core"></span></div>
+      <span class="s-verb">◼ engages</span>
+      <h1 class="s-head">kural engages.</h1>
+      <ul class="s-lines">
+        <li>the <b>only mouth.</b></li>
+        <li>every claim is <b>fact-checked first.</b></li>
+        <li>nothing unverified leaves.</li>
+        <li>your second human gate: <b>you tap to publish.</b></li>
+      </ul>
+      <span class="s-gate">second human gate · you tap to publish</span>
+    </section>
+
+    <!-- ── 07 · the flywheel (the slide visual IS the flywheel) ── -->
+    <section class="slide slide-7" data-slide="7" id="slide-7" aria-hidden="true" style="--accent:var(--c-kural)">
+      <div class="s-kick"><span class="num">07 · the flywheel</span></div>
+      <h1 class="s-head">Two taps, you stay in control.</h1>
+      <div class="hero-shape flywheel" aria-label="The flywheel: ask, manas grounds, arivu decides (tap one), kalai creates, kural engages (tap two), published, then manas learns">
+        <div class="fw w-connect">
+          <div class="step">00 · you</div>
+          <div class="who"><span class="g sq" aria-hidden="true" style="width:13px;height:13px;background:var(--ink)"></span>ask</div>
+          <div class="d">a real decision.</div>
+        </div>
+        <div class="fw w-manas">
+          <div class="step">01 · knows</div>
+          <div class="who"><span class="g circ" aria-hidden="true"></span>manas grounds</div>
+          <div class="d">cited Context Pack.</div>
+        </div>
+        <div class="fw w-arivu">
+          <div class="step">02 · decides</div>
+          <div class="who"><span class="g dia" aria-hidden="true"></span>arivu decides</div>
+          <div class="d">five lenses → verdict.</div>
+          <div class="tap">tap 1 · decide</div>
+        </div>
+        <div class="fw w-kalai">
+          <div class="step">03 · creates</div>
+          <div class="who"><span class="g tri" aria-hidden="true"></span>kalai creates</div>
+          <div class="d">on-brand, compliant.</div>
+        </div>
+        <div class="fw w-kural">
+          <div class="step">04 · engages</div>
+          <div class="who"><span class="g sq" aria-hidden="true" style="width:13px;height:13px;background:var(--c-kural)"></span>kural engages</div>
+          <div class="d">fact-checked, published.</div>
+          <div class="tap">tap 2 · publish</div>
+        </div>
+      </div>
+      <ul class="s-lines">
+        <li>ask a real decision. <b>manas</b> grounds.</li>
+        <li><b>arivu</b> decides — tap one.</li>
+        <li><b>kalai</b> creates. <b>kural</b> engages — tap two.</li>
+        <li>published. then <b>manas</b> learns.</li>
+      </ul>
+      <div class="fw-loop">published &rarr; <b>kural's results feed manas</b> &rarr; the wheel learns and turns again.</div>
+    </section>
+
+    <!-- ── 08 · ready — CTA ── -->
+    <section class="slide slide-8" data-slide="8" id="slide-8" aria-hidden="true" style="--accent:var(--witness)">
+      <div class="s-kick"><span class="num">08 · ready</span></div>
+      <div class="hero-shape hs-cta hs-eye" aria-hidden="true">
+        <span class="ring r1"></span><span class="ring r2"></span><span class="ring r3"></span><span class="ring r4"></span>
+        <div class="eyewrap">
+          <svg viewBox="0 0 160 100" preserveAspectRatio="xMidYMid meet">
+            <path class="almond" d="M6 50 Q80 4 154 50 Q80 96 6 50 Z"/>
+            <circle class="iris" cx="80" cy="50" r="26"/>
+            <circle class="pupil" cx="80" cy="50" r="11"/>
+            <circle class="glint" cx="89" cy="42" r="4"/>
+          </svg>
+        </div>
+      </div>
+      <h1 class="s-head">Connect your project.</h1>
+      <ul class="s-lines">
+        <li>the company is <b>ready to ground.</b></li>
+        <li>grant your sources. keep your keys.</li>
+        <li>two gates, <b>both yours.</b></li>
+        <li>let's begin.</li>
+      </ul>
+      <a id="connect-cta" class="btn prim" href="cockpit.html">Connect your project</a>
+    </section>
+
+  </div>
+
+  <!-- ═══ PERSISTENT NAV (rendered once, outside #deck) ═══ -->
+  <div class="nav">
+    <button id="nav-back" class="navbtn" data-nav="back">Back</button>
+    <div class="dots" id="dots">
+      <button class="dot" data-dot="1" aria-current="true" aria-label="Go to slide 1"></button>
+      <button class="dot" data-dot="2" aria-label="Go to slide 2"></button>
+      <button class="dot" data-dot="3" aria-label="Go to slide 3"></button>
+      <button class="dot" data-dot="4" aria-label="Go to slide 4"></button>
+      <button class="dot" data-dot="5" aria-label="Go to slide 5"></button>
+      <button class="dot" data-dot="6" aria-label="Go to slide 6"></button>
+      <button class="dot" data-dot="7" aria-label="Go to slide 7"></button>
+      <button class="dot" data-dot="8" aria-label="Go to slide 8"></button>
+    </div>
+    <div class="right">
+      <button id="nav-next" class="navbtn" data-nav="next">Next</button>
+      <button id="nav-skip" class="navbtn" data-nav="skip">Skip &rarr;</button>
+    </div>
+    <div class="nav-count"><span class="num" id="count-cur">01</span> / 08</div>
+  </div>
+
+</div>
+
+<script>
+/* ── theme toggle (verbatim from landing; cockpit-chip line dropped) ── */
+(function(){
+  var root=document.documentElement;
+  var bL=document.getElementById('tg-light');
+  var bD=document.getElementById('tg-dark');
+  function sync(t){
+    var dark=t==='dark';
+    bL.setAttribute('aria-pressed',String(!dark));
+    bD.setAttribute('aria-pressed',String(dark));
+  }
+  function setTheme(t){
+    root.setAttribute('data-theme',t);
+    try{localStorage.setItem('saakshe-theme',t);}catch(e){}
+    sync(t);
+  }
+  sync(root.getAttribute('data-theme')||'light');
+  bL.addEventListener('click',function(){setTheme('light');});
+  bD.addEventListener('click',function(){setTheme('dark');});
+})();
+</script>
+<script>
+/* ── carousel: one clamped go(n); updates is-active + aria-hidden + aria-current together ── */
+(function(){
+  var TOTAL=8;
+  var cur=1;
+  var slides=Array.prototype.slice.call(document.querySelectorAll('.slide'));
+  var dots=Array.prototype.slice.call(document.querySelectorAll('.dot'));
+  var back=document.getElementById('nav-back');
+  var next=document.getElementById('nav-next');
+  var skip=document.getElementById('nav-skip');
+  var countCur=document.getElementById('count-cur');
+
+  function pad(n){return n<10?('0'+n):(''+n);}
+
+  function go(n){
+    n=Math.max(1,Math.min(TOTAL,n|0));
+    cur=n;
+    slides.forEach(function(s){
+      var sn=parseInt(s.getAttribute('data-slide'),10);
+      var on=sn===n;
+      s.classList.toggle('is-active',on);
+      s.setAttribute('aria-hidden',on?'false':'true');
+    });
+    dots.forEach(function(d){
+      var dn=parseInt(d.getAttribute('data-dot'),10);
+      if(dn===n){d.setAttribute('aria-current','true');}
+      else{d.removeAttribute('aria-current');}
+    });
+    back.disabled=(n===1);
+    next.disabled=(n===TOTAL);
+    if(countCur) countCur.textContent=pad(n);
+    // bring the freshly-shown slide's scroll to top
+    var active=document.querySelector('.slide.is-active');
+    if(active) active.scrollTop=0;
+  }
+
+  back.addEventListener('click',function(){go(cur-1);});
+  next.addEventListener('click',function(){go(cur+1);});
+  skip.addEventListener('click',function(){go(TOTAL);});
+  dots.forEach(function(d){
+    d.addEventListener('click',function(){go(parseInt(d.getAttribute('data-dot'),10));});
+  });
+
+  document.addEventListener('keydown',function(e){
+    if(e.key==='ArrowRight'){e.preventDefault();go(cur+1);}
+    else if(e.key==='ArrowLeft'){e.preventDefault();go(cur-1);}
+  });
+
+  go(1);
+})();
+</script>
+</body>
+</html>

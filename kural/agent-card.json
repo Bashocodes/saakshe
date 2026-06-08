@@ -1,0 +1,34 @@
+{
+  "name": "kural",
+  "description": "The company's only mouth, on Google ADK. A Claude-via-Vertex Envoy Lead qualifies an approved campaign; two Gemini scouts research audience and timing in parallel; a Gemini writer drafts founder-voice outreach grounded in the manas Context Pack; a Claude-via-Vertex Claim-Judge fact-checks every claim at a numeric gate (claim_support >= 0.80) and loops the draft back to be re-grounded until it verifies or rolls back; the run HALTS at the founder's publish sign-off before anything reaches the world. kural holds the channel keys, sends as the buyer behind an eligibility/value-cap gate and a no-double-send ledger, and never edits the creative. kural ENGAGES.",
+  "version": "0.1.0",
+  "protocolVersion": "0.2.5",
+  "url": "https://kural.saakshe.example/a2a",
+  "preferredTransport": "JSONRPC",
+  "provider": {
+    "organization": "saakshe",
+    "url": "https://saakshe.example"
+  },
+  "capabilities": {
+    "streaming": true,
+    "pushNotifications": false,
+    "stateTransitionHistory": false
+  },
+  "defaultInputModes": ["text/plain", "application/json"],
+  "defaultOutputModes": ["text/plain", "application/json"],
+  "skills": [
+    {
+      "id": "launch_campaign",
+      "name": "Launch a campaign",
+      "description": "Take an approved decision + kalai's compliance-cleared master, qualify the engagement, research audience and timing in parallel, write founder-voice outreach grounded in the manas Context Pack, fact-check every claim at the claim_support >= 0.80 gate, and HALT at the founder's publish sign-off. Accepts and holds the campaign at the gate; the founder's tap-2 puts it live. Sends as the buyer behind an eligibility/value-cap gate and a no-double-send ledger. No creative is edited; nothing is published without the gate.",
+      "tags": ["engagement", "outreach", "publish", "fact-checked", "human-gated"],
+      "examples": [
+        "Announce: Raise Pro to $34, grandfather existing subscribers, 30-day notice.",
+        "Announce the new annual Pro plan."
+      ],
+      "inputModes": ["text/plain", "application/json"],
+      "outputModes": ["application/json"]
+    }
+  ],
+  "notes": "Served manually by the FastAPI server rather than via ADK's to_a2a() helper: to_a2a() is currently blocked by the a2a-sdk 1.1.0 restructure (a2a.server.apps was moved, breaking the import path ADK expects). Until ADK pins/adapts to the new a2a-sdk layout, the server reads this static AgentCard and exposes it on the well-known discovery path itself, and answers JSON-RPC manually. Path is a2a-sdk-version-sensitive: recent A2A spec uses /.well-known/agent-card.json, older drafts used /.well-known/agent.json — confirm against the targeted a2a-sdk version when wiring the route. kural's second world-facing act (publish) is intentionally NOT exposed as an unguarded skill: it fires only after the founder's tap-2, dry-run by default."
+}

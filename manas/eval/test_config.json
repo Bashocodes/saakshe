@@ -1,0 +1,35 @@
+{
+  "criteria": {
+    "response_match_score": 0.4,
+    "rubric_based_final_response_quality_v1": {
+      "threshold": 0.8,
+      "judge_model_options": { "judge_model": "gemini-2.5-pro", "num_samples": 5 },
+      "rubrics": [
+        {
+          "rubric_id": "every_claim_cites_a_source",
+          "type": "FINAL_RESPONSE_QUALITY",
+          "rubric_content": {
+            "text_property": "Every committed claim in the curated memory carries an explicit source (which imbiber / file / signal it came from) — there is no uncited claim, and nothing is asserted that the imbibed sources do not support."
+          },
+          "description": "Groundedness track: the company's memory is always source-cited; an uncited claim must never be committed."
+        },
+        {
+          "rubric_id": "memory_is_non_contradictory",
+          "type": "FINAL_RESPONSE_QUALITY",
+          "rubric_content": {
+            "text_property": "The curated memory is internally non-contradictory: it does not assert a fact and its negation, nor two different values for the same fact. A contradictory claim set is rolled back rather than committed."
+          },
+          "description": "Groundedness track: a self-contradicting memory can never be committed (groundedness is gated to 0.0)."
+        },
+        {
+          "rubric_id": "refuses_out_of_corpus",
+          "type": "FINAL_RESPONSE_QUALITY",
+          "rubric_content": {
+            "text_property": "When the question is out-of-corpus (no imbibed source supports it), the answer is an explicit REFUSAL with empty citations — it never fabricates an answer in the founder's voice. When in-corpus, it answers and cites the source."
+          },
+          "description": "Refusal track: the out-of-corpus refusal is the contract that keeps the company from being bound by a hallucinated founder opinion."
+        }
+      ]
+    }
+  }
+}

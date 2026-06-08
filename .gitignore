@@ -1,0 +1,33 @@
+# ── Python ───────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+
+# ── Virtual environments ─────────────────────────────────────────────────────
+.venv/
+venv/
+env/
+
+# ── Secrets / local config (real values live here; never committed) ──────────
+.env
+.env.*
+!.env.example
+!.env.local.example
+
+# ── Tooling caches ───────────────────────────────────────────────────────────
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# ── Build artifacts ──────────────────────────────────────────────────────────
+build/
+dist/
+
+# ── Local runtime state (the founder store lives in ~/.saakshe, outside repo) ─
+*.log
+
+# ── OS / editor cruft ────────────────────────────────────────────────────────
+.DS_Store
+*.swp

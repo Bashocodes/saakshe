@@ -1,0 +1,1556 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="icon" href="data:,">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>manas — the company's mind</title>
+<meta name="description" content="manas (Sanskrit, the mind) is the UNDERSTAND layer of an agentic company. A multi-agent mind that imbibes the founder — vision, voice, history, the living pulse of what people say — synthesises it into one canonical, versioned, source-cited company memory, and publishes it over A2A so kalai and kural are bound by who the company actually is. Built on ADK with Gemini and Claude via Vertex AI.">
+<!-- add .js BEFORE paint so initial-hidden states only exist when JS is alive -->
+<!-- also resolve theme BEFORE paint (localStorage -> prefers-color-scheme -> default DARK, the PRIMARY palette) so there is no flash -->
+<script>(function(){var d=document.documentElement;d.className='js';var t;try{t=localStorage.getItem('manas-theme');}catch(e){}if(t!=='light'&&t!=='dark'){t=(window.matchMedia&&window.matchMedia('(prefers-color-scheme: light)').matches)?'light':'dark';}d.setAttribute('data-theme',t);})();</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,500&family=Spline+Sans:wght@400;500;600;700&family=Spline+Sans+Mono:wght@400;500;600&display=swap">
+<style>
+/* ============================================================
+   MANAS — MINDSPACE / THE LIVING CORE
+   The meditative/inward one — the only WARM-amber, radial breathing-CORE ground.
+   A near-black indigo void at depth. Scattered fragments of the
+   founder drift inward and cohere into a single warm amber-gold
+   memory CORE at centre that grows denser as more is imbibed.
+
+   DARK is PRIMARY. void #0B0B14 -> #14132A (a soft RADIAL well,
+   never a hard top/bottom band) · text moonlit lilac #E6E3F2 ·
+   muted indigo #8C88B8 · knowledge-graph threads 1px lilac
+   hairlines · ONE warm amber-gold core glow #E8B84B used ONLY
+   as glow/text/<=12px dot/ring — NEVER an edge band on a box.
+
+   HARD RULE: ZERO colored edge/border bands on ANY container in
+   EITHER theme. Every panel keeps uniform NEUTRAL hairlines.
+   The ONLY color mass allowed is the centre-anchored radial CORE
+   glow (the subject itself) — it never reaches a container edge.
+   Emphasis = type scale, oversized serif numerals, full-width
+   neutral rules, the central glow alone.
+
+   MOTION = a quiet mind at night: the core BREATHES, fragments
+   drift inward, lilac threads shimmer. transform+opacity only.
+   Nothing hidden without JS. prefers-reduced-motion -> final state.
+   ============================================================ */
+:root{
+  --bg:#0B0B14;          /* deep indigo-black void */
+  --bg-2:#0E0E1B;        /* faint section wash (neutral, no band) */
+  --well:#14132A;        /* the lit centre of the radial well */
+  --panel:#13131F;       /* panel fill */
+  --panel-2:#181826;     /* nested panel */
+  --ink:#E6E3F2;         /* moonlit-lilac primary text */
+  --ink-2:#BFBCD8;       /* secondary text */
+  --muted:#8C88B8;       /* muted indigo — labels / data dim */
+  --ghost:#272545;       /* oversized serif numerals / faint */
+  --rule:#262538;        /* hairline */
+  --rule-2:#302F47;      /* slightly stronger hairline */
+  --heavy:#3D3B59;       /* heaviest neutral rule */
+  --thread:#5A5780;      /* knowledge-graph lilac thread (neutral-ish, 1px) */
+  --accent:#E8B84B;      /* warm amber-gold CORE glow — TEXT / DOT / RING / centre glow ONLY */
+  --accent-soft:rgba(232,184,75,.16);  /* core glow alpha (centre-anchored radial only) */
+  --term-bg:#08080F;     /* trace block fill (tokenized so it themes) */
+  --sel-bg:#2b2747;      /* ::selection bg */
+  --sel-fg:#efeaff;      /* ::selection fg */
+  color-scheme:dark;
+  --disp:'Fraunces',Georgia,'Times New Roman',serif;
+  --body:'Spline Sans',system-ui,sans-serif;
+  --mono:'Spline Sans Mono',ui-monospace,monospace;
+  --maxw:1140px;
+  /* neutral elevation — a soft dark shadow is allowed (it is not an edge band) */
+  --lift:0 1px 0 rgba(0,0,0,.5),0 18px 44px -22px rgba(0,0,0,.85);
+  --ease:cubic-bezier(.22,1,.36,1);
+  --ease-soft:cubic-bezier(.16,.8,.34,1);
+}
+/* ============================================================
+   LIGHT THEME — "the mind at dawn / daybreak-mind"
+   Same soul, lit. Warm off-white paper, deep indigo-ink text,
+   the core rendered as a slightly deeper amber-gold so it holds
+   AA contrast as TEXT/DOT on paper. Cool-grey hairlines. Only
+   COLOR tokens are overridden — structure, motion, rules are
+   identical to dark. No colored edge bands anywhere.
+   ============================================================ */
+html[data-theme="light"]{
+  --bg:#F7F4EF;          /* warm off-white paper */
+  --bg-2:#F1EDE6;        /* faint section wash (neutral) */
+  --well:#FFFFFF;        /* lit centre of the (soft) radial */
+  --panel:#FFFFFF;       /* panel fill */
+  --panel-2:#FBF8F2;     /* nested panel */
+  --ink:#1B1A2E;         /* deep indigo-ink primary text */
+  --ink-2:#3A3851;       /* secondary text */
+  --muted:#605D7A;       /* muted indigo — AA on paper */
+  --ghost:#E4DFD4;       /* oversized serif numerals / faint */
+  --rule:#E1DCD2;        /* hairline (cool grey) */
+  --rule-2:#D8D4CC;      /* slightly stronger hairline */
+  --heavy:#C2BCAE;       /* heaviest neutral rule */
+  --thread:#B4AE9E;      /* knowledge-graph thread on paper (1px, neutral) */
+  --accent:#9A6E12;      /* deepened amber-gold — TEXT or DOT only, AA on paper */
+  --accent-soft:rgba(201,150,46,.18);  /* core glow alpha (centre-anchored radial only) */
+  --term-bg:#FBF8F2;     /* light trace fill (not near-black) */
+  --sel-bg:#efe2c4;      /* ::selection bg */
+  --sel-fg:#2a1f06;      /* ::selection fg */
+  color-scheme:light;
+  --lift:0 1px 0 rgba(27,26,46,.04),0 18px 44px -24px rgba(27,26,46,.28);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:var(--body);font-size:17px;line-height:1.64;
+  -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;letter-spacing:.004em}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:clamp(20px,4vw,44px) clamp(16px,5vw,40px) 128px;position:relative;z-index:1}
+h1,h2,h3,h4{margin:0;font-family:var(--disp);font-weight:600;letter-spacing:-.012em;color:var(--ink)}
+p{margin:0}
+b,strong{font-weight:600;color:var(--ink)}
+a{color:var(--accent);text-decoration:none}
+.mono{font-family:var(--mono)}
+.mute{color:var(--muted)}
+.acc{color:var(--accent)}
+em.q{font-family:var(--disp);font-style:italic;font-weight:400;color:var(--ink)}
+hr{border:none;border-top:1px solid var(--rule);margin:0}
+::selection{background:var(--sel-bg);color:var(--sel-fg)}
+
+/* ============================================================
+   THE MINDSPACE BACKDROP — a single CENTRE-ANCHORED radial well.
+   This is the ONLY color/depth mass allowed, and it is the
+   subject itself, anchored at centre — it NEVER reaches a screen
+   edge as a stripe and NEVER tints a container edge. It is a soft
+   radial (not a vertical linear, which would read as a band).
+   ============================================================ */
+body::before{
+  content:'';position:fixed;inset:0;z-index:-2;pointer-events:none;
+  background:
+    radial-gradient(120% 90% at 50% 42%, var(--well) 0%, var(--bg) 62%);
+  opacity:1}
+/* the warm CORE breath — a faint amber-gold radial, dead-centre, the living core.
+   pure centre-anchored radial, transform/opacity only on the ::after; never an edge band. */
+body::after{
+  content:'';position:fixed;left:50%;top:46%;width:min(72vw,820px);height:min(72vw,820px);
+  transform:translate(-50%,-50%);z-index:-2;pointer-events:none;border-radius:50%;
+  background:radial-gradient(circle at center, var(--accent-soft) 0%, transparent 66%);
+  opacity:.9;filter:blur(2px)}
+.js body::after{animation:coreBreath 8.5s ease-in-out infinite}
+@keyframes coreBreath{0%,100%{opacity:.62;transform:translate(-50%,-50%) scale(.97)}50%{opacity:1;transform:translate(-50%,-50%) scale(1.04)}}
+
+/* drifting founder-fragments: a few faint glyphs that parallax inward toward centre.
+   transform+opacity only; tiny, low-glare; pure ambient. JS-off = they sit still & faint. */
+.driftfield{position:fixed;inset:0;z-index:-1;pointer-events:none;overflow:hidden}
+.frag{position:absolute;font-family:var(--mono);font-size:11px;color:var(--muted);opacity:.0;letter-spacing:.04em;user-select:none;white-space:nowrap}
+.js .frag{opacity:.16}
+.js .frag{animation:fragDrift 26s ease-in-out infinite}
+@keyframes fragDrift{
+  0%{transform:translate(0,0) scale(1);opacity:.04}
+  50%{opacity:.2}
+  100%{transform:translate(var(--dx,0),var(--dy,0)) scale(.92);opacity:.02}}
+
+/* ---- status dot: the ONLY place accent becomes a shape (<=10px) ---- */
+.dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--accent);vertical-align:middle}
+.dot.sq{border-radius:1px}
+.dot.warm{background:var(--accent)}
+.dot.pend{background:transparent;box-shadow:inset 0 0 0 1.5px var(--muted)}
+.dot.dim{background:var(--muted)}
+.js .dot.warm{animation:dotPulse 3.6s ease-in-out infinite}
+@keyframes dotPulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* ---- section shell: heavy NEUTRAL top rule + oversized ghost serif numeral ---- */
+.sec{margin-top:clamp(46px,7vw,80px);border-top:1.5px solid var(--heavy);padding-top:20px;position:relative}
+.sec__n{font-family:var(--mono);font-size:11.5px;letter-spacing:.26em;text-transform:uppercase;color:var(--muted)}
+.sec__big{position:absolute;right:0;top:14px;font-family:var(--disp);font-weight:500;font-style:italic;font-size:clamp(40px,9vw,86px);line-height:1;color:var(--ghost);letter-spacing:-.03em;user-select:none}
+.sec__t{font-size:clamp(25px,4vw,40px);line-height:1.1;margin-top:14px;max-width:24ch;font-weight:600}
+.sec__lead{color:var(--ink-2);font-size:clamp(16.5px,2vw,19px);margin-top:16px;max-width:66ch;line-height:1.62}
+.js .sec__big{opacity:0;transform:translateY(10px) scale(.985)}
+.js .sec.is-visible .sec__big{opacity:1;transform:none;transition:opacity 1s var(--ease-soft) .05s,transform 1s var(--ease-soft) .05s}
+
+/* ---- masthead ---- */
+.mast{padding-top:8px}
+.statusbar{display:flex;flex-wrap:wrap;gap:16px 26px;align-items:center;
+  font-family:var(--mono);font-size:11.5px;letter-spacing:.05em;color:var(--muted);
+  border:1px solid var(--rule);background:var(--panel);padding:11px 16px;border-radius:4px}
+.statusbar .seg{display:inline-flex;align-items:center;gap:8px}
+.statusbar .v{color:var(--ink-2)}
+.kick{font-family:var(--mono);font-size:12px;letter-spacing:.24em;text-transform:uppercase;color:var(--muted);margin-top:32px}
+.mast h1{font-size:clamp(44px,10vw,104px);line-height:.95;margin:14px 0 0;letter-spacing:-.03em;font-weight:600}
+.mast h1 .deva{font-family:var(--disp);font-weight:400;font-style:italic;color:var(--muted);font-size:.4em;letter-spacing:0;display:block;margin-bottom:12px}
+.mast .mean{font-family:var(--mono);font-size:13px;color:var(--accent);letter-spacing:.02em;margin-top:22px;line-height:1.6}
+.mast .tag{font-size:clamp(20px,3vw,29px);color:var(--ink);margin-top:16px;max-width:25ch;font-weight:500;line-height:1.24;font-family:var(--disp);letter-spacing:-.01em}
+.mast .sub{font-size:clamp(16.5px,2.2vw,20px);color:var(--ink-2);margin-top:18px;max-width:64ch;line-height:1.6}
+.mast .cta{margin-top:32px;display:flex;flex-wrap:wrap;gap:12px}
+.btn{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:12.5px;letter-spacing:.06em;
+  text-transform:uppercase;padding:13px 21px;border-radius:4px;border:1px solid var(--rule-2);
+  color:var(--ink);background:var(--panel);
+  transition:transform .28s var(--ease),border-color .28s var(--ease),box-shadow .28s var(--ease)}
+.btn.solid{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.btn .dot{margin-right:1px;transition:transform .25s var(--ease)}
+.btn:hover{transform:translateY(-2px);border-color:var(--heavy);box-shadow:var(--lift)}
+.btn.solid:hover{border-color:var(--ink)}
+.btn:hover .dot{transform:scale(1.25)}
+.btn:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+
+/* hero load-in: staggered (transform+opacity) */
+.js .mast .hero-anim{opacity:0;transform:translateY(14px);
+  transition:opacity .85s var(--ease),transform .85s var(--ease)}
+.js .mast.lit .hero-anim{opacity:1;transform:none}
+.js .mast.lit .hero-anim{transition-delay:var(--d,0ms)}
+
+/* ---- generic prose bullets — neutral round markers, NO colored edge ---- */
+ul.b{list-style:none;margin:18px 0 0;padding:0;display:grid;gap:0}
+ul.b li{position:relative;padding:13px 0 13px 27px;border-bottom:1px solid var(--rule);color:var(--ink-2);
+  transition:padding-left .3s var(--ease)}
+ul.b li:last-child{border-bottom:none}
+ul.b li::before{content:'';position:absolute;left:0;top:20px;width:7px;height:7px;background:var(--muted);border-radius:50%;
+  transition:transform .3s var(--ease),background .3s var(--ease)}
+ul.b li:hover{padding-left:31px}
+ul.b li:hover::before{transform:scale(1.3);background:var(--accent)}
+ul.b li b{color:var(--ink)}
+
+/* ---- mono model tag (no color-coding by border) ---- */
+.tag-mono{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:10.5px;font-weight:600;
+  letter-spacing:.06em;text-transform:uppercase;color:var(--muted);
+  border:1px solid var(--rule-2);background:var(--panel-2);padding:5px 9px;border-radius:3px}
+.tag-mono.claude{color:var(--accent)}
+.tag-mono .dot{width:6px;height:6px}
+
+/* ---- problem grid — uniform hairline cells ---- */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:0;margin-top:24px;border:1px solid var(--rule)}
+@media(max-width:740px){.grid2{grid-template-columns:1fr}}
+.grid2 .cell{padding:21px 23px;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);
+  transition:background .3s var(--ease),box-shadow .35s var(--ease)}
+@media(max-width:740px){.grid2 .cell{border-right:none}}
+.grid2 .cell:nth-child(2n){border-right:none}
+.grid2 .cell:nth-last-child(-n+2){border-bottom:none}
+@media(max-width:740px){.grid2 .cell{border-bottom:1px solid var(--rule)}.grid2 .cell:last-child{border-bottom:none}}
+.cell .lab{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.cell .big{font-family:var(--disp);font-weight:600;font-size:20px;margin-top:10px;color:var(--ink);line-height:1.18}
+.cell .d{color:var(--ink-2);font-size:16.5px;margin-top:9px;line-height:1.6}
+.grid2 .cell:hover{background:var(--panel);box-shadow:var(--lift);position:relative;z-index:1}
+
+/* ---- metric strip ---- */
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin-top:24px;border:1px solid var(--rule)}
+@media(max-width:740px){.metrics{grid-template-columns:1fr 1fr}}
+.metrics .m{padding:20px;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);
+  transition:background .3s var(--ease)}
+.metrics .m:nth-child(4n){border-right:none}
+@media(max-width:740px){.metrics .m:nth-child(4n){border-right:1px solid var(--rule)}.metrics .m:nth-child(2n){border-right:none}}
+.metrics .m .num{font-family:var(--disp);font-weight:600;font-size:clamp(28px,4vw,42px);color:var(--ink);letter-spacing:-.02em;line-height:1;font-variant-numeric:tabular-nums}
+.metrics .m .lbl{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-top:11px;line-height:1.55}
+.metrics .m:hover{background:var(--panel)}
+
+/* ---- flow: end-to-end pipeline (numbered, neutral connectors) ---- */
+.flow{margin-top:26px;border:1px solid var(--rule);background:var(--panel)}
+.flow .step{display:grid;grid-template-columns:64px 1fr;gap:0;border-bottom:1px solid var(--rule);
+  transition:background .3s var(--ease)}
+.flow .step:last-child{border-bottom:none}
+.flow .step .idx{font-family:var(--mono);font-size:13px;color:var(--muted);padding:21px 0 21px 22px;border-right:1px solid var(--rule);
+  transition:color .3s var(--ease)}
+.flow .step .body{padding:19px 23px}
+.flow .step .body .h{font-family:var(--disp);font-weight:600;font-size:18px;color:var(--ink)}
+.flow .step .body .h .who{font-family:var(--mono);font-size:11px;color:var(--muted);font-weight:500;letter-spacing:.03em;margin-left:2px}
+.flow .step .body .d{color:var(--ink-2);font-size:16.5px;margin-top:7px;line-height:1.6}
+.flow .step.final{background:var(--panel-2)}
+.flow .step:hover{background:var(--panel-2)}
+.flow .step:hover .idx{color:var(--ink-2)}
+.js .flow .step{opacity:0;transform:translateY(12px)}
+.js .flow.is-visible .step{animation:stepIn .58s var(--ease-soft) forwards}
+.js .flow.is-visible .step:nth-child(1){animation-delay:.05s}
+.js .flow.is-visible .step:nth-child(2){animation-delay:.16s}
+.js .flow.is-visible .step:nth-child(3){animation-delay:.27s}
+.js .flow.is-visible .step:nth-child(4){animation-delay:.38s}
+.js .flow.is-visible .step:nth-child(5){animation-delay:.49s}
+.js .flow.is-visible .step:nth-child(6){animation-delay:.60s}
+@keyframes stepIn{to{opacity:1;transform:none}}
+
+/* ---- agent org ---- */
+.org{margin-top:26px;display:grid;gap:0;border:1px solid var(--rule)}
+.agent{display:grid;grid-template-columns:36px 1fr;gap:0;border-bottom:1px solid var(--rule);background:var(--panel);
+  transition:background .3s var(--ease),box-shadow .35s var(--ease)}
+.agent:last-child{border-bottom:none}
+.agent .rail{border-right:1px solid var(--rule);display:flex;align-items:flex-start;justify-content:center;padding-top:24px}
+.agent .rail .dot{margin-top:2px;transition:transform .3s var(--ease)}
+.agent .pad{padding:19px 23px}
+.agent .top{display:flex;flex-wrap:wrap;align-items:baseline;gap:9px 14px}
+.agent .nm{font-family:var(--disp);font-weight:600;font-size:19px;color:var(--ink)}
+.agent .role{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.agent .d{color:var(--ink-2);font-size:16.5px;margin-top:10px;line-height:1.6;max-width:72ch}
+.agent .meta{display:flex;flex-wrap:wrap;gap:10px;margin-top:13px;align-items:center}
+.agent .pat{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.03em}
+.agent:hover{background:var(--panel-2);box-shadow:var(--lift);position:relative;z-index:1}
+.agent:hover .rail .dot{transform:scale(1.2)}
+.legend{display:flex;flex-wrap:wrap;gap:16px 24px;margin-top:18px;font-family:var(--mono);font-size:11.5px;color:var(--muted);letter-spacing:.03em}
+.legend .it{display:inline-flex;align-items:center;gap:8px}
+.js .org .agent{opacity:0;transform:translateY(14px)}
+.js .org.is-visible .agent{animation:stepIn .58s var(--ease) forwards}
+.js .org.is-visible .agent:nth-child(1){animation-delay:.04s}
+.js .org.is-visible .agent:nth-child(2){animation-delay:.12s}
+.js .org.is-visible .agent:nth-child(3){animation-delay:.20s}
+.js .org.is-visible .agent:nth-child(4){animation-delay:.28s}
+.js .org.is-visible .agent:nth-child(5){animation-delay:.36s}
+.js .org.is-visible .agent:nth-child(6){animation-delay:.44s}
+.js .org.is-visible .agent:nth-child(7){animation-delay:.52s}
+
+/* ---- convergence handoff diagram (pure CSS, neutral connectors) ---- */
+.hand{margin-top:26px;border:1px solid var(--rule);background:var(--panel);padding:clamp(20px,4vw,30px)}
+.hand .row{display:flex;flex-wrap:wrap;align-items:stretch;gap:0}
+.hand .node{flex:1 1 150px;min-width:118px;border:1px solid var(--rule-2);background:var(--panel-2);border-radius:4px;padding:14px 14px;text-align:center;
+  transition:transform .4s var(--ease),box-shadow .4s var(--ease),border-color .4s var(--ease)}
+.hand .node .t{font-family:var(--disp);font-weight:600;font-size:14.5px;color:var(--ink)}
+.hand .node .s{font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.05em;margin-top:6px;text-transform:uppercase}
+.hand .node.core{border-color:var(--heavy)}
+.hand .node:hover{transform:translateY(-3px);box-shadow:var(--lift);border-color:var(--heavy)}
+.hand .arrow{display:flex;align-items:center;justify-content:center;flex:0 0 36px;color:var(--muted);font-family:var(--mono);font-size:15px;position:relative}
+.hand .arrow .line{position:absolute;left:5px;right:5px;top:50%;height:1px;background:var(--rule-2);transform-origin:left center}
+.hand .arrow .gl{position:relative}
+.js .hand .arrow .line{transform:scaleX(0)}
+.js .hand .arrow .gl{opacity:0}
+@media(max-width:680px){.hand .row{flex-direction:column}.hand .arrow{flex:0 0 28px;transform:rotate(90deg)}.hand .arrow .line{display:none}}
+.hand .caption{font-family:var(--mono);font-size:11.5px;color:var(--muted);margin-top:18px;letter-spacing:.02em;line-height:1.65}
+.hand .caption .acc{color:var(--accent)}
+.js .hand .node{opacity:0;transform:translateY(12px)}
+.js .hand.is-visible .node{opacity:1;transform:none;transition:opacity .5s var(--ease),transform .5s var(--ease)}
+.js .hand.is-visible .row .node:nth-child(1){transition-delay:.05s}
+.js .hand.is-visible .row .node:nth-child(3){transition-delay:.30s}
+.js .hand.is-visible .row .node:nth-child(5){transition-delay:.55s}
+.js .hand.is-visible .row .node:nth-child(7){transition-delay:.80s}
+.js .hand.is-visible .arrow .line{transition:transform .35s var(--ease-soft)}
+.js .hand.is-visible .arrow .gl{transition:opacity .25s var(--ease)}
+.js .hand.is-visible .row .arrow:nth-child(2) .line{transform:scaleX(1);transition-delay:.20s}
+.js .hand.is-visible .row .arrow:nth-child(2) .gl{opacity:1;transition-delay:.40s}
+.js .hand.is-visible .row .arrow:nth-child(4) .line{transform:scaleX(1);transition-delay:.45s}
+.js .hand.is-visible .row .arrow:nth-child(4) .gl{opacity:1;transition-delay:.65s}
+.js .hand.is-visible .row .arrow:nth-child(6) .line{transform:scaleX(1);transition-delay:.70s}
+.js .hand.is-visible .row .arrow:nth-child(6) .gl{opacity:1;transition-delay:.90s}
+
+/* ---- stack layers ---- */
+.stack{margin-top:26px;border:1px solid var(--rule)}
+.layer{display:grid;grid-template-columns:208px 1fr;gap:0;border-bottom:1px solid var(--rule);background:var(--panel);
+  transition:background .3s var(--ease),box-shadow .35s var(--ease)}
+.layer:last-child{border-bottom:none}
+@media(max-width:680px){.layer{grid-template-columns:1fr}}
+.layer .name{padding:19px 23px;border-right:1px solid var(--rule);font-family:var(--disp);font-weight:600;font-size:16.5px;color:var(--ink)}
+@media(max-width:680px){.layer .name{border-right:none;border-bottom:1px solid var(--rule);padding-bottom:11px}}
+.layer .name .sub{display:block;font-family:var(--mono);font-size:10.5px;font-weight:500;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin-top:8px}
+.layer .body{padding:19px 23px;color:var(--ink-2);font-size:16.5px;line-height:1.62}
+.layer .body code{font-family:var(--mono);font-size:13px;color:var(--ink);background:var(--panel-2);padding:2px 7px;border-radius:3px;border:1px solid var(--rule)}
+.layer:hover{background:var(--panel-2);box-shadow:var(--lift);position:relative;z-index:1}
+.js .stack .layer{opacity:0;transform:translateY(12px)}
+.js .stack.is-visible .layer{animation:stepIn .5s var(--ease) forwards}
+.js .stack.is-visible .layer:nth-child(1){animation-delay:.04s}
+.js .stack.is-visible .layer:nth-child(2){animation-delay:.10s}
+.js .stack.is-visible .layer:nth-child(3){animation-delay:.16s}
+.js .stack.is-visible .layer:nth-child(4){animation-delay:.22s}
+.js .stack.is-visible .layer:nth-child(5){animation-delay:.28s}
+.js .stack.is-visible .layer:nth-child(6){animation-delay:.34s}
+.js .stack.is-visible .layer:nth-child(7){animation-delay:.40s}
+.js .stack.is-visible .layer:nth-child(8){animation-delay:.46s}
+.js .stack.is-visible .layer:nth-child(9){animation-delay:.52s}
+.js .stack.is-visible .layer:nth-child(10){animation-delay:.58s}
+
+/* ---- founder-voice quote block (Fraunces, full neutral hairline box, NO edge stripe) ---- */
+.quote{margin-top:26px;border:1px solid var(--rule-2);background:var(--panel);border-radius:5px;padding:clamp(22px,4vw,34px)}
+.quote .qm{font-family:var(--disp);font-style:italic;font-weight:400;font-size:clamp(20px,3vw,27px);line-height:1.4;color:var(--ink);max-width:40ch}
+.quote .cite{font-family:var(--mono);font-size:11.5px;color:var(--muted);letter-spacing:.04em;margin-top:18px;line-height:1.7}
+.quote .cite .src{color:var(--accent)}
+
+/* ---- trace block (neutral border all sides) ---- */
+.term{margin-top:24px;border:1px solid var(--rule-2);background:var(--term-bg);border-radius:5px;overflow:hidden}
+.term .bar{display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid var(--rule);background:var(--panel)}
+.term .bar .dot{width:9px;height:9px}
+.term .bar .ttl{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-left:6px}
+.term pre{margin:0;padding:18px 18px 20px;font-family:var(--mono);font-size:13px;line-height:1.92;color:var(--ink-2);overflow-x:auto;white-space:pre}
+.term pre .p{color:var(--accent)}
+.term pre .c{color:var(--muted)}
+.term pre .ok{color:var(--accent)}
+.term pre .w{color:var(--muted)}
+.term pre b{color:var(--ink);font-weight:600}
+.term pre .ln{display:block}
+.js .term .live .ln{opacity:0}
+.js .term .live .ln.typed{animation:lineType .42s var(--ease) both}
+@keyframes lineType{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:none}}
+.term .live .ln.cursor::after{content:'▋';color:var(--accent);margin-left:2px;animation:caret 1s steps(1) infinite}
+@keyframes caret{50%{opacity:0}}
+
+/* ---- buy / impact list ---- */
+.buy{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;margin-top:24px;border:1px solid var(--rule)}
+@media(max-width:740px){.buy{grid-template-columns:1fr}}
+.buy .b{padding:21px 23px;border-right:1px solid var(--rule);
+  transition:background .3s var(--ease),box-shadow .35s var(--ease)}
+.buy .b:last-child{border-right:none}
+@media(max-width:740px){.buy .b{border-right:none;border-bottom:1px solid var(--rule)}.buy .b:last-child{border-bottom:none}}
+.buy .b .who{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent)}
+.buy .b .h{font-family:var(--disp);font-weight:600;font-size:19px;margin-top:10px;color:var(--ink)}
+.buy .b .d{color:var(--ink-2);font-size:16.5px;margin-top:10px;line-height:1.6}
+.buy .b:hover{background:var(--panel);box-shadow:var(--lift);position:relative;z-index:1}
+
+/* ---- footer ---- */
+.foot{margin-top:clamp(58px,8vw,92px);border-top:1.5px solid var(--heavy);padding-top:26px}
+.foot .ttl{font-family:var(--disp);font-weight:600;font-size:21px;color:var(--ink)}
+.foot .d{color:var(--ink-2);font-size:16.5px;margin-top:13px;max-width:72ch;line-height:1.62}
+.foot .map{font-family:var(--mono);font-size:11.5px;color:var(--muted);letter-spacing:.05em;margin-top:18px;line-height:1.9}
+.foot .map .here{color:var(--accent)}
+.foot .penta{display:grid;grid-template-columns:repeat(5,1fr);gap:0;margin-top:22px;border:1px solid var(--rule)}
+@media(max-width:860px){.foot .penta{grid-template-columns:1fr 1fr}}
+@media(max-width:520px){.foot .penta{grid-template-columns:1fr}}
+.foot .penta .t{padding:16px 17px;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);transition:background .3s var(--ease)}
+.foot .penta .t:last-child{border-right:none}
+@media(max-width:860px){.foot .penta .t:nth-child(2n){border-right:none}}
+@media(max-width:520px){.foot .penta .t{border-right:none}}
+.foot .penta .t .n{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.foot .penta .t .nm{font-family:var(--disp);font-weight:600;font-size:16px;color:var(--ink);margin-top:8px}
+.foot .penta .t.this .nm{color:var(--accent)}
+.foot .penta .t .ds{color:var(--ink-2);font-size:15px;margin-top:8px;line-height:1.55}
+.foot .penta .t:hover{background:var(--panel)}
+.foot .legal{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.03em;margin-top:26px;line-height:1.85}
+
+.note{margin-top:24px;font-family:var(--mono);font-size:12.5px;color:var(--muted);letter-spacing:.01em;max-width:72ch;line-height:1.75;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);padding:15px 0}
+
+/* ============================================================
+   THEME TOGGLE — a control, not a container. Neutral hairline
+   pill; accent appears only as the active mono label text / a
+   <=10px dot. Fixed top-right.
+   ============================================================ */
+.theme-toggle{position:fixed;top:14px;right:14px;z-index:40;display:inline-flex;align-items:center;gap:0;
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;
+  border:1px solid var(--rule-2);background:var(--panel);border-radius:999px;padding:3px;
+  box-shadow:var(--lift);transition:border-color .25s var(--ease)}
+.theme-toggle:hover{border-color:var(--heavy)}
+.theme-toggle .opt{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:999px;
+  color:var(--muted);background:transparent;border:0;cursor:pointer;font:inherit;letter-spacing:inherit;text-transform:inherit;
+  transition:color .25s var(--ease),background .25s var(--ease)}
+.theme-toggle .opt .gl{font-size:11px;line-height:1}
+.theme-toggle .opt:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+html[data-theme="dark"] .theme-toggle .opt[data-set="dark"],
+html[data-theme="light"] .theme-toggle .opt[data-set="light"]{color:var(--accent);background:var(--panel-2)}
+.theme-toggle .opt .dot{width:6px;height:6px}
+@media(max-width:540px){.theme-toggle .opt{padding:6px 9px}.theme-toggle{top:10px;right:10px}}
+
+/* ============================================================
+   WORKFLOW VIZ — "Run the workflow". Inline SVG agent-flow +
+   live narrating log + DAY-ONE / FULLY-IMBIBED switch + run/replay.
+   Tokens only (themes in both palettes). Connectors are NEUTRAL
+   hairlines; accent appears only as TEXT, a <=12px token, dots,
+   the Claude RING, or the CENTRE CORE GLOW (the subject) — never
+   an edge band on any container.
+   ============================================================ */
+.vizsec{margin-top:clamp(36px,6vw,60px)}
+.viz{margin-top:24px;border:1px solid var(--rule);background:var(--panel);border-radius:5px;overflow:hidden}
+html:not(.js) .viz .ctl{display:none}
+.viz .ctl{display:flex;flex-wrap:wrap;align-items:center;gap:14px 18px;padding:14px 16px;border-bottom:1px solid var(--rule);background:var(--panel-2)}
+.viz .ctl .grp{display:inline-flex;align-items:center;gap:0;border:1px solid var(--rule-2);border-radius:999px;padding:3px;background:var(--panel)}
+.viz .ctl .grp .opt{font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);
+  background:transparent;border:0;cursor:pointer;padding:6px 13px;border-radius:999px;
+  transition:color .25s var(--ease),background .25s var(--ease)}
+.viz .ctl .grp .opt[aria-pressed="true"]{color:var(--accent);background:var(--panel-2)}
+.viz .ctl .grp .opt:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.viz .ctl .run{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--ink);background:var(--panel);border:1px solid var(--rule-2);border-radius:4px;padding:9px 16px;cursor:pointer;
+  transition:transform .25s var(--ease),border-color .25s var(--ease),box-shadow .25s var(--ease)}
+.viz .ctl .run:hover{transform:translateY(-2px);border-color:var(--heavy);box-shadow:var(--lift)}
+.viz .ctl .run:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.viz .ctl .run .dot{transition:transform .25s var(--ease)}
+.viz .ctl .run:hover .dot{transform:scale(1.25)}
+.viz .ctl .modehint{font-family:var(--mono);font-size:10.5px;letter-spacing:.02em;color:var(--muted);margin-left:auto;max-width:48ch}
+.viz .ctl .modehint b{color:var(--ink-2);font-weight:600}
+
+/* stage holds the SVG; the ONLY color mass is the centre core radial in the SVG itself */
+.viz .stage{position:relative;background:var(--bg-2)}
+.viz svg{display:block;width:100%;height:auto}
+.viz .conn{stroke:var(--rule-2);stroke-width:1.4;fill:none}
+.viz .conn.dim{stroke:var(--rule);opacity:.55}
+.viz .thread{stroke:var(--thread);stroke-width:1;fill:none;opacity:.45}      /* knowledge-graph lilac threads (1px) */
+.viz .nodebox{fill:var(--panel-2);stroke:var(--rule-2);stroke-width:1.4}
+.viz .nodebox.keeper{stroke:var(--heavy)}
+.viz .claudering{fill:none;stroke:var(--accent);stroke-width:1.5;opacity:.9}   /* accent RING marks Claude·Vertex (Founder-Voice only) */
+.viz .nlabel{font-family:var(--disp);font-weight:600;fill:var(--ink)}
+.viz .nrole{font-family:var(--mono);fill:var(--muted)}
+.viz .nmodel{font-family:var(--mono);font-weight:600;fill:var(--muted);letter-spacing:.01em}
+.viz .nmodel.claude{fill:var(--accent)}                                        /* accent TEXT badge */
+.viz .ndot{fill:var(--muted)}
+.viz .frag-src{fill:var(--panel-2);stroke:var(--rule-2);stroke-width:1.2}      /* drifting source chips */
+.viz .frag-lab{font-family:var(--mono);fill:var(--muted);font-weight:500}
+.viz .stagecap{font-family:var(--mono);font-size:11.5px;fill:var(--muted)}
+.viz .corelabel{font-family:var(--disp);font-style:italic;fill:var(--ink)}
+.viz .corecite{font-family:var(--mono);fill:var(--muted)}
+.viz .packtag{font-family:var(--mono);font-weight:600;fill:var(--muted);letter-spacing:.02em}
+.viz .packtag.tick{fill:var(--accent)}
+
+/* the CORE — centre-anchored radial glow IS the subject (allowed color mass) */
+.viz .coreGlow{opacity:.2}                       /* faint by default (day-one) */
+.viz.lit .coreGlow{opacity:.92}                  /* blazes when fully imbibed */
+.js .viz.lit .coreGlow{animation:vizCoreBreath 6s ease-in-out infinite}
+@keyframes vizCoreBreath{0%,100%{opacity:.74}50%{opacity:.98}}
+.viz .coreRing{fill:none;stroke:var(--accent);stroke-width:1.4;opacity:.5}
+.viz .coreNode{fill:var(--accent);opacity:.5}
+
+/* active node treatment — brighter fill + heavy neutral stroke (NO colored border band) */
+.viz .node.is-active .nodebox{fill:var(--panel);stroke:var(--heavy)}
+.viz .node.is-active .ndot{fill:var(--accent)}
+.viz .node.is-active .nlabel{fill:var(--ink)}
+.viz .node.is-done .ndot{fill:var(--accent)}
+.viz .pulsering{fill:none;stroke:var(--accent);stroke-width:1.4;opacity:0;transform-box:fill-box;transform-origin:center}
+.js .viz .node.is-deciding .pulsering{animation:vizPulse 1.3s var(--ease) infinite}
+@keyframes vizPulse{0%{opacity:.55;transform:scale(.9)}70%{opacity:0;transform:scale(1.5)}100%{opacity:0;transform:scale(1.5)}}
+.js .viz .node.is-active .ndot{animation:vizDot 1.1s ease-in-out infinite}
+@keyframes vizDot{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* the travelling task fragments (<=12px). idle opacity 0; JS drives them */
+.viz .token{fill:var(--accent);opacity:0}
+.viz .a2apulse{fill:none;stroke:var(--accent);stroke-width:1.4;opacity:0;transform-box:fill-box;transform-origin:center}
+
+/* the refusal mark in day-one: a muted '∅ not in memory' glyph (never red, never a band) */
+.viz .refusemark{font-family:var(--mono);font-weight:600;fill:var(--muted);opacity:0}
+.viz.refuses .refusemark{opacity:1}
+
+/* mode visibility: JS toggles which static SVG layer shows */
+.viz .imbibed{display:block}
+.viz .dayone{display:none}
+.viz.mode-dayone .imbibed{display:none}
+.viz.mode-dayone .dayone{display:block}
+.viz.mode-imbibed .imbibed{display:block}
+.viz.mode-imbibed .dayone{display:none}
+
+/* readout: groundedness/density meter + live log */
+.viz .readout{display:grid;grid-template-columns:212px 1fr;gap:0;border-top:1px solid var(--rule)}
+@media(max-width:640px){.viz .readout{grid-template-columns:1fr}}
+.viz .quality{padding:16px 18px;border-right:1px solid var(--rule)}
+@media(max-width:640px){.viz .quality{border-right:none;border-bottom:1px solid var(--rule)}}
+.viz .quality .qlab{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.viz .quality .qscore{font-family:var(--disp);font-weight:600;font-size:34px;line-height:1;letter-spacing:-.02em;color:var(--ink);margin-top:8px;font-variant-numeric:tabular-nums}
+.viz .quality .qscore.low{color:var(--muted)}
+.viz .quality .qverdict{font-family:var(--mono);font-size:11px;letter-spacing:.04em;color:var(--muted);margin-top:8px;line-height:1.5}
+.viz .quality .qverdict.good{color:var(--accent)}
+.viz .meter{display:flex;gap:5px;margin-top:12px}
+.viz .meter .md{width:8px;height:8px;border-radius:50%;background:transparent;box-shadow:inset 0 0 0 1.5px var(--muted);
+  transition:background .3s var(--ease),box-shadow .3s var(--ease)}
+.viz .meter .md.on{background:var(--accent);box-shadow:none}
+.viz .vlog{padding:14px 16px;font-family:var(--mono);font-size:12.5px;line-height:1.85;color:var(--ink-2);min-height:138px;background:var(--term-bg);overflow:hidden}
+.viz .vlog .ln{display:block}
+.viz .vlog .ln .p{color:var(--accent)}
+.viz .vlog .ln .c{color:var(--muted)}
+.viz .vlog .ln .ok{color:var(--accent)}
+.viz .vlog .ln .refuse{color:var(--muted);font-weight:600}
+.viz .vlog .ln b{color:var(--ink);font-weight:600}
+.js .viz .vlog-static{display:none}
+.viz .vlog-live{display:none}
+.js .viz .vlog-live{display:block}
+.viz .vlog-static .ln{opacity:1}
+
+/* ============ SCROLL-REVEAL backbone — hidden ONLY when JS is alive ============ */
+.js .reveal{opacity:0;transform:translateY(16px);
+  transition:opacity .75s var(--ease),transform .75s var(--ease)}
+.js .reveal.is-visible{opacity:1;transform:none}
+.js .reveal .stagger{opacity:0;transform:translateY(12px);
+  transition:opacity .58s var(--ease) var(--d,0ms),transform .58s var(--ease) var(--d,0ms)}
+.js .reveal.is-visible .stagger{opacity:1;transform:none}
+
+/* ============ REDUCED MOTION — calm, instant, fully usable ============ */
+@media (prefers-reduced-motion: reduce){
+  html{scroll-behavior:auto}
+  .js .reveal,.js .reveal .stagger,
+  .js .sec__big,.js .mast .hero-anim,
+  .js .hand .node,
+  .js .flow .step,.js .org .agent,.js .stack .layer{opacity:1 !important;transform:none !important}
+  .js .term .live .ln{opacity:1 !important}
+  .js .hand .arrow .line{transform:scaleX(1) !important}
+  .js .hand .arrow .gl{opacity:1 !important}
+  /* the ambient mindspace settles to a static dense fallback */
+  .frag{opacity:.1 !important}
+  .js body::after{animation:none !important}
+  .viz .token{opacity:0 !important;transform:none !important}
+  .js .viz.lit .coreGlow{animation:none !important}
+  .js .viz .node.is-deciding .pulsering{animation:none !important;opacity:0 !important}
+  .js .viz .node.is-active .ndot{animation:none !important}
+  *,*::before,*::after{
+    animation:none !important;
+    transition:none !important;
+    scroll-behavior:auto !important}
+}
+</style>
+</head>
+<body>
+<!-- ambient drifting founder-fragments (parallax inward). Faint; reduced-motion -> static. -->
+<div class="driftfield" aria-hidden="true">
+  <span class="frag" style="left:8%;top:18%;--dx:34vw;--dy:24vh;animation-delay:-2s">brand_book.pdf · p12</span>
+  <span class="frag" style="left:84%;top:24%;--dx:-30vw;--dy:20vh;animation-delay:-9s">voice_memo_07 · 2:14</span>
+  <span class="frag" style="left:14%;top:74%;--dx:30vw;--dy:-26vh;animation-delay:-5s">moodboard · #C9962E</span>
+  <span class="frag" style="left:78%;top:80%;--dx:-26vw;--dy:-28vh;animation-delay:-13s">comment · ★★★★☆</span>
+  <span class="frag" style="left:46%;top:10%;--dx:2vw;--dy:30vh;animation-delay:-7s">strategy_deck · stance</span>
+  <span class="frag" style="left:50%;top:90%;--dx:-1vw;--dy:-32vh;animation-delay:-17s">review · "too loud"</span>
+</div>
+
+<!-- THEME TOGGLE — control only, neutral pill, accent appears as active label text + <=10px dot. -->
+<div class="theme-toggle" role="group" aria-label="Color theme">
+  <button type="button" class="opt" data-set="dark" aria-label="Dark theme"><span class="dot" aria-hidden="true"></span><span class="gl" aria-hidden="true">☾</span> Dark</button>
+  <button type="button" class="opt" data-set="light" aria-label="Light theme"><span class="dot" aria-hidden="true"></span><span class="gl" aria-hidden="true">☀</span> Light</button>
+</div>
+
+<div class="wrap">
+
+  <!-- ===================== HERO ===================== -->
+  <header class="mast">
+    <div class="statusbar hero-anim" style="--d:0ms" role="status" aria-label="mind status">
+      <span class="seg"><span class="dot warm"></span><span>MIND</span> <span class="v">awake</span></span>
+      <span class="seg"><span class="dot dim"></span>memory core <span class="v">growing</span></span>
+      <span class="seg"><span class="dot"></span>artifacts imbibed <span class="v"><span class="ct" data-count-to="2148">2,148</span></span></span>
+      <span class="seg"><span class="dot warm"></span>Context Pack <span class="v mono">v<span class="ct" data-count-to="14">14</span></span></span>
+      <span class="seg"><span class="dot pend"></span>bound siblings <span class="v">3</span></span>
+    </div>
+
+    <div class="kick hero-anim" style="--d:90ms">manas &nbsp;·&nbsp; the mind</div>
+    <h1 class="hero-anim" style="--d:170ms"><span class="deva">manas</span>The company's<br>mind.</h1>
+    <div class="mean hero-anim" style="--d:290ms">manas · Sanskrit — <span class="acc">the mind; the inner instrument that gathers, remembers, and knows who you are.</span></div>
+    <p class="tag hero-anim" style="--d:370ms">manas <b>KNOWS</b>. It imbibes everything the founder is — and becomes the one memory the whole company is bound by. Questions of fact and essence come to manas; decisions go to <b>arivu</b>. manas never acts, never posts, never decides — it knows, cites, and refuses.</p>
+    <p class="sub hero-anim" style="--d:450ms">manas is the <b>UNDERSTAND</b> layer of an agentic company. A multi-agent mind that imbibes the founder's vision, voice, history and the living pulse of what people say — multimodal and continuous — synthesises it into a canonical, versioned, source-cited company memory, and serves that memory as grounded context to every other agentic system over A2A. The action is not chatting about the company. The action is durably mutating the one shared truth the company runs on, and publishing a new version of it that every sibling is then bound by.</p>
+
+    <div class="cta hero-anim" style="--d:540ms">
+      <a class="btn solid" href="#run"><span class="dot sq"></span>Run the mind</a>
+      <a class="btn" href="#team">Meet the mind</a>
+      <a class="btn" href="#stack">How it's built</a>
+    </div>
+
+    <p class="note hero-anim" style="--d:620ms">Submitted to the Google for Startups AI Agents Challenge — Track 1 · Build. A net-new multi-agent platform built on the Agent Development Kit (ADK), powered by Gemini for the imbibing and synthesis, and Claude via Vertex AI Model Garden for the two highest-stakes roles: verifying what becomes memory, and rendering the founder's essence.</p>
+  </header>
+
+  <!-- ===================== RUN THE WORKFLOW (centerpiece viz) ===================== -->
+  <section class="sec vizsec" id="run" aria-labelledby="viz-title">
+    <div class="sec__big">Run</div>
+    <div class="sec__n reveal"><span class="acc">●</span> Run the workflow · watch a mind learn</div>
+    <h2 class="sec__t reveal" id="viz-title">Watch it imbibe, commit, and bind the company.</h2>
+    <p class="sec__lead reveal">Fragments of the founder — a PDF page, a mood-board swatch, a voice waveform, a social comment — drift in from the dark. The <b>Mind-Keeper</b> routes each to its <b>Imbiber</b> (Gemini); they fan in to the <b>Curator LoopAgent</b>, which verifies every claim cites a source and does not contradict memory; a verified fragment <b>commits</b> into the core with a cited source ID; the <b>Context Pack</b> ticks a version, and an <b>A2A pulse</b> binds kalai and kural. Flip to <b>day one</b> to watch the same question hit a mind that doesn't know the founder yet — and <b>refuse</b> rather than fabricate. That switch is groundedness-with-refusal, made visible.</p>
+
+    <div class="viz reveal mode-imbibed lit" id="viz" role="group" aria-label="Interactive multi-agent mind workflow">
+      <!-- ---- control bar ---- -->
+      <div class="ctl">
+        <div class="grp" role="group" aria-label="Memory maturity">
+          <button type="button" class="opt" id="mImbibed" data-mode="imbibed" aria-pressed="true">Fully imbibed</button>
+          <button type="button" class="opt" id="mDayone" data-mode="dayone" aria-pressed="false">Day one</button>
+        </div>
+        <button type="button" class="run" id="vizRun"><span class="dot sq" aria-hidden="true"></span><span id="vizRunLabel">Run</span></button>
+        <span class="modehint" id="vizHint">A grown mind · <b>core dense, constellation full — Founder-Voice answers in the founder's voice, with citations</b></span>
+      </div>
+
+      <!-- ---- stage: inline SVG (fully static + legible with JS off) ---- -->
+      <div class="stage">
+        <svg viewBox="0 0 960 392" role="img" aria-labelledby="viz-desc" preserveAspectRatio="xMidYMid meet">
+          <title id="viz-desc">manas workflow: founder-fragments (PDF, image, voice, social) drift inward and are routed by the Mind-Keeper to four Gemini Imbibers, which fan in to the Curator LoopAgent. The Curator verifies every claim cites a source, commits a verified memory into the warm central core, ticks the Context Pack version, and pulses it over A2A to kalai and kural. The Curator's verify-before-commit and Founder-Voice run on Claude via Vertex AI. In the day-one state the core is faint and Founder-Voice refuses; fully imbibed, it answers in the founder's voice with citations.</title>
+
+          <!-- shared paint server: the core glow gradient (hoisted out of any mode group so it
+               resolves in BOTH the imbibed and day-one states even when a group is display:none) -->
+          <defs>
+            <radialGradient id="coreGrad" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="var(--accent)" stop-opacity="0.85"/>
+              <stop offset="45%" stop-color="var(--accent)" stop-opacity="0.35"/>
+              <stop offset="100%" stop-color="var(--accent)" stop-opacity="0"/>
+            </radialGradient>
+          </defs>
+
+          <!-- ============ FULLY-IMBIBED GRAPH ============ -->
+          <g class="imbibed">
+            <!-- knowledge-graph threads (1px lilac) — densify the constellation around the core -->
+            <line class="thread" x1="492" y1="196" x2="430" y2="120"/>
+            <line class="thread" x1="492" y1="196" x2="556" y2="118"/>
+            <line class="thread" x1="492" y1="196" x2="420" y2="272"/>
+            <line class="thread" x1="492" y1="196" x2="560" y2="276"/>
+            <line class="thread" x1="430" y1="120" x2="556" y2="118"/>
+            <line class="thread" x1="420" y1="272" x2="560" y2="276"/>
+            <line class="thread" x1="430" y1="120" x2="420" y2="272"/>
+            <line class="thread" x1="556" y1="118" x2="560" y2="276"/>
+
+            <!-- connectors (neutral hairlines), drawn under the nodes -->
+            <!-- source chips -> mind-keeper -->
+            <line class="conn" x1="92" y1="58" x2="178" y2="176"/>
+            <line class="conn" x1="92" y1="146" x2="178" y2="184"/>
+            <line class="conn" x1="92" y1="240" x2="178" y2="200"/>
+            <line class="conn" x1="92" y1="332" x2="178" y2="208"/>
+            <!-- mind-keeper -> 4 imbibers -->
+            <line class="conn" x1="300" y1="192" x2="356" y2="74"/>
+            <line class="conn" x1="300" y1="192" x2="356" y2="148"/>
+            <line class="conn" x1="300" y1="192" x2="356" y2="236"/>
+            <line class="conn" x1="300" y1="192" x2="356" y2="310"/>
+            <!-- imbibers -> curator -->
+            <line class="conn" x1="476" y1="74"  x2="616" y2="168"/>
+            <line class="conn" x1="476" y1="148" x2="616" y2="184"/>
+            <line class="conn" x1="476" y1="236" x2="616" y2="200"/>
+            <line class="conn" x1="476" y1="310" x2="616" y2="216"/>
+            <!-- curator -> core (commit) -->
+            <line class="conn" x1="710" y1="192" x2="772" y2="192"/>
+            <!-- core -> founder-voice -->
+            <line class="conn" x1="828" y1="158" x2="876" y2="96"/>
+            <!-- core -> a2a siblings -->
+            <line class="conn" x1="828" y1="210" x2="884" y2="270"/>
+
+            <!-- SOURCE CHIPS (entry fragments) -->
+            <g class="node" id="n-pdf" data-step="0">
+              <rect class="frag-src" x="20" y="40" width="74" height="34" rx="5"/>
+              <text class="frag-lab" x="57" y="61" text-anchor="middle" font-size="10.5">PDF</text>
+            </g>
+            <g class="node" id="n-img" data-step="0">
+              <rect class="frag-src" x="20" y="128" width="74" height="34" rx="5"/>
+              <text class="frag-lab" x="57" y="149" text-anchor="middle" font-size="10.5">image</text>
+            </g>
+            <g class="node" id="n-voice" data-step="0">
+              <rect class="frag-src" x="20" y="222" width="74" height="34" rx="5"/>
+              <text class="frag-lab" x="57" y="243" text-anchor="middle" font-size="10.5">voice</text>
+            </g>
+            <g class="node" id="n-social" data-step="0">
+              <rect class="frag-src" x="20" y="314" width="74" height="34" rx="5"/>
+              <text class="frag-lab" x="57" y="335" text-anchor="middle" font-size="10.5">social</text>
+            </g>
+
+            <!-- MIND-KEEPER (root) -->
+            <g class="node" id="n-keeper" data-step="1">
+              <rect class="nodebox keeper" x="178" y="156" width="122" height="72" rx="8"/>
+              <circle class="pulsering" cx="239" cy="192" r="44"/>
+              <text class="nlabel" x="239" y="186" text-anchor="middle" font-size="12.5">Mind-Keeper</text>
+              <text class="nrole" x="239" y="201" text-anchor="middle" font-size="9.5">route</text>
+              <text class="nmodel" x="239" y="217" text-anchor="middle" font-size="9">[Gemini Flash]</text>
+              <circle class="ndot" cx="190" cy="168" r="3.4"/>
+            </g>
+
+            <!-- IMBIBERS (4 Gemini specialists) -->
+            <g class="node" id="n-imb-pdf" data-step="2">
+              <rect class="nodebox" x="356" y="48" width="120" height="52" rx="6"/>
+              <text class="nlabel" x="416" y="69" text-anchor="middle" font-size="11">PDF Imbiber</text>
+              <text class="nmodel" x="416" y="86" text-anchor="middle" font-size="8.5">[Gemini Pro]</text>
+              <circle class="ndot" cx="367" cy="60" r="3"/>
+            </g>
+            <g class="node" id="n-imb-img" data-step="2">
+              <rect class="nodebox" x="356" y="122" width="120" height="52" rx="6"/>
+              <text class="nlabel" x="416" y="143" text-anchor="middle" font-size="11">Image Imbiber</text>
+              <text class="nmodel" x="416" y="160" text-anchor="middle" font-size="8.5">[Gemini Flash]</text>
+              <circle class="ndot" cx="367" cy="134" r="3"/>
+            </g>
+            <g class="node" id="n-imb-voice" data-step="2">
+              <rect class="nodebox" x="356" y="210" width="120" height="52" rx="6"/>
+              <text class="nlabel" x="416" y="231" text-anchor="middle" font-size="11">Voice Imbiber</text>
+              <text class="nmodel" x="416" y="248" text-anchor="middle" font-size="8.5">[Gemini Flash]</text>
+              <circle class="ndot" cx="367" cy="222" r="3"/>
+            </g>
+            <g class="node" id="n-imb-social" data-step="2">
+              <rect class="nodebox" x="356" y="284" width="120" height="52" rx="6"/>
+              <text class="nlabel" x="416" y="305" text-anchor="middle" font-size="11">Social Imbiber</text>
+              <text class="nmodel" x="416" y="322" text-anchor="middle" font-size="8.5">[Gemini Flash]</text>
+              <circle class="ndot" cx="367" cy="296" r="3"/>
+            </g>
+
+            <!-- CURATOR (LoopAgent + checker) -->
+            <g class="node" id="n-curator" data-step="3">
+              <rect class="nodebox" x="616" y="156" width="94" height="72" rx="8"/>
+              <circle class="pulsering" cx="663" cy="192" r="42"/>
+              <text class="nlabel" x="663" y="184" text-anchor="middle" font-size="11.5">Curator</text>
+              <text class="nrole" x="663" y="199" text-anchor="middle" font-size="9">verify ↻</text>
+              <text class="nmodel" x="663" y="215" text-anchor="middle" font-size="8.5">[Claude · Vertex]</text>
+              <circle class="ndot" cx="627" cy="168" r="3.2"/>
+            </g>
+
+            <!-- THE CORE — the living memory. Centre-anchored radial glow IS the subject. -->
+            <g class="node" id="n-core" data-step="4">
+              <circle class="coreGlow" cx="800" cy="192" r="66" fill="url(#coreGrad)"/>
+              <circle class="coreRing" cx="800" cy="192" r="38"/>
+              <circle class="coreRing" cx="800" cy="192" r="26" opacity="0.35"/>
+              <circle class="coreNode" cx="800" cy="192" r="6"/>
+              <!-- a few committed-memory nodes around the core, joined by lilac threads -->
+              <circle class="coreNode" cx="778" cy="170" r="2.6" opacity="0.7"/>
+              <circle class="coreNode" cx="822" cy="172" r="2.6" opacity="0.7"/>
+              <circle class="coreNode" cx="820" cy="214" r="2.6" opacity="0.7"/>
+              <circle class="coreNode" cx="780" cy="216" r="2.6" opacity="0.7"/>
+              <text class="corelabel" x="800" y="270" text-anchor="middle" font-size="12">the living core</text>
+              <text class="corecite" x="800" y="285" text-anchor="middle" font-size="9">Vertex AI Memory Bank</text>
+            </g>
+
+            <!-- FOUNDER-VOICE (Claude·Vertex) — accent RING marker -->
+            <g class="node" id="n-voiceagent" data-step="5">
+              <rect class="nodebox" x="846" y="46" width="100" height="54" rx="6"/>
+              <circle class="claudering" cx="856" cy="57" r="6.5"/>
+              <text class="nlabel" x="896" y="68" text-anchor="middle" font-size="10.5">Founder-Voice</text>
+              <text class="nmodel claude" x="896" y="85" text-anchor="middle" font-size="8">[Claude · Vertex]</text>
+              <circle class="ndot" cx="858" cy="58" r="3"/>
+              <text class="refusemark" x="896" y="118" text-anchor="middle" font-size="9">∅ not in memory</text>
+            </g>
+
+            <!-- A2A SIBLINGS (bound by the published Pack) -->
+            <g class="node" id="n-a2a" data-step="6">
+              <rect class="nodebox" x="846" y="248" width="100" height="74" rx="7"/>
+              <circle class="a2apulse" cx="800" cy="192" r="120"/>
+              <text class="nrole" x="896" y="268" text-anchor="middle" font-size="9">A2A · bound by</text>
+              <text class="nlabel" x="896" y="287" text-anchor="middle" font-size="11">kalai</text>
+              <text class="nlabel" x="896" y="305" text-anchor="middle" font-size="11">kural</text>
+              <circle class="ndot" cx="858" cy="260" r="3"/>
+            </g>
+
+            <!-- the travelling task fragment (<=12px). idle opacity 0; JS drives it -->
+            <circle class="token" id="vizToken" cx="57" cy="57" r="5.5"/>
+
+            <!-- the Pack version tag (ticks vN -> vN+1 on commit) -->
+            <text class="packtag" id="vizPack" x="800" y="32" text-anchor="middle" font-size="11">Context Pack · v14</text>
+
+            <text class="stagecap" x="20" y="378">A new Pack version is HITL-gated · every committed memory cites its source · all steps traced to BigQuery</text>
+          </g>
+
+          <!-- ============ DAY-ONE GRAPH (refusing mind) ============ -->
+          <g class="dayone">
+            <line class="conn dim" x1="186" y1="196" x2="266" y2="196"/>
+            <line class="conn dim" x1="510" y1="196" x2="590" y2="196"/>
+            <line class="conn dim" x1="690" y1="160" x2="772" y2="96"/>
+
+            <!-- a single question entering an empty mind -->
+            <g class="node" id="d-ask">
+              <rect class="frag-src" x="86" y="170" width="100" height="52" rx="6"/>
+              <text class="frag-lab" x="136" y="192" text-anchor="middle" font-size="10">a question:</text>
+              <text class="frag-lab" x="136" y="207" text-anchor="middle" font-size="9">"what would the founder say?"</text>
+            </g>
+
+            <!-- nearly-empty core -->
+            <g class="node" id="d-core">
+              <circle class="coreGlow" cx="540" cy="196" r="58" fill="url(#coreGrad)"/>
+              <circle class="coreRing" cx="540" cy="196" r="30" opacity="0.25"/>
+              <circle class="coreNode" cx="540" cy="196" r="3.4" opacity="0.4"/>
+              <text class="corelabel" x="540" y="270" text-anchor="middle" font-size="12">the core, on day one</text>
+              <text class="corecite" x="540" y="285" text-anchor="middle" font-size="9">memory nearly empty · constellation sparse</text>
+            </g>
+
+            <!-- founder-voice refuses -->
+            <g class="node" id="d-voice">
+              <rect class="nodebox" x="590" y="158" width="170" height="76" rx="8"/>
+              <circle class="claudering" cx="601" cy="170" r="6.5"/>
+              <text class="nlabel" x="675" y="188" text-anchor="middle" font-size="12">Founder-Voice</text>
+              <text class="nmodel claude" x="675" y="204" text-anchor="middle" font-size="8.5">[Claude · Vertex]</text>
+              <text class="refusemark" x="675" y="224" text-anchor="middle" font-size="9" style="opacity:1">∅ refuses — not yet in the founder's memory</text>
+              <circle class="ndot" cx="602" cy="170" r="3"/>
+            </g>
+
+            <text class="stagecap" x="86" y="324" font-size="11.5">No fabrication. With nothing committed, the mind knows it doesn't know — and says so, rather than inventing a founder-opinion.</text>
+          </g>
+        </svg>
+      </div>
+
+      <!-- ---- readout: groundedness/density meter + live log ---- -->
+      <div class="readout">
+        <div class="quality">
+          <div class="qlab">Groundedness / density</div>
+          <div class="qscore" id="vizScore">—</div>
+          <div class="qverdict" id="vizVerdict">awaiting run</div>
+          <div class="meter" id="vizMeter" aria-hidden="true">
+            <span class="md"></span><span class="md"></span><span class="md"></span><span class="md"></span><span class="md"></span>
+            <span class="md"></span><span class="md"></span><span class="md"></span><span class="md"></span><span class="md"></span>
+          </div>
+        </div>
+        <div>
+          <!-- JS-off sensible static caption (legible, no blank box) -->
+          <div class="vlog vlog-static">
+            <span class="ln c"># manas · ingestion + commit trace</span>
+            <span class="ln"><span class="p">ingest»</span> dropped folder: <b>brand_book.pdf · moodboard.png · memo_07.m4a · 1.2k comments</b></span>
+            <span class="ln"><span class="p">mind-keeper»</span> route → ParallelAgent fan-out to 4 Imbibers <span class="c">[Gemini]</span></span>
+            <span class="ln"><span class="p">imbiber»</span> candidate-memory records emitted · each tagged with a source artifact ID</span>
+            <span class="ln"><span class="p">curator»</span> verify ↻ every claim cites a source &amp; is non-contradictory <span class="c">[Claude · Vertex]</span></span>
+            <span class="ln"><span class="p">commit»</span> <span class="ok">memory committed</span> to Vertex AI Memory Bank · cite <b>memo_07@2:14</b></span>
+            <span class="ln"><span class="p">pack»</span> Context Pack <b>v14 → v15</b> assembled · diff ready · HITL-gated</span>
+            <span class="ln"><span class="p">a2a»</span> <span class="ok">published</span> → kalai · kural now bound</span>
+            <span class="ln c"># press Run (JS) to watch the mind imbibe step by step</span>
+          </div>
+          <!-- JS-on live log fills here -->
+          <div class="vlog vlog-live" id="vizLog" aria-live="polite"></div>
+        </div>
+      </div>
+    </div>
+    <p class="sec__lead reveal" style="margin-top:18px;font-family:var(--mono);font-size:12.5px;color:var(--muted)">Static view (no JS): the fully-imbibed mind in run order — <b>fragments → Mind-Keeper (Gemini) → 4 Imbibers (Gemini) → Curator LoopAgent (verify, Claude·Vertex) → COMMIT to the core (cited) → Context Pack v14→v15 → A2A pulse binds kalai · kural</b>. Founder-Voice runs on Claude · Vertex. Enable JavaScript to run it live and flip to the day-one refusing mind.</p>
+  </section>
+
+  <!-- ===================== 01 — THE BUSINESS PROBLEM ===================== -->
+  <section class="sec" id="problem">
+    <div class="sec__big">01</div>
+    <div class="sec__n reveal">The business problem · who it's for</div>
+    <h2 class="sec__t reveal">A company with no single mind.</h2>
+    <p class="sec__lead reveal">A solo founder runs a whole company as a constellation of agentic systems — <b>kalai</b> makes the content, <b>kural</b> grows the audience. But each of them improvises its own idea of who the company <em class="q">is</em>. kalai drifts off-brand. kural emails in a voice the founder would never use. There is no single, governed, growing source of truth for the company's essence — its vision, brand voice, strategic stance, accumulated history, and the live sentiment of its audience.</p>
+    <p class="sec__lead reveal" style="margin-top:14px">The founder's knowledge lives in their head, in scattered PDFs, briefs, voice notes, and the running river of social comments — praise <em class="q">and</em> criticism — that never gets metabolised. <b>manas is the missing UNDERSTAND layer.</b></p>
+
+    <div class="grid2 reveal">
+      <div class="cell stagger" style="--d:0ms">
+        <div class="lab">The drift</div>
+        <div class="big">Every agent improvises the brand</div>
+        <div class="d">With no shared truth, each sibling guesses who the company is — so the content, the outreach and the product copy quietly pull in three different directions.</div>
+      </div>
+      <div class="cell stagger" style="--d:80ms">
+        <div class="lab">The scatter</div>
+        <div class="big">The founder's mind is in fragments</div>
+        <div class="d">Vision and voice live in the founder's head, in mood-board PDFs, in voice memos, in 18 months of comments — none of it metabolised into anything an agent can act on.</div>
+      </div>
+      <div class="cell stagger" style="--d:160ms">
+        <div class="lab">The unheard river</div>
+        <div class="big">Audience sentiment never lands</div>
+        <div class="d">The praise and the criticism that should reshape the brand keep streaming past. No agent is listening in a way that durably changes who the company is.</div>
+      </div>
+      <div class="cell stagger" style="--d:240ms">
+        <div class="lab">The bottleneck</div>
+        <div class="big">The founder is in every loop</div>
+        <div class="d">Because nothing holds the founder's essence, the founder must be in the loop on every message — which is exactly the constraint an agentic company was meant to remove.</div>
+      </div>
+    </div>
+
+    <p class="sec__lead reveal" style="margin-top:22px"><b>Take Aamod &amp; Co.</b> — a one-person sensory-design studio (incense, ambient sound, small-batch objects) whose founder, Aamod, <em class="q">is</em> the entire brand. Everything the company sounds like, believes, and refuses to do lives in Aamod's head, a folder of voice memos and mood-board PDFs, and 18 months of customer comments. manas is built to become Aamod's transfused mind — so the rest of the agentic company can act as him without him in the loop on every message.</p>
+
+    <div class="metrics reveal">
+      <div class="m"><div class="num">1</div><div class="lbl">founder, who is the whole brand</div></div>
+      <div class="m"><div class="num"><span class="ct" data-count-to="18" data-suffix=" mo">18 mo</span></div><div class="lbl">of comments never metabolised</div></div>
+      <div class="m"><div class="num">3</div><div class="lbl">sibling agents drifting apart</div></div>
+      <div class="m"><div class="num">0</div><div class="lbl">single sources of truth — today</div></div>
+    </div>
+    <p class="note reveal">The Business Problem, stated plainly: a founder-run agentic company has no governed, growing memory of its own essence — so its agents drift, its audience goes unheard, and the founder stays the bottleneck. manas is the mind that fixes all three by becoming the one truth the company is bound by.</p>
+  </section>
+
+  <!-- ===================== 02 — WHAT IT DOES ===================== -->
+  <section class="sec" id="flow">
+    <div class="sec__big">02</div>
+    <div class="sec__n reveal">What it does · end to end</div>
+    <h2 class="sec__t reveal">From scattered fragments to a truth the company is bound by.</h2>
+    <p class="sec__lead reveal">Every artifact — a brand book, a mood board, a voice memo, the day's social comments — lands on the mind. The Mind-Keeper routes it to the right Imbiber. Candidate memories fan in to the Curator, which refuses to commit anything that can't cite its source. Then, and only then, manas takes the one real action: it mutates the canonical memory and publishes a new Pack the whole company must obey.</p>
+
+    <div class="flow">
+      <div class="step">
+        <div class="idx">→ 01</div>
+        <div class="body">
+          <div class="h">Artifacts arrive <span class="who">· webhook / dropped folder / scheduled pull</span></div>
+          <div class="d">A brand book, a deck, a logo, a mood board, the founder's voice memos, or the latest river of social comments lands — multimodal and continuous. A dropped folder of mixed formats arrives as one batch.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="idx">→ 02</div>
+        <div class="body">
+          <div class="h">The Mind-Keeper routes <span class="who">· Gemini · coordinator + AgentTool</span></div>
+          <div class="d">The root agent dispatches each artifact to the right multimodal specialist — or fans a mixed-format batch out to a <span class="mono">ParallelAgent</span> so PDFs, images and audio are imbibed concurrently. It holds no domain knowledge itself, only routing logic.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="idx">→ 03</div>
+        <div class="body">
+          <div class="h">Imbibers extract cited candidates <span class="who">· Gemini · native PDF / vision / audio</span></div>
+          <div class="d">Each Imbiber reads its modality natively — no brittle OCR — and emits structured <b>candidate-memory records</b>: claims, do/don't rules, visual register, voice traits, sentiment themes, each tagged with a source artifact ID and span. None of them writes to the core directly.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="idx">→ 04</div>
+        <div class="body">
+          <div class="h">The Curator synthesises &amp; verifies <span class="who">· Claude · Vertex AI · LoopAgent + grounding checker</span></div>
+          <div class="d">A <span class="mono">LoopAgent</span> synthesises the candidates into canonical memory, then a checker verifies <b>every committed claim cites a source</b> and is <b>non-contradictory</b> with existing memory — revising until fully grounded, terminating deterministically, or escalating a contested item to a human. The loop is the one place that must self-verify before an irreversible write.</div>
+        </div>
+      </div>
+      <div class="step final">
+        <div class="idx"><span class="acc">◉ 05</span></div>
+        <div class="body">
+          <div class="h">manas commits the memory and binds the company</div>
+          <div class="d">Clean, source-cited memories <b>commit</b> to <b>Vertex AI Memory Bank</b> and the knowledge graph. The Curator assembles a versioned <b>Founder Context Pack</b> (vN → vN+1) and <b>publishes it over A2A</b> to kalai and kural — who are then bound by it. A new Pack version that re-tunes the whole company is HITL-gated: the founder confirms <em class="q">"yes, this is now who we are."</em> The tangible artifact is the growing memory core itself, plus a human-readable Pack diff.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="term reveal">
+      <div class="bar"><span class="dot pend"></span><span class="dot dim"></span><span class="dot warm"></span><span class="ttl">manas · live trace</span></div>
+<pre class="live"><span class="ln c"># 09:02:11  dropped folder received · Aamod &amp; Co.</span>
+<span class="ln"><span class="p">mind-keeper»</span> route → <span class="b">ParallelAgent</span> fan-out · 4 Imbibers  <span class="c">[Gemini]</span></span>
+<span class="ln"><span class="p">voice-imbiber»</span> <span class="b">memo_07.m4a</span> · captures register + a new conviction <span class="c">[Gemini · native audio]</span></span>
+<span class="ln"><span class="p">social-imbiber»</span> 1,204 comments · recurring complaint: <span class="b">"scent too strong"</span></span>
+<span class="ln"><span class="p">curator»</span> synthesise → verify ↻ every claim cites a source · non-contradiction OK</span>
+<span class="ln"><span class="p">curator»</span> contested item → <span class="w">HITL escalate</span> (memo softens a brand rule)</span>
+<span class="ln"><span class="p">commit»</span> <span class="ok">2 memories committed</span> · cite <span class="b">memo_07@2:14</span>, <span class="b">reviews#1204</span></span>
+<span class="ln"><span class="p">pack»</span> Context Pack <span class="b">v14 → v15</span> · +2 voice convictions · 1 rule softened</span>
+<span class="ln"><span class="p">a2a»</span> <span class="ok">published</span> · kalai · kural re-tuned</span></pre>
+    </div>
+  </section>
+
+  <!-- ===================== 03 — THE MULTI-AGENT MIND ===================== -->
+  <section class="sec" id="team">
+    <div class="sec__big">03</div>
+    <div class="sec__n reveal">The multi-agent mind · the org chart</div>
+    <h2 class="sec__t reveal">A coordinator, four imbibers, a self-verifying curator — and one voice.</h2>
+    <p class="sec__lead reveal">manas is a real org, not a single prompt. The spine is <b>coordinator + AgentTool</b>: the Mind-Keeper holds only routing logic, the four Imbibers and Founder-Voice are <span class="mono">AgentTool</span> specialists. Every construct earns its place — a <span class="mono">ParallelAgent</span> only for batch ingestion fan-out, a <span class="mono">LoopAgent</span> only for the one write that must self-verify. The imbibing runs on <b>Gemini</b>. The two highest-stakes roles — the Curator's verify-before-commit and the rendering of the founder's essence — run on <b>Claude via Vertex AI</b>. A mind that knows when it doesn't know is what makes this a memory, not a confabulator.</p>
+
+    <div class="legend reveal">
+      <span class="it"><span class="dot dim"></span> Gemini — imbibing, synthesis, routing</span>
+      <span class="it"><span class="dot"></span> Claude via Vertex AI — the founder's essence, rendered</span>
+    </div>
+
+    <div class="org">
+      <div class="agent">
+        <div class="rail"><span class="dot dim"></span></div>
+        <div class="pad">
+          <div class="top"><span class="nm">Mind-Keeper</span><span class="role">coordinator · root_agent</span></div>
+          <div class="d">The root <span class="mono">LlmAgent</span>. Routes every inbound artifact and every context request. On ingestion it dispatches the right multimodal specialist (or a <span class="mono">ParallelAgent</span> batch), then hands extracted facts to the Curator; on query it brokers grounded retrieval and, for essence questions, calls Founder-Voice. Coordinator + <span class="mono">AgentTool</span> composition — <b>not a god-agent</b>: it holds no domain knowledge, only routing. Carries the <span class="mono">BigQueryAgentAnalyticsPlugin</span> + OTel tracing for the whole app.</div>
+          <div class="meta"><span class="tag-mono"><span class="dot dim"></span>Gemini 2.5 Flash · Vertex AI</span><span class="pat mono">pattern · root coordinator + AgentTool</span></div>
+        </div>
+      </div>
+
+      <div class="agent">
+        <div class="rail"><span class="dot dim"></span></div>
+        <div class="pad">
+          <div class="top"><span class="nm">PDF &amp; Document Imbiber</span><span class="role">native multi-page PDF</span></div>
+          <div class="d">An <span class="mono">AgentTool</span> specialist. Ingests brand books, strategy decks, briefs, contracts and press as <b>native multi-page PDF</b> — no brittle OCR — extracting claims, positioning statements, do/don't rules and dated history, each tagged with a source artifact ID + page span for citation. Emits structured candidate-memory records; never writes to the core directly.</div>
+          <div class="meta"><span class="tag-mono"><span class="dot dim"></span>Gemini 2.5 Pro · Vertex AI</span><span class="pat mono">pattern · AgentTool · native PDF</span></div>
+        </div>
+      </div>
+
+      <div class="agent">
+        <div class="rail"><span class="dot dim"></span></div>
+        <div class="pad">
+          <div class="top"><span class="nm">Image &amp; Visual Imbiber</span><span class="role">native vision</span></div>
+          <div class="d">An <span class="mono">AgentTool</span> specialist. Ingests logos, mood boards, past creative, screenshots and product shots — deriving palette, visual register, recurring motifs and <em class="q">this is on-brand / this is not</em> visual evidence into candidate-memory records. This is the visual-taste channel <b>kalai</b> later grounds against.</div>
+          <div class="meta"><span class="tag-mono"><span class="dot dim"></span>Gemini 2.5 Flash · Vertex AI</span><span class="pat mono">pattern · AgentTool · native vision</span></div>
+        </div>
+      </div>
+
+      <div class="agent">
+        <div class="rail"><span class="dot dim"></span></div>
+        <div class="pad">
+          <div class="top"><span class="nm">Voice &amp; Audio Imbiber</span><span class="role">native audio</span></div>
+          <div class="d">An <span class="mono">AgentTool</span> specialist. Ingests the founder's voice memos and call recordings as <b>native audio</b> — transcribing <em class="q">and</em> capturing register, emphasis, the founder's actual turns of phrase and convictions: the literal transfusion of essence the founder asked for. The richest source for Founder-Voice fidelity; each utterance stored with provenance.</div>
+          <div class="meta"><span class="tag-mono"><span class="dot dim"></span>Gemini 2.5 Flash · Vertex AI</span><span class="pat mono">pattern · AgentTool · native audio</span></div>
+        </div>
+      </div>
+
+      <div class="agent">
+        <div class="rail"><span class="dot dim"></span></div>
+        <div class="pad">
+          <div class="top"><span class="nm">Social Sentiment Imbiber</span><span class="role">scheduled · positive + negative</span></div>
+          <div class="d">An <span class="mono">AgentTool</span> specialist invoked on a schedule (an external <b>Cloud Scheduler</b> trigger, <b>not</b> an in-ADK loop). Pulls the latest comments, mentions and reviews — positive <em class="q">and</em> negative — classifies sentiment, and surfaces emerging themes, recurring praise and recurring complaints into candidate-memory records, so the living memory keeps growing with how the audience actually reacts. This is the <b>listening half of the flywheel</b>: it explicitly pulls the replies, comments and mentions that <b>kural's</b> conversations generate — kural speaks → the world answers → manas listens — turning each into a cited candidate memory the Curator then verifies.</div>
+          <div class="meta"><span class="tag-mono"><span class="dot dim"></span>Gemini 2.5 Flash · Vertex AI</span><span class="pat mono">pattern · AgentTool · Cloud Scheduler trigger</span></div>
+        </div>
+      </div>
+
+      <div class="agent">
+        <div class="rail"><span class="dot dim"></span></div>
+        <div class="pad">
+          <div class="top"><span class="nm">Curator / Synthesiser</span><span class="role">LoopAgent + grounding checker · the heart</span></div>
+          <div class="d">The heart. A <span class="mono">LoopAgent</span>: synthesise candidate records into canonical memory → a checker verifies <b>every committed claim cites a source artifact</b> and is non-contradictory with existing memory → revise → terminate deterministically when fully grounded, or <b>escalate to a human</b> on a contested item (<span class="mono">tool_context.actions.escalate=True</span>). On success it <b>commits</b> to Vertex AI Memory Bank (custom topics) + a knowledge graph, then assembles and publishes a versioned Founder Context Pack. <b>This is where the irreversible action lives.</b></div>
+          <div class="meta"><span class="tag-mono claude"><span class="dot"></span>Claude · Vertex AI Model Garden</span><span class="pat mono">pattern · LoopAgent · verify-before-commit + HITL escalate</span></div>
+        </div>
+      </div>
+
+      <div class="agent">
+        <div class="rail"><span class="dot"></span></div>
+        <div class="pad">
+          <div class="top"><span class="nm">Founder-Voice</span><span class="role">high-stakes essence renderer</span></div>
+          <div class="d">A single high-stakes <span class="mono">LlmAgent</span>. Answers and acts <b>as the founder</b> — vision, voice, values, stance — grounded <b>only</b> in stored memory via retrieval. It <em class="q">renders</em> the founder's essence; it does not make operational decisions (which agent acts, what to spend, what to prioritise — questions of fact and essence come to manas, but <b>decisions go to arivu</b>, the DECIDE layer, out of scope here by design). <b>Hard-bound:</b> if memory doesn't cover the question it <b>refuses</b> and flags <em class="q">"not yet in the founder's memory"</em> rather than fabricate. Every answer cites its source artifacts. This is the agent kalai and kural consult over A2A for <em class="q">"what would the founder say here."</em> Every word <b>kural</b> sends to the world — outbound message <em class="q">or</em> reply — is drafted in the founder's voice from here first.</div>
+          <div class="meta"><span class="tag-mono claude"><span class="dot"></span>Claude · Vertex AI Model Garden</span><span class="pat mono">pattern · single judgment LlmAgent · refuse-out-of-corpus</span></div>
+        </div>
+      </div>
+    </div>
+
+    <h3 style="font-size:19px;margin-top:36px" class="reveal">The convergence — fragments become one bound truth</h3>
+    <div class="hand reveal">
+      <div class="row">
+        <div class="node"><div class="t">Fragments</div><div class="s">PDF · image · voice · social</div></div>
+        <div class="arrow"><span class="line"></span><span class="gl">→</span></div>
+        <div class="node"><div class="t">Imbibers</div><div class="s">Gemini · cited candidates</div></div>
+        <div class="arrow"><span class="line"></span><span class="gl">→</span></div>
+        <div class="node core"><div class="t">Curator loop</div><div class="s">verify · commit · the core</div></div>
+        <div class="arrow"><span class="line"></span><span class="gl">→</span></div>
+        <div class="node core"><div class="t">A2A Pack</div><div class="s">binds kalai · kural</div></div>
+      </div>
+      <p class="caption">A single agent that imbibes a fact and also serves it has no independent check on itself — it confabulates a founder-opinion the moment memory runs out. manas splits the labor: the <span class="acc">Gemini Imbibers</span> only ever emit <span class="acc">cited candidates</span>, the <span class="acc">Curator loop</span> refuses to commit anything that can't cite a source or that contradicts memory, a contested item is held for a human, and the <span class="acc">Claude·Vertex Founder-Voice</span> refuses rather than invent when the core doesn't cover the question. The divide between imbiber and curator — and the deterministic verify before any commit — is the safety property that makes this a mind, not a confabulator. The Pack it commits then binds the two siblings over A2A: <span class="acc">kalai makes from it; kural speaks from it</span> — kural the only mouth, grounding every post and reply here first.</p>
+    </div>
+  </section>
+
+  <!-- ===================== 04 — HOW IT'S BUILT (the ADK bar) ===================== -->
+  <section class="sec" id="stack">
+    <div class="sec__big">04</div>
+    <div class="sec__n reveal">How it's built · the ADK bar</div>
+    <h2 class="sec__t reveal">Scaffolded, evaluated, observed, and deployed to Agent Engine.</h2>
+    <p class="sec__lead reveal">manas is built to the Google-grade bar, not bolted together. It is scaffolded with the <b>agent-starter-pack</b>, reserves each ADK construct for a named reason, ships a <b>checked-in eval</b> graded @0.8, traces every step through <b>OpenTelemetry</b> and a <b>BigQuery analytics plugin</b>, exposes itself as the <b>A2A hub</b>, and deploys to <b>Vertex AI Agent Engine</b> — because the managed Memory Bank only exists there. Gemini powers the imbibing and synthesis; Claude runs as a third-party model exclusively through Vertex AI Model Garden for the one essence-rendering agent.</p>
+
+    <div class="stack">
+      <div class="layer">
+        <div class="name">Scaffold<span class="sub">agent-starter-pack</span></div>
+        <div class="body">Generated from Google's <b>agent-starter-pack</b>: <code>app/agent.py</code> exposing <code>root_agent</code> + <code>App</code>, with <code>prompts/</code>, <code>tools/</code> (Memory Bank + RAG retrieval + ingestion + A2A serve), <code>sub_agents/</code> (the Imbibers, Curator, Founder-Voice), <code>eval/</code>, <code>tests/</code>, <code>deployment/deploy.py</code> — on <code>uv</code> + <code>hatchling</code>. The same layout the ADK samples are graded against.</div>
+      </div>
+      <div class="layer">
+        <div class="name">Orchestration<span class="sub">ADK · reserve, don't sprinkle</span></div>
+        <div class="body"><b>Coordinator + AgentTool is the spine</b> (the ADK flagships use exactly this and zero workflow constructs by default). <code>ParallelAgent</code> appears <b>only</b> for batch ingestion fan-out (mixed-format folder), modeled on <code>parallel_task_decomposition_execution</code>. <code>LoopAgent</code> + checker is <b>only</b> the Curator — the one write that must self-verify. <b>No <code>SequentialAgent</code></b> — routing is conditional, not a fixed pipeline. Each construct earns its place.</div>
+      </div>
+      <div class="layer">
+        <div class="name">Imbibing &amp; synthesis<span class="sub">Gemini API</span></div>
+        <div class="body">Gemini drives the Mind-Keeper, all four Imbibers (native PDF / vision / audio), and the Curator's synthesis + grounding checker — the multimodal, high-volume work where native multi-format understanding and cost matter most.</div>
+      </div>
+      <div class="layer">
+        <div class="name">Essence intelligence<span class="sub">Claude via Vertex AI</span></div>
+        <div class="body"><b>Founder-Voice</b> runs on Claude, deployed through <b>Vertex AI Model Garden</b> — satisfying the challenge's third-party-LLM-exclusively-through-Vertex requirement, and keeping the one judgment that <em class="q">is</em> the founder on a single strong model bound to refuse out-of-corpus.</div>
+      </div>
+      <div class="layer">
+        <div class="name">Memory<span class="sub">Vertex AI Memory Bank · custom topics</span></div>
+        <div class="body">Long-term memory is the managed <b>Vertex AI Memory Bank</b> with custom topics — <code>founder_voice</code>, <code>brand_rules</code>, <code>strategic_stance</code>, <code>company_history</code>, <code>audience_sentiment</code> — via <code>PreloadMemoryTool</code> + an <code>after_agent_callback</code> memory-generation pass, exactly the memory-bank sample. This is what lets the mind remember who the company is across sessions, and what grows as new artifacts arrive.</div>
+      </div>
+      <div class="layer">
+        <div class="name">Grounding<span class="sub">VertexAiRagRetrieval · knowledge graph</span></div>
+        <div class="body">Two stores, two roles. Memory Bank holds the synthesised essence; a <code>VertexAiRagRetrieval</code> corpus (<code>similarity_top_k=10</code>, <code>vector_distance_threshold=0.6</code>, per <code>multiformat-hybrid-rag</code>) holds the raw imbibed artifacts so every answer cites an exact source span. A knowledge graph links entities for non-contradiction checks at commit time. Founder-Voice may read <b>only</b> these stores — web and model-prior knowledge are forbidden, enforced by the groundedness checker.</div>
+      </div>
+      <div class="layer">
+        <div class="name">Evaluation<span class="sub">checked-in eval/ @0.8</span></div>
+        <div class="body">A real <code>eval/</code> of <code>*.evalset.json</code> runs through <code>AgentEvaluator.evaluate(num_runs=5)</code>, scored by a rubric LLM-as-judge <b>@0.8</b> (the small-business-loan exemplar bar). The headline metric is <b>groundedness-with-refusal</b>: in-corpus voice-fidelity cases (answer in register <em class="q">and</em> cite the source) <b>and</b> negative out-of-corpus cases where the expected behavior is an explicit refusal — a confidently invented founder-opinion is a hard fail. Evals are never monkey-patched to pass.</div>
+      </div>
+      <div class="layer">
+        <div class="name">Observability<span class="sub">OpenTelemetry · BigQuery analytics</span></div>
+        <div class="body"><b>OpenTelemetry</b> tracing end-to-end (<code>enable_tracing=True</code> on Agent Engine → Cloud Trace), plus the <code>BigQueryAgentAnalyticsPlugin</code> streaming every ingestion, commit, refusal, HITL escalation and Pack publish into <b>BigQuery</b>. Because manas is the hub, its observability is company-wide: dashboards answer <em class="q">what did the mind learn this week</em>, <em class="q">how often did Founder-Voice refuse</em>, and <em class="q">which siblings queried which Pack version</em>. Every grounded claim is auditable back to its artifact.</div>
+      </div>
+      <div class="layer">
+        <div class="name">Interop<span class="sub">A2A · to_a2a() · the hub</span></div>
+        <div class="body">manas is the <b>A2A hub</b> of the whole set — the others connect to it. Exposed via <code>to_a2a()</code> with a published Agent Card advertising two skills: <code>get_founder_context</code> (returns the current Pack version + targeted grounded essence) and <code>ask_founder_voice</code> (Claude-rendered, citation-bound, refuses out-of-corpus). It binds <b>kalai</b> and <b>kural</b> — <b>kalai makes from it; kural speaks from it</b> — each consulting manas before it acts, and kural, the company's only mouth, grounding every post and every reply in this memory first. Any compliant enterprise agent can discover the card too. An MCP toolset also exposes the raw retrieval surface, mirroring <code>multiformat-hybrid-rag</code>.</div>
+      </div>
+      <div class="layer">
+        <div class="name">Safe action<span class="sub">verify-before-commit · HITL gate</span></div>
+        <div class="body">The irreversible action — durably mutating the company's one source of truth — is safe by construction. Clean, non-contradictory memories <b>commit automatically</b>; a contested item is <b>HITL-gated</b>; and crucially, a <b>new Pack version that re-tunes the whole company is HITL-gated</b> — the founder confirms <em class="q">"yes, this is now who we are."</em> That confirmation is the literal transfusion moment. Nothing can be committed without a cited source, and the prior Pack is superseded, not silently overwritten.</div>
+      </div>
+      <div class="layer">
+        <div class="name">Deploy<span class="sub">Vertex AI Agent Engine · Cloud Run secondary</span></div>
+        <div class="body"><b>Vertex AI Agent Engine</b> is the primary runtime, with a forcing reason: the managed <b>Memory Bank</b> at the centre of manas <em class="q">only exists</em> on Agent Engine — so this is a requirement, not a default. <code>deployment/deploy.py → agent_engines.create(..., enable_tracing=True)</code> attaches the Memory Bank <code>context_spec</code>. <b>Cloud Run</b> is the secondary FastAPI surface for the ingestion webhook, the MCP server and the Cloud Scheduler social trigger. <b>GKE appears in zero ADK samples and is never used.</b></div>
+      </div>
+    </div>
+
+    <h3 style="font-size:19px;margin-top:36px" class="reveal">Track 1 — a net-new platform, built to the bar</h3>
+    <div class="grid2 reveal">
+      <div class="cell stagger" style="--d:0ms">
+        <div class="lab">Groundedness-with-refusal</div>
+        <div class="big">A mind that knows when it doesn't know</div>
+        <div class="d">The headline eval proves manas is a memory, not a confabulator: in-corpus answers cite their source; out-of-corpus questions are refused. A confident fabrication fails the build.</div>
+      </div>
+      <div class="cell stagger" style="--d:80ms">
+        <div class="lab">Reserve, don't sprinkle</div>
+        <div class="big">Every construct earns its place</div>
+        <div class="d">Coordinator + AgentTool is the default. ParallelAgent only for batch fan-out; one LoopAgent only for the write that must self-verify; no SequentialAgent at all.</div>
+      </div>
+      <div class="cell stagger" style="--d:160ms">
+        <div class="lab">Company-wide observability</div>
+        <div class="big">The hub's traces cover everyone</div>
+        <div class="d">Because every sibling consults manas, its OTel + BigQuery analytics answer what the whole company learned, refused, and was bound by — queryable, not just viewable.</div>
+      </div>
+      <div class="cell stagger" style="--d:240ms">
+        <div class="lab">Human-in-the-loop transfusion</div>
+        <div class="big">A new "who we are" waits for one tap</div>
+        <div class="d">Clean memories commit automatically; a contested item and any company-wide Pack re-tune are held for the founder's confirmation. Autonomy is earned per change.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== 05 — BUSINESS CASE ===================== -->
+  <section class="sec" id="impact">
+    <div class="sec__big">05</div>
+    <div class="sec__n reveal">Business case · impact</div>
+    <h2 class="sec__t reveal">It makes the whole company act like the founder.</h2>
+    <p class="sec__lead reveal">The impact is not a vanity metric — it is coherence and leverage. manas turns a founder's scattered essence into a standing capability the whole agentic company is bound by, so every sibling acts on-brand without the founder in the loop, and the brand keeps learning from the audience instead of drifting from it.</p>
+
+    <div class="quote reveal">
+      <p class="qm">"We don't do loud. Aamod &amp; Co. is the quiet thing on the shelf you keep coming back to — the scent you notice on the third breath, not the first."</p>
+      <p class="cite">Founder-Voice, rendered from stored memory · cites <span class="src">memo_07@2:14</span> · <span class="src">brand_book.pdf p12</span> · <span class="src">reviews#1204</span> &nbsp;—&nbsp; on day one, the same question returned <span class="acc">∅ not yet in the founder's memory</span>.</p>
+    </div>
+
+    <p class="sec__lead reveal" style="margin-top:22px">For <b>Aamod &amp; Co.</b>, manas means kalai writes product copy in Aamod's real register, kural reaches retailers in a voice he would actually use, — all without Aamod approving every message. And the loop closes: when kural posts and a buyer replies, that reply flows back through the Social Sentiment Imbiber as a cited candidate memory — so when 1,200 customers say a scent is "too strong," that lands as a softened brand rule the whole company adopts at once, with one confirmation tap — the transfusion moment, on-rails.</p>
+
+    <div class="buy reveal">
+      <div class="b stagger" style="--d:0ms">
+        <div class="who">Solo founder</div>
+        <div class="h">Steps out of every loop</div>
+        <div class="d">The founder's essence is transfused once and reused everywhere. The agents act as the founder, so the founder stops being the bottleneck on every message — and keeps the one tap on who the company becomes.</div>
+      </div>
+      <div class="b stagger" style="--d:90ms">
+        <div class="who">The agentic company</div>
+        <div class="h">Stops drifting apart</div>
+        <div class="d">kalai and kural are bound by one canonical, versioned truth instead of improvised guesses. On-brand becomes the default state, not a thing the founder has to police.</div>
+      </div>
+      <div class="b stagger" style="--d:180ms">
+        <div class="who">The brand</div>
+        <div class="h">Learns from its audience</div>
+        <div class="d">Praise and criticism are metabolised continuously into the living memory, so the brand keeps growing with how people actually react — and every sibling adopts the change the moment it commits.</div>
+      </div>
+    </div>
+
+    <div class="metrics reveal" style="margin-top:24px">
+      <div class="m"><div class="num">1</div><div class="lbl">canonical truth the company runs on</div></div>
+      <div class="m"><div class="num">3</div><div class="lbl">siblings bound by every Pack version</div></div>
+      <div class="m"><div class="num">@0.8</div><div class="lbl">groundedness-with-refusal eval bar</div></div>
+      <div class="m"><div class="num">1 tap</div><div class="lbl">to confirm a new "who we are"</div></div>
+    </div>
+
+    <ul class="b reveal">
+      <li><b>Transfuses the founder.</b> Vision, voice, stance and history become a memory every agent can act on — the founder's mind, made reusable.</li>
+      <li><b>Binds the company to one truth.</b> Every sibling grounds against the same versioned Pack, so coherence is structural instead of supervised.</li>
+      <li><b>Compounds.</b> Each artifact and each wave of sentiment grows the core — the mind gets sharper about who the company is over time.</li>
+      <li><b>Never fabricates.</b> Out-of-corpus questions are refused, not invented — a hard eval fail otherwise — so the company is never bound by a hallucinated founder-opinion.</li>
+    </ul>
+  </section>
+
+  <!-- ===================== FOOTER ===================== -->
+  <footer class="foot">
+    <div class="ttl reveal">manas — the company's mind, that the whole company is bound by.</div>
+    <p class="d reveal">One of four agentic products from a solo founder's agentic company — each a multi-agent system on ADK that takes a real, irreversible action, showcasing both Gemini and the Vertex AI third-party path with Claude. manas is the <b>UNDERSTAND</b> layer and the A2A context hub the rest of the company connects to.</p>
+
+    <p class="map reveal"><span class="here">UNDERSTAND</span> → DECIDE → MAKE / GROW &nbsp;·&nbsp; the mind grounds the company.</p>
+
+    <p class="map reveal" style="margin-top:14px">knows → <span class="here">manas</span> · decides → arivu · makes → kalai · engages → kural · witnesses → saakshe.</p>
+
+    <div class="penta reveal">
+      <div class="t this">
+        <div class="n">UNDERSTAND · this page</div>
+        <div class="nm">manas</div>
+        <div class="ds">The company's mind — imbibes the founder, holds the canonical memory, and binds every sibling over A2A. Track 1 · Build.</div>
+      </div>
+      <div class="t">
+        <div class="n">DECIDE</div>
+        <div class="nm">arivu</div>
+        <div class="ds">The operational judgment — which agent acts, what to spend, what to prioritise. Reads manas's essence; out of scope for manas by design.</div>
+      </div>
+      <div class="t">
+        <div class="n">MAKE</div>
+        <div class="nm">kalai</div>
+        <div class="ds">The autonomous creative studio. Makes on-brand, multi-platform content — grounded in manas's voice and visual rules.</div>
+      </div>
+      <div class="t">
+        <div class="n">GROW</div>
+        <div class="nm">kural</div>
+        <div class="ds">The autonomous growth team. Finds, researches and reaches prospects — grounded in manas's tone and stance before it sends.</div>
+      </div>
+    </div>
+
+    <p class="legal reveal">
+      Stack · agent-starter-pack scaffold (uv + hatchling) · ADK coordinator + AgentTool spine · ParallelAgent (batch ingestion fan-out) · LoopAgent + grounding checker (Curator) · Gemini API (Mind-Keeper, 4 Imbibers) · Claude via Vertex AI Model Garden (Curator verify-before-commit + Founder-Voice) · Vertex AI Memory Bank (custom topics, PreloadMemoryTool + after_agent_callback) · VertexAiRagRetrieval + knowledge graph (cited grounding) · checked-in eval/ (AgentEvaluator @0.8, groundedness-with-refusal) · OpenTelemetry + BigQueryAgentAnalyticsPlugin · A2A to_a2a() hub + MCP toolset · Vertex AI Agent Engine (primary — Memory Bank lives here) / Cloud Run (secondary) · never GKE.<br>
+      Modeled on the official ADK north-star samples — <b>memory-bank</b>, <b>multiformat-hybrid-rag</b>, <b>RAG</b>, <b>agent-observability-bq</b>, <b>parallel_task_decomposition_execution</b>, and <b>currency-agent / to_a2a</b>.<br>
+      Judged 30% Technical · 30% Business Case · 20% Innovation · 20% Demo. &nbsp; manas — the inner instrument that gathers, remembers, and knows.
+    </p>
+  </footer>
+
+</div>
+
+<script>
+(function(){
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---------- HERO: staggered load-in (above the fold, not IO) ---------- */
+  var mast = document.querySelector('.mast');
+  if(mast){
+    if(reduce){ mast.classList.add('lit'); }
+    else { requestAnimationFrame(function(){ requestAnimationFrame(function(){ mast.classList.add('lit'); }); }); }
+  }
+
+  /* ---------- COUNT-UP ---------- */
+  function runCount(el){
+    var to = parseFloat(el.getAttribute('data-count-to'));
+    if(isNaN(to)) return;
+    var prefix = el.getAttribute('data-prefix') || '';
+    var suffix = el.getAttribute('data-suffix') || '';
+    function fmt(n){
+      var v = Math.round(n);
+      var s = (to >= 1000) ? v.toLocaleString('en-US') : String(v);
+      return prefix + s + suffix;
+    }
+    if(reduce){ return; }
+    var dur = 1100, start = null;
+    el.textContent = fmt(0);
+    function tick(t){
+      if(start === null) start = t;
+      var p = Math.min(1,(t-start)/dur);
+      var eased = 1 - Math.pow(1-p,3);
+      el.textContent = fmt(to*eased);
+      if(p < 1) requestAnimationFrame(tick);
+      else el.textContent = fmt(to);
+    }
+    requestAnimationFrame(tick);
+  }
+
+  /* ---------- TYPEWRITER: reveal trace LINES sequentially (markup preserved) ---------- */
+  function runTrace(pre){
+    var lines = pre.querySelectorAll('.ln');
+    if(reduce){ for(var i=0;i<lines.length;i++) lines[i].classList.add('typed'); return; }
+    var idx = 0;
+    function next(){
+      if(idx > 0) lines[idx-1].classList.remove('cursor');
+      if(idx >= lines.length) return;
+      var ln = lines[idx];
+      ln.classList.add('typed','cursor');
+      idx++;
+      var delay = 340 + Math.min(520, (ln.textContent.length||10) * 9);
+      setTimeout(next, delay);
+    }
+    next();
+  }
+
+  /* ---------- SCROLL-REVEAL via IntersectionObserver ---------- */
+  var counted = new WeakSet();
+  function activate(el){
+    el.classList.add('is-visible');
+    var cts = el.querySelectorAll('.ct');
+    for(var i=0;i<cts.length;i++){ if(!counted.has(cts[i])){ counted.add(cts[i]); runCount(cts[i]); } }
+    var t = el.querySelector('pre.live');
+    if(t && !t.__traced){ t.__traced = true; runTrace(t); }
+  }
+
+  var targets = document.querySelectorAll('.reveal, .sec, .flow, .org, .stack, .hand, .term');
+  if(!('IntersectionObserver' in window)){
+    targets.forEach(function(el){ activate(el); });
+    return;
+  }
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){ activate(e.target); io.unobserve(e.target); }
+    });
+  }, { rootMargin: '0px 0px -8% 0px', threshold: 0.12 });
+  targets.forEach(function(el){ io.observe(el); });
+
+  /* masthead status-bar counters are above the fold — run them with the hero, not via IO */
+  if(mast){
+    var heroCts = mast.querySelectorAll('.ct');
+    for(var k=0;k<heroCts.length;k++){
+      (function(c){
+        counted.add(c);
+        if(reduce){ }
+        else setTimeout(function(){ runCount(c); }, 520);
+      })(heroCts[k]);
+    }
+  }
+})();
+</script>
+
+<script>
+/* ============================================================
+   THEME TOGGLE — persist to localStorage; apply by setting
+   data-theme (the before-paint script already set the initial
+   value, so no flash). Pure attribute swap; CSS tokens do the rest.
+   ============================================================ */
+(function(){
+  var root = document.documentElement;
+  function set(t){
+    if(t!=='light'&&t!=='dark') t='dark';
+    root.setAttribute('data-theme', t);
+    try{ localStorage.setItem('manas-theme', t); }catch(e){}
+  }
+  var opts = document.querySelectorAll('.theme-toggle .opt');
+  for(var i=0;i<opts.length;i++){
+    opts[i].addEventListener('click', function(){ set(this.getAttribute('data-set')); });
+  }
+  if(window.matchMedia){
+    var mq = window.matchMedia('(prefers-color-scheme: light)');
+    var onChange = function(e){
+      var saved; try{ saved = localStorage.getItem('manas-theme'); }catch(err){}
+      if(saved!=='light'&&saved!=='dark') root.setAttribute('data-theme', e.matches?'light':'dark');
+    };
+    if(mq.addEventListener) mq.addEventListener('change', onChange);
+    else if(mq.addListener) mq.addListener(onChange);
+  }
+})();
+
+/* ============================================================
+   WORKFLOW VIZ — state machine. A fragment token travels along
+   precomputed SVG node centers; the Mind-Keeper routes, Imbibers
+   light, the Curator decides, a memory COMMITS into the core, the
+   Pack ticks vN->vN+1, and an A2A pulse binds the siblings. A
+   live log narrates each step. The switch is DAY-ONE vs
+   FULLY-IMBIBED — day-one's Founder-Voice REFUSES; fully-imbibed
+   answers in the founder's voice with a cited source. Reduced
+   motion: jump straight to the final completed state.
+   ============================================================ */
+(function(){
+  var viz = document.getElementById('viz');
+  if(!viz) return;
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  var token   = document.getElementById('vizToken');
+  var pack    = document.getElementById('vizPack');
+  var logEl   = document.getElementById('vizLog');
+  var scoreEl = document.getElementById('vizScore');
+  var verdEl  = document.getElementById('vizVerdict');
+  var meter   = document.getElementById('vizMeter');
+  var mds     = meter ? meter.querySelectorAll('.md') : [];
+  var runBtn  = document.getElementById('vizRun');
+  var runLbl  = document.getElementById('vizRunLabel');
+  var hint    = document.getElementById('vizHint');
+  var bImb    = document.getElementById('mImbibed');
+  var bDay    = document.getElementById('mDayone');
+  var a2a     = viz.querySelector('.a2apulse');
+
+  var mode = 'imbibed';
+  var timers = [];
+  var running = false;
+  var played = false;
+
+  function clearTimers(){ for(var i=0;i<timers.length;i++) clearTimeout(timers[i]); timers = []; }
+  function at(ms, fn){ timers.push(setTimeout(fn, ms)); }
+
+  var teamIds = ['n-pdf','n-img','n-voice','n-social','n-keeper','n-imb-pdf','n-imb-img','n-imb-voice','n-imb-social','n-curator','n-core','n-voiceagent','n-a2a'];
+  function resetNodes(){
+    for(var i=0;i<teamIds.length;i++){
+      var g = document.getElementById(teamIds[i]);
+      if(g){ g.classList.remove('is-active','is-done','is-deciding'); }
+    }
+    if(token){ token.style.opacity='0'; token.removeAttribute('transform'); }
+    if(a2a){ a2a.style.opacity='0'; }
+    viz.classList.remove('refuses');
+  }
+  function activate(id, cls){
+    var g = document.getElementById(id); if(!g) return;
+    g.classList.add(cls||'is-active');
+  }
+  function done(id){ var g=document.getElementById(id); if(g){ g.classList.remove('is-active','is-deciding'); g.classList.add('is-done'); } }
+
+  // token initial cx/cy (matches the SVG circle)
+  var TOK0 = {x:57, y:57};
+  function moveToken(x, y){
+    if(!token) return;
+    token.style.opacity='1';
+    token.setAttribute('transform','translate('+(x-TOK0.x)+','+(y-TOK0.y)+')');
+  }
+  // node centers (must match the SVG rects above)
+  var C = {
+    'n-keeper':{x:239,y:192}, 'n-imb-voice':{x:416,y:236}, 'n-curator':{x:663,y:192}, 'n-core':{x:800,y:192}, 'n-a2a':{x:896,y:294}
+  };
+
+  function setMeter(n){
+    for(var i=0;i<mds.length;i++){ if(i<n) mds[i].classList.add('on'); else mds[i].classList.remove('on'); }
+  }
+  function logLine(html){
+    if(!logEl) return;
+    var s = document.createElement('span'); s.className='ln'; s.innerHTML = html;
+    logEl.appendChild(s);
+  }
+  function clearLog(){ if(logEl) logEl.innerHTML=''; }
+  function setPack(txt, tick){ if(pack){ pack.textContent = txt; if(tick) pack.classList.add('tick'); else pack.classList.remove('tick'); } }
+
+  /* ---- final completed states (used directly under reduced motion) ---- */
+  function finalImbibed(){
+    ['n-pdf','n-img','n-voice','n-social','n-keeper','n-imb-pdf','n-imb-img','n-imb-voice','n-imb-social','n-curator','n-core','n-voiceagent','n-a2a'].forEach(function(id){ done(id); });
+    if(a2a) a2a.style.opacity='0';
+    viz.classList.add('lit'); viz.classList.remove('refuses');
+    setMeter(10); setPack('Context Pack · v15', true);
+    scoreEl.textContent='0.92'; scoreEl.classList.remove('low');
+    verdEl.textContent='committed · cited · siblings bound'; verdEl.classList.add('good');
+    clearLog();
+    logLine('<span class="c"># ingestion + commit trace · fully imbibed</span>');
+    logLine('<span class="p">mind-keeper»</span> route → ParallelAgent fan-out to 4 Imbibers <span class="c">[Gemini]</span>');
+    logLine('<span class="p">imbiber»</span> cited candidate-memory records emitted (PDF · image · voice · social)');
+    logLine('<span class="p">curator»</span> verify ↻ every claim cites a source · non-contradiction <span class="ok">OK</span>');
+    logLine('<span class="p">commit»</span> <span class="ok">memory committed</span> to Memory Bank · cite <b>memo_07@2:14</b>');
+    logLine('<span class="p">pack»</span> Context Pack <b>v14 → v15</b> · HITL-confirmed');
+    logLine('<span class="p">a2a»</span> <span class="ok">published</span> → kalai · kural bound');
+    logLine('<span class="p">founder-voice»</span> <span class="c">[Claude·Vertex]</span> answers in the founder’s voice <b>with citations</b>');
+  }
+  function finalDayone(){
+    viz.classList.remove('lit'); viz.classList.add('refuses');
+    setMeter(1); setPack('Context Pack · v0', false);
+    scoreEl.textContent='—'; scoreEl.classList.add('low');
+    verdEl.textContent='∅ refuses · not yet in memory'; verdEl.classList.remove('good');
+    clearLog();
+    logLine('<span class="c"># query trace · day one</span>');
+    logLine('<span class="p">ask»</span> "what would the founder say here?"');
+    logLine('<span class="p">retrieve»</span> Memory Bank empty · RAG corpus has <b>0</b> cited spans');
+    logLine('<span class="p">founder-voice»</span> <span class="c">[Claude·Vertex]</span> <span class="refuse">REFUSES</span> — not yet in the founder’s memory');
+    logLine('<span class="p">guard»</span> no fabrication · a confident invented opinion is a hard eval fail');
+  }
+
+  /* ---- animated run (fully imbibed) ---- */
+  function runImbibed(){
+    running = true; runLbl.textContent='Imbibing…';
+    resetNodes(); clearLog(); setMeter(0);
+    viz.classList.add('lit');
+    setPack('Context Pack · v14', false);
+    scoreEl.textContent='—'; scoreEl.classList.remove('low');
+    verdEl.textContent='routing…'; verdEl.classList.remove('good');
+    logLine('<span class="c"># ingestion + commit trace · fully imbibed</span>');
+
+    var t=0;
+    at(t, function(){ moveToken(150,192);
+      logLine('<span class="p">ingest»</span> dropped folder · <b>PDF · image · voice · social</b>'); }); t+=650;
+    at(t, function(){ activate('n-keeper'); moveToken(C['n-keeper'].x, C['n-keeper'].y);
+      logLine('<span class="p">mind-keeper»</span> route → ParallelAgent fan-out <span class="c">[Gemini]</span>'); setMeter(2); }); t+=900;
+    at(t, function(){ done('n-keeper');
+      activate('n-imb-pdf'); activate('n-imb-img'); activate('n-imb-voice'); activate('n-imb-social');
+      moveToken(C['n-imb-voice'].x, C['n-imb-voice'].y);
+      logLine('<span class="p">imbiber»</span> cited candidate-memory records emitted · each with a source ID'); setMeter(4); }); t+=1050;
+    at(t, function(){ ['n-imb-pdf','n-imb-img','n-imb-voice','n-imb-social'].forEach(done);
+      activate('n-curator','is-deciding'); moveToken(C['n-curator'].x, C['n-curator'].y);
+      logLine('<span class="p">curator»</span> verify ↻ every claim cites a source · non-contradiction…');
+      verdEl.textContent='verifying…'; setMeter(6); }); t+=1300;
+    at(t, function(){ done('n-curator');
+      activate('n-core'); moveToken(C['n-core'].x, C['n-core'].y);
+      logLine('<span class="p">commit»</span> <span class="ok">memory committed</span> to Memory Bank · cite <b>memo_07@2:14</b>');
+      setMeter(8); scoreEl.textContent='0.92'; }); t+=950;
+    at(t, function(){ done('n-core');
+      setPack('Context Pack · v15', true);
+      logLine('<span class="p">pack»</span> Context Pack <b>v14 → v15</b> · HITL-confirmed'); setMeter(9); }); t+=850;
+    at(t, function(){ activate('n-a2a'); if(a2a) a2a.style.opacity='1';
+      logLine('<span class="p">a2a»</span> <span class="ok">published</span> → kalai · kural bound'); }); t+=950;
+    at(t, function(){ done('n-a2a'); done('n-voiceagent');
+      if(a2a) a2a.style.opacity='0'; token.style.opacity='0';
+      setMeter(10);
+      logLine('<span class="p">founder-voice»</span> <span class="c">[Claude·Vertex]</span> answers in the founder’s voice <b>with citations</b>');
+      verdEl.textContent='committed · cited · siblings bound'; verdEl.classList.add('good');
+      finish(); }); t+=300;
+  }
+
+  /* ---- animated run (day one — the refusing mind) ---- */
+  function runDayone(){
+    running = true; runLbl.textContent='Asking…';
+    resetNodes(); clearLog(); setMeter(0);
+    viz.classList.remove('lit');
+    setPack('Context Pack · v0', false);
+    scoreEl.textContent='—'; scoreEl.classList.remove('low');
+    verdEl.textContent='querying empty mind…'; verdEl.classList.remove('good');
+    logLine('<span class="c"># query trace · day one</span>');
+
+    var t=0;
+    at(t, function(){ logLine('<span class="p">ask»</span> "what would the founder say here?"'); setMeter(1); }); t+=900;
+    at(t, function(){ logLine('<span class="p">retrieve»</span> Memory Bank empty · RAG corpus has <b>0</b> cited spans'); }); t+=1100;
+    at(t, function(){ viz.classList.add('refuses');
+      logLine('<span class="p">founder-voice»</span> <span class="c">[Claude·Vertex]</span> <span class="refuse">REFUSES</span> — not yet in the founder’s memory');
+      scoreEl.textContent='—'; scoreEl.classList.add('low');
+      verdEl.textContent='∅ refuses · not yet in memory'; }); t+=1100;
+    at(t, function(){ logLine('<span class="p">guard»</span> no fabrication · a confident invented opinion is a hard eval fail');
+      finish(); }); t+=300;
+  }
+
+  function finish(){ running=false; played=true; runLbl.textContent='Replay'; }
+
+  function play(){
+    if(running) return;
+    clearTimers();
+    if(reduce){ if(mode==='imbibed') finalImbibed(); else finalDayone(); finish(); return; }
+    if(mode==='imbibed') runImbibed(); else runDayone();
+  }
+
+  function setMode(m){
+    if(m===mode) return;
+    mode = m;
+    clearTimers(); running=false; played=false;
+    viz.classList.toggle('mode-imbibed', m==='imbibed');
+    viz.classList.toggle('mode-dayone', m==='dayone');
+    viz.classList.toggle('lit', m==='imbibed');
+    bImb.setAttribute('aria-pressed', m==='imbibed'?'true':'false');
+    bDay.setAttribute('aria-pressed', m==='dayone'?'true':'false');
+    hint.innerHTML = (m==='imbibed')
+      ? 'A grown mind · <b>core dense, constellation full — Founder-Voice answers in the founder’s voice, with citations</b>'
+      : 'Day one · <b>core faint, nothing committed — Founder-Voice refuses rather than fabricate</b>';
+    runLbl.textContent='Run';
+    resetNodes(); clearLog(); setMeter(0);
+    setPack(m==='imbibed' ? 'Context Pack · v14' : 'Context Pack · v0', false);
+    scoreEl.textContent='—'; scoreEl.classList.remove('low');
+    verdEl.textContent='awaiting run'; verdEl.classList.remove('good');
+    if(reduce){ if(m==='imbibed') finalImbibed(); else finalDayone(); finish(); }
+  }
+
+  runBtn.addEventListener('click', play);
+  bImb.addEventListener('click', function(){ setMode('imbibed'); });
+  bDay.addEventListener('click', function(){ setMode('dayone'); });
+
+  // auto-play once when scrolled into view (skip auto-play under reduced motion: show final state)
+  if('IntersectionObserver' in window){
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if(e.isIntersecting){
+          if(reduce){ if(mode==='imbibed') finalImbibed(); else finalDayone(); finish(); }
+          else if(!played && !running){ at(400, play); }
+          io.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.3 });
+    io.observe(viz);
+  } else {
+    if(reduce){ finalImbibed(); } else { play(); }
+  }
+})();
+</script>
+</body>
+</html>

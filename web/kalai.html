@@ -1,0 +1,1288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" href="data:,">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>kalai — the autonomous creative studio</title>
+<meta name="description" content="kalai is a multi-agent creative studio. One brief in, a finished on-brand multi-platform master out — compliance-cleared and handed to kural, the company's only mouth, which publishes behind your sign-off.">
+<!-- add .js before paint so initial-hidden states only exist when JS can reveal them -->
+<script>document.documentElement.className+=' js';</script>
+<!-- set the theme BEFORE first paint (no flash): localStorage -> prefers-color-scheme -> page default (light) -->
+<script>(function(){try{var t=localStorage.getItem('kalai-theme');if(!t){t=(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light';}if(t==='dark'){document.documentElement.setAttribute('data-theme','dark');}}catch(e){}})();</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;0,6..72,700;1,6..72,400;1,6..72,500&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    /* DEFAULT = warm light gallery */
+    --paper:#FBF8F2;
+    --paper-2:#F4EFE5;
+    --ink:#211E1A;
+    --muted:#6E6A60;
+    --hair:#E4DECF;
+    --hair-soft:#EEE9DD;
+    --accent:#A4502E;     /* terracotta — TEXT or <=10px dot ONLY */
+    --accent-soft:rgba(164,80,46,0.16);  /* terracotta at low alpha — rings/dots only, never a band */
+    /* semantic tokens so the dark theme can re-skin without inverting intentional dark surfaces */
+    --topbar-bg:rgba(251,248,242,0.86);
+    --footer-bg:#211E1A;        /* an intentional dark band in light theme */
+    --footer-ink:#FBF8F2;
+    --footer-muted:rgba(251,248,242,0.66);
+    --footer-line:rgba(251,248,242,0.16);
+    --shadow:rgba(33,30,26,0.42);   /* warm-ink shadow */
+    --wash:rgba(33,30,26,0.035);    /* neutral paper wash, never accent */
+    --spot:rgba(255,247,232,0.55);  /* warm gallery-spotlight wash — neutral warm, never terracotta */
+    --maxw:1080px;
+    --ease:cubic-bezier(0.22,1,0.36,1);   /* designed entrance easing */
+  }
+  /* DARK = "the gallery at night" — keeps the warm, literary, museum-calm soul */
+  html[data-theme="dark"]{
+    --paper:#1A1714;
+    --paper-2:#221E1A;
+    --ink:#EFEAE0;
+    --muted:#9A9488;
+    --hair:#332C24;
+    --hair-soft:#2A241D;
+    --accent:#C8693F;     /* terracotta nudged brighter for AA on espresso — still text/dots/rings only */
+    --accent-soft:rgba(200,105,63,0.20);
+    --topbar-bg:rgba(26,23,20,0.86);
+    --footer-bg:#15120F;        /* footer stays the deepest surface — never inverts to light */
+    --footer-ink:#EFEAE0;
+    --footer-muted:rgba(239,234,224,0.62);
+    --footer-line:rgba(239,234,224,0.14);
+    --shadow:rgba(0,0,0,0.55);
+    --wash:rgba(239,234,224,0.05);
+    --spot:rgba(255,236,205,0.07);  /* fainter warm glow on the night gallery */
+  }
+  html{transition:background-color .5s var(--ease);}
+  body{transition:background-color .5s var(--ease),color .5s var(--ease);}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Inter',system-ui,sans-serif;
+    font-size:17px;
+    line-height:1.62;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+    overflow-x:hidden;
+  }
+  /* a calm, non-accent paper wash — neutral only, never terracotta */
+  body::before{
+    content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+    background:
+      radial-gradient(60% 50% at 78% 6%, var(--wash), transparent 70%),
+      radial-gradient(50% 45% at 8% 96%, var(--wash), transparent 70%);
+  }
+  /* ambient gallery-spotlight drift — a faint warm light slowly sweeping the room.
+     neutral warm wash (never terracotta), transform/opacity only, fixed behind content. */
+  body::after{
+    content:"";position:fixed;left:-30vw;top:-20vh;width:60vw;height:80vh;z-index:0;pointer-events:none;
+    background:radial-gradient(50% 50% at 50% 50%, var(--spot), transparent 72%);
+    opacity:0;
+  }
+  .js body::after{animation:spotdrift 46s var(--ease) infinite;}
+  @keyframes spotdrift{
+    0%   {transform:translate(0,0)        scale(1);   opacity:0;}
+    12%  {opacity:.9;}
+    50%  {transform:translate(96vw,38vh)  scale(1.18);opacity:.7;}
+    88%  {opacity:.85;}
+    100% {transform:translate(0,0)        scale(1);   opacity:0;}
+  }
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 32px;position:relative;z-index:1;}
+
+  /* ---- micro labels ---- */
+  .mono{font-family:'JetBrains Mono',ui-monospace,monospace;font-size:.74rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);}
+  .mono .dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--accent);margin-right:9px;vertical-align:middle;}
+  .accent-txt{color:var(--accent);}
+  .serif{font-family:'Newsreader',Georgia,serif;}
+  .ital{font-family:'Newsreader',Georgia,serif;font-style:italic;}
+
+  /* ---- top bar ---- */
+  .topbar{position:sticky;top:0;z-index:80;background:var(--topbar-bg);backdrop-filter:blur(10px);border-bottom:1px solid var(--hair);transition:background-color .5s var(--ease),border-color .5s var(--ease);}
+  .topbar .row{max-width:var(--maxw);margin:0 auto;padding:15px 32px;display:flex;align-items:center;gap:18px;}
+  .brand{font-family:'Newsreader',serif;font-weight:600;font-size:1.45rem;letter-spacing:.01em;}
+  .brand .deva{font-weight:500;color:var(--muted);font-size:1.15rem;margin-left:8px;}
+  .topbar .sp{flex:1;}
+  .topbar nav{display:flex;gap:24px;}
+  .topbar nav a{position:relative;font-family:'JetBrains Mono',monospace;font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);text-decoration:none;transition:color .35s var(--ease);}
+  /* neutral underline grow — uses currentColor (ink), never an accent edge band */
+  .topbar nav a::after{content:"";position:absolute;left:0;right:0;bottom:-4px;height:1px;background:currentColor;transform:scaleX(0);transform-origin:left;opacity:.55;transition:transform .4s var(--ease);}
+  .topbar nav a:hover{color:var(--ink);}
+  .topbar nav a:hover::after{transform:scaleX(1);}
+  .topbar nav a:focus-visible{color:var(--ink);outline:1px solid var(--ink);outline-offset:4px;border-radius:2px;}
+  @media(max-width:760px){.topbar nav{display:none;}}
+
+  /* ---- theme toggle (a control, not a container — neutral edge, on-theme) ---- */
+  .theme-toggle{
+    display:inline-flex;align-items:center;gap:8px;cursor:pointer;
+    font-family:'JetBrains Mono',monospace;font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--muted);background:transparent;border:1px solid var(--hair);border-radius:999px;
+    padding:6px 8px 6px 12px;line-height:1;
+    transition:color .35s var(--ease),border-color .35s var(--ease);
+    -webkit-tap-highlight-color:transparent;
+  }
+  .theme-toggle:hover{color:var(--ink);border-color:var(--ink);}
+  .theme-toggle:focus-visible{outline:1px solid var(--ink);outline-offset:3px;}
+  .theme-toggle .tt-label{min-width:34px;text-align:right;}
+  /* the pill track + knob — neutral hairline track, neutral knob; never a colored band */
+  .theme-toggle .tt-track{
+    position:relative;width:38px;height:20px;border-radius:999px;
+    border:1px solid var(--hair);background:var(--paper-2);flex:0 0 auto;
+    transition:border-color .35s var(--ease),background .35s var(--ease);
+  }
+  .theme-toggle .tt-knob{
+    position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;
+    background:var(--ink);
+    transition:transform .4s var(--ease),background .35s var(--ease);
+  }
+  html[data-theme="dark"] .theme-toggle .tt-knob{transform:translateX(18px);}
+  /* tiny sun / moon glyph swaps with theme; mono ink, not accent */
+  .theme-toggle .tt-sun{display:inline;}
+  .theme-toggle .tt-moon{display:none;}
+  html[data-theme="dark"] .theme-toggle .tt-sun{display:none;}
+  html[data-theme="dark"] .theme-toggle .tt-moon{display:inline;}
+  /* JS-off: the toggle can't do anything, so hide it cleanly (never leave an inert control) */
+  html:not(.js) .theme-toggle{display:none;}
+  @media(max-width:760px){.theme-toggle .tt-label{display:none;}}
+
+  /* ---- hero ---- */
+  .hero{padding:90px 0 64px;}
+  .hero .deva-big{font-family:'Newsreader',serif;font-weight:500;font-size:clamp(2.2rem,7vw,4rem);color:var(--muted);line-height:1;will-change:transform;}
+  .hero h1{font-family:'Newsreader',serif;font-weight:700;font-size:clamp(4rem,16vw,11rem);line-height:.86;letter-spacing:-.035em;margin:6px 0 0;}
+  /* clip-reveal mask for the serif headline */
+  .hero h1 .clip{display:inline-block;overflow:hidden;vertical-align:top;}
+  .hero h1 .clip > span{display:inline-block;}
+  .hero h1 .stop{color:var(--accent);}
+  .hero .meaning{font-family:'Newsreader',serif;font-style:italic;font-size:clamp(1.3rem,3.4vw,1.9rem);line-height:1.4;color:var(--muted);max-width:640px;margin:30px 0 0;}
+  .hero .meaning b{font-style:normal;font-weight:600;color:var(--ink);}
+  .hr{border:none;border-top:1px solid var(--hair);margin:46px 0;}
+  .hr-bold{border:none;border-top:1px solid var(--ink);margin:0;}
+  .hero .deck{display:grid;grid-template-columns:1.15fr .85fr;gap:48px;align-items:end;margin-top:14px;}
+  .hero .tagline{font-family:'Newsreader',serif;font-weight:600;font-size:clamp(1.9rem,4.4vw,2.9rem);line-height:1.08;letter-spacing:-.02em;}
+  .hero .whatis{font-size:1.08rem;line-height:1.6;color:var(--muted);}
+  .hero .whatis b{color:var(--ink);font-weight:600;}
+  .cta-row{display:flex;flex-wrap:wrap;gap:14px;margin-top:30px;}
+  .btn{position:relative;font-family:'JetBrains Mono',monospace;font-size:.74rem;letter-spacing:.1em;text-transform:uppercase;padding:14px 26px;border-radius:3px;text-decoration:none;display:inline-flex;align-items:center;gap:10px;cursor:pointer;transition:transform .3s var(--ease),background .3s var(--ease),border-color .3s var(--ease),box-shadow .3s var(--ease);}
+  .btn.solid{background:var(--ink);color:var(--paper);border:1px solid var(--ink);}
+  .btn.solid:hover{transform:translateY(-2px);box-shadow:0 10px 24px -12px var(--shadow);}
+  .btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--hair);}
+  .btn.ghost:hover{border-color:var(--ink);transform:translateY(-2px);}
+  .btn:focus-visible{outline:1px solid var(--ink);outline-offset:3px;}
+  /* a small marker that slides on CTA hover — neutral, not an edge band */
+  .btn .mk{display:inline-block;transition:transform .35s var(--ease);}
+  .btn:hover .mk{transform:translateX(4px);}
+  @media(max-width:760px){.hero .deck{grid-template-columns:1fr;gap:28px;}}
+
+  /* ---- section scaffold ---- */
+  section{padding:70px 0;}
+  .sec-head{display:flex;align-items:baseline;gap:18px;margin-bottom:8px;}
+  .sec-num{font-family:'JetBrains Mono',monospace;font-size:.78rem;letter-spacing:.1em;color:var(--muted);font-variant-numeric:tabular-nums;}
+  h2{font-family:'Newsreader',serif;font-weight:700;font-size:clamp(2.4rem,6vw,4.2rem);line-height:.98;letter-spacing:-.025em;margin:14px 0 24px;}
+  .lede{font-size:1.18rem;line-height:1.62;color:var(--ink);max-width:720px;}
+  .lede.muted{color:var(--muted);}
+
+  /* ---- problem / business ---- */
+  .who-grid{display:grid;grid-template-columns:1fr 1fr;gap:0;margin-top:42px;border-top:1px solid var(--hair);}
+  .who-cell{padding:30px 34px 30px 0;border-bottom:1px solid var(--hair);transition:background .4s var(--ease);}
+  .who-cell:nth-child(odd){border-right:1px solid var(--hair);padding-right:34px;}
+  .who-cell:nth-child(even){padding-left:34px;}
+  .who-cell:hover{background:var(--paper-2);}
+  .who-cell .role{font-family:'Newsreader',serif;font-weight:600;font-size:1.3rem;}
+  .who-cell .role .x{color:var(--accent);display:inline-block;transition:transform .4s var(--ease);}
+  .who-cell:hover .role .x{transform:translateX(4px);}
+  .who-cell p{font-size:1rem;line-height:1.55;color:var(--muted);margin-top:8px;}
+  @media(max-width:680px){.who-grid{grid-template-columns:1fr;}
+    .who-cell:nth-child(odd){border-right:none;padding-right:0;}
+    .who-cell:nth-child(even){padding-left:0;}}
+  .pull{margin:54px 0 0;}
+  .pull .big{font-family:'Newsreader',serif;font-weight:600;font-size:clamp(1.8rem,4.2vw,2.7rem);line-height:1.12;letter-spacing:-.02em;max-width:880px;}
+  .pull .big em{font-style:italic;color:var(--accent);}
+
+  /* ---- flow (what it does) ---- */
+  .flow{margin-top:40px;}
+  .step{display:grid;grid-template-columns:88px 1fr;gap:26px;padding:30px 0;border-bottom:1px solid var(--hair);}
+  .step:last-child{border-bottom:none;}
+  .step .n{font-family:'Newsreader',serif;font-weight:700;font-size:3.4rem;line-height:.8;color:var(--ink);opacity:.16;font-variant-numeric:tabular-nums;transition:opacity .5s var(--ease),transform .5s var(--ease);}
+  .step:hover .n{opacity:.32;transform:translateY(-2px);}
+  .step .nm{font-family:'Newsreader',serif;font-weight:600;font-size:1.5rem;letter-spacing:-.01em;}
+  .step .who{font-family:'JetBrains Mono',monospace;font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:6px 0 10px;}
+  .step .bd{font-size:1.04rem;line-height:1.58;color:var(--muted);max-width:680px;}
+  .ship{margin-top:34px;background:var(--paper-2);border:1px solid var(--hair);border-radius:6px;padding:40px 38px;transition:box-shadow .5s var(--ease);}
+  .ship:hover{box-shadow:0 18px 44px -28px var(--shadow);}
+  .ship .tag{margin-bottom:14px;}
+  .ship .h{font-family:'Newsreader',serif;font-weight:700;font-size:clamp(1.7rem,3.6vw,2.4rem);line-height:1.08;letter-spacing:-.02em;}
+  .ship .h .act{color:var(--accent);}
+  .ship .p{font-size:1.06rem;line-height:1.6;color:var(--muted);margin-top:14px;max-width:760px;}
+  .gate{margin-top:20px;display:inline-flex;align-items:center;gap:12px;font-family:'JetBrains Mono',monospace;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--ink);border:1px solid var(--ink);border-radius:3px;padding:11px 18px;}
+  .gate .dot{width:8px;height:8px;border-radius:50%;background:var(--accent);}
+  /* the accent dot in the gate breathes very slowly — opacity/scale only */
+  .js .gate .dot{animation:pulse 3.4s var(--ease) infinite;}
+  @keyframes pulse{0%,100%{transform:scale(1);opacity:1;}50%{transform:scale(1.18);opacity:.6;}}
+
+  /* ---- agent team / org chart ---- */
+  .agents{display:grid;grid-template-columns:1fr 1fr;gap:0;margin-top:42px;border-top:1px solid var(--hair);border-left:1px solid var(--hair);}
+  .agent{border-right:1px solid var(--hair);border-bottom:1px solid var(--hair);padding:28px 30px;transition:background .4s var(--ease),box-shadow .45s var(--ease);}
+  .agent:hover{background:var(--paper-2);box-shadow:0 16px 38px -26px var(--shadow);}
+  .agent.lead{grid-column:1 / -1;background:var(--paper-2);}
+  .agent.lead:hover{background:var(--paper-2);}
+  .agent .head{display:flex;align-items:baseline;justify-content:space-between;gap:14px;flex-wrap:wrap;}
+  .agent .name{font-family:'Newsreader',serif;font-weight:600;font-size:1.45rem;letter-spacing:-.01em;}
+  .agent .name .lead-mark{font-size:.72rem;font-family:'JetBrains Mono',monospace;letter-spacing:.1em;color:var(--accent);text-transform:uppercase;margin-left:10px;font-style:normal;vertical-align:middle;}
+  .agent .model{font-family:'JetBrains Mono',monospace;font-size:.66rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);border:1px solid var(--hair);border-radius:999px;padding:5px 12px;white-space:nowrap;}
+  .agent .model.claude{color:var(--accent);border-color:var(--hair);}
+  .agent .model .dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:7px;vertical-align:middle;}
+  .agent .model.claude .dot{background:var(--accent);}
+  .agent .model.gemini .dot{background:var(--muted);}
+  .agent .desc{font-size:1rem;line-height:1.56;color:var(--muted);margin-top:12px;}
+  .agent .desc b{color:var(--ink);font-weight:600;}
+  @media(max-width:680px){.agents{grid-template-columns:1fr;}.agent.lead{grid-column:auto;}}
+
+  /* handoff chain — neutral connectors only */
+  .chain{margin-top:46px;border-top:1px solid var(--hair);padding-top:30px;}
+  .chain .lbl{margin-bottom:20px;}
+  .chain-flow{display:flex;flex-wrap:wrap;align-items:center;gap:10px 12px;}
+  .node{font-family:'JetBrains Mono',monospace;font-size:.72rem;letter-spacing:.04em;text-transform:uppercase;border:1px solid var(--hair);border-radius:3px;padding:10px 14px;color:var(--ink);background:var(--paper);transition:transform .35s var(--ease),box-shadow .35s var(--ease);}
+  .node:hover{transform:translateY(-2px);box-shadow:0 10px 22px -14px var(--shadow);}
+  .node.judge{border-color:var(--ink);}
+  .node .m{display:block;font-size:.58rem;letter-spacing:.1em;color:var(--muted);margin-top:5px;}
+  .node .m.c{color:var(--accent);}
+  .arrow{font-family:'JetBrains Mono',monospace;color:var(--muted);font-size:1rem;}
+
+  /* ---- stack / architecture ---- */
+  .stack-grid{display:grid;grid-template-columns:1fr 1fr;gap:0;margin-top:42px;border-top:1px solid var(--hair);border-left:1px solid var(--hair);}
+  .layer{border-right:1px solid var(--hair);border-bottom:1px solid var(--hair);padding:26px 28px;transition:background .4s var(--ease),box-shadow .45s var(--ease);}
+  .layer:hover{background:var(--paper-2);box-shadow:0 16px 38px -26px var(--shadow);}
+  .layer .k{font-family:'JetBrains Mono',monospace;font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);}
+  .layer .v{font-family:'Newsreader',serif;font-weight:600;font-size:1.3rem;margin:8px 0 8px;}
+  .layer .d{font-size:.96rem;line-height:1.54;color:var(--muted);}
+  .layer .d b{color:var(--ink);font-weight:600;}
+  @media(max-width:680px){.stack-grid{grid-template-columns:1fr;}}
+
+  /* architecture flow diagram — boxes + neutral connectors, no accent edges */
+  .arch{margin-top:48px;border:1px solid var(--hair);border-radius:6px;padding:34px 30px;background:var(--paper);}
+  .arch .cap{margin-bottom:24px;}
+  .arch-tier{display:flex;flex-direction:column;align-items:center;gap:0;}
+  .a-box{width:100%;max-width:560px;text-align:center;border:1px solid var(--hair);border-radius:4px;padding:14px 18px;background:var(--paper-2);transition:transform .5s var(--ease),box-shadow .5s var(--ease);}
+  .a-box.orch{border-color:var(--ink);background:var(--paper);}
+  .a-box .t{font-family:'Newsreader',serif;font-weight:600;font-size:1.15rem;}
+  .a-box .s{font-family:'JetBrains Mono',monospace;font-size:.62rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-top:4px;}
+  .a-box .s.c{color:var(--accent);}
+  .a-conn{width:1px;height:26px;background:var(--hair);transform-origin:top;}
+  .a-fan{display:flex;flex-wrap:wrap;justify-content:center;gap:12px;width:100%;}
+  .a-fan .a-box{max-width:230px;flex:1 1 200px;}
+  .a-rule{width:100%;max-width:560px;border:none;border-top:1px solid var(--hair);margin:0;transform-origin:center;}
+
+  /* ---- impact / business ---- */
+  .impact-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin-top:42px;border-top:1px solid var(--hair);}
+  .stat{padding:30px 26px 30px 0;border-bottom:1px solid var(--hair);}
+  .stat:not(:last-child){border-right:1px solid var(--hair);padding-right:26px;}
+  .stat:not(:first-child){padding-left:26px;}
+  .stat .num{font-family:'Newsreader',serif;font-weight:700;font-size:clamp(2.6rem,5.4vw,3.6rem);line-height:.92;letter-spacing:-.02em;font-variant-numeric:tabular-nums;}
+  .stat .num .u{color:var(--accent);font-size:.55em;}
+  .stat .cap2{font-size:.98rem;line-height:1.5;color:var(--muted);margin-top:10px;}
+  @media(max-width:680px){.impact-grid{grid-template-columns:1fr;}
+    .stat:not(:last-child){border-right:none;padding-right:0;}
+    .stat:not(:first-child){padding-left:0;}}
+  .buyers{margin-top:48px;display:grid;grid-template-columns:1fr 1fr;gap:36px;}
+  .buyers .col h3{font-family:'Newsreader',serif;font-weight:600;font-size:1.4rem;margin-bottom:10px;}
+  .buyers .col p{font-size:1.02rem;line-height:1.58;color:var(--muted);}
+  .buyers .col p b{color:var(--ink);font-weight:600;}
+  @media(max-width:680px){.buyers{grid-template-columns:1fr;gap:24px;}}
+
+  /* ---- footer ---- */
+  footer{background:var(--footer-bg);color:var(--footer-ink);padding:64px 0 56px;margin-top:30px;transition:background-color .5s var(--ease),color .5s var(--ease);}
+  footer .wrap{position:relative;}
+  footer .deva-foot{font-family:'Newsreader',serif;font-weight:500;font-size:clamp(2rem,6vw,3.4rem);line-height:1;}
+  footer .deva-foot .dot{color:var(--accent);}
+  footer .tri{margin-top:30px;display:grid;grid-template-columns:repeat(3,1fr);gap:0;border-top:1px solid var(--footer-line);}
+  footer .tri .t{padding:24px 22px 24px 0;border-bottom:1px solid var(--footer-line);}
+  footer .tri .t:not(:last-child){border-right:1px solid var(--footer-line);padding-right:22px;}
+  footer .tri .t:not(:first-child){padding-left:22px;}
+  footer .tri .nm{font-family:'Newsreader',serif;font-weight:600;font-size:1.25rem;}
+  footer .tri .nm.this{color:var(--footer-ink);}
+  footer .tri .nm .self{font-family:'JetBrains Mono',monospace;font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);display:block;margin-top:6px;}
+  footer .tri .d{font-size:.92rem;line-height:1.5;color:var(--footer-muted);margin-top:8px;}
+  footer .fine{margin-top:40px;display:flex;flex-wrap:wrap;gap:14px 28px;justify-content:space-between;align-items:baseline;}
+  footer .fine .mono{color:var(--footer-muted);}
+  footer .fine .track{font-family:'JetBrains Mono',monospace;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--footer-ink);}
+  footer .fine .track .accent-txt{color:var(--accent);}
+  @media(max-width:680px){footer .tri{grid-template-columns:1fr;}
+    footer .tri .t:not(:last-child){border-right:none;padding-right:0;}
+    footer .tri .t:not(:first-child){padding-left:0;}}
+
+  /* ============================================================
+     INTERACTIVE WORKFLOW VIZ — "See it work, live"
+     basic shapes + neutral hairline connectors. accent only as text /
+     <=12px token / dots / rings. NO colored edge band, either theme.
+     Static (JS-off) shows the full diagram + caption; JS animates.
+     ============================================================ */
+  .viz-eyebrow{display:flex;align-items:baseline;gap:18px;margin-bottom:8px;}
+  .viz-eyebrow .mono{color:var(--accent);}
+  .viz{margin-top:34px;border:1px solid var(--hair);border-radius:8px;background:var(--paper);padding:28px 26px 30px;position:relative;overflow:hidden;transition:background .5s var(--ease),border-color .5s var(--ease);}
+  /* a single faint neutral spotlight sweep over the stage — opacity/transform only, neutral warm */
+  .js .viz::before{
+    content:"";position:absolute;left:-40%;top:0;width:42%;height:100%;z-index:0;pointer-events:none;
+    background:linear-gradient(100deg,transparent,var(--spot),transparent);opacity:.5;
+    animation:vizsweep 14s linear infinite;
+  }
+  @keyframes vizsweep{0%{transform:translateX(0);}100%{transform:translateX(330%);}}
+  .viz > *{position:relative;z-index:1;}
+
+  .viz-controls{display:flex;flex-wrap:wrap;align-items:center;gap:14px 18px;margin-bottom:24px;}
+  .viz-run{font-family:'JetBrains Mono',monospace;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;
+    padding:11px 20px;border-radius:3px;background:var(--ink);color:var(--paper);border:1px solid var(--ink);cursor:pointer;
+    display:inline-flex;align-items:center;gap:9px;transition:transform .3s var(--ease),box-shadow .3s var(--ease);}
+  .viz-run:hover{transform:translateY(-2px);box-shadow:0 10px 24px -12px var(--shadow);}
+  .viz-run:focus-visible{outline:1px solid var(--ink);outline-offset:3px;}
+  .viz-run .rdot{width:7px;height:7px;border-radius:50%;background:var(--accent);display:inline-block;}
+
+  /* single ⟷ team mode switch — neutral pill, accent only as the active TEXT */
+  .mode-switch{display:inline-flex;align-items:center;border:1px solid var(--hair);border-radius:999px;padding:3px;gap:2px;background:var(--paper-2);}
+  .mode-switch button{font-family:'JetBrains Mono',monospace;font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;
+    border:none;background:transparent;color:var(--muted);cursor:pointer;padding:7px 14px;border-radius:999px;
+    transition:color .3s var(--ease),background .3s var(--ease);}
+  .mode-switch button[aria-pressed="true"]{color:var(--ink);background:var(--paper);box-shadow:0 1px 0 var(--hair);}
+  .mode-switch button:focus-visible{outline:1px solid var(--ink);outline-offset:2px;}
+  .mode-hint{font-family:'JetBrains Mono',monospace;font-size:.62rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);}
+
+  /* the stage: tiers of nodes joined by neutral hairline rails */
+  .viz-stage{display:flex;flex-direction:column;align-items:center;gap:0;}
+  .vrail{width:1px;height:22px;background:var(--hair);transform-origin:top;}
+  .vrule{width:100%;max-width:600px;height:1px;background:var(--hair);}
+  .vtier{display:flex;flex-wrap:wrap;justify-content:center;gap:12px;width:100%;}
+
+  .vnode{position:relative;text-align:center;border:1px solid var(--hair);border-radius:5px;background:var(--paper-2);
+    padding:13px 16px;min-width:150px;max-width:230px;flex:0 1 auto;
+    transition:transform .45s var(--ease),box-shadow .45s var(--ease),background .45s var(--ease),opacity .45s var(--ease);}
+  .vnode.brief{min-width:auto;}
+  .vnode .vt{font-family:'Newsreader',serif;font-weight:600;font-size:1.06rem;line-height:1.12;}
+  .vnode .vm{font-family:'JetBrains Mono',monospace;font-size:.58rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-top:5px;display:inline-flex;align-items:center;gap:6px;}
+  .vnode .vm .b{width:6px;height:6px;border-radius:50%;background:var(--muted);display:inline-block;}
+  .vnode .vm.c{color:var(--accent);}
+  .vnode .vm.c .b{background:var(--accent);}
+  /* the Claude·Vertex decision nodes wear a small accent RING marker (rings are allowed) + accent badge text.
+     the box border itself stays neutral hairline — no colored edge band. */
+  .vnode.decision .ring{position:absolute;top:9px;right:9px;width:9px;height:9px;border-radius:50%;border:1.5px solid var(--accent);}
+  .vnode.human{border-style:dashed;}
+  /* activation: transform pulse + neutral elevation + an accent dot/ring — NEVER a colored border/glow band */
+  .js .vnode.active{transform:translateY(-3px) scale(1.015);box-shadow:0 14px 34px -22px var(--shadow);background:var(--paper);}
+  .js .vnode.active::after{content:"";position:absolute;left:50%;bottom:-9px;width:7px;height:7px;border-radius:50%;
+    background:var(--accent);transform:translateX(-50%);animation:vpulse 1s var(--ease) infinite;}
+  .js .vnode.deciding::after{animation:vpulse .7s var(--ease) infinite;}
+  .js .vnode.done{opacity:.92;}
+  .js .vnode.done .vstamp{opacity:1;transform:none;}
+  .vnode .vstamp{position:absolute;top:8px;left:10px;font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--accent);
+    opacity:0;transform:translateY(-3px);transition:opacity .35s var(--ease),transform .35s var(--ease);}
+  @keyframes vpulse{0%,100%{transform:translateX(-50%) scale(1);opacity:1;}50%{transform:translateX(-50%) scale(1.55);opacity:.45;}}
+
+  /* the lone generalist node, shown only in single mode */
+  .vsingle{display:none;}
+  .viz[data-mode="single"] .vteam{display:none;}
+  .viz[data-mode="single"] .vsingle{display:flex;}
+  .vsingle .vnode{max-width:340px;min-width:240px;}
+  .js .viz[data-mode="single"] .vnode.miss::after{content:"off-brand";position:absolute;right:10px;bottom:8px;
+    font-family:'JetBrains Mono',monospace;font-size:.58rem;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);
+    background:none;width:auto;height:auto;left:auto;transform:none;animation:none;}
+
+  /* travelling task token — a tiny shape (<=12px). neutral connectors stay neutral; the token carries the accent. */
+  .vtoken{position:absolute;top:0;left:0;width:11px;height:11px;border-radius:50%;background:var(--accent);
+    box-shadow:0 0 0 4px var(--accent-soft);opacity:0;pointer-events:none;z-index:5;
+    transform:translate(-50%,-50%);transition:opacity .25s var(--ease);}
+  .vtoken.lit{opacity:1;}
+  .vtoken .tlabel{position:absolute;left:16px;top:50%;transform:translateY(-50%);white-space:nowrap;
+    font-family:'JetBrains Mono',monospace;font-size:.58rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);}
+
+  /* status / log line — narrates each step in words */
+  .viz-readout{margin-top:22px;border-top:1px solid var(--hair);padding-top:16px;display:grid;grid-template-columns:1fr auto;gap:16px 22px;align-items:start;}
+  .viz-log{font-family:'JetBrains Mono',monospace;font-size:.74rem;letter-spacing:.02em;color:var(--ink);line-height:1.7;min-height:1.7em;}
+  .viz-log .lead{color:var(--accent);}
+  .viz-log .ts{color:var(--muted);}
+
+  /* quality meter — a row of <=12px dots filling up (unambiguously not a band). score % as accent text. */
+  .meter{display:flex;flex-direction:column;gap:8px;align-items:flex-end;min-width:190px;}
+  .meter .mlabel{font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);}
+  .meter .dots{display:flex;gap:5px;}
+  .meter .dots i{width:9px;height:9px;border-radius:50%;border:1px solid var(--hair);background:transparent;transition:background .4s var(--ease),border-color .4s var(--ease);}
+  .meter .dots i.on{background:var(--ink);border-color:var(--ink);}
+  .meter .score{font-family:'Newsreader',serif;font-weight:700;font-size:1.5rem;line-height:1;font-variant-numeric:tabular-nums;}
+  .meter .score .u{color:var(--accent);font-size:.62em;}
+  .meter .verdict{font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);}
+  .meter .verdict .good{color:var(--accent);}
+  @media(max-width:680px){.viz-readout{grid-template-columns:1fr;}.meter{align-items:flex-start;}}
+
+  /* JS-off static caption (hidden when JS present; JS shows live readout instead) */
+  .viz-static-cap{font-family:'JetBrains Mono',monospace;font-size:.72rem;letter-spacing:.02em;color:var(--muted);line-height:1.6;margin-top:20px;border-top:1px solid var(--hair);padding-top:16px;}
+  .js .viz-static-cap{display:none;}
+  /* with JS off, the controls can't drive anything → hide them and show the full team diagram statically */
+  html:not(.js) .viz-controls{display:none;}
+  html:not(.js) .viz[data-mode="single"] .vteam{display:flex;}
+  html:not(.js) .viz[data-mode="single"] .vsingle{display:none;}
+  html:not(.js) .viz-readout{display:none;}
+
+  /* ============================================================
+     ANIMATION LAYER — every initial-hidden state is gated by .js,
+     so with JS OFF the document is fully visible. transform+opacity only.
+     ============================================================ */
+
+  /* scroll-reveal base (only hidden when .js present) */
+  .js .reveal{opacity:0;transform:translateY(16px);transition:opacity .9s var(--ease),transform .9s var(--ease);}
+  .js .reveal.in{opacity:1;transform:none;}
+  /* staggered children within a revealed group */
+  .js .reveal[data-stagger] > *{opacity:0;transform:translateY(14px);transition:opacity .8s var(--ease),transform .8s var(--ease);transition-delay:calc(var(--si,0) * 70ms);}
+  .js .reveal[data-stagger].in > *{opacity:1;transform:none;}
+
+  /* hero load entrance — staggered, on .js only */
+  .js .hero .h-rise{opacity:0;transform:translateY(20px);transition:opacity 1s var(--ease),transform 1s var(--ease);transition-delay:calc(var(--hi,0) * 140ms);}
+  .js .hero.ready .h-rise{opacity:1;transform:none;}
+  /* headline clip-reveal */
+  .js .hero h1 .clip > span{transform:translateY(105%);transition:transform 1.05s var(--ease);transition-delay:calc(160ms + var(--hi,0) * 140ms);}
+  .js .hero.ready h1 .clip > span{transform:translateY(0);}
+
+  /* diagram connectors draw in — scale only, neutral color preserved */
+  .js .arch .a-conn{transform:scaleY(0);transition:transform .55s var(--ease);transition-delay:calc(var(--ci,0) * 110ms);}
+  .js .arch.in .a-conn{transform:scaleY(1);}
+  .js .arch .a-rule{transform:scaleX(0);transition:transform .7s var(--ease);transition-delay:calc(var(--ci,0) * 110ms);}
+  .js .arch.in .a-rule{transform:scaleX(1);}
+  .js .arch .a-box{opacity:0;transform:translateY(12px);transition:opacity .6s var(--ease),transform .6s var(--ease);transition-delay:calc(var(--ci,0) * 110ms);}
+  .js .arch.in .a-box{opacity:1;transform:none;}
+
+  /* chain handoff nodes sequence-fade */
+  .js .chain-flow > *{opacity:0;transform:translateY(10px);transition:opacity .55s var(--ease),transform .55s var(--ease);transition-delay:calc(var(--ni,0) * 80ms);}
+  .js .chain-flow.in > *{opacity:1;transform:none;}
+
+  /* ---- reduced motion: show everything in final state, kill all motion ---- */
+  @media (prefers-reduced-motion: reduce){
+    html{scroll-behavior:auto;}
+    *,*::before,*::after{
+      animation-duration:.001ms !important;
+      animation-iteration-count:1 !important;
+      transition-duration:.001ms !important;
+      transition-delay:0ms !important;
+      scroll-behavior:auto !important;
+    }
+    /* force every animated/hidden state to its resolved value */
+    .js .reveal,
+    .js .reveal[data-stagger] > *,
+    .js .hero .h-rise,
+    .js .chain-flow > *,
+    .js .arch .a-box{opacity:1 !important;transform:none !important;}
+    .js .hero h1 .clip > span,
+    .js .arch .a-conn{transform:none !important;}
+    .js .arch .a-rule{transform:none !important;}
+    .js .gate .dot{animation:none !important;}
+    /* kill all new ambient + viz motion; leave final states visible */
+    .js body::after,
+    .js .viz::before,
+    .js .vnode.active::after,
+    .js .vnode.deciding::after{animation:none !important;}
+    .js body::after{opacity:0 !important;}
+    .js .vnode.active{transform:none !important;}
+    .vtoken{display:none !important;}
+  }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="row">
+    <div class="brand">kalai</div>
+    <div class="sp"></div>
+    <nav>
+      <a href="#problem">Who it's for</a>
+      <a href="#see-it-work">See it work</a>
+      <a href="#flow">How it works</a>
+      <a href="#team">The studio</a>
+      <a href="#stack">Built on</a>
+    </nav>
+    <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle light or dark theme" aria-pressed="false">
+      <span class="tt-label"><span class="tt-sun">Light</span><span class="tt-moon">Dark</span></span>
+      <span class="tt-track" aria-hidden="true"><span class="tt-knob"></span></span>
+    </button>
+  </div>
+</header>
+
+<!-- ===================== HERO ===================== -->
+<div class="wrap">
+  <section class="hero" id="hero">
+    <h1 class="h-rise" style="--hi:1"><span class="clip"><span>kalai</span></span><span class="clip"><span class="stop">.</span></span></h1>
+    <p class="meaning h-rise" style="--hi:2"><b>kalai</b> — Tamil for art. The craft a real studio is actually practicing when it makes something on-brand.</p>
+
+    <hr class="hr">
+
+    <div class="deck">
+      <div class="h-rise" style="--hi:3">
+        <div class="mono"><span class="dot"></span>The autonomous creative studio</div>
+        <p class="tagline">Brief in.<br>A finished, on-brand campaign out.</p>
+      </div>
+      <div class="h-rise" style="--hi:4">
+        <p class="whatis">kalai is a <b>multi-agent creative studio</b> you can fit in one founder's pocket. Hand it a creative brief; a five-seat studio team directs, designs, writes, brand-checks and compliance-clears a multi-platform master, then <b>hands it to kural</b> — the company's only mouth — which publishes it behind your sign-off.</p>
+        <div class="cta-row">
+          <a href="#flow" class="btn solid">See the studio work <span class="mk">&rarr;</span></a>
+          <a href="#stack" class="btn ghost">The stack</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<hr class="hr-bold">
+
+<!-- ===================== PROBLEM / WHO ===================== -->
+<div class="wrap">
+  <section id="problem">
+    <div class="sec-head reveal">
+      <span class="sec-num">01</span>
+      <span class="mono">Who it's for</span>
+    </div>
+    <h2 class="reveal">A whole studio is five salaries you don't have.</h2>
+    <p class="lede muted reveal">A solo creator, an independent artist, a small brand — you are expected to publish like a team of five. But you can't staff an art director, a designer, an editor, a social manager and an SEO lead. So on-brand, multi-platform creative stays slow, expensive, and inconsistent. kalai is that team, running for you.</p>
+
+    <div class="pull reveal" style="margin-top:36px;">
+      <div class="mono" style="margin-bottom:12px;"><span class="dot"></span>The Business Problem</div>
+      <p class="big"><em>Sundara Coffee Co.</em>, a 4-person DTC brand, needs a product launch across web, Instagram and email this week — on-brand, in their look — but the freelance studio quote is $6k and ten days they don't have.</p>
+    </div>
+
+    <div class="who-grid reveal" data-stagger>
+      <div class="who-cell" style="--si:0">
+        <div class="role">The solo founder <span class="x">·</span></div>
+        <p>Ships a product but can't afford an agency retainer. Needs launch creative across web, social and email — on-brand, this week.</p>
+      </div>
+      <div class="who-cell" style="--si:1">
+        <div class="role">The independent artist <span class="x">·</span></div>
+        <p>Has a distinct visual voice and no time to repackage one piece into the five formats every platform demands.</p>
+      </div>
+      <div class="who-cell" style="--si:2">
+        <div class="role">The small brand <span class="x">·</span></div>
+        <p>Has a style guide and a backlog. Wants consistent output without hiring, briefing and managing freelancers each time.</p>
+      </div>
+      <div class="who-cell" style="--si:3">
+        <div class="role">The lean marketing team <span class="x">·</span></div>
+        <p>Two people doing the work of eight. Needs a tireless production studio that respects the brand and never goes off-script.</p>
+      </div>
+    </div>
+
+    <div class="pull reveal">
+      <p class="big">The point is not "AI makes an image." The point is the <em>whole pipeline</em> — direction, design, copy, brand-fidelity, compliance and handoff — running as a coordinated studio, not a single prompt.</p>
+    </div>
+  </section>
+</div>
+
+<hr class="hr">
+
+<!-- ===================== SEE IT WORK — INTERACTIVE WORKFLOW VIZ ===================== -->
+<div class="wrap">
+  <section id="see-it-work">
+    <div class="viz-eyebrow reveal">
+      <span class="mono"><span class="dot"></span>See it work — live</span>
+    </div>
+    <h2 class="reveal">The studio, in motion.</h2>
+    <p class="lede muted reveal">Watch one creative brief move through the studio. The Creative Director coordinates it, the Designer and Copy specialists work in parallel, then the Brand-Fidelity loop regenerates until the on-brand score clears its threshold — a fail-closed compliance check runs internally, and the approved master is handed off to kural over A2A. kalai holds no channel keys and never publishes; the founder's publish sign-off happens at kural, the company's only mouth. Flip to a lone generalist agent and watch the same brief come back slower, with no score gate, off-brand.</p>
+
+    <div class="viz reveal" id="viz" data-mode="team">
+      <div class="viz-controls">
+        <button class="viz-run" id="vizRun" type="button"><span class="rdot" aria-hidden="true"></span><span class="vizRunLabel">Run the brief</span></button>
+        <div class="mode-switch" role="group" aria-label="Single agent versus agent team">
+          <button id="modeSingle" type="button" aria-pressed="false">Single agent</button>
+          <button id="modeTeam" type="button" aria-pressed="true">Agent team</button>
+        </div>
+        <span class="mode-hint" id="modeHint">Full studio · coordinator + 4 specialists → handoff to kural</span>
+      </div>
+
+      <!-- travelling task token (the creative brief) -->
+      <div class="vtoken" id="vizToken" aria-hidden="true"><span class="tlabel">brief</span></div>
+
+      <!-- ===== TEAM stage (default; full org) ===== -->
+      <div class="viz-stage vteam" id="stageTeam">
+        <div class="vnode brief" data-step="0"><div class="vt">A creative brief</div><div class="vm">in · plain language</div></div>
+        <div class="vrail"></div>
+        <div class="vtier">
+          <div class="vnode decision" data-step="1"><span class="ring" aria-hidden="true"></span><span class="vstamp" aria-hidden="true">✓</span><div class="vt">Creative Director</div><div class="vm c"><span class="b"></span>Claude · Vertex · coordinator</div></div>
+        </div>
+        <div class="vrail"></div>
+        <hr class="vrule" style="border:none;">
+        <div class="vrail"></div>
+        <div class="vtier">
+          <div class="vnode" data-step="2"><span class="vstamp" aria-hidden="true">✓</span><div class="vt">Designer / Producer</div><div class="vm"><span class="b"></span>Gemini · example</div></div>
+          <div class="vnode" data-step="2"><span class="vstamp" aria-hidden="true">✓</span><div class="vt">Copy &amp; SEO</div><div class="vm"><span class="b"></span>Gemini · Search</div></div>
+        </div>
+        <div class="vrail"></div>
+        <div class="vtier">
+          <div class="vnode" data-step="3"><span class="vstamp" aria-hidden="true">↻</span><div class="vt">↻ Brand-Fidelity loop</div><div class="vm"><span class="b"></span>LoopAgent · SCORE ≥ threshold</div></div>
+        </div>
+        <div class="vrail"></div>
+        <hr class="vrule" style="border:none;">
+        <div class="vrail"></div>
+        <div class="vtier">
+          <div class="vnode" data-step="4"><span class="vstamp" aria-hidden="true">✓</span><div class="vt">Compliance check</div><div class="vm c"><span class="b"></span>Claude · Vertex · fail-closed</div></div>
+        </div>
+        <div class="vrail"></div>
+        <div class="vtier">
+          <div class="vnode" data-step="5"><span class="vstamp" aria-hidden="true">✓</span><div class="vt">Handoff → kural</div><div class="vm"><span class="b"></span>approved master · A2A</div></div>
+        </div>
+      </div>
+
+      <!-- ===== SINGLE stage (one lone generalist) ===== -->
+      <div class="viz-stage vsingle" id="stageSingle">
+        <div class="vnode brief" data-step="0"><div class="vt">A creative brief</div><div class="vm">in · plain language</div></div>
+        <div class="vrail"></div>
+        <div class="vtier">
+          <div class="vnode miss" data-step="1"><span class="vstamp" aria-hidden="true">~</span><div class="vt">One generalist agent</div><div class="vm"><span class="b"></span>does direction · design · copy · brand · ship</div></div>
+        </div>
+        <div class="vrail"></div>
+        <div class="vtier">
+          <div class="vnode" data-step="2"><div class="vt">Publishes anyway</div><div class="vm"><span class="b"></span>no second read · no gate</div></div>
+        </div>
+      </div>
+
+      <!-- live readout: status log + quality meter -->
+      <div class="viz-readout">
+        <div class="viz-log" id="vizLog" aria-live="polite"><span class="ts">idle ·</span> Press <span class="lead">Run the brief</span> to send a brief through the studio.</div>
+        <div class="meter" id="vizMeter">
+          <span class="mlabel">On-brand quality</span>
+          <span class="dots" id="meterDots" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>
+          <span class="score"><span id="meterScore">—</span><span class="u" id="meterUnit"></span></span>
+          <span class="verdict" id="meterVerdict">awaiting run</span>
+        </div>
+      </div>
+
+      <!-- JS-off static caption: full diagram above is already visible; this explains it in one line -->
+      <p class="viz-static-cap">The flow: a creative brief enters → the Creative Director coordinator (Claude·Vertex) calls each specialist as an AgentTool → Designer/Producer (Gemini·example) and Copy&amp;SEO (Gemini) work in parallel → a LoopAgent regenerates until Brand-Fidelity SCORE clears its threshold → a fail-closed Compliance callback (Claude·Vertex) clears it → the approved master is handed off to kural over A2A. kalai holds no channel keys and never publishes; the founder's publish sign-off happens at kural. A lone generalist agent has no score loop, no compliance callback and no handoff discipline — faster to fail, off-brand.</p>
+    </div>
+  </section>
+</div>
+
+<hr class="hr">
+
+<!-- ===================== WHAT IT DOES / FLOW ===================== -->
+<div class="wrap">
+  <section id="flow">
+    <div class="sec-head reveal">
+      <span class="sec-num">02</span>
+      <span class="mono">What it does</span>
+    </div>
+    <h2 class="reveal">Brief to handoff, end to end.</h2>
+    <p class="lede muted reveal">One brief enters. It moves through the studio as work-in-progress, handed agent to agent, until it returns as a finished, compliance-cleared, multi-platform master — then kalai's "done" is the handoff: that master delivered to kural over A2A. kalai lives entirely inside the company; the founder's publish sign-off happens at kural, the company's only mouth.</p>
+
+    <div class="flow">
+      <div class="step reveal">
+        <div class="n">01</div>
+        <div>
+          <div class="nm">Read the brief, set the direction</div>
+          <div class="who">Creative Director · Claude via Vertex AI</div>
+          <div class="bd">You drop a brief in plain language. The Creative Director interprets intent, audience and occasion, then writes the creative direction the rest of the studio works to.</div>
+        </div>
+      </div>
+      <div class="step reveal">
+        <div class="n">02</div>
+        <div>
+          <div class="nm">Generate, score, regenerate — until on-brand</div>
+          <div class="who">Designer + Brand-Fidelity scorer · LoopAgent · Gemini · example</div>
+          <div class="bd">One <b>LoopAgent</b> wraps a sequence — <i>prompt → example generate → Brand-Fidelity SCORE</i> — graded against your asset library. A <b>checker_agent</b> escalates only when the score clears <b>SCORE_THRESHOLD</b> or hits <b>MAX_ITERATIONS</b>. The brand check is the gate, not a footnote: the draft has to <b>prove</b> it reads as <b>yours</b>.</div>
+        </div>
+      </div>
+      <div class="step reveal">
+        <div class="n">03</div>
+        <div>
+          <div class="nm">Hold one identity across every frame</div>
+          <div class="who">Designer / Producer · Gemini · an identity-preservation model</div>
+          <div class="bd">The Designer calls <b>example</b> as its production tool for imagery, video and music. its <b>identity-preservation</b> keeps the same model, product or mascot looking like itself shot to shot — so the loop above is iterating on craft, not fighting drift.</div>
+        </div>
+      </div>
+      <div class="step reveal">
+        <div class="n">04</div>
+        <div>
+          <div class="nm">Write the words and the search brief</div>
+          <div class="who">Copy &amp; SEO · Gemini</div>
+          <div class="bd">Headlines, captions and metadata per platform, grounded with Google Search so the language is current and the piece is findable.</div>
+        </div>
+      </div>
+      <div class="step reveal">
+        <div class="n">05</div>
+        <div>
+          <div class="nm">Check before anything leaves the building</div>
+          <div class="who">Compliance · Claude via Vertex AI · fail-closed before-handoff</div>
+          <div class="bd">A <b>fail-closed callback</b> runs the final brand-risk and safety read — claims, tone, rights, sensitive content — as kalai's last <b>internal</b> gate before handoff. Unless it explicitly clears, the master <b>cannot</b> be handed to kural. The unsafe path doesn't exist, rather than being trusted not to fire.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ship reveal">
+      <div class="mono tag"><span class="dot" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--accent);margin-right:9px;vertical-align:middle;"></span>kalai's "done" — the handoff</div>
+      <p class="h">Compliance clears. kalai <span class="act">hands off</span> the approved master to kural — and never touches the outside world.</p>
+      <p class="p">kalai holds <b>no channel keys</b>. It never publishes, never replies, never speaks to anyone but its siblings. Its "done" is the handoff: the compliance-cleared master delivered to <b>kural</b> over A2A. kural — the company's only mouth — formats it per channel and publishes it behind the founder's sign-off. If a live piece needs a tweak, kural brings it <b>back</b> to kalai, because only kalai edits creative. kalai's one irreversible cost is real: the <b>token-wallet spend</b> of generation. The world-facing irreversible act — publish — belongs to kural, behind the founder's gate.</p>
+      <div class="gate"><span class="dot"></span>Internal fail-closed compliance gate — required before handoff</div>
+    </div>
+  </section>
+</div>
+
+<hr class="hr">
+
+<!-- ===================== THE AGENT TEAM ===================== -->
+<div class="wrap">
+  <section id="team">
+    <div class="sec-head reveal">
+      <span class="sec-num">03</span>
+      <span class="mono">The studio</span>
+    </div>
+    <h2 class="reveal">Four specialists, one head of taste.</h2>
+    <p class="lede muted reveal">kalai is a multi-agent system because a single model asked to "do everything" blurs into mediocrity. A Creative Director <b>coordinator</b> wraps each specialist as an <b>AgentTool</b> and routes the work. The two highest-stakes judgments — the creative direction and the final fail-closed compliance call — run on Claude via Vertex AI; the production roles run on Gemini. The brand check isn't a separate reviewer; it's the <b>scorer inside a regenerate-until-on-brand loop.</b></p>
+
+    <div class="agents reveal" data-stagger>
+      <div class="agent lead" style="--si:0">
+        <div class="head">
+          <div class="name">Creative Director <span class="lead-mark">coordinator</span></div>
+          <div class="model claude"><span class="dot"></span>Claude · Vertex AI</div>
+        </div>
+        <div class="desc">The coordinator <b>LlmAgent</b>. Reads the brief, sets creative direction, and calls each specialist as an <b>AgentTool</b>. The taste decision — what good even means for this brand — is the one judgment most worth a frontier reasoning model, so it runs Claude through Vertex AI. Everything else delegates outward.</div>
+      </div>
+
+      <div class="agent" style="--si:1">
+        <div class="head">
+          <div class="name">Brand-Fidelity scorer <span class="lead-mark">in-loop</span></div>
+          <div class="model gemini"><span class="dot"></span>Gemini · scorer</div>
+        </div>
+        <div class="desc">Not a free-floating reviewer — the <b>scoring agent inside a LoopAgent</b>. Each pass runs <i>prompt → example generate → Brand-Fidelity SCORE</i> against your asset library; a <b>checker_agent</b> regenerates until the score clears <b>SCORE_THRESHOLD</b> or hits <b>MAX_ITERATIONS</b>. Prove it's on-brand, or do it again.</div>
+      </div>
+
+      <div class="agent" style="--si:2">
+        <div class="head">
+          <div class="name">Designer / Producer</div>
+          <div class="model gemini"><span class="dot"></span>Gemini · media</div>
+        </div>
+        <div class="desc">Generates the imagery, video and music to direction, calling <b>example</b> as its production tool. its <b>identity-preservation</b> keeps the same model, mascot or product looking like itself across every frame — the iterate-to-quality loop runs through here.</div>
+      </div>
+
+      <div class="agent" style="--si:3">
+        <div class="head">
+          <div class="name">Copy &amp; SEO</div>
+          <div class="model gemini"><span class="dot"></span>Gemini</div>
+        </div>
+        <div class="desc">Writes headlines, captions and search briefs, grounded with <b>Google Search</b> so the piece is current and discoverable across platforms.</div>
+      </div>
+
+      <div class="agent" style="--si:4">
+        <div class="head">
+          <div class="name">Compliance check <span class="lead-mark">callback</span></div>
+          <div class="model gemini"><span class="dot"></span>internal fail-closed callback</div>
+        </div>
+        <div class="desc">Not an agent in the chain — an <b>internal before-handoff callback</b> that runs <b>fail-closed</b>: claims, rights, tone, sensitive content. Unless it explicitly clears, the master <b>cannot</b> be handed to kural. Safe by construction, not by good behavior. There is no Publisher seat here — kalai holds no channel keys; the approved master is delivered to <b>kural</b>, which publishes behind the founder's sign-off.</div>
+      </div>
+    </div>
+
+    <div class="chain reveal">
+      <div class="mono lbl"><span class="dot"></span>How work moves — agents handing off, not one model guessing</div>
+      <div class="chain-flow">
+        <div class="node" style="--ni:0">Creative Director<span class="m c">Claude · Vertex · coordinator</span></div>
+        <span class="arrow" style="--ni:1">&rarr;</span>
+        <div class="node" style="--ni:2">Designer<span class="m">Gemini · example</span></div>
+        <span class="arrow" style="--ni:3">+</span>
+        <div class="node" style="--ni:4">Copy &amp; SEO<span class="m">Gemini · Search</span></div>
+        <span class="arrow" style="--ni:5">&rarr;</span>
+        <div class="node judge" style="--ni:6">↻ Brand-Fidelity<span class="m">LoopAgent · SCORE</span></div>
+        <span class="arrow" style="--ni:7">&rarr;</span>
+        <div class="node" style="--ni:8">Compliance<span class="m">internal · fail-closed</span></div>
+        <span class="arrow" style="--ni:9">&rarr;</span>
+        <div class="node judge" style="--ni:10">Handoff &rarr; kural<span class="m">approved master · A2A</span></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<hr class="hr">
+
+<!-- ===================== STACK / HOW BUILT ===================== -->
+<div class="wrap">
+  <section id="stack">
+    <div class="sec-head reveal">
+      <span class="sec-num">04</span>
+      <span class="mono">Built on</span>
+    </div>
+    <h2 class="reveal">Orchestrated agents on Google Cloud.</h2>
+    <p class="lede muted reveal">kalai is scaffolded with the <b>agent-starter-pack</b>, composed in ADK and deployed to <b>Vertex AI Agent Engine</b>. Gemini powers the production agents; Anthropic's Claude — served through Vertex AI Model Garden — powers the two highest-stakes decision agents: the Creative Director coordinator and the fail-closed Compliance gate. A checked-in eval set, OpenTelemetry tracing and a fail-closed action gate make it the kind of agent the Google samples actually reward — not a demo, a buildable repo.</p>
+
+    <div class="stack-grid reveal" data-stagger>
+      <div class="layer" style="--si:0">
+        <div class="k">Scaffold</div>
+        <div class="v">agent-starter-pack</div>
+        <div class="d">The repo follows the Google template: <b>agent.py</b> exporting <b>root_agent</b>, with <b>prompts/</b>, <b>tools/</b>, <b>eval/</b>, <b>tests/</b> and <b>deployment/deploy.py</b>. One <code>make deploy</code> path, not a notebook — the layout the samples grade against.</div>
+      </div>
+      <div class="layer" style="--si:1">
+        <div class="k">Orchestration</div>
+        <div class="v">Google ADK</div>
+        <div class="d">A Creative Director <b>LlmAgent</b> coordinator wraps each specialist as an <b>AgentTool</b>. Exactly one workflow construct: a <b>LoopAgent</b> over <i>prompt → generate → SCORE</i> with a <b>checker_agent</b> escalating on <b>SCORE_THRESHOLD / MAX_ITERATIONS</b>.</div>
+      </div>
+      <div class="layer" style="--si:2">
+        <div class="k">Models</div>
+        <div class="v">Gemini + Claude via Vertex AI</div>
+        <div class="d">Specialists run on <b>Gemini</b> (Imagen / Veo / Lyria for media). The two judgment seats — the <b>Creative Director</b> coordinator and the fail-closed <b>Compliance</b> gate — run <b>Claude through Vertex AI Model Garden</b>, the contest's sanctioned third-party-LLM path.</div>
+      </div>
+      <div class="layer" style="--si:3">
+        <div class="k">Brand grounding</div>
+        <div class="v">an asset library + Search</div>
+        <div class="d">The brand contract = a brand <b>system-instruction</b> + a searchable <b>an asset library</b> grounding over the brand's own data; <b>an identity-preservation model</b> preserves identity. <b>Google Search</b> grounds the copy. Reasons from real context, not guesses.</div>
+      </div>
+      <div class="layer" style="--si:4">
+        <div class="k">Eval &amp; observability</div>
+        <div class="v">AgentEvaluator · OTel · BigQuery</div>
+        <div class="d">A <b>checked-in eval set</b> runs via <b>AgentEvaluator</b> with a rubric / per-dimension <b>Pydantic LLM-as-judge</b> on brand fidelity. <b>OpenTelemetry</b> traces every run; the <b>BigQuery analytics plugin</b> logs them for analysis.</div>
+      </div>
+      <div class="layer" style="--si:5">
+        <div class="k">Deploy &amp; safe action</div>
+        <div class="v">Vertex AI Agent Engine</div>
+        <div class="d">Ships as an <b>AgentEngineApp</b> to <b>Agent Engine</b> (primary), <b>Cloud Run</b> secondary, with <b>GcsArtifactService</b> for media. The handoff is <b>safe by construction</b>: an internal fail-closed compliance callback, then delivery to <b>kural</b> over A2A. The founder's publish sign-off lives at kural, never here — kalai holds no channel keys.</div>
+      </div>
+    </div>
+
+    <!-- architecture flow: neutral connectors only -->
+    <div class="arch reveal">
+      <div class="mono cap"><span class="dot"></span>Architecture — coordinator fans out, the loop proves on-brand, the internal compliance gate clears, the master hands off to kural</div>
+      <div class="arch-tier">
+        <div class="a-box orch" style="--ci:0">
+          <div class="t">Creative Director — coordinator</div>
+          <div class="s c">ADK LlmAgent · Claude via Vertex AI</div>
+        </div>
+        <div class="a-conn" style="--ci:1"></div>
+        <hr class="a-rule" style="--ci:2">
+        <div class="a-conn" style="--ci:3"></div>
+        <div class="a-fan">
+          <div class="a-box" style="--ci:4"><div class="t">Designer / Producer</div><div class="s">Gemini · example · Imagen / Veo / Lyria</div></div>
+          <div class="a-box" style="--ci:4"><div class="t">Copy &amp; SEO</div><div class="s">Gemini · Google Search</div></div>
+          <div class="a-box" style="--ci:4"><div class="t">↻ Brand-Fidelity loop</div><div class="s">LoopAgent · SCORE ≥ threshold</div></div>
+        </div>
+        <div class="a-conn" style="--ci:5"></div>
+        <hr class="a-rule" style="--ci:6">
+        <div class="a-conn" style="--ci:7"></div>
+        <div class="a-box" style="--ci:8"><div class="t">Compliance — internal fail-closed callback</div><div class="s">kalai's last gate before handoff</div></div>
+        <div class="a-conn" style="--ci:9"></div>
+        <div class="a-box orch" style="--ci:10"><div class="t">Handoff &rarr; kural</div><div class="s">approved master · A2A · founder's publish gate lives at kural</div></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<hr class="hr">
+
+<!-- ===================== IMPACT / BUSINESS ===================== -->
+<div class="wrap">
+  <section id="impact">
+    <div class="sec-head reveal">
+      <span class="sec-num">05</span>
+      <span class="mono">The business case</span>
+    </div>
+    <h2 class="reveal">One brief replaces a production line.</h2>
+    <p class="lede muted reveal">The unit economics are the pitch. A campaign that needs five roles and a week of coordination becomes one brief and an approval. kalai doesn't sell pictures; it sells the <em class="ital">studio function</em> — direction, consistency and throughput — to people who could never afford to staff it.</p>
+
+    <div class="impact-grid reveal" data-stagger>
+      <div class="stat" style="--si:0">
+        <div class="num"><span class="cu" data-to="5">5</span><span class="u">&nbsp;roles</span></div>
+        <div class="cap2">Art director, designer, editor, social manager and SEO — collapsed into one coordinated studio.</div>
+      </div>
+      <div class="stat" style="--si:1">
+        <div class="num"><span class="cu" data-to="1">1</span><span class="u">&nbsp;brief</span></div>
+        <div class="cap2">In plain language. No deck, no kickoff call, no back-and-forth before the first draft exists.</div>
+      </div>
+      <div class="stat" style="--si:2">
+        <div class="num">&infin;<span class="u">&nbsp;platforms</span></div>
+        <div class="cap2">One idea, mastered on-brand for web, social, email and beyond — kural carries every release out in the same voice.</div>
+      </div>
+    </div>
+
+    <div class="buyers reveal" data-stagger>
+      <div class="col" style="--si:0">
+        <h3>Who buys it</h3>
+        <p>Solo founders, independent artists, small brands and lean two-person marketing teams — anyone expected to publish like an agency without the headcount of one. <b>It pays for itself the first week it replaces a freelance brief.</b></p>
+      </div>
+      <div class="col" style="--si:1">
+        <h3>Why it matters</h3>
+        <p>Creative work is where small teams quietly lose. kalai moves that cost from <b>salaries and weeks</b> to <b>a brief and an approval</b> — while the human keeps the one decision that should never be automated: <b>what goes out under their name.</b></p>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ===================== FOOTER ===================== -->
+<footer>
+  <div class="wrap">
+    <div class="deva-foot reveal">kalai<span class="dot">.</span></div>
+    <p class="mono reveal" style="margin-top:14px;">Art — produced, on-brand, on a schedule.</p>
+
+    <div class="tri reveal" data-stagger>
+      <div class="t" style="--si:0">
+        <div class="nm this">kalai<span class="self">this submission</span></div>
+        <div class="d">The autonomous creative studio — multi-agent, brief to compliance-cleared master, handed off to kural.</div>
+      </div>
+      <div class="t" style="--si:1">
+        <div class="nm">— sibling agents —</div>
+        <div class="d">Part of a four-product agentic company — manas · arivu · kalai · kural — submitted to the Google for Startups AI Agents Challenge.</div>
+      </div>
+      <div class="t" style="--si:2">
+        <div class="nm">— sibling agents —</div>
+        <div class="d">Each takes a real, irreversible action; each pairs Gemini breadth with a Claude-via-Vertex decision core.</div>
+      </div>
+    </div>
+
+    <div class="fine reveal">
+      <span class="mono">Modeled on <span class="accent-txt">product-catalog-ad-generation</span> · <span class="accent-txt">genmedia-for-commerce</span> · <span class="accent-txt">on-brand-genmedia</span></span>
+      <span class="track">Best-fit track &middot; <span class="accent-txt">Track 1 — Build (net-new)</span></span>
+    </div>
+    <div class="fine reveal" style="margin-top:8px;">
+      <span class="mono">Google for Startups · AI Agents Challenge</span>
+      <span class="mono">A named brand: <span class="accent-txt">Sundara Coffee Co.</span> — one brief, a launch out</span>
+    </div>
+
+    <p class="seam reveal" style="margin-top:34px;font-family:'Newsreader',Georgia,serif;font-style:italic;font-size:15px;line-height:1.6;color:var(--footer-muted);">
+      knows <span class="accent-txt">→</span> manas <span style="color:var(--footer-line);">·</span> decides <span class="accent-txt">→</span> arivu <span style="color:var(--footer-line);">·</span> makes <span class="accent-txt">→</span> kalai <span style="color:var(--footer-line);">·</span> engages <span class="accent-txt">→</span> kural <span style="color:var(--footer-line);">·</span> witnesses <span class="accent-txt">→</span> saakshe.
+    </p>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // ---- Hero entrance on load (staggered eyebrow/headline/sub/deck) ----
+  var hero = document.getElementById('hero');
+  if(hero){
+    // next frame so the initial transformed state is committed before we add .ready
+    requestAnimationFrame(function(){ requestAnimationFrame(function(){ hero.classList.add('ready'); }); });
+  }
+
+  // ---- Scroll reveal via IntersectionObserver ----
+  var reveals = [].slice.call(document.querySelectorAll('.reveal'));
+  if(!('IntersectionObserver' in window) || reduce){
+    // no observer (or reduced motion): reveal everything immediately, no motion
+    reveals.forEach(function(el){ el.classList.add('in'); });
+    var archNow = document.querySelector('.arch'); if(archNow) archNow.classList.add('in');
+    var chainNow = document.querySelector('.chain-flow'); if(chainNow) chainNow.classList.add('in');
+  } else {
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); }
+      });
+    }, {threshold:0.12, rootMargin:'0px 0px -8% 0px'});
+    reveals.forEach(function(el){ io.observe(el); });
+
+    // chain-flow nodes sequence-fade — observe its own container
+    var chain = document.querySelector('.chain-flow');
+    if(chain){
+      var cio = new IntersectionObserver(function(entries){
+        entries.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); cio.unobserve(e.target); } });
+      }, {threshold:0.2});
+      cio.observe(chain);
+    }
+    // .arch already carries .reveal; its .in drives connector draw-in via CSS.
+  }
+
+  // ---- Count-up for numeric stats (skip when reduced motion; preserve unit span) ----
+  function countUp(el){
+    var target = parseInt(el.getAttribute('data-to'), 10);
+    if(isNaN(target)) return;
+    var dur = 1100, start = null;
+    function frame(ts){
+      if(start === null) start = ts;
+      var p = Math.min((ts - start) / dur, 1);
+      var eased = 1 - Math.pow(1 - p, 3); // easeOutCubic
+      el.firstChild ? (el.firstChild.nodeValue = String(Math.round(eased * target)))
+                    : (el.textContent = String(Math.round(eased * target)));
+      if(p < 1) requestAnimationFrame(frame);
+      else el.firstChild ? (el.firstChild.nodeValue = String(target)) : (el.textContent = String(target));
+    }
+    requestAnimationFrame(frame);
+  }
+  var nums = [].slice.call(document.querySelectorAll('.cu'));
+  if(nums.length){
+    if(reduce || !('IntersectionObserver' in window)){
+      // leave the real final numbers in the HTML untouched
+    } else {
+      var nio = new IntersectionObserver(function(entries){
+        entries.forEach(function(e){
+          if(e.isIntersecting){
+            var el = e.target;
+            // only zero-then-count once we know we'll animate
+            if(el.firstChild) el.firstChild.nodeValue = '0'; else el.textContent = '0';
+            countUp(el);
+            nio.unobserve(el);
+          }
+        });
+      }, {threshold:0.6});
+      nums.forEach(function(el){ nio.observe(el); });
+    }
+  }
+
+  // ---- Very subtle hero parallax on the kalai mark (transform only) ----
+  // Attached only AFTER the hero entrance finishes, so the inline transform
+  // never clobbers the .h-rise translateY entrance mid-animation.
+  if(!reduce){
+    var par = document.querySelector('[data-parallax]');
+    if(par){
+      var ticking = false;
+      function onScroll(){
+        if(ticking) return;
+        ticking = true;
+        requestAnimationFrame(function(){
+          var y = window.scrollY || window.pageYOffset || 0;
+          if(y < 700){ par.style.transform = 'translateY(' + (y * 0.06) + 'px)'; }
+          ticking = false;
+        });
+      }
+      // ~1.3s covers the longest hero entrance (delay + duration) before we take over transform.
+      // Drop the entrance transition first so parallax tracks scroll tightly (no 1s ease-drift on stop).
+      setTimeout(function(){
+        par.style.transition = 'none';
+        window.addEventListener('scroll', onScroll, {passive:true});
+        onScroll();
+      }, 1300);
+    }
+  }
+
+  /* ============================================================
+     THEME TOGGLE — persist in localStorage; reflect aria-pressed.
+     The pre-paint script already set data-theme; here we just sync + toggle.
+     ============================================================ */
+  (function(){
+    var btn = document.getElementById('themeToggle');
+    if(!btn) return;
+    function isDark(){ return document.documentElement.getAttribute('data-theme') === 'dark'; }
+    function sync(){
+      var d = isDark();
+      btn.setAttribute('aria-pressed', d ? 'true' : 'false');
+      btn.setAttribute('aria-label', d ? 'Switch to light theme' : 'Switch to dark theme');
+    }
+    sync();
+    btn.addEventListener('click', function(){
+      var next = isDark() ? 'light' : 'dark';
+      if(next === 'dark') document.documentElement.setAttribute('data-theme','dark');
+      else document.documentElement.removeAttribute('data-theme');
+      try{ localStorage.setItem('kalai-theme', next); }catch(e){}
+      sync();
+    });
+  })();
+
+  /* ============================================================
+     INTERACTIVE WORKFLOW VIZ — token travel, node activation,
+     status log, quality meter, single⟷team switch.
+     Reduced-motion: skip travel/pulse, snap to completed state + full log.
+     ============================================================ */
+  (function(){
+    var viz = document.getElementById('viz');
+    if(!viz) return;
+    var token   = document.getElementById('vizToken');
+    var runBtn  = document.getElementById('vizRun');
+    var runLbl  = viz.querySelector('.vizRunLabel');
+    var log     = document.getElementById('vizLog');
+    var meterDots = document.getElementById('meterDots').querySelectorAll('i');
+    var meterScore= document.getElementById('meterScore');
+    var meterUnit = document.getElementById('meterUnit');
+    var meterVerdict = document.getElementById('meterVerdict');
+    var bSingle = document.getElementById('modeSingle');
+    var bTeam   = document.getElementById('modeTeam');
+    var hint    = document.getElementById('modeHint');
+    var stageTeam   = document.getElementById('stageTeam');
+    var stageSingle = document.getElementById('stageSingle');
+
+    var running = false, timers = [], stepNo = 0;
+
+    function clearTimers(){ timers.forEach(clearTimeout); timers = []; }
+    function later(fn, ms){ var t = setTimeout(fn, ms); timers.push(t); return t; }
+
+    function activeStage(){ return viz.getAttribute('data-mode') === 'single' ? stageSingle : stageTeam; }
+
+    function resetNodes(){
+      [].forEach.call(viz.querySelectorAll('.vnode'), function(n){
+        n.classList.remove('active','done','deciding');
+      });
+      token.classList.remove('lit');
+      token.style.opacity = '0';
+    }
+    function setMeter(filled, score, verdict, good){
+      meterDots.forEach(function(d,i){ d.classList.toggle('on', i < filled); });
+      meterScore.textContent = score;
+      meterUnit.textContent = '/10';
+      meterVerdict.innerHTML = good ? '<span class="good">'+verdict+'</span>' : verdict;
+    }
+    function logLine(stage, words, isLead){
+      var ts = String(stepNo).length<2 ? '0'+stepNo : ''+stepNo;
+      log.innerHTML = '<span class="ts">'+ts+' ·</span> ' + (isLead?'<span class="lead">':'') + stage + (isLead?'</span>':'') + ' ' + words;
+    }
+    function moveTokenTo(node){
+      if(reduce || !node) return;
+      var sR = viz.getBoundingClientRect();
+      var nR = node.getBoundingClientRect();
+      var x = nR.left - sR.left + nR.width/2;
+      var y = nR.top  - sR.top  + 8;
+      token.style.transition = 'left .55s ' + 'cubic-bezier(0.22,1,0.36,1)' + ', top .55s cubic-bezier(0.22,1,0.36,1), opacity .25s ease';
+      token.style.left = x + 'px';
+      token.style.top  = y + 'px';
+      token.classList.add('lit');
+    }
+
+    // ---- TEAM sequence ----
+    var teamSeq = [
+      {sel:'[data-step="0"]', lead:'Brief received —', words:'one creative brief, in plain language.'},
+      {sel:'[data-step="1"]', lead:'Creative Director →', words:'coordinator reads intent, sets direction, calls each specialist as a tool.', decide:true},
+      {sel:'[data-step="2"]', lead:'Designer + Copy →', words:'example generates the media; copy written in parallel.'},
+      {sel:'[data-step="3"]', lead:'↻ Brand-Fidelity loop →', words:'score against your asset library, regenerate… until SCORE ≥ threshold.'},
+      {sel:'[data-step="4"]', lead:'Compliance callback →', words:'internal fail-closed read — claims, rights, tone, safety — cleared.'},
+      {sel:'[data-step="5"]', lead:'Handoff → kural —', words:'the approved master delivered over A2A. kalai never publishes; the founder signs off at kural.'}
+    ];
+
+    function runTeam(){
+      var stage = stageTeam;
+      var nodes = stage.querySelectorAll('.vnode');
+      var delay = reduce ? 0 : 720;
+      teamSeq.forEach(function(s, i){
+        later(function(){
+          stepNo = i;
+          // activate matching node(s) at this step
+          [].forEach.call(stage.querySelectorAll(s.sel), function(n, idx){
+            n.classList.remove('done');
+            n.classList.add('active');
+            if(s.decide) n.classList.add('deciding');
+            if(idx===0) moveTokenTo(n);
+          });
+          // mark prior step done
+          if(i>0){
+            [].forEach.call(stage.querySelectorAll('[data-step="'+(i-1)+'"]'), function(p){
+              p.classList.remove('active','deciding'); p.classList.add('done');
+            });
+          }
+          logLine(s.lead, s.words, true);
+        }, delay * i);
+      });
+      // finish
+      later(function(){
+        [].forEach.call(stage.querySelectorAll('[data-step="5"]'), function(p){ p.classList.remove('active','deciding'); p.classList.add('done'); });
+        token.classList.remove('lit'); token.style.opacity = '0';
+        stepNo = teamSeq.length;
+        log.innerHTML = '<span class="ts">'+(teamSeq.length)+' ·</span> <span class="lead">Master handed off to kural.</span> On-brand, multi-platform, compliance-cleared — kural publishes behind the founder\'s sign-off.';
+        // meter climbs
+        animateMeter(9, '9', 'High · on-brand', true);
+        finish();
+      }, delay * teamSeq.length);
+    }
+
+    var singleSeq = [
+      {sel:'[data-step="0"]', lead:'Brief received —', words:'handed to one generalist agent.'},
+      {sel:'[data-step="1"]', lead:'Generalist working —', words:'direction, design, copy, brand, all at once… no score loop, drifting off-brand.'},
+      {sel:'[data-step="2"]', lead:'Publishes anyway —', words:'no score gate, no compliance callback, no sign-off.'}
+    ];
+    function runSingle(){
+      var stage = stageSingle;
+      var delay = reduce ? 0 : 1050; // slower — the whole point
+      singleSeq.forEach(function(s, i){
+        later(function(){
+          stepNo = i;
+          [].forEach.call(stage.querySelectorAll(s.sel), function(n){
+            n.classList.remove('done'); n.classList.add('active');
+            moveTokenTo(n);
+          });
+          if(i>0){
+            [].forEach.call(stage.querySelectorAll('[data-step="'+(i-1)+'"]'), function(p){ p.classList.remove('active'); p.classList.add('done'); });
+          }
+          logLine(s.lead, s.words, true);
+        }, delay * i);
+      });
+      later(function(){
+        [].forEach.call(stage.querySelectorAll('[data-step="2"]'), function(p){ p.classList.remove('active'); p.classList.add('done'); });
+        token.classList.remove('lit'); token.style.opacity='0';
+        stepNo = singleSeq.length;
+        log.innerHTML = '<span class="ts">'+(singleSeq.length)+' ·</span> Shipped — but <span class="lead">off-brand and inconsistent.</span> One model can\'t hold direction, craft and judgment at once.';
+        animateMeter(4, '4', 'Low · off-brand', false);
+        finish();
+      }, delay * singleSeq.length);
+    }
+
+    function animateMeter(target, score, verdict, good){
+      if(reduce){ setMeter(target, score, verdict, good); return; }
+      var i = 0;
+      (function climb(){
+        i++;
+        setMeter(i, i<target?'·':score, i<target?'measuring':verdict, good && i>=target);
+        if(i < target) later(climb, 90);
+        else setMeter(target, score, verdict, good);
+      })();
+    }
+
+    function start(){
+      if(running) return;
+      running = true;
+      runBtn.disabled = true;
+      if(runLbl) runLbl.textContent = 'Running…';
+      resetNodes();
+      setMeter(0, '·', 'measuring', false);
+      stepNo = 0;
+      if(reduce){
+        // snap straight to completed state with full log + final meter
+        snapComplete();
+        return;
+      }
+      if(viz.getAttribute('data-mode') === 'single') runSingle(); else runTeam();
+    }
+    function finish(){
+      running = false;
+      runBtn.disabled = false;
+      if(runLbl) runLbl.textContent = 'Replay the brief';
+    }
+    function snapComplete(){
+      var single = viz.getAttribute('data-mode') === 'single';
+      var stage = single ? stageSingle : stageTeam;
+      [].forEach.call(stage.querySelectorAll('.vnode'), function(n){ n.classList.remove('active','deciding'); n.classList.add('done'); });
+      if(single){
+        stepNo = singleSeq.length;
+        log.innerHTML = '<span class="ts">'+singleSeq.length+' ·</span> Shipped — but <span class="lead">off-brand and inconsistent.</span> One model can\'t hold direction, craft and judgment at once.';
+        setMeter(4,'4','Low · off-brand', false);
+      } else {
+        stepNo = teamSeq.length;
+        log.innerHTML = '<span class="ts">'+teamSeq.length+' ·</span> <span class="lead">Master handed off to kural.</span> On-brand, multi-platform, compliance-cleared — kural publishes behind the founder\'s sign-off.';
+        setMeter(9,'9','High · on-brand', true);
+      }
+      finish();
+    }
+
+    function setMode(mode){
+      clearTimers();
+      running = false; runBtn.disabled = false;
+      viz.setAttribute('data-mode', mode);
+      bSingle.setAttribute('aria-pressed', mode==='single'?'true':'false');
+      bTeam.setAttribute('aria-pressed', mode==='team'?'true':'false');
+      hint.textContent = mode==='single' ? 'One generalist · no score loop or compliance callback' : 'Full studio · coordinator + 4 specialists → handoff to kural';
+      resetNodes();
+      if(runLbl) runLbl.textContent = 'Run the brief';
+      if(mode==='single'){
+        log.innerHTML = '<span class="ts">idle ·</span> One lone agent will try the whole job. Press <span class="lead">Run the brief</span>.';
+        setMeter(0,'—','awaiting run', false);
+      } else {
+        log.innerHTML = '<span class="ts">idle ·</span> The full studio is staffed. Press <span class="lead">Run the brief</span>.';
+        setMeter(0,'—','awaiting run', false);
+      }
+    }
+
+    runBtn.addEventListener('click', function(){ clearTimers(); running=false; start(); });
+    bSingle.addEventListener('click', function(){ setMode('single'); });
+    bTeam.addEventListener('click', function(){ setMode('team'); });
+
+    // keep the token glued to its node if the layout reflows mid-run (resize)
+    var rT;
+    window.addEventListener('resize', function(){
+      if(!running || reduce) return;
+      clearTimeout(rT);
+      rT = setTimeout(function(){
+        var cur = activeStage().querySelector('.vnode.active');
+        if(cur) moveTokenTo(cur);
+      }, 120);
+    }, {passive:true});
+
+    // initial idle copy
+    setMeter(0,'—','awaiting run', false);
+
+    // reduced-motion: reveal the completed diagram + full log on load (no click required)
+    if(reduce){ snapComplete(); }
+  })();
+})();
+</script>
+
+</body>
+</html>

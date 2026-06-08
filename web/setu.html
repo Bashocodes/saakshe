@@ -1,0 +1,1168 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="icon" href="data:,">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>setu — connect anything to the company</title>
+<meta name="description" content="setu (Sanskrit: the bridge) is the connection architecture of an agentic company. Connect anything you run — site, repo, docs, brand, social, analytics, MCP — by granting read scopes source by source. The company learns it automatically, asks you what is unclear, and goes to work with exactly as much power as you grant. Safe defaults: every fresh connection starts read-only and fully gated.">
+
+<!-- =========================================================================
+     PRE-PAINT BOOT — resolve theme BEFORE first paint.
+     Order: ?theme= (URL, this-load override) -> localStorage("setu-theme")
+            -> prefers-color-scheme -> light (bakelite default).
+     ========================================================================= -->
+<script>(function(){
+  var d=document.documentElement; d.className='js';
+  var q={}; try{ (location.search||'').replace(/^\?/,'').split('&').forEach(function(p){
+    if(!p)return; var kv=p.split('='); q[decodeURIComponent(kv[0])]=decodeURIComponent(kv[1]||''); }); }catch(e){}
+  var t=q.theme;
+  if(t!=='light'&&t!=='dark'){ try{t=localStorage.getItem('setu-theme');}catch(e2){} }
+  if(t!=='light'&&t!=='dark'){ t=(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light'; }
+  d.setAttribute('data-theme',t);
+})();</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Saira:wght@400;500;600;700&family=Hanken+Grotesk:wght@400;500;600;700&family=Martian+Mono:wght@400;500;600&display=swap">
+
+<style>
+/* ============================================================================
+   SETU — THEME "THE SWITCHBOARD"
+   A refined vintage telephone-exchange. Bakelite-neutral paper, brass-patina
+   hardware implied by ONE verdigris accent. The page is an INSTRUMENT you
+   operate, not a document you read.
+
+   ABSOLUTE RULE (zero tolerance, BOTH themes):
+   NO colored band / stripe / streak / border-accent / glow on ANY container
+   edge. Containers use UNIFORM neutral hairline FULL borders only. Accent
+   appears ONLY as: text color, dots <=12px, thin rings, SVG strokes <=2.5px,
+   and small control fills (switch "on"). System hues appear ONLY as SVG cable
+   strokes (<=2.5px) and jack/tag dots (<=12px). Luminance in dark mode lives
+   only inside the SVG cables and the dots — never on a panel edge.
+   ============================================================================ */
+
+/* ---------- LIGHT (default): bakelite-neutral, warm-cool balanced ---------- */
+:root{
+  --bg:#f3f1ec;            /* aged ivory panel ground */
+  --bg-2:#efece5;          /* faint section wash */
+  --panel:#faf8f3;         /* raised surface */
+  --panel-2:#f6f3ec;       /* nested surface */
+  --well:#ece8df;          /* recessed jack-well */
+  --ink:#232520;           /* warm near-black */
+  --ink-2:#5d5a51;         /* secondary text */
+  --muted:#84807548;       /* muted label tint */
+  --muted-s:#827e72;       /* muted label solid (for small text legibility) */
+  --rule:#d8d3c7;          /* uniform hairline border */
+  --rule-2:#cdc7b9;        /* stronger hairline */
+  --ghost:#e8e4da;         /* oversized numerals / faint fills */
+
+  --acc:#3f7d6e;           /* SIGNATURE: verdigris / aged brass-patina */
+  --acc-press:#2f5d52;     /* deeper press-state */
+  --acc-ring:#3f7d6e55;    /* thin ring tint */
+
+  --sw-off:#cfcabd;        /* switch "off" fill */
+  --sw-on:#3f7d6e;         /* switch "on" fill = verdigris */
+  --brass:#9a8c5e;         /* brass screw-head dots <=6px */
+
+  /* system-hue echoes — SVG cable strokes & jack dots ONLY */
+  --manas:#b8862f;         /* amber */
+  --arivu:#6a4fd0;        /* violet */
+  --kalai:#b9602f;          /* terracotta */
+  --kural:#2f54c0;         /* ink-blue */
+  --saakshe:#4a4d52;         /* graphite */
+
+  --sel-bg:#dfe9e4; --sel-fg:#1c241f;
+  color-scheme:light;
+}
+
+/* ---------- DARK: dim exchange room after hours, warm-green-neutral ---------- */
+[data-theme="dark"]{
+  --bg:#16181a;            /* dark slate, faint warm-green cast */
+  --bg-2:#191c1e;
+  --panel:#1e2123;         /* raised panel */
+  --panel-2:#1a1d1f;
+  --well:#121315;          /* recessed jack-well */
+  --ink:#e8e6df;           /* warm paper-white */
+  --ink-2:#a6a399;
+  --muted:#6f6c6388;
+  --muted-s:#8c897e;
+  --rule:#34383a;          /* uniform hairline */
+  --rule-2:#3e4244;
+  --ghost:#212527;
+
+  --acc:#5fb89e;           /* lit verdigris */
+  --acc-press:#7fd0b6;     /* active */
+  --acc-ring:#5fb89e55;
+
+  --sw-off:#3a3e3f;
+  --sw-on:#5fb89e;
+  --brass:#b6a877;
+
+  --manas:#e6b454;
+  --arivu:#9a82f0;
+  --kalai:#e08a55;
+  --kural:#6f8cf5;
+  --saakshe:#9aa0a8;
+
+  --sel-bg:#274038; --sel-fg:#e8f3ee;
+  color-scheme:dark;
+}
+
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:"Hanken Grotesk",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+  font-size:16px; line-height:1.65; font-weight:400;
+  -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+}
+::selection{background:var(--sel-bg);color:var(--sel-fg)}
+
+/* TYPE -------------------------------------------------------------------- */
+h1,h2,h3{font-family:"Saira",sans-serif;font-weight:600;letter-spacing:-0.01em;line-height:1.08;margin:0}
+h1{font-size:clamp(34px,6vw,62px);font-weight:700;letter-spacing:-0.02em;font-stretch:semi-condensed}
+h2{font-size:clamp(26px,4vw,40px);letter-spacing:-0.015em}
+h3{font-size:clamp(18px,2.4vw,23px);font-weight:600}
+p{margin:0 0 1em 0}
+.lead{font-size:clamp(18px,2.2vw,20px);line-height:1.6;color:var(--ink-2);max-width:62ch}
+.dev{font-family:"Noto Serif Devanagari",serif;font-weight:600}
+.mono{font-family:"Martian Mono",ui-monospace,monospace;font-size:13px;letter-spacing:0.04em}
+a{color:var(--acc);text-decoration:none;border-bottom:1px solid var(--acc-ring)}
+a:hover{color:var(--acc-press)}
+
+.eyebrow{font-family:"Martian Mono",monospace;font-size:13px;font-weight:500;
+  letter-spacing:0.16em;text-transform:uppercase;color:var(--acc)}
+.label{font-family:"Martian Mono",monospace;font-size:13px;letter-spacing:0.1em;color:var(--muted-s)}
+.acc{color:var(--acc)}
+.ink2{color:var(--ink-2)}
+
+/* LAYOUT ------------------------------------------------------------------ */
+.wrap{max-width:1080px;margin:0 auto;padding:0 24px}
+section{padding:72px 0;border-top:1px solid var(--rule)}
+section:first-of-type{border-top:none}
+.sec-no{font-family:"Martian Mono",monospace;font-size:13px;letter-spacing:0.14em;
+  color:var(--muted-s);margin-bottom:14px;display:block}
+.sec-head{max-width:64ch;margin-bottom:28px}
+.sec-head h2{margin-bottom:14px}
+
+/* CARD / PANEL — uniform hairline border, no edge color ever ---------------- */
+.panel{background:var(--panel);border:1px solid var(--rule);border-radius:10px;padding:24px}
+.well{background:var(--well);border:1px solid var(--rule);border-radius:8px}
+.grid{display:grid;gap:16px}
+@media(min-width:720px){.g2{grid-template-columns:1fr 1fr}.g3{grid-template-columns:1fr 1fr 1fr}}
+
+/* dot — system hue echo, <=12px ------------------------------------------- */
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;vertical-align:middle;margin-right:7px;flex:none}
+.tag{display:inline-flex;align-items:center;font-family:"Martian Mono",monospace;font-size:13px;
+  letter-spacing:0.05em;color:var(--ink-2);border:1px solid var(--rule);border-radius:999px;
+  padding:5px 11px;background:var(--panel-2)}
+
+/* NAMEPLATE STAMP (graft) — verdigris text inside a thin neutral ring ------- */
+.stamp{display:inline-flex;align-items:center;gap:7px;font-family:"Martian Mono",monospace;
+  font-size:13px;letter-spacing:0.08em;color:var(--acc);
+  border:1px solid var(--rule-2);border-radius:5px;padding:6px 11px;background:var(--well);
+  text-transform:uppercase}
+.stamp::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--acc);flex:none}
+
+/* TOP BAR ----------------------------------------------------------------- */
+.topbar{position:sticky;top:0;z-index:40;background:var(--bg);
+  border-bottom:1px solid var(--rule)}
+.topbar .wrap{display:flex;align-items:center;justify-content:space-between;padding-top:14px;padding-bottom:14px}
+.brand{display:flex;align-items:baseline;gap:10px;font-family:"Saira",sans-serif;font-weight:700;font-size:20px;letter-spacing:-0.01em}
+.brand .dev{font-size:18px;font-weight:600;color:var(--ink-2)}
+.tgl{font-family:"Martian Mono",monospace;font-size:13px;letter-spacing:0.08em;color:var(--ink-2);
+  background:var(--panel);border:1px solid var(--rule);border-radius:7px;padding:8px 13px;cursor:pointer}
+.tgl:hover{border-color:var(--rule-2);color:var(--ink)}
+.tgl .dot{background:var(--acc)}
+
+/* HERO -------------------------------------------------------------------- */
+.hero{padding-top:56px}
+.hero h1{margin-bottom:18px;max-width:16ch}
+.hero .lead{margin-bottom:26px}
+.boardframe{background:var(--panel);border:1px solid var(--rule);border-radius:12px;
+  padding:20px;margin-top:8px}
+.boardframe svg{display:block;width:100%;height:auto}
+
+/* SWITCHBOARD SVG strokes ------------------------------------------------- */
+.jack-ring{fill:none;stroke:var(--rule-2);stroke-width:1.4}
+.jack-well-c{fill:var(--well)}
+.jack-dot-off{fill:var(--sw-off)}
+.engrave{font-family:"Martian Mono",monospace;font-size:13px;letter-spacing:0.04em;fill:var(--muted-s)}
+.engrave-b{font-family:"Saira",sans-serif;font-weight:600;font-size:13px;fill:var(--ink-2)}
+.bus-label{font-family:"Saira",sans-serif;font-weight:600;font-size:14px;fill:var(--ink)}
+.cord{fill:none;stroke-width:2.4;stroke-linecap:round}
+.signal{fill:none;stroke-width:2.4;stroke-linecap:round;stroke-dasharray:5 120;}
+@keyframes flow{to{stroke-dashoffset:-125}}
+.signal-anim{animation:flow 2.6s linear infinite}
+
+/* DEMO -------------------------------------------------------------------- */
+.demo{background:var(--panel);border:1px solid var(--rule);border-radius:12px;padding:24px}
+.demo-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
+.btn{font-family:"Saira",sans-serif;font-weight:600;font-size:15px;letter-spacing:0;
+  color:var(--bg);background:var(--acc);border:1px solid var(--acc);border-radius:8px;
+  padding:11px 20px;cursor:pointer}
+.btn:hover{background:var(--acc-press);border-color:var(--acc-press)}
+.btn:disabled{opacity:0.5;cursor:default}
+.btn-ghost{color:var(--ink-2);background:var(--panel);border:1px solid var(--rule)}
+.btn-ghost:hover{color:var(--ink);background:var(--panel-2);border-color:var(--rule-2)}
+
+.demo-grid{display:grid;gap:18px}
+@media(min-width:860px){.demo-grid{grid-template-columns:1.1fr 0.9fr}}
+
+/* source jack list (clickable) */
+.jacks{list-style:none;margin:0;padding:0;display:grid;gap:9px}
+.jack{display:flex;align-items:center;gap:11px;width:100%;text-align:left;cursor:pointer;
+  background:var(--well);border:1px solid var(--rule);border-radius:8px;padding:11px 14px;
+  font-family:"Hanken Grotesk",sans-serif;font-size:15px;color:var(--ink);transition:border-color .18s}
+.jack:hover{border-color:var(--rule-2)}
+.jack .jdot{width:11px;height:11px;border-radius:50%;background:var(--sw-off);flex:none;transition:background .2s}
+.jack .jname{flex:1;font-weight:500}
+.jack .jstate{font-family:"Martian Mono",monospace;font-size:13px;letter-spacing:0.06em;color:var(--muted-s)}
+.jack[aria-pressed="true"]{border-color:var(--rule-2)}
+.jack[aria-pressed="true"] .jdot{background:var(--manas)}   /* sources feed memory = amber dot, <=12px */
+.jack[aria-pressed="true"] .jstate{color:var(--acc)}
+
+/* context pack readout */
+.pack{background:var(--well);border:1px solid var(--rule);border-radius:8px;padding:16px}
+.pack .ver{font-family:"Saira",sans-serif;font-weight:700;font-size:22px;color:var(--ink)}
+.pack .verdot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--acc);
+  margin-left:8px;vertical-align:middle}
+@keyframes pulse{0%,100%{opacity:.3}50%{opacity:1}}
+.live .verdot{animation:pulse 1.8s ease-in-out infinite}
+.pack ul{list-style:none;margin:12px 0 0;padding:0;display:grid;gap:6px}
+.pack li{font-family:"Martian Mono",monospace;font-size:13px;letter-spacing:0.02em;color:var(--ink-2);line-height:1.5}
+.pack li::before{content:"› ";color:var(--acc)}
+
+/* question card */
+.qcard{background:var(--well);border:1px solid var(--rule);border-radius:8px;padding:18px;margin-top:16px}
+.qcard h3{margin-bottom:6px}
+.qcard .qmeta{font-family:"Martian Mono",monospace;font-size:13px;letter-spacing:0.06em;color:var(--acc);margin-bottom:10px}
+.chips{display:flex;flex-wrap:wrap;gap:10px;margin:14px 0 6px}
+.chip{font-family:"Hanken Grotesk",sans-serif;font-size:15px;font-weight:500;color:var(--ink);
+  background:var(--panel);border:1px solid var(--rule);border-radius:999px;padding:9px 16px;cursor:pointer}
+.chip:hover{border-color:var(--rule-2)}
+.chip[aria-pressed="true"]{color:var(--acc);border-color:var(--acc-ring)}
+.qresolved{margin-top:14px;display:none}
+.qresolved.show{display:block}
+.qresolved .saved{font-family:"Martian Mono",monospace;font-size:13px;color:var(--ink-2);margin-bottom:10px}
+
+/* channel strip + switches */
+.killrow{display:flex;align-items:center;justify-content:space-between;gap:12px;
+  background:var(--well);border:1px solid var(--rule);border-radius:8px;padding:13px 16px;margin-bottom:14px}
+.killrow .kt{font-family:"Saira",sans-serif;font-weight:600;font-size:16px}
+.killrow .kn{font-size:14px;color:var(--ink-2);margin-top:2px}
+.channel{background:var(--well);border:1px solid var(--rule);border-radius:8px;padding:16px;margin-bottom:12px}
+.channel-top{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.channel-top .cname{font-family:"Saira",sans-serif;font-weight:600;font-size:17px}
+.channel-top .cdot{width:9px;height:9px;border-radius:50%;flex:none}
+.scopes{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(min-width:520px){.scopes{grid-template-columns:repeat(4,1fr)}}
+.scope{display:flex;flex-direction:column;gap:8px;align-items:flex-start}
+.scope .sn{font-family:"Martian Mono",monospace;font-size:13px;letter-spacing:0.04em;color:var(--ink-2)}
+
+/* toggle switch — control fill, not container edge */
+.sw{position:relative;width:46px;height:25px;border-radius:999px;background:var(--sw-off);
+  border:1px solid var(--rule-2);cursor:pointer;flex:none;transition:background .2s;padding:0}
+.sw .knob{position:absolute;top:2px;left:2px;width:19px;height:19px;border-radius:50%;
+  background:var(--panel);transition:transform .2s, background .2s}
+.sw[aria-pressed="true"]{background:var(--sw-on);border-color:var(--sw-on)}
+.sw[aria-pressed="true"] .knob{transform:translateX(21px)}
+.sw:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+
+.summary{font-family:"Martian Mono",monospace;font-size:13px;letter-spacing:0.02em;
+  line-height:1.7;color:var(--ink-2);background:var(--panel-2);border:1px solid var(--rule);
+  border-radius:8px;padding:14px 16px;margin-top:14px}
+.summary .acc{color:var(--acc)}
+.readonly-note{font-family:"Martian Mono",monospace;font-size:13px;color:var(--muted-s);margin-top:10px}
+
+/* killed state — grey via opacity/filter ONLY, no overlay color */
+.board-killed{opacity:0.42;filter:grayscale(0.7)}
+
+/* comparison moment */
+.compare{display:grid;gap:0;border:1px solid var(--rule);border-radius:10px;overflow:hidden}
+@media(min-width:720px){.compare{grid-template-columns:1fr 1fr}}
+.compare .col{padding:22px}
+.compare .col + .col{border-top:1px solid var(--rule)}
+@media(min-width:720px){.compare .col + .col{border-top:none;border-left:1px solid var(--rule)}}
+.compare h3{margin-bottom:6px}
+.compare .ct{font-family:"Martian Mono",monospace;font-size:13px;letter-spacing:0.08em;color:var(--muted-s);margin-bottom:14px}
+.compare ul{list-style:none;margin:0;padding:0;display:grid;gap:9px}
+.compare li{display:flex;gap:9px;font-size:15px;color:var(--ink-2);line-height:1.5}
+.compare li .m{font-family:"Martian Mono",monospace;font-size:13px;color:var(--acc);flex:none;width:18px}
+
+/* scope table (noscript + tie-back) */
+table{border-collapse:collapse;width:100%;font-size:15px}
+th,td{text-align:left;padding:10px 12px;border:1px solid var(--rule);vertical-align:top}
+th{font-family:"Martian Mono",monospace;font-size:13px;letter-spacing:0.06em;color:var(--muted-s);font-weight:500;background:var(--panel-2)}
+td .mono{color:var(--ink-2)}
+
+/* four-tieback */
+.four{display:grid;gap:14px}
+@media(min-width:720px){.four{grid-template-columns:repeat(5,1fr)}}
+.four .f{background:var(--panel);border:1px solid var(--rule);border-radius:9px;padding:16px}
+.four .f .nm{font-family:"Saira",sans-serif;font-weight:600;font-size:17px}
+.four .f .nm .dev{font-weight:600;font-size:15px;color:var(--ink-2)}
+.four .f .ro{font-family:"Martian Mono",monospace;font-size:13px;letter-spacing:0.08em;color:var(--acc);margin:4px 0 8px}
+.four .f p{font-size:14px;color:var(--ink-2);margin:0;line-height:1.55}
+.four .f .fdot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:6px;vertical-align:middle}
+
+/* audit trail (sec 8) */
+.audit{display:grid;gap:12px}
+.audit .row{background:var(--well);border:1px solid var(--rule);border-radius:8px;padding:15px 16px;
+  display:flex;flex-wrap:wrap;align-items:center;gap:12px;justify-content:space-between}
+.audit .row .txt{font-size:15px;color:var(--ink-2);flex:1;min-width:240px;line-height:1.5}
+.audit .row .txt b{color:var(--ink);font-weight:600}
+
+/* honesty rail */
+.honesty{background:var(--well);border:1px solid var(--rule);border-radius:10px;padding:24px}
+.honesty .lead{max-width:none}
+
+/* FOOTER ------------------------------------------------------------------ */
+.foot{border-top:1px solid var(--rule);padding:56px 0 64px}
+.seam{font-family:"Martian Mono",monospace;font-size:13px;letter-spacing:0.06em;
+  color:var(--muted-s);line-height:1.9;margin:0 0 26px}
+.siblings{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:24px}
+.siblings a{font-family:"Martian Mono",monospace;font-size:13px;letter-spacing:0.06em;
+  border:1px solid var(--rule);border-radius:999px;padding:8px 15px;color:var(--ink-2);background:var(--panel)}
+.siblings a:hover{color:var(--acc);border-color:var(--rule-2)}
+.siblings a.self{color:var(--acc);border-color:var(--acc-ring)}
+.footmeta{font-family:"Martian Mono",monospace;font-size:13px;letter-spacing:0.03em;
+  color:var(--muted-s);line-height:1.8}
+
+/* utility */
+.mt0{margin-top:0}.mb0{margin-bottom:0}
+.flex{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.spacer{height:8px}
+.hint{font-family:"Martian Mono",monospace;font-size:13px;color:var(--muted-s)}
+
+/* REDUCED MOTION — kill all SVG/state animation */
+@media (prefers-reduced-motion: reduce){
+  .signal-anim{animation:none}
+  .live .verdot{animation:none}
+  *{scroll-behavior:auto !important}
+}
+/* noscript: hide JS-only controls hint, show static fallback */
+.no-js-only{display:none}
+html:not(.js) .js-only{display:none}
+html:not(.js) .no-js-only{display:block}
+</style>
+</head>
+<body>
+
+<!-- ===================== TOP BAR ===================== -->
+<header class="topbar">
+  <div class="wrap">
+    <div class="brand">setu</div>
+    <button class="tgl" id="themeToggle" type="button" aria-label="Toggle light or dark theme">
+      <span class="dot" aria-hidden="true"></span><span id="themeLabel">dark room</span>
+    </button>
+  </div>
+</header>
+
+<main>
+
+<!-- ===================== 1 · THE BOARD (HERO) ===================== -->
+<section class="hero">
+  <div class="wrap">
+    <span class="eyebrow">setu · the bridge</span>
+    <h1>Patch your product into the company.</h1>
+    <p class="lead">Connect anything you run — your site, your repo, your docs, your brand, your
+      accounts. The company learns it on its own, asks you about whatever is unclear, and goes to
+      work with <em>exactly</em> as much power as you grant. Nothing is taken. Everything is
+      patched, source by source.</p>
+    <p class="lead" style="margin-top:-8px">This is the only page in the family you <strong>operate</strong>
+      rather than read. The switches below are the content.</p>
+
+    <div class="boardframe" aria-hidden="false">
+      <!-- The switchboard panel, seen slightly from above. One live cord at rest. -->
+      <svg viewBox="0 0 760 300" role="img" aria-label="A vintage switchboard panel. A column of source jacks on the left (website, repo, docs, brand, social, analytics, MCP) and channel jacks on the right (X, Instagram, LinkedIn). One patch cord arcs from the website jack up into a central bus reading the company learns; a slow signal pulse travels the cable.">
+        <!-- left source column -->
+        <g id="srcCol">
+          <text class="engrave-b" x="24" y="34">sources</text>
+        </g>
+        <!-- jacks generated below in static positions -->
+        <!-- source jacks -->
+        <g>
+          <circle class="jack-well-c" cx="40" cy="70" r="11"/><circle class="jack-ring" cx="40" cy="70" r="11"/><circle class="jack-dot-off" cx="40" cy="70" r="4"/><text class="engrave" x="60" y="74">website</text>
+          <circle class="jack-well-c" cx="40" cy="104" r="11"/><circle class="jack-ring" cx="40" cy="104" r="11"/><circle class="jack-dot-off" cx="40" cy="104" r="4"/><text class="engrave" x="60" y="108">repo</text>
+          <circle class="jack-well-c" cx="40" cy="138" r="11"/><circle class="jack-ring" cx="40" cy="138" r="11"/><circle class="jack-dot-off" cx="40" cy="138" r="4"/><text class="engrave" x="60" y="142">docs</text>
+          <circle class="jack-well-c" cx="40" cy="172" r="11"/><circle class="jack-ring" cx="40" cy="172" r="11"/><circle class="jack-dot-off" cx="40" cy="172" r="4"/><text class="engrave" x="60" y="176">brand</text>
+          <circle class="jack-well-c" cx="40" cy="206" r="11"/><circle class="jack-ring" cx="40" cy="206" r="11"/><circle class="jack-dot-off" cx="40" cy="206" r="4"/><text class="engrave" x="60" y="210">social</text>
+          <circle class="jack-well-c" cx="40" cy="240" r="11"/><circle class="jack-ring" cx="40" cy="240" r="11"/><circle class="jack-dot-off" cx="40" cy="240" r="4"/><text class="engrave" x="60" y="244">analytics</text>
+          <circle class="jack-well-c" cx="40" cy="274" r="11"/><circle class="jack-ring" cx="40" cy="274" r="11"/><circle class="jack-dot-off" cx="40" cy="274" r="4"/><text class="engrave" x="60" y="278">MCP</text>
+        </g>
+        <!-- central bus -->
+        <g>
+          <rect x="300" y="118" width="160" height="64" rx="8" style="fill:var(--well);stroke:var(--rule-2)" stroke-width="1.4"/>
+          <text class="bus-label" x="380" y="146" text-anchor="middle">the company</text>
+          <text class="bus-label" x="380" y="166" text-anchor="middle">learns</text>
+        </g>
+        <!-- right channel jacks -->
+        <g>
+          <text class="engrave-b" x="664" y="34" text-anchor="end">channels</text>
+          <circle class="jack-well-c" cx="720" cy="104" r="11"/><circle class="jack-ring" cx="720" cy="104" r="11"/><circle class="jack-dot-off" cx="720" cy="104" r="4"/><text class="engrave" x="700" y="108" text-anchor="end">X</text>
+          <circle class="jack-well-c" cx="720" cy="150" r="11"/><circle class="jack-ring" cx="720" cy="150" r="11"/><circle class="jack-dot-off" cx="720" cy="150" r="4"/><text class="engrave" x="700" y="154" text-anchor="end">Instagram</text>
+          <circle class="jack-well-c" cx="720" cy="196" r="11"/><circle class="jack-ring" cx="720" cy="196" r="11"/><circle class="jack-dot-off" cx="720" cy="196" r="4"/><text class="engrave" x="700" y="200" text-anchor="end">LinkedIn</text>
+        </g>
+        <!-- the ONE live cord at rest: website -> bus. amber (a source feeding memory). -->
+        <path class="cord" d="M51 70 C 160 70, 200 140, 300 145" style="stroke:var(--manas)"/>
+        <circle cx="40" cy="70" r="4" style="fill:var(--manas)"/>
+        <path class="signal signal-anim" d="M51 70 C 160 70, 200 140, 300 145" style="stroke:var(--acc)"/>
+      </svg>
+    </div>
+    <p class="hint" style="margin-top:14px">At rest the board is dark — most jacks unlit. The one live cord is the page's only motion.
+      A master <strong>kill switch</strong> can close the bridge at any time. <span class="no-js-only">(With scripting off, the board below is shown as a fully labeled static diagram.)</span></p>
+  </div>
+</section>
+
+<!-- ===================== 2 · CONNECT = GRANTED SOURCES ===================== -->
+<section>
+  <div class="wrap">
+    <span class="sec-no">02 — connect</span>
+    <div class="sec-head">
+      <h2>Connecting is granting, source by source.</h2>
+      <p class="lead">Connecting a project never means handing over a key to everything. You grant a
+        <strong>read scope</strong> over each source you choose — and only those. Pick what the company
+        may look at; leave the rest dark.</p>
+    </div>
+    <div class="grid g2">
+      <div class="panel">
+        <h3 class="mt0">The seven jacks</h3>
+        <p class="ink2" style="font-size:15px">Each is a separate grant you can revoke at any time.</p>
+        <div class="flex" style="margin-top:12px">
+          <span class="tag"><span class="dot" style="background:var(--manas)"></span>website URL</span>
+          <span class="tag"><span class="dot" style="background:var(--manas)"></span>code repo</span>
+          <span class="tag"><span class="dot" style="background:var(--manas)"></span>docs folder</span>
+          <span class="tag"><span class="dot" style="background:var(--manas)"></span>brand assets</span>
+          <span class="tag"><span class="dot" style="background:var(--manas)"></span>social accounts</span>
+          <span class="tag"><span class="dot" style="background:var(--manas)"></span>analytics</span>
+          <span class="tag"><span class="dot" style="background:var(--manas)"></span>MCP servers / APIs</span>
+        </div>
+      </div>
+      <div class="panel">
+        <h3 class="mt0">Brand assets means everything that shows your taste</h3>
+        <p class="ink2 mb0" style="font-size:15px">Logos, decks, mood boards — the visual record of who you are. Analytics means the live
+          numbers you choose to expose. MCP means any server or API your product already speaks, mounted
+          read-only — your product's own tools, plugged in. The amber dots above are the only color here: they mark sources that feed
+          <span class="acc">manas</span>, the memory.</p>
+      </div>
+    </div>
+    <div class="grid g3" style="margin-top:16px">
+      <div class="panel"><h3 class="mt0">Granted, not taken</h3><p class="ink2 mb0" style="font-size:15px">Each jack is a read scope you hand over deliberately — a URL, a repo connection, an OAuth on a social account. The company sees only what you patched in.</p></div>
+      <div class="panel"><h3 class="mt0">Revocable any time</h3><p class="ink2 mb0" style="font-size:15px">Pull a cord and the company stops learning from that source at once. What it already learned stays cited to where it came from, so you can see exactly what to forget.</p></div>
+      <div class="panel"><h3 class="mt0">Read first, always</h3><p class="ink2 mb0" style="font-size:15px">A patched source is read-only. Granting a source never grants an action — outward acts live on the separate channel scopes, off by default.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== 3 · AUTO-UNDERSTANDING (hosts viz beat 1) ===================== -->
+<section>
+  <div class="wrap">
+    <span class="sec-no">03 — auto-understanding</span>
+    <div class="sec-head">
+      <h2>The moment a jack is patched, the company starts learning it.</h2>
+      <p class="lead">As soon as the bridge opens, <span class="acc">manas</span>'s
+        imbibers fan out over the granted sources and build the project's first <strong>Context Pack</strong> —
+        who you are, your voice, your visual taste, your promises, your history. This runs continuously, not once:
+        new docs, posts and comments keep flowing in, and the Pack ticks new versions. This is what makes
+        deep audit possible — every later act traces back to a cited source.</p>
+    </div>
+
+    <!-- the first hour, plainly -->
+    <div class="grid g3" style="margin-bottom:24px">
+      <div class="panel">
+        <div class="label">minute one</div>
+        <h3 style="margin:8px 0 6px">The fan-out</h3>
+        <p class="ink2 mb0" style="font-size:15px">The instant a jack is patched, imbibers crawl that source —
+          your /about, your last forty posts, your deck, your roast-log — and start drafting the Pack. Each finding
+          carries the source it came from, so nothing in memory is unattributed.</p>
+      </div>
+      <div class="panel">
+        <div class="label">first hour</div>
+        <h3 style="margin:8px 0 6px">Pack v1 forms</h3>
+        <p class="ink2 mb0" style="font-size:15px">Identity, voice, visual taste, promises, history — a first
+          coherent picture of the company. <span class="acc">arivu</span>, the
+          judge, grounds in that Pack plus the live numbers you granted from day one. Proposals can begin; nothing
+          fires.</p>
+      </div>
+      <div class="panel">
+        <div class="label">ongoing</div>
+        <h3 style="margin:8px 0 6px">Versions keep ticking</h3>
+        <p class="ink2 mb0" style="font-size:15px">New docs, posts and comments keep flowing in; the Pack ticks
+          v2, v3, and on. The witness shows it happening live. The company is never frozen on a single snapshot of
+          who you were the day you connected.</p>
+      </div>
+    </div>
+
+    <!-- ============ INTERACTIVE DEMO (centerpiece) ============ -->
+    <div class="demo" id="demo">
+      <div class="demo-head">
+        <div>
+          <div class="eyebrow">patch in a product</div>
+          <h3 style="margin-top:6px">Sundara Coffee Co. — a coffee roastery</h3>
+        </div>
+        <div class="flex js-only">
+          <button class="btn" id="connectBtn" type="button">Connect Sundara →</button>
+          <button class="btn btn-ghost" id="resetBtn" type="button">reset</button>
+        </div>
+      </div>
+
+      <div class="demo-grid js-only">
+        <!-- LEFT: source jacks the visitor patches -->
+        <div>
+          <div class="label" style="margin-bottom:8px">grant sources — tap a jack to patch it</div>
+          <ul class="jacks" id="jackList">
+            <li><button class="jack" type="button" data-src="website" aria-pressed="false">
+              <span class="jdot" aria-hidden="true"></span><span class="jname">website</span><span class="jstate">dark</span></button></li>
+            <li><button class="jack" type="button" data-src="repo" aria-pressed="false">
+              <span class="jdot" aria-hidden="true"></span><span class="jname">code repo</span><span class="jstate">dark</span></button></li>
+            <li><button class="jack" type="button" data-src="docs" aria-pressed="false">
+              <span class="jdot" aria-hidden="true"></span><span class="jname">docs folder</span><span class="jstate">dark</span></button></li>
+            <li><button class="jack" type="button" data-src="brand" aria-pressed="false">
+              <span class="jdot" aria-hidden="true"></span><span class="jname">brand assets</span><span class="jstate">dark</span></button></li>
+            <li><button class="jack" type="button" data-src="social" aria-pressed="false">
+              <span class="jdot" aria-hidden="true"></span><span class="jname">social accounts</span><span class="jstate">dark</span></button></li>
+            <li><button class="jack" type="button" data-src="analytics" aria-pressed="false">
+              <span class="jdot" aria-hidden="true"></span><span class="jname">analytics</span><span class="jstate">dark</span></button></li>
+            <li><button class="jack" type="button" data-src="mcp" aria-pressed="false">
+              <span class="jdot" aria-hidden="true"></span><span class="jname">MCP server</span><span class="jstate">dark</span></button></li>
+          </ul>
+          <p class="readonly-note js-only">Nothing goes out yet — patching a source only lets the company read it.</p>
+        </div>
+
+        <!-- RIGHT: imbiber fan-out -> Context Pack -->
+        <div>
+          <div class="label" style="margin-bottom:8px">manas imbibers · context pack</div>
+          <div class="pack" id="pack">
+            <div><span class="ver" id="packVer">Context Pack v0</span><span class="verdot" aria-hidden="true"></span></div>
+            <ul id="packLines">
+              <li id="packEmpty">no sources granted yet — the Pack is empty</li>
+            </ul>
+          </div>
+
+          <!-- the ONE contradiction question (beat 2) -->
+          <div class="qcard js-only" id="qcard" style="display:none">
+            <div class="qmeta">manas found a contradiction</div>
+            <h3>Which founding year is true?</h3>
+            <p class="ink2" style="font-size:15px;margin-bottom:4px">Your site footer says the roastery was
+              <strong>established 2019</strong>. The press kit says <strong>2021</strong>. manas never guesses —
+              so it asks you, the founder.</p>
+            <div class="chips" role="group" aria-label="answer the founding-year question">
+              <button class="chip" type="button" data-ans="2019" aria-pressed="false">the site — 2019</button>
+              <button class="chip" type="button" data-ans="2021" aria-pressed="false">the press kit — 2021</button>
+            </div>
+            <div class="flex" style="margin-top:4px">
+              <input id="qfree" type="text" inputmode="text" placeholder="…or type the real year"
+                aria-label="type the correct founding year"
+                style="flex:1;min-width:160px;font-family:'Hanken Grotesk',sans-serif;font-size:15px;color:var(--ink);
+                background:var(--panel);border:1px solid var(--rule);border-radius:8px;padding:9px 13px">
+              <button class="btn btn-ghost" id="qfreeBtn" type="button" style="font-size:14px;padding:9px 15px">save my answer</button>
+            </div>
+            <div class="qresolved" id="qresolved">
+              <div class="saved" id="savedLine">saved to memory · cited source: you, today</div>
+              <!-- GRAFT: pressed bakelite nameplate stamp -->
+              <span class="stamp" id="qstamp">SOURCE: you, founder — 7 Jun</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============ CHANNEL SCOPES (beat 3) ============ -->
+      <div class="js-only" id="channelStage" style="display:none;margin-top:24px;padding-top:22px;border-top:1px solid var(--rule)">
+        <div class="label" style="margin-bottom:10px">channel yoking · throw the switches</div>
+
+        <div class="killrow">
+          <div>
+            <div class="kt">Master kill switch</div>
+            <div class="kn">Closes the whole bridge. Nothing in, nothing out.</div>
+          </div>
+          <button class="sw" id="killSw" type="button" aria-pressed="true" aria-label="Master kill switch — bridge open"></button>
+        </div>
+
+        <div id="board">
+          <!-- channels injected as static markup (listeners delegated, never rebuilt) -->
+          <div class="channel" data-ch="X">
+            <div class="channel-top"><span class="cdot" style="background:var(--kural)"></span><span class="cname">X</span></div>
+            <div class="scopes">
+              <div class="scope"><span class="sn">publish</span><button class="sw" type="button" data-ch="X" data-scope="publish" aria-pressed="false" aria-label="X publish"></button></div>
+              <div class="scope"><span class="sn">reply</span><button class="sw" type="button" data-ch="X" data-scope="reply" aria-pressed="false" aria-label="X reply"></button></div>
+              <div class="scope"><span class="sn">listen</span><button class="sw" type="button" data-ch="X" data-scope="listen" aria-pressed="false" aria-label="X listen"></button></div>
+              <div class="scope"><span class="sn">outreach</span><button class="sw" type="button" data-ch="X" data-scope="outreach" aria-pressed="false" aria-label="X outreach"></button></div>
+            </div>
+          </div>
+          <div class="channel" data-ch="Instagram">
+            <div class="channel-top"><span class="cdot" style="background:var(--kural)"></span><span class="cname">Instagram</span></div>
+            <div class="scopes">
+              <div class="scope"><span class="sn">publish</span><button class="sw" type="button" data-ch="Instagram" data-scope="publish" aria-pressed="false" aria-label="Instagram publish"></button></div>
+              <div class="scope"><span class="sn">reply</span><button class="sw" type="button" data-ch="Instagram" data-scope="reply" aria-pressed="false" aria-label="Instagram reply"></button></div>
+              <div class="scope"><span class="sn">listen</span><button class="sw" type="button" data-ch="Instagram" data-scope="listen" aria-pressed="false" aria-label="Instagram listen"></button></div>
+              <div class="scope"><span class="sn">outreach</span><button class="sw" type="button" data-ch="Instagram" data-scope="outreach" aria-pressed="false" aria-label="Instagram outreach"></button></div>
+            </div>
+          </div>
+          <div class="channel" data-ch="LinkedIn">
+            <div class="channel-top"><span class="cdot" style="background:var(--kural)"></span><span class="cname">LinkedIn</span></div>
+            <div class="scopes">
+              <div class="scope"><span class="sn">publish</span><button class="sw" type="button" data-ch="LinkedIn" data-scope="publish" aria-pressed="false" aria-label="LinkedIn publish"></button></div>
+              <div class="scope"><span class="sn">reply</span><button class="sw" type="button" data-ch="LinkedIn" data-scope="reply" aria-pressed="false" aria-label="LinkedIn reply"></button></div>
+              <div class="scope"><span class="sn">listen</span><button class="sw" type="button" data-ch="LinkedIn" data-scope="listen" aria-pressed="false" aria-label="LinkedIn listen"></button></div>
+              <div class="scope"><span class="sn">outreach</span><button class="sw" type="button" data-ch="LinkedIn" data-scope="outreach" aria-pressed="false" aria-label="LinkedIn outreach"></button></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="summary" id="scopeSummary">
+          Every switch starts <span class="acc">off</span> — this connection is read-only until you loosen it.
+          kural holds no keys yet.
+        </div>
+        <p class="readonly-note">Safe default: a fresh connection is read-only and fully gated. Power is granted, never assumed. Sensitive replies stay founder-gated even when reply is on.</p>
+      </div>
+
+      <!-- STATIC FALLBACK — true <noscript>: the full static story when JS is off -->
+      <noscript>
+       <div style="margin-top:20px">
+        <p class="lead" style="margin-bottom:16px">With scripting off, here is the same board as a static, fully
+          labeled diagram. Sundara Coffee Co. is connected; manas has built Context Pack v3 from the granted sources;
+          one contradiction was answered with you as the cited source; the channel scopes are set.</p>
+        <div class="pack" style="margin-bottom:16px">
+          <div><span class="ver">Context Pack v3</span></div>
+          <ul>
+            <li>identity: Sundara Coffee Co., a small-batch roastery — from /about + press kit</li>
+            <li>voice: warm, plainspoken, unhurried — from /about + 40 posts</li>
+            <li>visual taste: kraft-paper, hand-drawn marks — from brand assets</li>
+            <li>promise: single-origin, roasted to order — from /shop</li>
+          </ul>
+        </div>
+        <div class="qcard">
+          <div class="qmeta">manas found a contradiction</div>
+          <h3>Which founding year is true? — answered</h3>
+          <p class="ink2" style="font-size:15px">The site footer said <strong>established 2019</strong>; the press
+            kit said <strong>2021</strong>. The founder confirmed <strong>2019</strong>. Saved to memory with the
+            founder as the cited source.</p>
+          <div style="margin-top:10px"><span class="stamp">SOURCE: you, founder — 7 Jun</span></div>
+        </div>
+        <table style="margin-top:16px">
+          <thead><tr><th>channel</th><th>publish</th><th>reply</th><th>listen</th><th>outreach</th></tr></thead>
+          <tbody>
+            <tr><td>X</td><td class="mono">on</td><td class="mono">off</td><td class="mono">on</td><td class="mono">off</td></tr>
+            <tr><td>Instagram</td><td class="mono">off</td><td class="mono">off</td><td class="mono">on</td><td class="mono">off</td></tr>
+            <tr><td>LinkedIn</td><td class="mono">— not connected —</td><td class="mono"></td><td class="mono"></td><td class="mono"></td></tr>
+          </tbody>
+        </table>
+        <p class="hint" style="margin-top:12px">With these scopes: kural may publish and listen on X; Instagram is listen-only; LinkedIn is not connected. Every channel starts fully off until you throw a switch.</p>
+       </div>
+      </noscript>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== 4 · THE QUESTION QUEUE ===================== -->
+<section>
+  <div class="wrap">
+    <span class="sec-no">04 — the question queue</span>
+    <div class="sec-head">
+      <h2>manas never guesses. It asks you.</h2>
+      <p class="lead">When the Curator finds a <strong>contradiction</strong> or a <strong>gap</strong>, it doesn't
+        invent an answer — it raises a question to you, as a card in <span class="acc">saakshe</span>
+        right beside the gate queue. Answering teaches the company, with you as the cited source. Contradictions become
+        onboarding, never bugs. Questions are batched and respectful of your attention — never a quiz, never blocking
+        what can already run.</p>
+    </div>
+    <div class="grid g3">
+      <div class="panel">
+        <div class="label">contradiction</div>
+        <p class="ink2 mb0" style="font-size:15px;margin-top:10px">Your site says one price; your launch deck says another. <span class="acc">Which is the live price?</span></p>
+      </div>
+      <div class="panel">
+        <div class="label">contradiction</div>
+        <p class="ink2 mb0" style="font-size:15px;margin-top:10px">Two logos are in circulation; your docs read formal, your social reads playful. <span class="acc">Which voice is canon?</span></p>
+      </div>
+      <div class="panel">
+        <div class="label">gap</div>
+        <p class="ink2 mb0" style="font-size:15px;margin-top:10px">No refund policy is found in any granted source. <span class="acc">What should the company tell a customer who asks?</span></p>
+      </div>
+    </div>
+    <div class="grid g2" style="margin-top:20px">
+      <div class="panel">
+        <h3 class="mt0">An answer is a teaching, not a test</h3>
+        <p class="ink2 mb0" style="font-size:15px">You are not being quizzed. A question only appears when the company
+          genuinely cannot tell two granted sources apart, or finds nothing where it expected something. Pick the answer,
+          type a line, or skip it for now — whatever can already run keeps running while the question waits.</p>
+      </div>
+      <div class="panel">
+        <h3 class="mt0">Pressed into the record</h3>
+        <p class="ink2 mb0" style="font-size:15px">Every answer commits to memory pressed with a nameplate —
+          <span class="acc">SOURCE: you, founder</span>, with the date — so the audit trail always shows the company learned
+          it from you, on a day, and did not invent it. The next time it matters, the answer is there with your name on it.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== 5 · PLUGGABLE CREATION (kalai) ===================== -->
+<section>
+  <div class="wrap">
+    <span class="sec-no">05 — pluggable creation</span>
+    <div class="sec-head">
+      <h2>Swap the hands. The taste stays.</h2>
+      <p class="lead"><span class="acc">kalai</span>, the studio, talks to creation
+        backends through adapters. <strong>example MCP is the first-party default</strong> — images, video, music, voice.
+        But you can mount any backend you prefer: your own MCP server, another image API, a local pipeline.</p>
+    </div>
+    <div class="grid g2">
+      <div class="panel">
+        <h3 class="mt0">The key architectural claim</h3>
+        <p class="ink2 mb0" style="font-size:15px">kalai's taste layer is backend-agnostic. The Creative Director's
+          direction, the Brand-Fidelity scoring loop, and the Compliance gate wrap around <em>whatever</em> backend
+          generates the pixels or audio. Change the engine; the brand standard, the scoring, and the gate do not move.</p>
+      </div>
+      <div class="panel">
+        <h3 class="mt0">What kalai never holds</h3>
+        <p class="ink2 mb0" style="font-size:15px">kalai makes; it does not speak. It carries no channel keys and never
+          publishes. When a piece is done, that is a handoff to <span class="acc">kural</span>,
+          the only mouth — who only ever holds the scopes you granted on the next section.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== 6 · CHANNEL YOKING (kural) ===================== -->
+<section>
+  <div class="wrap">
+    <span class="sec-no">06 — channel yoking</span>
+    <div class="sec-head">
+      <h2>Each channel patched separately, with four scopes you throw.</h2>
+      <p class="lead">Every channel — <span class="acc">X · Instagram · LinkedIn</span>, more later — connects on its own
+        keys, and carries four independent scopes you toggle. Any combination: post-only, listen-only, everything,
+        nothing. <span class="acc">kural</span> only ever holds the keys you chose to hand it.</p>
+    </div>
+    <div class="grid g2">
+      <div class="panel">
+        <h3 class="mt0">The four scopes</h3>
+        <ul style="list-style:none;margin:8px 0 0;padding:0;display:grid;gap:12px">
+          <li><span class="mono acc">publish</span> &nbsp;<span class="ink2" style="font-size:15px">— send posts outbound.</span></li>
+          <li><span class="mono acc">reply</span> &nbsp;<span class="ink2" style="font-size:15px">— answer comments outbound. Sensitive replies stay founder-gated.</span></li>
+          <li><span class="mono acc">listen</span> &nbsp;<span class="ink2" style="font-size:15px">— read mentions and comments inbound, feeding manas.</span></li>
+          <li><span class="mono acc">outreach</span> &nbsp;<span class="ink2" style="font-size:15px">— send DMs as you.</span></li>
+        </ul>
+      </div>
+      <div class="panel">
+        <h3 class="mt0">Throw them on the board</h3>
+        <p class="ink2" style="font-size:15px">The live switches are in the demo above (section 03). Patch two sources to
+          surface the question, answer it, then the channel strip appears with twelve real switches — four per channel —
+          and a plain-words line that reacts as you flip them.</p>
+        <p class="ink2 mb0" style="font-size:15px">A safe default: every switch starts off. The company can learn and
+          propose immediately, but nothing leaves a channel until you throw a switch.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== 7 · THE CONSENT BOARD ===================== -->
+<section>
+  <div class="wrap">
+    <span class="sec-no">07 — the consent board</span>
+    <div class="sec-head">
+      <h2>Every control is yours. Safe by default.</h2>
+      <p class="lead">A fresh connection starts <strong>read-only and fully gated</strong> — the company can learn and
+        propose, but every outward act needs your tap, until you deliberately loosen it. Power is granted, never assumed.</p>
+    </div>
+
+    <!-- LOCKED-DOWN <-> FULLY-YOKED comparison moment -->
+    <div class="compare">
+      <div class="col">
+        <div class="ct">default · the fresh connection</div>
+        <h3>Locked down &amp; gated</h3>
+        <ul style="margin-top:14px">
+          <li><span class="m">›</span><span>manas reads only the sources you patched — and learns continuously.</span></li>
+          <li><span class="m">›</span><span>arivu may decide and queue; nothing fires.</span></li>
+          <li><span class="m">›</span><span>kalai may make and score; nothing publishes.</span></li>
+          <li><span class="m">›</span><span>kural holds no channel keys — every scope off.</span></li>
+          <li><span class="m">›</span><span>every outward act waits in the gate queue for your tap.</span></li>
+        </ul>
+      </div>
+      <div class="col">
+        <div class="ct">your choice · loosened deliberately</div>
+        <h3>Fully yoked</h3>
+        <ul style="margin-top:14px">
+          <li><span class="m">›</span><span>sources granted across site, repo, docs, brand, social, analytics, MCP.</span></li>
+          <li><span class="m">›</span><span>scopes thrown per channel — publish, reply, listen, outreach.</span></li>
+          <li><span class="m">›</span><span>gate strictness set to auto-with-a-daily-digest on the reversible.</span></li>
+          <li><span class="m">›</span><span>spend caps set; the irreversible still gated.</span></li>
+          <li><span class="m">›</span><span>sensitive replies remain founder-gated regardless.</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <h3 style="margin:30px 0 16px">Every control, in one place</h3>
+    <div class="grid g3">
+      <div class="panel"><h3 class="mt0">Master kill switch</h3><p class="ink2 mb0" style="font-size:15px">The bridge can always be closed — one throw greys the whole board. Nothing learns, nothing acts, until you open it again.</p></div>
+      <div class="panel"><h3 class="mt0">Per-agent enable</h3><p class="ink2 mb0" style="font-size:15px">Switch any one of the four — manas, arivu, kalai, kural — on or off independently. Let the company learn but make nothing; let it make but say nothing.</p></div>
+      <div class="panel"><h3 class="mt0">Per-scope toggles</h3><p class="ink2 mb0" style="font-size:15px">Twelve switches across three channels — publish, reply, listen, outreach — each thrown on its own. The board in section 03 is the real thing.</p></div>
+      <div class="panel"><h3 class="mt0">Spend caps</h3><p class="ink2 mb0" style="font-size:15px">A daily ceiling on what the company may spend on creation and outreach. Reach it and work pauses for your tap, never overruns it.</p></div>
+      <div class="panel"><h3 class="mt0">Gate strictness</h3><p class="ink2 mb0" style="font-size:15px">Three settings, your call: gate everything · gate only the irreversible · auto with a daily digest. Loosen as trust grows; tighten in a breath.</p></div>
+      <div class="panel"><h3 class="mt0">Data boundaries</h3><p class="ink2 mb0" style="font-size:15px">Mark what manas may and may not read, source by source. Revoke a jack and the company stops learning from it from that moment on.</p></div>
+    </div>
+    <p class="hint" style="margin-top:16px">It is up to you to use these or not. setu hands you every control; the company assumes none of them on its own.</p>
+  </div>
+</section>
+
+<!-- ===================== 8 · ALWAYS IN SYNC + DEEP AUDIT ===================== -->
+<section>
+  <div class="wrap">
+    <span class="sec-no">08 — always in sync · deep audit</span>
+    <div class="sec-head">
+      <h2>The bridge stays open both ways. The witness records everything.</h2>
+      <p class="lead">The company keeps learning, and <span class="acc">saakshe</span>,
+        the witness, records which source taught it what, which permission allowed which act, and which tap approved it.
+        The audit trail is the product's spine — not a feature. Every entry is pressed with a nameplate, so provenance is
+        a physical artifact, not plain prose.</p>
+    </div>
+
+    <div class="grid g2" style="margin-bottom:24px">
+      <div class="panel">
+        <h3 class="mt0">Inbound — the company keeps learning</h3>
+        <p class="ink2 mb0" style="font-size:15px">New docs, fresh posts, the comments coming in through a granted
+          listen scope — all of it flows back across the bridge into the Context Pack, which ticks new versions. The
+          company you connected six months ago is not the company it knows today; it tracks who you have become.</p>
+      </div>
+      <div class="panel">
+        <h3 class="mt0">Outbound — only through what you granted</h3>
+        <p class="ink2 mb0" style="font-size:15px">Every outward act is checked against the scopes you threw and the
+          gate strictness you set. Nothing leaves a channel it was not granted; nothing irreversible fires without a tap.
+          The same trail that records learning records every act and the permission behind it.</p>
+      </div>
+    </div>
+
+    <!-- audit trail with pressed nameplate stamps (graft reuse) -->
+    <div class="audit">
+      <div class="row">
+        <span class="txt"><b>manas learned:</b> Sundara's voice is warm and plainspoken — drawn from /about and 40 posts.</span>
+        <span class="stamp">SOURCE: website · social — 7 Jun</span>
+      </div>
+      <div class="row">
+        <span class="txt"><b>you taught:</b> the roastery was established 2019 — you resolved the contradiction with the press kit.</span>
+        <span class="stamp">SOURCE: you, founder — 7 Jun</span>
+      </div>
+      <div class="row">
+        <span class="txt"><b>permission allowed:</b> kural posted to X — within the publish scope you threw on this channel.</span>
+        <span class="stamp">ALLOWED BY: X · publish — 7 Jun</span>
+      </div>
+      <div class="row">
+        <span class="txt"><b>your tap approved:</b> a sensitive reply to a refund complaint — held at the gate until you tapped.</span>
+        <span class="stamp">APPROVED BY: your tap — 7 Jun</span>
+      </div>
+    </div>
+
+    <!-- WHAT THE FOUR DO WITH IT — tie-back -->
+    <h3 style="margin:36px 0 16px">What the four do with what you grant</h3>
+    <div class="four">
+      <div class="f"><div class="nm"><span class="fdot" style="background:var(--manas)"></span>manas</div><div class="ro">knows</div><p>absorbs every granted source into the Context Pack, continuously.</p></div>
+      <div class="f"><div class="nm"><span class="fdot" style="background:var(--arivu)"></span>arivu</div><div class="ro">decides</div><p>grounds every decision in that Pack plus your granted live numbers.</p></div>
+      <div class="f"><div class="nm"><span class="fdot" style="background:var(--kalai)"></span>kalai</div><div class="ro">makes</div><p>creates through your chosen backend; the taste layer stays the same.</p></div>
+      <div class="f"><div class="nm"><span class="fdot" style="background:var(--kural)"></span>kural</div><div class="ro">engages</div><p>speaks only through the channel scopes you threw — nothing more.</p></div>
+      <div class="f"><div class="nm"><span class="fdot" style="background:var(--saakshe)"></span>saakshe</div><div class="ro">witnesses</div><p>records the whole trail and lands your one tap on the gate.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== 9 · HONESTY RAIL ===================== -->
+<section>
+  <div class="wrap">
+    <span class="sec-no">09 — what's wired today</span>
+    <div class="honesty">
+      <h2 style="margin-bottom:14px">Plainly: what is wired right now.</h2>
+      <p class="lead">Today, <strong>example MCP is the wired creation backend</strong>, and <strong>your own accounts
+        are the wired channels</strong>. The self-serve adapter layer — mounting any creation backend you like — and the
+        channel connectors as a productized, self-serve step are the work ahead. The architecture above is real and
+        backend-agnostic by design; the productization is the next step, and we are saying so directly rather than
+        implying it already ships.</p>
+      <div class="grid g2" style="margin-top:18px">
+        <div class="panel" style="background:var(--panel)">
+          <div class="label" style="color:var(--acc)">wired today</div>
+          <ul style="list-style:none;margin:10px 0 0;padding:0;display:grid;gap:8px">
+            <li class="ink2" style="font-size:15px">example MCP as kalai's creation backend — images, video, music, voice.</li>
+            <li class="ink2" style="font-size:15px">the founder's own accounts as kural's channels.</li>
+            <li class="ink2" style="font-size:15px">the consent board, gates, and the audit trail — the spine, real now.</li>
+          </ul>
+        </div>
+        <div class="panel" style="background:var(--panel)">
+          <div class="label">the productization ahead</div>
+          <ul style="list-style:none;margin:10px 0 0;padding:0;display:grid;gap:8px">
+            <li class="ink2" style="font-size:15px">the self-serve adapter layer — mount any creation backend you prefer.</li>
+            <li class="ink2" style="font-size:15px">channel connectors as a self-serve product — bring your own keys, any platform.</li>
+            <li class="ink2" style="font-size:15px">the design holds the difference today; the connectors are the next build.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== 10 · FOOTER ===================== -->
+<footer class="foot">
+  <div class="wrap">
+    <p class="seam">
+      knows → manas &nbsp;·&nbsp; decides → arivu &nbsp;·&nbsp; makes → kalai &nbsp;·&nbsp; engages → kural &nbsp;·&nbsp; witnesses → saakshe
+    </p>
+    <div class="siblings">
+      <a href="manas.html">manas</a>
+      <a href="arivu.html">arivu</a>
+      <a href="kalai.html">kalai</a>
+      <a href="kural.html">kural</a>
+      <a href="cockpit.html">saakshe</a>
+      <a href="darshana.html">darshana</a>
+    </div>
+    <p class="footmeta">
+      setu, the bridge — the connection architecture: grant sources, let the company learn, answer what is unclear,
+      and act with exactly the power you grant.<br>
+      safe defaults · read-only and fully gated until you loosen it &nbsp;·&nbsp; built on ADK &nbsp;·&nbsp; Gemini + Claude via Vertex AI &nbsp;·&nbsp; the founder taps gates; no RUN agent.
+    </p>
+  </div>
+</footer>
+
+</main>
+
+<script>
+(function(){
+  "use strict";
+  var root=document.documentElement;
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---------- THEME TOGGLE ---------- */
+  var toggle=document.getElementById('themeToggle');
+  var label=document.getElementById('themeLabel');
+  function syncLabel(){ label.textContent = (root.getAttribute('data-theme')==='dark') ? 'day panel' : 'dark room'; }
+  syncLabel();
+  toggle.addEventListener('click',function(){
+    var next = (root.getAttribute('data-theme')==='dark') ? 'light' : 'dark';
+    root.setAttribute('data-theme',next);
+    try{ localStorage.setItem('setu-theme',next); }catch(e){}
+    syncLabel();
+  });
+
+  /* ---------- DEMO STATE ---------- */
+  var state = {
+    sources:{ website:false, repo:false, docs:false, brand:false, social:false, analytics:false, mcp:false },
+    answered:false,
+    bridge:true,
+    scopes:{}  /* "X|publish": true ... */
+  };
+
+  var connectBtn=document.getElementById('connectBtn');
+  var resetBtn=document.getElementById('resetBtn');
+  var jackList=document.getElementById('jackList');
+  var packVer=document.getElementById('packVer');
+  var packLines=document.getElementById('packLines');
+  var packEl=document.getElementById('pack');
+  var qcard=document.getElementById('qcard');
+  var qresolved=document.getElementById('qresolved');
+  var savedLine=document.getElementById('savedLine');
+  var channelStage=document.getElementById('channelStage');
+  var board=document.getElementById('board');
+  var killSw=document.getElementById('killSw');
+  var scopeSummary=document.getElementById('scopeSummary');
+
+  /* learning lines keyed by source — what the imbiber found */
+  var learned = {
+    website:  'identity: Sundara Coffee Co., a small-batch roastery — cited: /about, /home hero',
+    repo:     'product surface: storefront + a public roast-log — cited: repo README, /src',
+    docs:     'promise: single-origin, roasted to order, shipped in 48h — cited: /shop, FAQ doc',
+    brand:    'visual taste: kraft-paper, hand-drawn marks, muted greens — cited: brand deck, logo set',
+    social:   'voice: warm, plainspoken, unhurried — cited: 40 posts, last 90 days',
+    analytics:'live numbers: weekend orders peak, returns under 2% — cited: analytics endpoint',
+    mcp:      'inventory: 6 active single-origins, 2 low stock — cited: your MCP server'
+  };
+
+  function grantedCount(){
+    var n=0; for(var k in state.sources){ if(state.sources[k]) n++; } return n;
+  }
+
+  /* recompute the Context Pack readout from state */
+  function renderPack(){
+    var n=grantedCount();
+    packVer.textContent = 'Context Pack v' + n;
+    // build list
+    var html='';
+    if(n===0){
+      html='<li id="packEmpty">no sources granted yet — the Pack is empty</li>';
+      packEl.classList.remove('live');
+    }else{
+      var order=['website','repo','docs','brand','social','analytics','mcp'];
+      for(var i=0;i<order.length;i++){
+        var s=order[i];
+        if(state.sources[s]){ html += '<li>'+learned[s]+'</li>'; }
+      }
+      packEl.classList.add('live');
+    }
+    packLines.innerHTML = html; // packLines holds NO listeners — safe to rebuild
+  }
+
+  /* surface the contradiction question once two specific sources are live */
+  function maybeShowQuestion(){
+    var twoLive = (grantedCount() >= 2);
+    if(twoLive){ qcard.style.display='block'; }
+  }
+
+  /* reveal the channel stage once the question is answered */
+  function maybeShowChannels(){
+    if(state.answered){ channelStage.style.display='block'; }
+  }
+
+  /* ----- jack patching (delegated) ----- */
+  jackList.addEventListener('click',function(e){
+    var btn=e.target.closest('.jack'); if(!btn) return;
+    var src=btn.getAttribute('data-src');
+    var now = !state.sources[src];
+    state.sources[src]=now;
+    btn.setAttribute('aria-pressed', now?'true':'false');
+    var st=btn.querySelector('.jstate');
+    st.textContent = now ? 'patched · reading' : 'dark';
+    renderPack();
+    maybeShowQuestion();
+  });
+
+  /* ----- contradiction answer (delegated; chips + free field share one commit) ----- */
+  function commitAnswer(ans){
+    state.answered=true;
+    savedLine.textContent = 'saved to memory · "established '+ans+'" · cited source: you, today';
+    qresolved.classList.add('show');
+    maybeShowChannels();
+  }
+  qcard.addEventListener('click',function(e){
+    var chip=e.target.closest('.chip');
+    if(chip){
+      var chips=qcard.querySelectorAll('.chip');
+      for(var i=0;i<chips.length;i++){ chips[i].setAttribute('aria-pressed','false'); }
+      chip.setAttribute('aria-pressed','true');
+      commitAnswer(chip.getAttribute('data-ans'));
+      return;
+    }
+    var fb=e.target.closest('#qfreeBtn');
+    if(fb){
+      var inp=document.getElementById('qfree');
+      var v=(inp && inp.value || '').trim();
+      if(v){
+        var chips2=qcard.querySelectorAll('.chip');
+        for(var k=0;k<chips2.length;k++){ chips2[k].setAttribute('aria-pressed','false'); }
+        commitAnswer(v);
+      }
+    }
+  });
+
+  /* ----- scope switches + master kill (delegated on a stable container) ----- */
+  function recomputeSummary(){
+    if(!state.bridge){
+      scopeSummary.innerHTML = 'The bridge is <span class="acc">closed</span>. Nothing in, nothing out — the board is dark.';
+      return;
+    }
+    var chans=['X','Instagram','LinkedIn'];
+    var parts=[];
+    for(var c=0;c<chans.length;c++){
+      var ch=chans[c];
+      var on=[];
+      var any=false;
+      ['publish','reply','listen','outreach'].forEach(function(sc){
+        if(state.scopes[ch+'|'+sc]){ on.push(sc); any=true; }
+      });
+      if(!any){ parts.push(ch+' is not connected'); }
+      else if(on.length===1 && on[0]==='listen'){ parts.push(ch+' is listen-only'); }
+      else{
+        // human phrasing
+        var verbs=on.map(function(v){ return v==='publish'?'publish':v==='reply'?'reply':v==='listen'?'listen':'reach out'; });
+        parts.push('kural may '+verbs.join(' and ')+' on '+ch);
+      }
+    }
+    scopeSummary.innerHTML = parts.join('. ') + '.';
+  }
+
+  board.addEventListener('click',function(e){
+    var sw=e.target.closest('.sw'); if(!sw) return;
+    if(!state.bridge) return; /* board greyed; ignore throws */
+    var ch=sw.getAttribute('data-ch'), scope=sw.getAttribute('data-scope');
+    var key=ch+'|'+scope;
+    var now=!state.scopes[key];
+    state.scopes[key]=now;
+    sw.setAttribute('aria-pressed', now?'true':'false');
+    recomputeSummary();
+  });
+
+  killSw.addEventListener('click',function(){
+    state.bridge=!state.bridge;
+    killSw.setAttribute('aria-pressed', state.bridge?'true':'false');
+    killSw.setAttribute('aria-label', state.bridge?'Master kill switch — bridge open':'Master kill switch — bridge closed');
+    if(state.bridge){ board.classList.remove('board-killed'); }
+    else{ board.classList.add('board-killed'); }
+    recomputeSummary();
+  });
+
+  /* ----- Connect button: auto-advance through the beats ~3-4s each ----- */
+  var timers=[];
+  function clearTimers(){ timers.forEach(function(t){ clearTimeout(t); }); timers=[]; }
+
+  function setJack(src,on){
+    var btn=jackList.querySelector('[data-src="'+src+'"]');
+    if(!btn) return;
+    state.sources[src]=on;
+    btn.setAttribute('aria-pressed', on?'true':'false');
+    btn.querySelector('.jstate').textContent = on?'patched · reading':'dark';
+  }
+
+  function runAutoplay(){
+    clearTimers();
+    var order=['website','social','docs','brand','analytics','repo','mcp'];
+    var delay=0, step=550;
+    order.forEach(function(s,i){
+      timers.push(setTimeout(function(){
+        setJack(s,true); renderPack(); maybeShowQuestion();
+      }, delay + i*step));
+    });
+    // after sources, the question is already shown (>=2 live early)
+  }
+
+  connectBtn.addEventListener('click', runAutoplay);
+
+  resetBtn.addEventListener('click', function(){
+    clearTimers();
+    var k;
+    for(k in state.sources){ setJack(k,false); }
+    state.answered=false; state.bridge=true; state.scopes={};
+    renderPack();
+    qcard.style.display='none';
+    qresolved.classList.remove('show');
+    var chips=qcard.querySelectorAll('.chip');
+    for(var i=0;i<chips.length;i++){ chips[i].setAttribute('aria-pressed','false'); }
+    channelStage.style.display='none';
+    board.classList.remove('board-killed');
+    killSw.setAttribute('aria-pressed','true');
+    var sws=board.querySelectorAll('.sw');
+    for(var j=0;j<sws.length;j++){ sws[j].setAttribute('aria-pressed','false'); }
+    recomputeSummary();
+  });
+
+  /* ---------- INITIAL RENDER ---------- */
+  renderPack();
+  recomputeSummary();
+
+  /* ---------- REDUCED MOTION: jump to a complete static end-state ---------- */
+  if(reduce){
+    // sources pre-patched
+    ['website','social','docs','brand'].forEach(function(s){ setJack(s,true); });
+    renderPack();
+    // question shown, answered, stamped
+    qcard.style.display='block';
+    state.answered=true;
+    var c2019=qcard.querySelector('[data-ans="2019"]');
+    if(c2019){ c2019.setAttribute('aria-pressed','true'); }
+    savedLine.textContent='saved to memory · "established 2019" · cited source: you, today';
+    qresolved.classList.add('show');
+    // channels shown in DEFAULT off position with summaries
+    channelStage.style.display='block';
+    recomputeSummary();
+    // connect button inert under reduced motion
+    connectBtn.disabled=true;
+  }
+})();
+</script>
+</body>
+</html>

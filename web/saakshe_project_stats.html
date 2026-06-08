@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>saakshe — project stats &amp; agent architecture</title>
+<style>
+  :root{
+    --bg:#0e1014; --panel:#171a21; --panel2:#1d212a; --ink:#eef1f6; --ink2:#aab3c2;
+    --ink3:#7a8496; --line:#2a2f3a; --line2:#363c49;
+    --gem:#7fd1c9;        /* gemini teal */
+    --claude:#e0a06a;     /* claude amber */
+    --det:#8a93a6;        /* deterministic grey */
+    --gate:#e36d8a;       /* human gate rose */
+    --ok:#79c285;
+    --accent:#8EABC8;     /* slate */
+    --radius:16px;
+  }
+  @media (prefers-color-scheme: light){
+    :root{ --bg:#f4f1ea; --panel:#fffdf8; --panel2:#f7f3ea; --ink:#1c1f26; --ink2:#4a5260;
+      --ink3:#6c7686; --line:#e2dccf; --line2:#d2ccbd; --accent:#4A6A84;
+      --gem:#1f8a80; --claude:#b5702f; --det:#6b7280; --gate:#c34d6c; }
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font:400 19px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased; letter-spacing:.01em;
+  }
+  .wrap{max-width:1060px; margin:0 auto; padding:0 22px 120px}
+  .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+
+  /* hero */
+  header.hero{padding:74px 0 30px; border-bottom:1px solid var(--line)}
+  .kicker{font-size:14px; letter-spacing:.22em; text-transform:uppercase; color:var(--ink3); margin:0 0 18px}
+  h1{font-size:54px; line-height:1.05; margin:0 0 16px; letter-spacing:-.02em; font-weight:800}
+  h1 .dim{color:var(--ink3); font-weight:400}
+  .lede{font-size:23px; line-height:1.5; color:var(--ink2); max-width:760px; margin:0}
+  .lede b{color:var(--ink); font-weight:600}
+
+  /* big stat band */
+  .statband{display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin:38px 0 8px}
+  .stat{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:22px 20px}
+  .stat .n{font-size:42px; font-weight:800; line-height:1; letter-spacing:-.02em}
+  .stat .l{font-size:14.5px; color:var(--ink3); margin-top:10px; line-height:1.35}
+  @media(max-width:820px){ .statband{grid-template-columns:repeat(2,1fr)} h1{font-size:40px} .lede{font-size:20px} }
+
+  section{padding:50px 0 8px; border-bottom:1px solid var(--line)}
+  h2{font-size:32px; letter-spacing:-.015em; margin:0 0 8px; font-weight:800}
+  h2 .num{color:var(--accent); font-size:18px; font-weight:700; vertical-align:middle; margin-right:12px; font-family:ui-monospace,monospace}
+  .sub{color:var(--ink2); font-size:19px; max-width:780px; margin:0 0 26px}
+
+  .grid2{display:grid; grid-template-columns:1fr 1fr; gap:16px}
+  .grid3{display:grid; grid-template-columns:repeat(3,1fr); gap:14px}
+  @media(max-width:820px){ .grid2,.grid3{grid-template-columns:1fr} }
+
+  .card{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:22px 22px}
+  .card h3{margin:0 0 4px; font-size:21px; font-weight:700}
+  .card .role{font-size:14px; color:var(--ink3); margin:0 0 14px; letter-spacing:.04em; text-transform:uppercase}
+  .card p{margin:0 0 12px; color:var(--ink2); font-size:17.5px}
+
+  /* agent chips */
+  .agents{display:flex; flex-direction:column; gap:8px; margin:14px 0 4px}
+  .ag{display:flex; align-items:center; gap:11px; font-size:16.5px; padding:9px 12px; border-radius:11px;
+      background:var(--panel2); border:1px solid var(--line)}
+  .dot{width:10px; height:10px; border-radius:50%; flex:0 0 auto}
+  .dot.gem{background:var(--gem)} .dot.claude{background:var(--claude)} .dot.det{background:var(--det)} .dot.gate{background:var(--gate)}
+  .ag .who{font-weight:600}
+  .ag .mdl{margin-left:auto; font-size:13px; color:var(--ink3); font-family:ui-monospace,monospace; text-align:right}
+
+  .pill{display:inline-block; font-size:13px; padding:4px 11px; border-radius:999px; border:1px solid var(--line2);
+        color:var(--ink2); margin:4px 6px 0 0; font-family:ui-monospace,monospace}
+  .pill.gate{color:var(--gate); border-color:var(--gate)}
+  .pill.ok{color:var(--ok); border-color:var(--ok)}
+
+  .legend{display:flex; gap:20px; flex-wrap:wrap; margin:6px 0 28px; font-size:15px; color:var(--ink2)}
+  .legend span{display:inline-flex; align-items:center; gap:8px}
+
+  /* table */
+  table{width:100%; border-collapse:collapse; margin:6px 0 6px; font-size:16.5px}
+  th,td{text-align:left; padding:13px 14px; border-bottom:1px solid var(--line)}
+  th{font-size:13px; text-transform:uppercase; letter-spacing:.08em; color:var(--ink3); font-weight:600}
+  td .mono{font-size:14.5px; color:var(--ink2)}
+  tr:last-child td{border-bottom:none}
+  .tbl{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); overflow:hidden}
+
+  /* flywheel */
+  .flow{display:flex; flex-direction:column; gap:0; margin:8px 0}
+  .step{display:flex; gap:18px; align-items:flex-start; padding:4px 0}
+  .step .ico{flex:0 0 46px; height:46px; border-radius:13px; display:flex; align-items:center; justify-content:center;
+    font-weight:800; font-size:19px; background:var(--panel2); border:1px solid var(--line); color:var(--ink)}
+  .step .ico.gate{background:var(--gate); color:#fff; border-color:var(--gate)}
+  .step .body{padding-top:4px}
+  .step .body .t{font-weight:700; font-size:18.5px}
+  .step .body .d{color:var(--ink2); font-size:16.5px}
+  .rail{margin-left:22px; width:2px; height:14px; background:var(--line2)}
+
+  .note{background:var(--panel2); border:1px solid var(--line); border-left:3px solid var(--accent);
+    border-radius:12px; padding:16px 18px; color:var(--ink2); font-size:16.5px; margin:18px 0 4px}
+  .note b{color:var(--ink)}
+  ul.clean{margin:10px 0; padding-left:0; list-style:none}
+  ul.clean li{padding:8px 0 8px 26px; position:relative; color:var(--ink2); font-size:17px; border-bottom:1px solid var(--line)}
+  ul.clean li:before{content:"›"; position:absolute; left:4px; top:7px; color:var(--accent); font-weight:800}
+  ul.clean li:last-child{border-bottom:none}
+  ul.clean li b{color:var(--ink)}
+  .toc{display:flex; flex-wrap:wrap; gap:10px; margin:26px 0 2px}
+  .toc a{font-size:15px; color:var(--ink2); text-decoration:none; border:1px solid var(--line2); padding:7px 13px; border-radius:999px}
+  .toc a:hover{color:var(--ink); border-color:var(--accent)}
+  footer{padding:44px 0 0; color:var(--ink3); font-size:15px}
+  .big{font-size:21px; color:var(--ink)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="hero">
+  <p class="kicker">project deep-dive · 8 Jun 2026</p>
+  <h1>saakshe <span class="dim">— the agentic company you talk to</span></h1>
+  <p class="lede">One founder. A full company run by agents. <b>saakshe</b> is a multi-agent
+  operating layer on <b>Google ADK</b>: four agent "quadrants" that <b>know, decide, make, and engage</b>,
+  a <b>witness</b> you speak to in plain language, and a single resumable <b>flywheel</b> that turns a
+  founder's question into a published outcome — stopping at exactly two human taps along the way.</p>
+
+  <div class="statband">
+    <div class="stat"><div class="n">~30.6k</div><div class="l">lines of code, hand-built (12.1k Python backend + 18.5k frontend)</div></div>
+    <div class="stat"><div class="n">27</div><div class="l">LLM-backed agents (26 across 4 quadrants + the witness)</div></div>
+    <div class="stat"><div class="n">2</div><div class="l">human gates in the whole company — every other step is autonomous</div></div>
+    <div class="stat"><div class="n">139</div><div class="l">automated tests across 16 files (backend green)</div></div>
+  </div>
+
+  <div class="toc">
+    <a href="#what">What it is</a>
+    <a href="#numbers">By the numbers</a>
+    <a href="#agents">The agent system</a>
+    <a href="#models">Model stack</a>
+    <a href="#flywheel">The flywheel</a>
+    <a href="#witness">The witness</a>
+    <a href="#substrate">Substrate</a>
+    <a href="#surfaces">Frontend</a>
+    <a href="#caveats">Caveats</a>
+  </div>
+</header>
+
+<!-- ===================== WHAT ===================== -->
+<section id="what">
+  <h2><span class="num">01</span>What saakshe actually is</h2>
+  <p class="sub">A company is modelled as five agent systems sharing one memory, one event stream, and one
+  conscience. The conceit: <b>staff are agents</b>, and the founder talks to the company instead of operating it.</p>
+
+  <div class="grid3">
+    <div class="card">
+      <h3>manas</h3><div class="role">the mind · knows</div>
+      <p>Versioned, source-cited memory. Imbibes documents, the web, founder voice and "the world's pulse",
+      and refuses to commit a memory that isn't grounded. <b>It never acts.</b></p>
+    </div>
+    <div class="card">
+      <h3>arivu</h3><div class="role">the judgment · decides</div>
+      <p>A deliberation chamber. Five advisors argue a decision to convergence; a chair synthesises a verdict;
+      a prosecutor tries to defeat it; then it <b>halts for the founder.</b></p>
+    </div>
+    <div class="card">
+      <h3>kalai</h3><div class="role">the studio · makes</div>
+      <p>Brand-fidelity creative studio. Climbs to a quality threshold and passes a fail-closed compliance gate.
+      Holds no channel keys — it <b>never publishes.</b></p>
+    </div>
+    <div class="card">
+      <h3>kural</h3><div class="role">the mouth · engages</div>
+      <p>The company's only mouth. Researches, drafts founder-voice outreach, fact-checks every claim,
+      and <b>halts at the publish tap</b> before anything reaches the world.</p>
+    </div>
+    <div class="card">
+      <h3>witness</h3><div class="role">the founder's seat · sees</div>
+      <p>The thing you talk to. Answers only from the live stream via telemetry tools, <b>refuses</b> what it
+      can't see, and speaks (text + voice). It initiates nothing.</p>
+    </div>
+    <div class="card" style="background:var(--panel2)">
+      <h3>+ the flywheel</h3><div class="role">orchestrator · binds</div>
+      <p>A resumable state machine that drives <span class="mono">manas → arivu → kalai → kural → manas</span>
+      with two founder gates. One ordered event stream feeds every screen.</p>
+    </div>
+  </div>
+  <div class="note"><b>Built for two hackathons in parallel</b> (Google AI Agents + Rapid Agent) and unified into a
+  single backend on <b>2026-06-08</b>: one common substrate, four real-ADK quadrants, the witness, the orchestrator,
+  and one FastAPI service — backend green (139 tests).</div>
+</section>
+
+<!-- ===================== NUMBERS ===================== -->
+<section id="numbers">
+  <h2><span class="num">02</span>By the numbers</h2>
+  <p class="sub">Two bodies of work: a ~12k-line Python agent backend, and ~18.5k lines of hand-built
+  HTML/CSS/JS for the cockpit, landing, and per-quadrant pages.</p>
+
+  <div class="grid2">
+    <div class="tbl">
+      <table>
+        <tr><th>Backend module</th><th>Lines</th><th>Files</th></tr>
+        <tr><td><b>arivu</b> <span class="mono">decide</span></td><td>3,064</td><td>28</td></tr>
+        <tr><td><b>manas</b> <span class="mono">know</span></td><td>2,665</td><td>21</td></tr>
+        <tr><td><b>kural</b> <span class="mono">engage</span></td><td>1,962</td><td>21</td></tr>
+        <tr><td><b>kalai</b> <span class="mono">make</span></td><td>1,578</td><td>17</td></tr>
+        <tr><td><b>common</b> <span class="mono">substrate</span></td><td>1,400</td><td>8</td></tr>
+        <tr><td><b>witness</b> <span class="mono">see/voice</span></td><td>425</td><td>4</td></tr>
+        <tr><td><b>service</b> <span class="mono">FastAPI</span></td><td>269</td><td>2</td></tr>
+        <tr><td><b>orchestrator</b> <span class="mono">flywheel</span></td><td>221</td><td>1</td></tr>
+        <tr><td style="color:var(--ink3)">tests + scripts</td><td style="color:var(--ink3)">~520</td><td style="color:var(--ink3)">19</td></tr>
+        <tr><td><b>Total Python</b></td><td><b>12,108</b></td><td><b>109</b></td></tr>
+      </table>
+    </div>
+    <div class="tbl">
+      <table>
+        <tr><th>Frontend surface</th><th>Size</th><th>Lines</th></tr>
+        <tr><td><b>cockpit.html</b> — the live front door</td><td>216KB</td><td>3,104</td></tr>
+        <tr><td><b>saakshe.html</b> — the witness demo</td><td>168KB</td><td>2,760</td></tr>
+        <tr><td>arivu.html</td><td>124KB</td><td>1,736</td></tr>
+        <tr><td>manas.html</td><td>111KB</td><td>1,556</td></tr>
+        <tr><td>kural.html</td><td>106KB</td><td>1,784</td></tr>
+        <tr><td>kalai.html</td><td>78KB</td><td>1,288</td></tr>
+        <tr><td>darshana.html — see-it-all</td><td>77KB</td><td>1,367</td></tr>
+        <tr><td>setu.html — connect anything</td><td>66KB</td><td>1,168</td></tr>
+        <tr><td>landing + onboarding + profile</td><td>160KB</td><td>2,592</td></tr>
+        <tr><td><b>Total (13 pages)</b></td><td><b>~1.15MB</b></td><td><b>~18,500</b></td></tr>
+      </table>
+    </div>
+  </div>
+  <div class="note">All frontend is <b>single-file, dependency-free HTML</b> with embedded CSS/JS (themed
+  <b>Brut</b> light / <b>Obsidian</b> dark). The cockpit alone is 3,100 lines — it's the live console wired to the
+  backend's stream, gates, and voice endpoints.</div>
+</section>
+
+<!-- ===================== AGENTS ===================== -->
+<section id="agents">
+  <h2><span class="num">03</span>The agent system <span style="font-size:18px;color:var(--ink3);font-weight:400">— the heart of it</span></h2>
+  <p class="sub">Each quadrant is a real ADK graph: a <span class="mono">SequentialAgent</span> spine, a
+  <span class="mono">ParallelAgent</span> fan-out of specialists, and a <span class="mono">LoopAgent</span> that
+  climbs to a numeric quality threshold — then a deterministic gate. <b>26 LLM-backed agents</b> across the four
+  quadrants, plus <b>9 deterministic safety agents</b> (the check/gate logic, no model).</p>
+
+  <div class="legend">
+    <span><i class="dot gem"></i> Gemini (coordinators &amp; specialists)</span>
+    <span><i class="dot claude"></i> Claude-via-Vertex (high-stakes seats)</span>
+    <span><i class="dot det"></i> Deterministic (math gate, no LLM)</span>
+    <span><i class="dot gate"></i> Human gate (founder tap)</span>
+  </div>
+
+  <div class="grid2">
+
+    <!-- MANAS -->
+    <div class="card">
+      <h3>manas — knows</h3><div class="role">7 LLM seats · 2 Claude · groundedness loop</div>
+      <div class="agents">
+        <div class="ag"><i class="dot gem"></i><span class="who">Mind-Keeper</span> routes ingestion<span class="mdl">Gemini Pro</span></div>
+        <div class="ag"><i class="dot gem"></i><span class="who">4 Imbibers</span> repo · web · docs · social<span class="mdl">Gemini Flash ×4</span></div>
+        <div class="ag"><i class="dot claude"></i><span class="who">Memory Curator</span> verify-before-commit<span class="mdl">Claude Sonnet</span></div>
+        <div class="ag"><i class="dot claude"></i><span class="who">Founder Voice</span> answers / refuses<span class="mdl">Claude Sonnet</span></div>
+        <div class="ag"><i class="dot det"></i><span class="who">curator_check · commit</span><span class="mdl">no model</span></div>
+      </div>
+      <p style="margin-top:14px">4 imbibers fan out in parallel; the Curator loops until every claim cites a source.</p>
+      <span class="pill ok">groundedness ≥ 0.80</span><span class="pill">max 3 rounds</span><span class="pill">no human gate</span>
+    </div>
+
+    <!-- ARIVU -->
+    <div class="card">
+      <h3>arivu — decides</h3><div class="role">9 LLM seats · 2 Claude · debate + prosecution</div>
+      <div class="agents">
+        <div class="ag"><i class="dot gem"></i><span class="who">Chair / Frame</span> grounds the question<span class="mdl">Gemini 2.5 Pro</span></div>
+        <div class="ag"><i class="dot gem"></i><span class="who">5 Mantris</span> econ · growth · brand · risk · ops<span class="mdl">Gemini 2.5 Flash ×5</span></div>
+        <div class="ag"><i class="dot gem"></i><span class="who">Debate Moderator</span> drives convergence<span class="mdl">Gemini 2.5 Flash</span></div>
+        <div class="ag"><i class="dot claude"></i><span class="who">Chair Synthesizer</span> writes the verdict<span class="mdl">Claude Opus 4.1</span></div>
+        <div class="ag"><i class="dot claude"></i><span class="who">Prosecutor</span> tries to defeat it<span class="mdl">Claude Opus 4.1</span></div>
+        <div class="ag"><i class="dot gate"></i><span class="who">Gate</span> founder approval (tap 1)<span class="mdl">human</span></div>
+      </div>
+      <p style="margin-top:14px">Two stacked loops: debate-to-convergence, then adversarial prosecution.</p>
+      <span class="pill ok">convergence ≥ 0.75</span><span class="pill ok">defensibility ≥ 0.80</span><span class="pill gate">tap 1 · decision</span>
+    </div>
+
+    <!-- KALAI -->
+    <div class="card">
+      <h3>kalai — makes</h3><div class="role">5 LLM seats · 2 Claude · fidelity loop</div>
+      <div class="agents">
+        <div class="ag"><i class="dot claude"></i><span class="who">Creative Director</span> frames + guardrails<span class="mdl">Claude Sonnet</span></div>
+        <div class="ag"><i class="dot gem"></i><span class="who">Designer / Producer</span> visuals (example media)<span class="mdl">Gemini Flash</span></div>
+        <div class="ag"><i class="dot gem"></i><span class="who">Copy &amp; SEO</span> platform copy<span class="mdl">Gemini Flash</span></div>
+        <div class="ag"><i class="dot gem"></i><span class="who">Brand-Fidelity Scorer</span> climbs to threshold<span class="mdl">Gemini Flash</span></div>
+        <div class="ag"><i class="dot claude"></i><span class="who">Compliance Gate</span> fail-closed clearance<span class="mdl">Claude Sonnet</span></div>
+      </div>
+      <p style="margin-top:14px">Designer + Copy produce in parallel; loops until on-brand, then compliance clears.</p>
+      <span class="pill ok">fidelity ≥ 8.5</span><span class="pill">fail-closed compliance</span><span class="pill">hands master → kural</span>
+    </div>
+
+    <!-- KURAL -->
+    <div class="card">
+      <h3>kural — engages</h3><div class="role">5 LLM seats · 2 Claude · claim-judge loop</div>
+      <div class="agents">
+        <div class="ag"><i class="dot claude"></i><span class="who">Envoy Lead</span> qualifies the campaign<span class="mdl">Claude Sonnet</span></div>
+        <div class="ag"><i class="dot gem"></i><span class="who">2 Scouts</span> audience + timing<span class="mdl">Gemini Flash ×2</span></div>
+        <div class="ag"><i class="dot gem"></i><span class="who">Outreach Writer</span> founder-voice draft<span class="mdl">Gemini Flash</span></div>
+        <div class="ag"><i class="dot claude"></i><span class="who">Claim-Judge</span> fact-checks every claim<span class="mdl">Claude Sonnet</span></div>
+        <div class="ag"><i class="dot gate"></i><span class="who">Gate</span> founder publish sign-off (tap 2)<span class="mdl">human</span></div>
+      </div>
+      <p style="margin-top:14px">Holds the channel keys; sends behind an eligibility/value-cap gate + no-double-send ledger.</p>
+      <span class="pill ok">claim_support ≥ 0.80</span><span class="pill">max 2 rounds</span><span class="pill gate">tap 2 · publish</span>
+    </div>
+  </div>
+
+  <div class="note" style="margin-top:18px"><b>The pattern is the point.</b> Every quadrant ends in a verifiable
+  gate: a numeric threshold (groundedness, convergence, defensibility, fidelity, claim-support) or a fail-closed
+  compliance check. The two <i>human</i> taps are the only places the autonomous chain pauses — decision (arivu)
+  and publish (kural). manas and kalai have <b>no</b> human gate by design.</div>
+</section>
+
+<!-- ===================== MODELS ===================== -->
+<section id="models">
+  <h2><span class="num">04</span>The model stack</h2>
+  <p class="sub">Routine intelligence runs on Gemini; high-stakes seats (verdicts, fact-checks, compliance,
+  curation) run on <b>Claude via Vertex</b> in <span class="mono">us-east5</span>. Every ID is an env-overridable
+  default pinned in code — <b>8 Claude seats, 18 Gemini seats</b> across the quadrants.</p>
+  <div class="tbl">
+    <table>
+      <tr><th>Role tier</th><th>Model (code default)</th><th>Where</th><th>Used by</th></tr>
+      <tr><td>Coordinator</td><td class="mono">gemini-3.1-pro-preview</td><td>global</td><td>Mind-Keeper, Chair/Frame</td></tr>
+      <tr><td>Specialist + voice</td><td class="mono">gemini-3.5-flash</td><td>global</td><td>imbibers, mantris, scouts, designer, copy, scorers, witness</td></tr>
+      <tr><td>High-stakes</td><td class="mono">claude-sonnet-4-6@default</td><td>us-east5</td><td>manas / kalai / kural Claude seats</td></tr>
+      <tr><td>arivu coordinator</td><td class="mono">gemini-2.5-pro</td><td>global</td><td>arivu Chair (own pins)</td></tr>
+      <tr><td>arivu advisors</td><td class="mono">gemini-2.5-flash</td><td>global</td><td>5 mantris + moderator</td></tr>
+      <tr><td>arivu verdict/prosecutor</td><td class="mono">claude-opus-4-1@20250805</td><td>us-east5</td><td>Synthesizer + Prosecutor</td></tr>
+    </table>
+  </div>
+  <div class="note"><b>Two model generations on purpose.</b> manas/kalai/kural share <span class="mono">common/config.py</span>
+  (Gemini 3.x + Claude Sonnet 4.6); arivu keeps its own older pins (Gemini 2.5 + Claude Opus 4.1) because it was
+  built first and left untouched in the unification. A <b>Vertex toggle</b> (<span class="mono">VERTEX_SA_KEY_JSON</span>)
+  and demo/live mode switch the whole company between scripted replay and real calls.</div>
+</section>
+
+<!-- ===================== FLYWHEEL ===================== -->
+<section id="flywheel">
+  <h2><span class="num">05</span>The flywheel — one question to outcome</h2>
+  <p class="sub">A resumable orchestrator drives a fixed sequence and stops at exactly two founder taps.
+  Resumable = run state is carried forward (context pack, verdict, master, session) so an approval continues
+  exactly where it paused.</p>
+  <div class="flow">
+    <div class="step"><div class="ico">1</div><div class="body"><div class="t">manas grounds</div><div class="d">reads the org's live numbers + corpus into a versioned Context Pack</div></div></div>
+    <div class="rail"></div>
+    <div class="step"><div class="ico">2</div><div class="body"><div class="t">arivu decides</div><div class="d">5 advisors debate → chair verdict → prosecutor stress-test → defensibility score</div></div></div>
+    <div class="rail"></div>
+    <div class="step"><div class="ico gate">✋</div><div class="body"><div class="t" style="color:var(--gate)">GATE 1 · decision tap <span style="color:var(--ink3);font-weight:400">(reversible)</span></div><div class="d">founder approves the verdict before any side effect fires</div></div></div>
+    <div class="rail"></div>
+    <div class="step"><div class="ico">3</div><div class="body"><div class="t">arivu executes → kalai makes → kural drafts</div><div class="d">resolution doc + A2A dispatch → brand-cleared master → fact-checked outreach (no gates between)</div></div></div>
+    <div class="rail"></div>
+    <div class="step"><div class="ico gate">✋</div><div class="body"><div class="t" style="color:var(--gate)">GATE 2 · publish tap <span style="color:var(--ink3);font-weight:400">(irreversible)</span></div><div class="d">founder signs off before anything reaches the world</div></div></div>
+    <div class="rail"></div>
+    <div class="step"><div class="ico">4</div><div class="body"><div class="t">kural publishes → manas learns</div><div class="d">sends behind the eligibility ledger, then the day's outcome is committed (Context Pack vN → vN+1) — the loop closes</div></div></div>
+  </div>
+</section>
+
+<!-- ===================== WITNESS ===================== -->
+<section id="witness">
+  <h2><span class="num">06</span>The witness — what you talk to</h2>
+  <p class="sub">The founder's seat. It has <b>no static knowledge</b> — every answer is a call to a telemetry tool
+  reading the one event stream. If you ask something it can't see, it <b>refuses</b> rather than invent. Same
+  contract in text and in voice.</p>
+  <div class="grid2">
+    <div class="card">
+      <h3>5 telemetry tools</h3><div class="role">tools-over-telemetry</div>
+      <ul class="clean">
+        <li><b>who's acting now</b> — in-flight agents from the stream</li>
+        <li><b>anyone waiting on me</b> — the open gate queue</li>
+        <li><b>what did today cost</b> — real metered tokens (or demo estimate)</li>
+        <li><b>what's reversible</b> — which actions/gates can be undone</li>
+        <li><b>what did we learn</b> — current Context Pack version</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>refusal + voice</h3><div class="role">honest by construction</div>
+      <p>Out-of-telemetry topics (ads, revenue forecast, valuation, runway, competitors) hit a
+      <b>refusal contract</b> — it says it can't see that and offers what it can.</p>
+      <p>Voice is a <b>Gemini Live</b> WebSocket bridge (<span class="mono">/ws/voice</span>): audio in, audio out,
+      same 5 tools, same refusals. No creds → text-only demo. <b>Voice never says what text can't.</b></p>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== SUBSTRATE ===================== -->
+<section id="substrate">
+  <h2><span class="num">07</span>The substrate that binds it</h2>
+  <p class="sub">~1,400 lines of shared plumbing make the five systems one company.</p>
+  <div class="grid3">
+    <div class="card">
+      <h3>One event stream</h3><div class="role">stream.py</div>
+      <p>An append-only, ordered log. Every surface — cockpit, gate queue, cost meter, witness — is a pure
+      render of <span class="mono">(stream, cursor)</span>. Live rows are designed to land in BigQuery as
+      <span class="mono">agent_events</span>; demo rows are in-process. Same shape either way.</p>
+    </div>
+    <div class="card">
+      <h3>A2A contracts</h3><div class="role">a2a.py</div>
+      <p>Agent-to-agent handoffs as typed payloads — <span class="mono">ContextPack</span>, <span class="mono">Dispatch</span>,
+      <span class="mono">CreativeMaster</span>, <span class="mono">GateRequest</span>, <span class="mono">QuadrantResult</span>.
+      An in-process registry mirrors real A2A so wiring HTTP later is a transport swap.</p>
+    </div>
+    <div class="card">
+      <h3>Two stores</h3><div class="role">project.py / supastore.py</div>
+      <p>A file store by default; a dedicated <b>Supabase</b> project (<span class="mono">saakshe</span>, 7 RLS
+      deny-default tables, service-role backend) when <span class="mono">SAAKSHE_STORE=supabase</span>. Drop-in
+      replacement — survives restarts, supports multiple founders.</p>
+    </div>
+    <div class="card">
+      <h3>One FastAPI service</h3><div class="role">service/app.py</div>
+      <p>~15 endpoints behind one front door: <span class="mono">/api/hero/run</span> + <span class="mono">approve</span>
+      (flywheel), <span class="mono">/api/stream</span>, <span class="mono">/api/gates</span>,
+      <span class="mono">/api/connect/*</span> (ingest), <span class="mono">/api/saakshe/ask</span>,
+      <span class="mono">/ws/voice</span>, agent-cards, and the cockpit at <span class="mono">/</span>.</p>
+    </div>
+    <div class="card">
+      <h3>Demo / live parity</h3><div class="role">config.py / models.py</div>
+      <p>The whole company runs creds-free via a <b>ScriptedLlm</b> replay, or live via real Gemini + Claude.
+      "Live" is a flag, not a rewrite — the same orchestration (parallel, loop, gates, A2A) runs both ways.</p>
+    </div>
+    <div class="card">
+      <h3>Real token accounting</h3><div class="role">usage.py</div>
+      <p>Sums authoritative input/output tokens from ADK events per quadrant, so the witness's "what did today
+      cost" is metered truth in live mode — not a guess.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== SURFACES ===================== -->
+<section id="surfaces">
+  <h2><span class="num">08</span>Frontend surfaces &amp; how it's verified</h2>
+  <p class="sub">13 hand-built pages, plus a tested backend.</p>
+  <ul class="clean">
+    <li><b>cockpit.html</b> (3,104 lines) — the live console: stream, gate queue, cost pills, witness chat + voice, wired to the FastAPI backend in live mode.</li>
+    <li><b>saakshe.html / landing / onboarding</b> — the pitch and entry flow ("the agentic company you talk to").</li>
+    <li><b>manas · arivu · kalai · kural · setu · darshana</b> — a deep page per quadrant + "connect anything" (setu) + "see the whole company" (darshana).</li>
+    <li><b>manas_company_profile.html</b> — a live-editable company profile wired to a Gemini-Flash backend (separate :8791 server).</li>
+    <li><b>Tested:</b> 139 automated tests across 16 files (backend green) + a Puppeteer live harness + a cockpit perception harness checking contrast / clipping / empty states across 16 view×theme combinations.</li>
+  </ul>
+</section>
+
+<!-- ===================== CAVEATS ===================== -->
+<section id="caveats">
+  <h2><span class="num">09</span>Honest caveats</h2>
+  <ul class="clean">
+    <li><b>Model pins are aspirational defaults.</b> The IDs (<span class="mono">gemini-3.1-pro-preview</span>,
+    <span class="mono">gemini-3.5-flash</span>) are env-overridable hackathon/preview pins, not guaranteed-GA names —
+    real runs fall back to whatever Vertex serves. arivu deliberately keeps older 2.5 / Opus-4.1 pins.</li>
+    <li><b>Default mode is demo.</b> The full flywheel runs creds-free on scripted replay; real side effects need
+    live mode <i>and</i> an explicit allow-live-exec flag. A live run was blocked on Claude Vertex quota (~Jun 10).</li>
+    <li><b>A2A is in-process today.</b> ADK's <span class="mono">to_a2a()</span> is blocked by the a2a-sdk 1.1.0
+    restructure, so agent-cards are served manually; the registry mirrors the real protocol shape.</li>
+    <li><b>"139 tests" is the current count</b> (includes eval/quadrant suites); earlier notes cite ~122 core pytest.</li>
+  </ul>
+</section>
+
+<footer>
+  Generated 2026-06-08 from a first-hand read of <span class="mono">~/Desktop/Working/saakshe</span> (backend) and
+  <span class="mono">~/Desktop/Working/*.html</span> (surfaces). Counts verified against source: model IDs grepped from
+  <span class="mono">config.py</span>; agent topology reconciled with the four <span class="mono">agent-card.json</span> files.
+</footer>
+
+</div>
+</body>
+</html>

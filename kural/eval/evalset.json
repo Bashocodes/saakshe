@@ -1,0 +1,141 @@
+{
+  "eval_set_id": "kural_outreach_v1",
+  "name": "kural — fact-checked founder-voice outreach",
+  "description": "A regression set of outreach campaigns run through the full kural mouth (Coordinator qualify -> parallel research -> Outreach Writer -> Claim-Judge fact-check loop -> HALT at the publish gate). Each case's reference describes the grounded, founder-voice message a careful operator would actually send, with every claim supportable. Cases are graded on two rubric tracks: outreach quality and claim soundness (the claim_support >= 0.80 fact-check gate). Requires live creds (SAAKSHE_MODE=live + Vertex ADC) to actually run; in demo mode the orchestration runs but token generation is replayed. The hero case is the Pro -> $34 launch announcement.",
+  "eval_cases": [
+    {
+      "eval_id": "hero_pro_price_launch",
+      "conversation": [
+        {
+          "invocation_id": "hero-1",
+          "user_content": {
+            "role": "user",
+            "parts": [
+              { "text": "Announce: Raise Pro to $34 (not $39), grandfather all existing subscribers, give 30-day notice." }
+            ]
+          },
+          "final_response": {
+            "role": "model",
+            "parts": [
+              {
+                "text": "Outreach (founder voice, every claim grounded in the manas Context Pack): 'Pro is moving to $34 for new subscribers, with 30 days' notice. Every current subscriber keeps their existing price - that was a promise, and we're keeping it. We'd rather grow slowly and keep faith than squeeze the people who got us here.' The Claim-Judge fact-checked every claim against the org's own grounding (the $34 price, the grandfather promise, the 30-day notice) and reported claim_support 0.86 (>= the 0.80 gate), so the message verified and the mouth HALTS awaiting the founder's publish sign-off (tap 2). Sent only to the consented, topic-fit slice of the list, as the buyer, never blasted; nothing is published until a human approves."
+              }
+            ]
+          }
+        }
+      ],
+      "session_input": {
+        "app_name": "kural",
+        "user_id": "founder",
+        "state": {
+          "brief": "Raise Pro to $34 (not $39), grandfather all existing subscribers, give 30-day notice.",
+          "context_pack": { "version": "v14", "topic": "pricing", "grounded": true },
+          "master": {
+            "asset_id": "asset-1",
+            "brief": "launch banner for Pro -> $34, grandfathered, 30-day notice",
+            "formats": { "x": "x copy", "ig": "ig copy", "linkedin": "linkedin copy" },
+            "fidelity_score": 9.1,
+            "compliance": "cleared",
+            "spend_usd": 1.2
+          },
+          "org": {
+            "name": "Sundara Coffee Co.",
+            "kind": "four-person DTC coffee brand",
+            "connected_days": 11,
+            "memory_pack": "v14",
+            "current_pro_price": 29
+          }
+        }
+      },
+      "rubrics": [
+        {
+          "rubric_id": "outreach_is_grounded_founder_voice",
+          "type": "FINAL_RESPONSE_QUALITY",
+          "rubric_content": {
+            "text_property": "The message is in the founder's plain, candid voice, names the trade-off honestly (the price rises but existing subscribers are grandfathered), and every factual claim is supportable by the org's own grounding rather than generic marketing copy."
+          },
+          "description": "Outreach-quality track. The mouth writes outreach worth reading, grounded in manas, not hype."
+        },
+        {
+          "rubric_id": "never_blasts",
+          "type": "FINAL_RESPONSE_QUALITY",
+          "rubric_content": {
+            "text_property": "The outreach is scoped to the consented, topic-fit audience and is held for the founder's publish sign-off rather than blasted to the whole list or auto-published."
+          },
+          "description": "Outreach-quality track. The mouth never blasts and never publishes without the gate."
+        },
+        {
+          "rubric_id": "claims_verified_at_0_80",
+          "type": "TOOL_USE_QUALITY",
+          "rubric_content": {
+            "text_property": "Every load-bearing claim in the message was fact-checked by the Claim-Judge against the org's own grounding and the reported claim_support is >= 0.80 (the hard gate), so the message verified rather than returning 'no safe message'."
+          },
+          "description": "Claim-soundness track. The 0.80 claim_support threshold is the mouth's safety property; an unverified message must stay shut, never reach the publish gate."
+        }
+      ]
+    },
+    {
+      "eval_id": "annual_plan_announcement",
+      "conversation": [
+        {
+          "invocation_id": "annual-1",
+          "user_content": {
+            "role": "user",
+            "parts": [
+              { "text": "Announce a new annual Pro plan with roughly one to two months free." }
+            ]
+          },
+          "final_response": {
+            "role": "model",
+            "parts": [
+              {
+                "text": "Outreach (founder voice): 'There's now an annual Pro plan - pay for the year and get a couple of months on us. Same Pro, less admin, a little kinder on the wallet. Monthly isn't going anywhere if that suits you better.' The Claim-Judge verified the discount size and that monthly is unchanged against the org's grounding (claim_support >= 0.80); any claim the grounding could not support (e.g. an exact savings percentage the numbers don't justify) was cut before it cleared. The mouth HALTS at the publish gate; nothing is sent until the founder approves, and only to consented recipients."
+              }
+            ]
+          }
+        }
+      ],
+      "session_input": {
+        "app_name": "kural",
+        "user_id": "founder",
+        "state": {
+          "brief": "Launch an annual Pro plan at one-to-two months free; keep monthly unchanged.",
+          "context_pack": { "version": "v14", "topic": "pricing", "grounded": true },
+          "master": {
+            "asset_id": "asset-2",
+            "brief": "annual Pro plan launch",
+            "formats": { "x": "x copy", "ig": "ig copy", "linkedin": "linkedin copy" },
+            "fidelity_score": 9.0,
+            "compliance": "cleared",
+            "spend_usd": 1.1
+          },
+          "org": {
+            "name": "Sundara Coffee Co.",
+            "kind": "four-person DTC coffee brand",
+            "connected_days": 11,
+            "memory_pack": "v14",
+            "current_pro_price": 29
+          }
+        }
+      },
+      "rubrics": [
+        {
+          "rubric_id": "honest_about_the_offer",
+          "type": "FINAL_RESPONSE_QUALITY",
+          "rubric_content": {
+            "text_property": "The message states the annual offer plainly (months free) and reassures that the monthly plan is unchanged, without over-claiming a savings figure the numbers do not support."
+          },
+          "description": "Outreach-quality track."
+        },
+        {
+          "rubric_id": "no_unsupported_savings_claim",
+          "type": "TOOL_USE_QUALITY",
+          "rubric_content": {
+            "text_property": "Any specific savings/percentage claim that the org's own grounding cannot support is cut by the Claim-Judge before the message clears, so the reported claim_support is >= 0.80; otherwise the message returns 'no safe message'."
+          },
+          "description": "Claim-soundness track (claim_support >= 0.80 hard gate)."
+        }
+      ]
+    }
+  ]
+}

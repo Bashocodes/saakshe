@@ -1,0 +1,255 @@
+{
+  "eval_set_id": "arivu_board_decisions_v1",
+  "name": "arivu — board-grade founder decisions",
+  "description": "A regression set of PAST Sundara Coffee Co. strategic calls, run through the full arivu chamber (frame -> 5 mantris in parallel -> debate loop -> Claude verdict -> prosecution loop -> HITL gate). Each case's reference describes the grounded, dissent-preserving, prosecuted verdict a reasonable board would defend. Cases are graded on two rubric tracks: verdict quality and prosecution soundness (defensibility >= 0.80 hard gate). Requires live creds (ARIVU_MODE=live + Vertex ADC) to actually run; in demo mode the orchestration runs but token generation is replayed. The hero case is the $39 Pro question.",
+  "eval_cases": [
+    {
+      "eval_id": "hero_pro_price_39",
+      "conversation": [
+        {
+          "invocation_id": "hero-1",
+          "user_content": {
+            "role": "user",
+            "parts": [
+              { "text": "Should we raise our Pro subscription to $39?" }
+            ]
+          },
+          "final_response": {
+            "role": "model",
+            "parts": [
+              {
+                "text": "Verdict: Raise Pro to $34 (not $39), grandfather all existing subscribers, and give 30-day notice before the new price applies. Reasons: (1) $34 captures most of the margin upside while staying below the $36 churn cliff the Risk lens surfaced from cohort retention (12-month retention 74%, sharp drop at $39); (2) grandfathering honours the brand-trust promise in the manas canon; (3) 30-day notice de-risks the ~2pt top-of-funnel conversion drag the Growth lens flagged. Preserved dissent: Growth holds that a $29 capture tier should ship alongside $34 to fully protect acquisition — recorded, not adopted. The verdict was prosecuted by an adversarial do-nothing steelman and survived only on the second round at defensibility 0.84 (>= the 0.80 gate); it now HALTS awaiting founder approval — no price is committed until a human approves at the single gate."
+              }
+            ]
+          }
+        }
+      ],
+      "session_input": {
+        "app_name": "arivu",
+        "user_id": "founder",
+        "state": {
+          "question": "Should we raise our Pro subscription to $39?",
+          "org": {
+            "name": "Sundara Coffee Co.",
+            "kind": "four-person DTC coffee brand",
+            "connected_days": 11,
+            "memory_pack": "v15",
+            "current_pro_price": 29
+          }
+        }
+      },
+      "rubrics": [
+        {
+          "rubric_id": "verdict_grounded_in_org_numbers",
+          "type": "FINAL_RESPONSE_QUALITY",
+          "rubric_content": {
+            "text_property": "The verdict cites the org's own live numbers (margin, retention/churn cliff, funnel conversion drag) rather than generic pricing advice, and the recommended price stays below the churn cliff the numbers reveal."
+          },
+          "description": "Verdict-quality track. A board would reject a pricing call that ignores the company's measured retention cliff and contribution margin."
+        },
+        {
+          "rubric_id": "dissent_is_preserved",
+          "type": "FINAL_RESPONSE_QUALITY",
+          "rubric_content": {
+            "text_property": "The minority position (the Growth advocate's $29 capture tier) is explicitly recorded as preserved dissent rather than erased into a false consensus."
+          },
+          "description": "Verdict-quality track. arivu's anti-groupthink property requires that a credible dissent survives into the final record."
+        },
+        {
+          "rubric_id": "verdict_survives_prosecution_at_0_80",
+          "type": "TOOL_USE_QUALITY",
+          "rubric_content": {
+            "text_property": "The verdict was attacked by an adversarial do-nothing/steelman prosecutor and its reported defensibility is >= 0.80 (the hard gate), so the chamber halts awaiting approval rather than reaching 'no safe decision'."
+          },
+          "description": "Prosecution-soundness track. The 0.80 defensibility threshold is the chamber's safety property; a verdict below it must roll back to 'no safe decision', never reach the gate."
+        }
+      ]
+    },
+    {
+      "eval_id": "drop_the_free_tier",
+      "conversation": [
+        {
+          "invocation_id": "free-1",
+          "user_content": {
+            "role": "user",
+            "parts": [
+              { "text": "Should we drop the free tier entirely and make every plan paid?" }
+            ]
+          },
+          "final_response": {
+            "role": "model",
+            "parts": [
+              {
+                "text": "Verdict: Do not drop the free tier outright; instead cap it (usage/seat limit) and add a low-friction paid 'capture' step above it, while grandfathering current free users for a defined window. Reasons grounded in the org's funnel and retention numbers: the free tier is the top of the trial->paid funnel (trial->paid ~18%), so deleting it would starve acquisition that the Growth lens depends on; the Economist lens shows the margin gain from forced paid is real but smaller than the funnel loss; the Risk lens flags that an abrupt removal reads as a broken promise and triggers churn/refund risk. Preserved dissent: the Economist holds that a fully-paid model is cleaner long-term and should be revisited once paid conversion is proven at the cap. The verdict must clear the do-nothing prosecution at defensibility >= 0.80 to reach the gate; if capping-plus-grandfathering cannot beat 'keep the free tier as-is', the chamber returns 'no safe decision' rather than forcing the change. Halts awaiting founder approval — nothing is committed."
+              }
+            ]
+          }
+        }
+      ],
+      "session_input": {
+        "app_name": "arivu",
+        "user_id": "founder",
+        "state": {
+          "question": "Should we drop the free tier entirely and make every plan paid?",
+          "org": {
+            "name": "Sundara Coffee Co.",
+            "kind": "four-person DTC coffee brand",
+            "connected_days": 11,
+            "memory_pack": "v15",
+            "current_pro_price": 29
+          }
+        }
+      },
+      "rubrics": [
+        {
+          "rubric_id": "weighs_funnel_against_margin",
+          "type": "FINAL_RESPONSE_QUALITY",
+          "rubric_content": {
+            "text_property": "The verdict weighs the top-of-funnel / trial->paid acquisition cost of removing the free tier against the margin upside, using the org's own funnel numbers, instead of treating 'more paid plans' as free money."
+          },
+          "description": "Verdict-quality track."
+        },
+        {
+          "rubric_id": "preserves_a_credible_dissent",
+          "type": "FINAL_RESPONSE_QUALITY",
+          "rubric_content": {
+            "text_property": "A credible opposing view (e.g. the Economist's fully-paid case) is preserved as recorded dissent rather than dropped."
+          },
+          "description": "Verdict-quality track."
+        },
+        {
+          "rubric_id": "no_safe_decision_below_0_80",
+          "type": "TOOL_USE_QUALITY",
+          "rubric_content": {
+            "text_property": "The recommended change only reaches the human gate if it survives the adversarial prosecution at defensibility >= 0.80; otherwise the chamber returns 'no safe decision' rather than committing a risky free-tier removal."
+          },
+          "description": "Prosecution-soundness track (defensibility >= 0.80 hard gate)."
+        }
+      ]
+    },
+    {
+      "eval_id": "open_a_wholesale_channel",
+      "conversation": [
+        {
+          "invocation_id": "wholesale-1",
+          "user_content": {
+            "role": "user",
+            "parts": [
+              { "text": "Should we open a wholesale channel and sell to cafes and offices at a discount?" }
+            ]
+          },
+          "final_response": {
+            "role": "model",
+            "parts": [
+              {
+                "text": "Verdict: Pilot wholesale as a small, gated channel (a handful of cafe/office accounts at a margin-protected floor price) before any broad rollout, and keep DTC pricing and brand promises intact. Reasons grounded in the org's numbers: the Economist lens shows wholesale discounts must clear a margin floor or they dilute the 71% contribution margin that funds the four-person team; the Ops-feasibility lens confirms fulfilment and billing for a few accounts is low blast-radius, but a broad channel is not staffable today; the Brand lens warns that a discounted wholesale price visible next to DTC can undercut the brand's calm, anti-hype positioning. Preserved dissent: the Growth lens argues wholesale is a faster top-of-funnel than paid acquisition and wants a larger initial cohort. The pilot recommendation must survive the do-nothing prosecution at defensibility >= 0.80 to reach the gate; a broad rollout that cannot clear that bar returns 'no safe decision'. Halts awaiting founder approval — no contracts or prices are committed."
+              }
+            ]
+          }
+        }
+      ],
+      "session_input": {
+        "app_name": "arivu",
+        "user_id": "founder",
+        "state": {
+          "question": "Should we open a wholesale channel and sell to cafes and offices at a discount?",
+          "org": {
+            "name": "Sundara Coffee Co.",
+            "kind": "four-person DTC coffee brand",
+            "connected_days": 11,
+            "memory_pack": "v15",
+            "current_pro_price": 29
+          }
+        }
+      },
+      "rubrics": [
+        {
+          "rubric_id": "protects_margin_and_brand",
+          "type": "FINAL_RESPONSE_QUALITY",
+          "rubric_content": {
+            "text_property": "The verdict ties the wholesale discount to a margin floor (protecting contribution margin) and to the brand's positioning, rather than chasing volume at any discount."
+          },
+          "description": "Verdict-quality track."
+        },
+        {
+          "rubric_id": "respects_ops_feasibility",
+          "type": "FINAL_RESPONSE_QUALITY",
+          "rubric_content": {
+            "text_property": "The verdict is scoped to what a four-person team can actually ship (a gated pilot, not a broad rollout) and preserves the Growth lens's larger-cohort dissent."
+          },
+          "description": "Verdict-quality track."
+        },
+        {
+          "rubric_id": "pilot_must_clear_0_80",
+          "type": "TOOL_USE_QUALITY",
+          "rubric_content": {
+            "text_property": "The channel decision reaches the human gate only if it survives the adversarial prosecution at defensibility >= 0.80; a broad rollout that fails the bar returns 'no safe decision'."
+          },
+          "description": "Prosecution-soundness track (defensibility >= 0.80 hard gate)."
+        }
+      ]
+    },
+    {
+      "eval_id": "annual_plan_with_discount",
+      "conversation": [
+        {
+          "invocation_id": "annual-1",
+          "user_content": {
+            "role": "user",
+            "parts": [
+              { "text": "Should we launch an annual Pro plan at two months free to boost cash and retention?" }
+            ]
+          },
+          "final_response": {
+            "role": "model",
+            "parts": [
+              {
+                "text": "Verdict: Launch an annual Pro plan, but size the discount to the retention it buys — offer roughly one-to-two months free, not a deeper cut, and keep the monthly plan unchanged. Reasons grounded in the org's numbers: the Economist lens shows an annual prepay improves cash and the effective discount is defensible only because 12-month cohort retention (74%) already justifies a year of commitment; the Risk lens flags that too deep a discount destroys the margin the prepay is meant to protect and that refunds on annual plans are a new liability; the Ops lens confirms annual billing is a contained, billing-safe flag flip. Preserved dissent: the Growth lens wants a deeper introductory discount to maximise sign-ups, accepting lower per-seat margin. The discount level must survive the do-nothing prosecution at defensibility >= 0.80 to reach the gate; a deeper-discount variant that fails the bar returns 'no safe decision'. Halts awaiting founder approval — nothing is billed until approved."
+              }
+            ]
+          }
+        }
+      ],
+      "session_input": {
+        "app_name": "arivu",
+        "user_id": "founder",
+        "state": {
+          "question": "Should we launch an annual Pro plan at two months free to boost cash and retention?",
+          "org": {
+            "name": "Sundara Coffee Co.",
+            "kind": "four-person DTC coffee brand",
+            "connected_days": 11,
+            "memory_pack": "v15",
+            "current_pro_price": 29
+          }
+        }
+      },
+      "rubrics": [
+        {
+          "rubric_id": "discount_sized_to_retention",
+          "type": "FINAL_RESPONSE_QUALITY",
+          "rubric_content": {
+            "text_property": "The annual discount is justified against the org's measured 12-month retention and contribution margin, not set by gut feel, and the cash-flow upside is weighed against the margin given away."
+          },
+          "description": "Verdict-quality track."
+        },
+        {
+          "rubric_id": "names_the_refund_liability",
+          "type": "FINAL_RESPONSE_QUALITY",
+          "rubric_content": {
+            "text_property": "The downside-first lens's new annual-plan refund/commitment liability is surfaced and the Growth lens's deeper-discount preference is preserved as dissent."
+          },
+          "description": "Verdict-quality track."
+        },
+        {
+          "rubric_id": "discount_must_clear_0_80",
+          "type": "TOOL_USE_QUALITY",
+          "rubric_content": {
+            "text_property": "The chosen discount level reaches the human gate only if it survives the adversarial prosecution at defensibility >= 0.80; a deeper-discount variant that fails the bar returns 'no safe decision'."
+          },
+          "description": "Prosecution-soundness track (defensibility >= 0.80 hard gate)."
+        }
+      ]
+    }
+  ]
+}

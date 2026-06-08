@@ -1,0 +1,42 @@
+[project]
+name = "manas"
+version = "0.1.0"
+description = "manas — the company's mind (KNOWS). A memory pipeline on Google ADK: a Gemini Mind-Keeper routes ingestion, four Gemini imbibers fan out across disjoint modalities in parallel, a Claude-via-Vertex Memory Curator verifies every claim cites a source and is non-contradictory before commit (a deterministic groundedness loop), and a Claude-via-Vertex Founder Voice answers as the founder grounded only in corpus and refuses out-of-corpus. It knows; it never acts, posts, or decides. Part of the saakshe agentic company — Google for Startups AI Agents Challenge, Track 1 · Build."
+authors = [{ name = "saakshe" }]
+license = { text = "Apache License 2.0" }
+readme = "README.md"
+requires-python = ">=3.10,<3.14"
+
+dependencies = [
+    "google-adk>=1.31.0",
+    "google-cloud-aiplatform[adk,agent-engines]>=1.93.0",
+    "google-genai>=1.9.0",
+    "anthropic[vertex]>=0.49.0",
+    "pydantic>=2.10.6",
+    "python-dotenv>=1.0.0",
+]
+
+[dependency-groups]
+dev = [
+    "google-adk[eval]>=1.31.0",
+    "pytest>=8.3.5",
+    "pytest-asyncio>=0.26.0",
+]
+
+# NOTE: deliberately packaging-only. The repo-root pytest.ini owns the pytest
+# config (asyncio_mode=auto). Adding a [tool.pytest.ini_options] here would let
+# pytest pick manas/ as rootdir for `pytest manas/tests` and silently drop the
+# async settings, erroring/skipping the async pipeline tests.
+
+[tool.hatch.build.targets.wheel]
+packages = ["manas"]
+
+[tool.agent-starter-pack]
+example_question = "Do we grandfather existing subscribers when we change pricing?"
+
+[tool.agent-starter-pack.settings]
+agent_directory = "manas"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

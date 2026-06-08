@@ -1,0 +1,45 @@
+{
+  "name": "arivu",
+  "description": "A multi-agent deliberation chamber on Google ADK. Five grounded Gemini advisors (economist, growth, brand, risk, ops) argue a founder's decision to convergence; a Claude-via-Vertex chair synthesises a verdict; a Claude-via-Vertex prosecutor tries to defeat it; the run halts at a single human-approval gate before any side effect fires. arivu is the faculty of judgment.",
+  "version": "0.1.0",
+  "protocolVersion": "0.2.5",
+  "url": "https://arivu.saakshe.example/a2a",
+  "preferredTransport": "JSONRPC",
+  "provider": {
+    "organization": "saakshe",
+    "url": "https://saakshe.example"
+  },
+  "capabilities": {
+    "streaming": true,
+    "pushNotifications": false,
+    "stateTransitionHistory": false
+  },
+  "defaultInputModes": ["text/plain", "application/json"],
+  "defaultOutputModes": ["text/plain", "application/json"],
+  "skills": [
+    {
+      "id": "deliberate",
+      "name": "Deliberate",
+      "description": "Run the full chamber on a founder's question: ground on the org's live numbers, fan out the five mantris, drive the debate loop to convergence, synthesise a Claude verdict, prosecute it adversarially, and HALT at the approval gate. Returns the verdict, defensibility score, and an ordered transcript. No side effects.",
+      "tags": ["deliberation", "multi-agent", "decision-support", "read-only"],
+      "examples": [
+        "Should we raise our Pro subscription to $39?",
+        "Should we sunset the free tier?"
+      ],
+      "inputModes": ["text/plain", "application/json"],
+      "outputModes": ["application/json"]
+    },
+    {
+      "id": "decide",
+      "name": "Decide",
+      "description": "Execute an already-deliberated, gate-passed verdict: publish the resolution doc, flip the feature flag, and dispatch the A2A follow-up orders. Refuses unless the prior deliberation reached the gate (awaiting_approval / approved / executed) and a human approved. Honours dry-run by default.",
+      "tags": ["execution", "human-in-the-loop", "side-effects", "gated"],
+      "examples": [
+        "Approve and execute the verdict from the last deliberation."
+      ],
+      "inputModes": ["application/json"],
+      "outputModes": ["application/json"]
+    }
+  ],
+  "notes": "Served manually by the FastAPI server rather than via ADK's to_a2a() helper: to_a2a() is currently blocked by the a2a-sdk 1.1.0 restructure (a2a.server.apps was moved, breaking the import path ADK expects). Until ADK pins/adapts to the new a2a-sdk layout, the server reads this static AgentCard and exposes it on the well-known discovery path itself, and answers JSON-RPC manually. Path is a2a-sdk-version-sensitive: recent A2A spec uses /.well-known/agent-card.json, older drafts used /.well-known/agent.json — confirm against the targeted a2a-sdk version when wiring the route."
+}

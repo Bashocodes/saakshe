@@ -1,0 +1,57 @@
+{
+  "name": "manas",
+  "description": "The company's mind — versioned, source-cited memory on Google ADK. A Gemini Mind-Keeper routes ingestion; four Gemini imbibers fan out across disjoint modalities (documents, images, founder voice, the world's pulse) in parallel; a Claude-via-Vertex Memory Curator verifies every claim cites a source and is non-contradictory before commit (a deterministic groundedness loop, v14 -> v15); a Claude-via-Vertex Founder Voice answers as the founder grounded only in corpus and refuses out-of-corpus. manas knows; it never acts, posts, or decides.",
+  "version": "0.1.0",
+  "protocolVersion": "0.2.5",
+  "url": "https://manas.saakshe.example/a2a",
+  "preferredTransport": "JSONRPC",
+  "provider": {
+    "organization": "saakshe",
+    "url": "https://saakshe.example"
+  },
+  "capabilities": {
+    "streaming": true,
+    "pushNotifications": false,
+    "stateTransitionHistory": false
+  },
+  "defaultInputModes": ["text/plain", "application/json"],
+  "defaultOutputModes": ["text/plain", "application/json"],
+  "skills": [
+    {
+      "id": "get_founder_context",
+      "name": "Get founder context",
+      "description": "Return the versioned, source-cited Context Pack (cited facts + voice rules + brand rules) for a topic — the grounding the rest of the company is bound by. An out-of-corpus topic returns an honestly ungrounded pack (grounded=false, no facts), never a fabricated one.",
+      "tags": ["memory", "grounding", "rag", "read-only"],
+      "examples": [
+        "get_founder_context(pricing)",
+        "get_founder_context(brand)"
+      ],
+      "inputModes": ["application/json"],
+      "outputModes": ["application/json"]
+    },
+    {
+      "id": "ask_founder_voice",
+      "name": "Ask the founder's voice",
+      "description": "Answer a question AS the founder, grounded ONLY in the imbibed corpus, with citations. If the question is out-of-corpus it REFUSES (refused=true, empty citations) rather than fabricate a founder opinion — the guardrail that keeps the company from being bound by a hallucinated answer.",
+      "tags": ["memory", "refusal", "voice", "read-only"],
+      "examples": [
+        "Do we grandfather existing subscribers when we change pricing?",
+        "What is our voice?"
+      ],
+      "inputModes": ["text/plain", "application/json"],
+      "outputModes": ["application/json"]
+    },
+    {
+      "id": "learn",
+      "name": "Remember the day's decision",
+      "description": "Drive the ingestion -> curate -> commit pipeline to remember an outcome: route ingestion (Mind Keeper), imbibe the four modalities in parallel, verify every claim cites a source and is non-contradictory (Claude Curator verify-before-commit loop), and tick the Context Pack v14 -> v15. Refuses to commit (rollback) an under-grounded or contradictory memory. No human gate — manas knows, it does not ask approval to remember.",
+      "tags": ["memory", "ingestion", "verify-before-commit", "write"],
+      "examples": [
+        "Remember today's decision: Raise Pro to $34, grandfather existing, 30-day notice."
+      ],
+      "inputModes": ["application/json"],
+      "outputModes": ["application/json"]
+    }
+  ],
+  "notes": "Served manually by the FastAPI server rather than via ADK's to_a2a() helper: to_a2a() is currently blocked by the a2a-sdk 1.1.0 restructure (a2a.server.apps was moved, breaking the import path ADK expects). Until ADK pins/adapts to the new a2a-sdk layout, the server reads this static AgentCard and exposes it on the well-known discovery path itself, and answers JSON-RPC manually. The get_founder_context / ask_founder_voice A2A skills are synchronous and pure-corpus-backed (they never drive the async pipeline), and are grounded in the same corpus the agents use, so the A2A surface and the agents can never disagree."
+}
