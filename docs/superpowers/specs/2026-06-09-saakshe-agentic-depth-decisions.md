@@ -158,6 +158,16 @@ in the 2a green set (they catch a generic stop predicate that doesn't reproduce 
 max-rounds-below-threshold → `VERDICT_SURVIVED=False` rollback); (2) graduated prosecutor keeps the
 `PROSECUTION_ROUND::N` marker; (3) arivu's public runner surface is unchanged.
 
+**Import structure (code-verified 2026-06-09 — no cycle).** 2a makes `arivu/arivu/agent.py` import
+`common.chamber`. Safe: `common/__init__.py` (lines 14–19) only *adds* arivu's root to `sys.path` and
+imports `a2a/config/models/stream` — it never imports arivu. So `import arivu` → `import
+common.chamber` → `import common` (`__init__` runs: path-add + those four, no arivu) → no cycle. The
+hard rule that keeps it acyclic: **`common/chamber.py` must never import arivu** (skeleton only). The
+three lifted control agents parameterize precisely three things: the `SK.*` **state-key bindings**,
+the **injectable predicates** (`convergence_fn`, `prosecution_should_stop`), and the **gate**
+(`gate_status_key` / `gate_condition` / `human_tap`) — arivu passes its own `analyst.*` predicates +
+its `StateKeys`, so 2a reproduces today's behavior exactly.
+
 ---
 
 ## F · Build order (unchanged from parent §4; with the 2a/2b split)
