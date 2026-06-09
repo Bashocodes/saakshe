@@ -22,6 +22,7 @@ from typing import Any
 from common import a2a, config, project
 from common.stream import EventStream
 
+from . import delivery
 from . import demo_fixtures as fx
 from .state import StateKeys
 from .tools import analyst, channels
@@ -74,12 +75,17 @@ def _build_post(state: dict, master: dict, context_pack: dict) -> dict:
     """
     pack_v = (context_pack or {}).get("version", config.CANON["context_pack_from"])
     master = master if isinstance(master, dict) else {}
+    plan = state.get(StateKeys.DELIVERY_PLAN, {})
+    plan = plan if isinstance(plan, dict) else parse_json(plan)
     return {
         "channel": "x+ig+linkedin",
         "as_voice": "founder · plain, warm, names the trade-off",
         "grounded_in": pack_v,
         "caption": master.get("caption", ""),
         "drafts": master.get("formats", {}),
+        # The delivery chamber's pick — variant × segment × window; the carried text
+        # is kalai's own formats[variant], VERBATIM (kural authors nothing).
+        "delivery": plan,
     }
 
 
@@ -104,12 +110,26 @@ async def engage(stream: EventStream, run_id: str, master: dict, context_pack: d
     transcript.append({"actor": "Envoy Lead [Claude·Vertex]",
                        "text": qualify.get("rationale", "qualify: this is worth saying — own it")})
 
-    # Research fan-out (ran in a ParallelAgent inside root_agent) — the two
-    # disjoint scouts. kural carries kalai's copy untouched; it authors no words.
-    stream.emit(run_id, NS, "Prospect Scout", "scope the consented, topic-fit audience", span="execute_tool")
-    stream.emit(run_id, NS, "Market Watcher", "check timing + recent posts (open window)", span="execute_tool")
-    transcript.append({"actor": "Prospect Scout", "text": "scoped the consented, topic-fit audience slice"})
-    transcript.append({"actor": "Market Watcher", "text": "timing window open — feed quiet, no crowding"})
+    # Delivery fan-out (ran in a ParallelAgent inside root_agent) — four disjoint
+    # deep readers (consent · reach · topic-fit · timing). kural carries kalai's
+    # copy untouched; the readers surface delivery facts, they author no words.
+    for _role, display, lens, key in delivery.DELIVERY_READERS:
+        r = state.get(key)
+        r = r if isinstance(r, dict) else parse_json(r)
+        finding = r.get("finding", f"read the {lens}")
+        stream.emit(run_id, NS, display, finding, span="execute_tool")
+        transcript.append({"actor": display, "text": finding})
+
+    # Delivery planner (Claude) — PICKS variant × segment × window; authors nothing.
+    plan = state.get(StateKeys.DELIVERY_PLAN, {})
+    plan = plan if isinstance(plan, dict) else parse_json(plan)
+    stream.emit(run_id, NS, "Delivery Planner",
+                f"pick: {plan.get('variant', '—')} variant · {plan.get('segment', '')} · {plan.get('window', '')}",
+                span="agent_run", model="claude·vertex",
+                usage={"input_tokens": 600, "output_tokens": 90})
+    transcript.append({"actor": "Delivery Planner [Claude·Vertex]",
+                       "text": f"carry the {plan.get('variant', '')} variant to {plan.get('segment', '')} "
+                               f"({plan.get('window', '')}) — {plan.get('rationale', '')}"})
 
     # The gate opens on send-eligibility (qualified engagement + eligible send),
     # not on any claim score — kalai already cleared the copy in its fidelity loop.

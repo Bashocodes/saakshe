@@ -29,28 +29,54 @@ Return ONLY a JSON object:
 }
 """
 
-# ─── Research fan-out (two disjoint Gemini scouts, in parallel) ───────────────
-RESEARCH_BASE = """\
-You are the {display} on kural's research desk for {org}. You research one lens \
-ONLY — {lens} — in parallel with the other scout, who you have NOT seen. Do not \
-write the message; surface what the writer must know.
+# ─── Delivery chamber (Phase 4): 4 deep readers + the planner ─────────────────
+# (The pre-Phase-4 2-scout RESEARCH prompts were retired with build_research_scouts.)
+# Four disjoint Gemini readers fan out in parallel (the kural panel); a Claude
+# planner picks variant × segment × window. kural authors NOTHING — the readers
+# surface delivery facts, the planner selects a pre-authored variant.
+DELIVERY_READER_BASE = """\
+You are the {display} on kural's delivery desk for {org}. You read ONE lens only — \
+{lens} — in parallel with three other readers you have NOT seen. You do NOT write \
+the message; kalai already wrote every word. You surface what the delivery planner \
+must know to carry the cleared creative out well.
 
-RULE — grounded or silent: cite the org's own numbers (manas Context Pack / the \
+RULE — grounded or silent: cite the org's own numbers (the manas Context Pack / the \
 funnel) — never model memory. If you cannot ground it, omit it.
 
 Return ONLY a JSON object:
 {
   "lens": "<your lens>",
-  "finding": "<your single most useful, grounded finding for the writer>",
+  "finding": "<your single most useful, grounded delivery finding for the planner>",
   "citation": "<the figure(s) you relied on and their source>"
 }
 """
 
-RESEARCH_LENS = {
-    "prospect": "Own the audience: who is this for, who has consented, how many "
-    "are reachable and topic-fit. Use the funnel + the audience-fit tool. The mouth "
-    "sends only to the consented, topic-fit slice — never the whole list.",
-    "market": "Own timing + the feed: are competitors crowding the channel, are we "
-    "stale, when is the open window. Use the timing-window tool. Recommend WHEN, "
-    "not what.",
+DELIVERY_READER_LENS = {
+    "consent": "Own consent & permission: how many have actually consented to hear "
+    "from us, and on which channels. The mouth sends only to the consented — never "
+    "the whole list.",
+    "reach": "Own reachable size: of the consented, how many are realistically "
+    "reachable now (active openers). Cite the funnel reach figure.",
+    "topic_fit": "Own topic match: what fraction of the audience is a real fit for "
+    "THIS topic. A price-change note is not for everyone — find the topic-fit slice.",
+    "timing": "Own the open window: is the feed crowded, are we stale, when is the "
+    "open window to post. Recommend WHEN, not what.",
 }
+
+DELIVERY_PLANNER = """\
+You are the DELIVERY PLANNER of kural — {org}'s mouth. kalai has ALREADY written \
+every word (the caption + a variant per channel). You author NOTHING. Your job is \
+to PICK how to carry it out: which pre-authored variant, to which consented \
+topic-fit segment, in which open window — from the readers' grounded findings.
+
+You may ONLY choose a variant from the pre-authored list given below. Never write \
+or edit copy; if none is perfect, pick the closest pre-authored variant.
+
+Return ONLY a JSON object:
+{
+  "variant": "<one of the pre-authored channel keys: x | ig | linkedin>",
+  "segment": "<the consented, topic-fit slice to send to>",
+  "window": "<when to publish — the open window>",
+  "rationale": "<one sentence: why this variant/segment/window>"
+}
+"""

@@ -49,32 +49,62 @@ _QUALIFY = {
     "rationale": f"A price change touches every customer — say it once, clearly, in the founder's voice.",
 }
 
-_RESEARCH = {
-    "prospect": {
-        "lens": "audience & consent",
-        "finding": "Send only to the 980 consented, topic-fit openers (of 1,840) — "
-        "not the whole list; ~628 are a real topic fit.",
-        "citation": "funnel: 1,840 list, 980 consented 30d opens, 64% topic match",
+# ─── Delivery chamber replay (Phase 4): 4 deep readers + the planner's pick ───
+# The four disjoint readers each return a grounded delivery finding; the planner
+# PICKS a pre-authored variant × segment × window. kural authors NO copy — the
+# carried text is kalai's own formats[variant], assembled deterministically.
+_READERS = {
+    "consent": {
+        "lens": "consent & permission",
+        "finding": "980 of the 1,840-strong list have consented to hear from us in "
+        "the last 30 days — send only to them, never the whole list.",
+        "citation": "funnel: 1,840 list, 980 consented 30d opens",
     },
-    "market": {
-        "lens": "timing & feed",
-        "finding": "Feed is open and we've been quiet 9 days — post now, no competitor crowding.",
+    "reach": {
+        "lens": "reachable audience size",
+        "finding": "All 980 consented openers are reachable now — active in the last "
+        "30 days; no re-permission needed.",
+        "citation": "funnel: 980 consented 30d opens",
+    },
+    "topic_fit": {
+        "lens": "topic match",
+        "finding": "64% are a real fit for a pricing note — about 628 of the 980; the "
+        "rest are off-topic for this message.",
+        "citation": "funnel: 64% topic match of the 980 consented",
+    },
+    "timing": {
+        "lens": "open window",
+        "finding": "Feed is open — we've been quiet 9 days and competitors aren't "
+        "crowding. Post in the next 24h.",
         "citation": "market: 2 competitor posts/7d, 9 days since our last post",
     },
 }
 
+# The planner's pick — a pre-authored variant (NEVER new copy) × segment × window.
+_DELIVERY_PICK = {
+    "variant": "linkedin",
+    "segment": "the ~628 consented, topic-fit openers",
+    "window": "the next 24h (open feed, no crowding)",
+    "rationale": "LinkedIn fits a candid pricing note to the consented topic-fit "
+    "slice while the feed is open.",
+}
+
+
 def scripted_payload(role: str, llm_request=None) -> str:
     """Return the canned output for a role in deterministic-replay mode.
 
-    Registered with common.models so the shared ScriptedLlm dispatches the
-    kural namespace's roles here — same machinery arivu uses, per-quadrant fixtures.
-    Only two role families remain after the separation fix: the Claude qualify
-    decision and the two research scouts. kural authors no copy.
+    Registered with common.models so the shared ScriptedLlm dispatches the kural
+    namespace's roles here — same machinery arivu uses, per-quadrant fixtures.
+    After the separation fix kural authors no copy: the Claude qualify decision,
+    four delivery readers, and a Claude delivery planner that only PICKS a
+    pre-authored variant.
     """
     if role == "coordinator":
         return json.dumps(_QUALIFY)
-    if role in _RESEARCH:
-        return json.dumps(_RESEARCH[role])
+    if role in _READERS:
+        return json.dumps(_READERS[role])
+    if role == "delivery_planner":
+        return json.dumps(_DELIVERY_PICK)
     return "Acknowledged."
 
 

@@ -35,7 +35,7 @@ from google.adk.agents import (
 from google.adk.agents.invocation_context import InvocationContext
 from google.adk.events import Event, EventActions
 
-from . import grounding, sub_agents
+from . import delivery, grounding, sub_agents
 from .state import StateKeys
 from .tools import analyst
 from .util import parse_json
@@ -73,20 +73,27 @@ def build_root_agent() -> SequentialAgent:
     # Ground at the spine entry, before any seat speaks.
     coordinator.before_agent_callback = grounding.ground_callback
 
-    research = ParallelAgent(
-        name="research_fanout",
-        description="Two disjoint scouts (audience, timing) research in parallel — earned fan-out.",
-        sub_agents=sub_agents.build_research_scouts(),
+    readers = ParallelAgent(
+        name="delivery_fanout",
+        description="Four disjoint delivery readers (consent · reach · topic-fit · timing) in parallel — the kural panel.",
+        sub_agents=delivery.build_delivery_readers(),
     )
     return SequentialAgent(
         name="kural",
         description=(
-            "kural — the company's only mouth. Qualifies the engagement, researches "
-            "in parallel, and HALTS at the founder's publish sign-off before saying "
-            "anything to the world. It authors nothing — it carries kalai's "
-            "compliance-cleared master untouched."
+            "kural — the company's only mouth. Qualifies the engagement, reads the "
+            "delivery facts in parallel (consent · reach · topic-fit · timing), a "
+            "planner PICKS variant × segment × window, and it HALTS at the founder's "
+            "publish sign-off before saying anything to the world. It authors nothing "
+            "— it carries kalai's compliance-cleared master untouched."
         ),
-        sub_agents=[coordinator, research, GateAgent(name="gate")],
+        sub_agents=[
+            coordinator,
+            readers,
+            delivery.build_delivery_planner(),
+            delivery.DeliveryAssembler(name="delivery_assembler"),
+            GateAgent(name="gate"),
+        ],
     )
 
 

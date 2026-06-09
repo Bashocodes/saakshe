@@ -36,8 +36,16 @@ class StateKeys:
     QUALIFY = "qualify"               # {worth_engaging, channel, as_voice, rationale}
 
     # Research fan-out (ParallelAgent writes these disjointly).
-    RESEARCH_PROSPECT = "research_prospect"   # Prospect Scout
-    RESEARCH_MARKET = "research_market"       # Market Watcher
+    RESEARCH_PROSPECT = "research_prospect"   # Prospect Scout (pre-Phase-4)
+    RESEARCH_MARKET = "research_market"       # Market Watcher (pre-Phase-4)
+
+    # Delivery chamber (Phase 4): four deep readers → planner → deterministic assembler.
+    DELIVERY_CONSENT = "delivery_consent"     # Consent Reader  · consent & permission
+    DELIVERY_REACH = "delivery_reach"         # Reach Reader    · reachable audience size
+    DELIVERY_TOPIC = "delivery_topic"         # Topic-fit Reader · topic match
+    DELIVERY_TIMING = "delivery_timing"       # Timing Reader   · open window
+    DELIVERY_PICK = "delivery_pick"           # planner's pick {variant, segment, window, rationale}
+    DELIVERY_PLAN = "delivery_plan"           # assembled {..., text = kalai formats[variant], verbatim}
 
     # Message.
     DRAFT = "draft"                   # Outreach Writer's founder-voice draft

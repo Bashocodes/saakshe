@@ -77,9 +77,11 @@ async def test_engage_emits_the_seat_transcript():
     s = EventStream()
     res = await runner.engage(s, "run2", _MASTER, _PACK)
     actors = " ".join(t["actor"] for t in res.transcript)
-    # The post-separation seats: qualify, the two scouts, the channel desk. No
-    # Outreach Writer / Claim Judge — kural authors nothing.
-    for seat in ("Envoy Lead", "Prospect Scout", "Market Watcher", "Email Envoy", "Channel Mouth"):
+    # The Phase-4 seats: qualify, the four delivery readers, the Claude delivery
+    # planner, the channel desk. No Outreach Writer / Claim Judge — kural authors
+    # nothing; the planner only PICKS a pre-authored variant.
+    for seat in ("Envoy Lead", "Consent Reader", "Reach Reader", "Topic-fit Reader",
+                 "Timing Reader", "Delivery Planner", "Email Envoy", "Channel Mouth"):
         assert seat in actors
     assert "Outreach Writer" not in actors and "Claim Judge" not in actors
     # The sealed price appears in the gate proposal (never a forbidden number).

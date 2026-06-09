@@ -31,7 +31,6 @@ from common import config, models
 
 from . import prompts
 from .state import StateKeys
-from .tools import analyst
 
 
 # ─── Forced-shape schemas for the two Claude steps ───────────────────────────
@@ -81,44 +80,6 @@ def build_coordinator() -> LlmAgent:
         output_key=StateKeys.QUALIFY,
     )
 
-
-# ─── Research fan-out (two disjoint Gemini scouts, in parallel) ───────────────
-def _research_instruction(role: str, display: str, lens: str):
-    def provider(ctx: ReadonlyContext) -> str:
-        base = (
-            prompts.RESEARCH_BASE
-            .replace("{display}", display)
-            .replace("{org}", _org_name(ctx))
-            .replace("{lens}", lens)
-        )
-        steer = prompts.RESEARCH_LENS.get(role, "")
-        return (
-            base
-            + f"\nLENS FOCUS: {steer}\n\n"
-            + f"THE APPROVED DECISION (brief):\n{_brief(ctx)}\n\n"
-            + f"THE ORG'S OWN GROUNDING:\n{_grounding_block(ctx)}\n"
-        )
-
-    return provider
-
-
-def build_research_scouts() -> list[LlmAgent]:
-    specs = [
-        ("prospect", "Prospect Scout", "audience & consent", StateKeys.RESEARCH_PROSPECT,
-         [analyst.audience_fit_tool]),
-        ("market", "Market Watcher", "timing & feed", StateKeys.RESEARCH_MARKET,
-         [analyst.timing_window_tool]),
-    ]
-    agents: list[LlmAgent] = []
-    for role, display, lens, out_key, tools in specs:
-        agents.append(
-            LlmAgent(
-                name=f"research_{role}",
-                model=models.gemini_flash("kural", role),
-                description=f"The {display} — {lens} lens (research fan-out).",
-                instruction=_research_instruction(role, display, lens),
-                tools=tools,
-                output_key=out_key,
-            )
-        )
-    return agents
+# The research fan-out (Prospect Scout + Market Watcher) was replaced in Phase 4 by
+# the four deep delivery readers (consent · reach · topic-fit · timing) — see
+# kural/delivery.py. kural still authors nothing; the readers feed the planner.
