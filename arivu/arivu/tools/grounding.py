@@ -110,7 +110,11 @@ def ground_callback(callback_context):
     """before_agent_callback for the chair/frame agent: pull grounding into state
     and initialise the chamber's deterministic counters."""
     state = callback_context.state
-    state[config.StateKeys.GROUNDING] = fetch_grounding()
+    live_bundle = _live_admin_bundle() if config.is_live() else None
+    state[config.StateKeys.GROUNDING] = live_bundle or dict(DEMO_GROUNDING)
+    # Honest provenance: prompts label the block "live numbers" ONLY when a live
+    # source actually resolved; the seed fallback is labeled as the baseline it is.
+    state["grounding_live"] = bool(live_bundle)
     state["grounding_text"] = grounding_text(state[config.StateKeys.GROUNDING])
     state.setdefault(config.StateKeys.ORG, dict(config.DEFAULT_ORG))
     state.setdefault(config.StateKeys.QUESTION, config.DEFAULT_QUESTION)

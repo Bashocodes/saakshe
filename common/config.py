@@ -158,14 +158,15 @@ QUADRANTS = {
     "arivu": {"verb": "decides", "seats": 9, "claude_seats": 2, "hue": "#5166a7"},
     "kalai": {"verb": "makes", "seats": 5, "claude_seats": 2, "hue": "#b35a4e"},
     # kural shed its Outreach Writer + Claim Judge in the separation fix (kalai
-    # authors everything; kural carries the master untouched). Live roster now:
+    # authors everything; kural carries the master untouched). Live roster:
     # Envoy Lead (Claude) · Prospect Scout · Market Watcher · Email Envoy · Channel
-    # Mouth = 5 seats, 1 Claude. (Phase 4's delivery readers aren't built yet — we
-    # count what exists, not what's incoming.)
-    "kural": {"verb": "engages", "seats": 5, "claude_seats": 1, "hue": "#3e725f"},
+    # Mouth · the delivery-reader panel (4 lenses, folded as ONE seat — the same
+    # rule that counts each mantri ensemble once) · Delivery Planner (Claude,
+    # no-text-field) = 7 seats, 2 Claude. Matches darshana + the cockpit spec.
+    "kural": {"verb": "engages", "seats": 7, "claude_seats": 2, "hue": "#3e725f"},
 }
-TOTAL_SEATS = sum(q["seats"] for q in QUADRANTS.values())          # 26
-TOTAL_CLAUDE_SEATS = sum(q["claude_seats"] for q in QUADRANTS.values())  # 7
+TOTAL_SEATS = sum(q["seats"] for q in QUADRANTS.values())          # 28
+TOTAL_CLAUDE_SEATS = sum(q["claude_seats"] for q in QUADRANTS.values())  # 8
 
 # NO canned company. The product boots empty and runs on the founder's REAL
 # connected project — the org comes from ``common.project.STORE.org_for_flywheel()``

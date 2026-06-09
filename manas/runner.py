@@ -49,17 +49,20 @@ async def ground(stream: EventStream, run_id: str, topic: str = "pricing") -> a2
     """
     pack = corpus.context_pack(topic)
     stream.emit(run_id, NS, "Mind Keeper", f"route grounding request · topic “{topic}”", span="agent_run")
+    # Honest beat: this serve is a corpus read — no model fires here. The REAL
+    # Claude founder-voice seat lives on ask_founder_voice(); stamping a
+    # claude·vertex call (with token usage) on a pure read would fabricate both
+    # the actor and the cost the witness reports.
     if pack.grounded:
         stream.emit(
-            run_id, NS, "Founder Voice",
+            run_id, NS, "Memory Keeper",
             f"serve Context Pack {pack.version} · {len(pack.facts)} cited facts · refuses out-of-corpus",
-            span="call_llm", model="claude·vertex",
-            usage={"input_tokens": 900, "output_tokens": 160},
+            span="agent_run",
         )
     else:
-        stream.emit(run_id, NS, "Founder Voice",
+        stream.emit(run_id, NS, "Memory Keeper",
                     f"topic “{topic}” is out-of-corpus — grounding withheld (no fabrication)",
-                    span="call_llm")
+                    span="agent_run")
     return pack
 
 

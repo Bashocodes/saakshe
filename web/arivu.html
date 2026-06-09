@@ -913,7 +913,7 @@ html:not(.js) .viz .team .node .ndot{fill:var(--accent)}
         <div class="idx">→ 01</div>
         <div class="body">
           <div class="h">The chair frames &amp; grounds <span class="who">· Gemini 2.5 Pro · TOOLS, not agents</span></div>
-          <div class="d">The coordinator decomposes the founder's loaded question into the sub-questions each lens must answer, and pulls grounding via <b>tools</b>: <span class="mono">manas</span> over A2A (brand, voice, strategy) and the live example MCP calls <span class="mono">admin_stats</span> and <span class="mono">admin_analytics</span> — so every advisor argues from the org's own numbers, never model memory. A single MCP call is a tool, not an agent.</div>
+          <div class="d">The coordinator decomposes the founder's loaded question into the sub-questions each lens must answer, and pulls grounding via <b>tools</b>: <span class="mono">manas</span> over A2A (brand, voice, strategy) and the opt-in example MCP tools <span class="mono">admin_stats</span> and <span class="mono">admin_analytics</span> (enabled once the transport is confirmed) — so every advisor argues from the org's own numbers, never model memory. A single MCP call is a tool, not an agent.</div>
         </div>
       </div>
       <div class="step">
@@ -948,7 +948,7 @@ html:not(.js) .viz .team .node .ndot{fill:var(--accent)}
         <div class="idx"><span class="acc">◈ 06</span></div>
         <div class="body">
           <div class="h">One gate — the pipeline halts</div>
-          <div class="d">Exactly one human approval stands between deliberation and irreversible action. Durable, resumable state (Memory Bank) holds the full chamber transcript, so an approval that lands hours later resumes exactly where it paused. On <b>APPROVE</b> → the executor fires. On <b>REJECT</b> → the dissent is captured and the chamber re-enters the loop.</div>
+          <div class="d">Exactly one human approval stands between deliberation and irreversible action. Durable, resumable run state (the orchestrator's run registry; Vertex Memory Bank is roadmap) holds the chamber transcript, so an approval that lands later resumes where it paused. On <b>APPROVE</b> → the executor fires. On <b>REJECT</b> → the dissent is captured and the chamber re-enters the loop.</div>
         </div>
       </div>
       <div class="step final">
@@ -1105,7 +1105,7 @@ html:not(.js) .viz .team .node .ndot{fill:var(--accent)}
       </div>
       <div class="layer">
         <div class="name">Grounding<span class="sub">example MCP · A2A · Memory Bank</span></div>
-        <div class="body">Every advisor argues from the org's own live data via <b>tools, never model memory</b>. The confirmed-live example MCP surface: <code>admin_stats()</code> → users, analyses, creations, revenue; <code>admin_analytics(type, days)</code> → growth curve, activity/funnel, the churn signal Risk leans on. Cross-org grounding comes over <b>A2A</b>: manas (brand/strategy) and kural (funnel). Long-term grounding — past decisions, standing principles, the founder's revealed preferences — lives in <b>Vertex AI Memory Bank</b>, queried at frame time so arivu reasons in continuity with its own prior rulings.</div>
+        <div class="body">Every advisor argues from the org's own data via <b>tools, never model memory</b>. The opt-in example MCP surface (off until its transport is confirmed; the seed bundle grounds every position meanwhile): <code>admin_stats()</code> → users, analyses, creations, revenue; <code>admin_analytics(type, days)</code> → growth curve, activity/funnel, the churn signal Risk leans on. Cross-org grounding comes over <b>A2A</b>: manas (brand/strategy) and kural (funnel). Long-term grounding — past decisions, standing principles, the founder's revealed preferences — is the roadmap seat for <b>Vertex AI Memory Bank</b>; today continuity comes from manas's versioned, cited Context Pack.</div>
       </div>
       <div class="layer">
         <div class="name">Evaluation<span class="sub">checked-in eval/ @ 0.8</span></div>
@@ -1125,7 +1125,7 @@ html:not(.js) .viz .team .node .ndot{fill:var(--accent)}
       </div>
       <div class="layer">
         <div class="name">Safe action<span class="sub">one gate · no price column</span></div>
-        <div class="body">Irreversible action is safe by construction. The pipeline <b>halts at exactly one HITL gate</b> — the named safety anchor; never two gates, never zero. State is durable and resumable (Memory Bank), so a delayed approval resumes exactly where it paused. And the irreversibility bar is cleared <b>without ever writing a billing/price column on camera</b> — a deliberate retarget given the founder's billing-safety history (RLS column locks, spend_tokens hardening): the committed change is a <b>feature-flag flip or campaign-budget reallocation</b>, not a price/revenue write. The downstream A2A dispatch causes the real, irreversible spend.</div>
+        <div class="body">Irreversible action is safe by construction. The pipeline <b>halts at exactly one HITL gate</b> — the named safety anchor; never two gates, never zero. State is resumable (the run registry; Memory Bank is roadmap), so a delayed approval resumes where it paused. And the irreversibility bar is cleared <b>without ever writing a billing/price column on camera</b> — a deliberate retarget given the founder's billing-safety history (RLS column locks, spend_tokens hardening): the committed change is a <b>feature-flag flip or campaign-budget reallocation</b>, not a price/revenue write. The downstream A2A dispatch causes the real, irreversible spend.</div>
       </div>
       <div class="layer">
         <div class="name">Deploy<span class="sub">Vertex AI Agent Engine · Cloud Run</span></div>

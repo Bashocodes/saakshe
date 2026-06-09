@@ -69,12 +69,20 @@ def _grounding_block(ctx: ReadonlyContext) -> str:
     return ctx.state.get("grounding_text", "(grounding pending)")
 
 
+def _grounding_section(ctx: ReadonlyContext) -> str:
+    """The grounding block with HONEST provenance: 'live numbers' only when a
+    live source actually resolved at frame time; the seed fallback says so."""
+    label = ("THE ORG'S OWN LIVE NUMBERS" if ctx.state.get("grounding_live")
+             else "GROUNDING BASELINE (seed bundle — not live numbers)")
+    return f"{label}:\n{_grounding_block(ctx)}\n"
+
+
 # ─── Chair-orchestrator: frame + ground + decompose ──────────────────────────
 def _frame_instruction(ctx: ReadonlyContext) -> str:
     return (
         prompts.CHAIR_FRAME.replace("{org}", _org_name(ctx))
         + f"\n\nFOUNDER'S QUESTION:\n{_question(ctx)}\n\n"
-        + f"THE ORG'S OWN LIVE NUMBERS:\n{_grounding_block(ctx)}\n"
+        + _grounding_section(ctx)
     )
 
 
@@ -125,7 +133,7 @@ def _subadvisor_instruction(role: str, sub_role: str, display: str, lens: str, s
             base
             + f"\nSUB-LENS FOCUS: {steer}\n\n"
             + f"THE QUESTION:\n{_question(ctx)}\n\n"
-            + f"THE ORG'S OWN LIVE NUMBERS:\n{_grounding_block(ctx)}\n"
+            + _grounding_section(ctx)
         )
 
     return provider
@@ -289,7 +297,7 @@ def _prosecutor_instruction(ctx: ReadonlyContext) -> str:
         prompts.PROSECUTOR
         + f"\n\n[PROSECUTION_ROUND::{rnd}]\n\n"
         + f"THE VERDICT UNDER PROSECUTION:\n{json.dumps(verdict, indent=2)}\n\n"
-        + f"THE ORG'S OWN LIVE NUMBERS:\n{_grounding_block(ctx)}\n"
+        + _grounding_section(ctx)
     )
     # Graduated: on a re-prosecution round, the chamber has strengthened the ONE
     # reason the prior round faulted — narrow the attack to that, don't reset.
@@ -339,7 +347,7 @@ def _reviser_instruction(ctx: ReadonlyContext) -> str:
         + f"\n\n{marker}\n\n"
         + f"THE PROSECUTOR'S ATTACK:\n{prosecution.get('attack', '')}\n\n"
         + f"THE VERDICT'S REASONS:\n{json.dumps(reasons, indent=2)}\n\n"
-        + f"THE ORG'S OWN LIVE NUMBERS:\n{_grounding_block(ctx)}\n"
+        + _grounding_section(ctx)
     )
 
 

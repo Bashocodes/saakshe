@@ -46,7 +46,7 @@ One primitive, one place to audit, and the same shape echoed in every faculty.
 
 ## Agent, not chatbot
 
-**Real actions.** Token spend is metered per run (`cost_today` reads the real stream). kalai renders actual stills and reels via Vertex Imagen / Veo in live mode. kural's publish is a real outbound action — and it is human-gated by design; auto-publish is deliberately not a feature.
+**Real actions.** Token spend is metered per run (`cost_today` reads the real stream). kalai renders actual stills via Vertex Imagen in live mode (the Veo reel wrapper is shipped but the flywheel doesn't call it yet — stills are the proven path). kural's publish is a real outbound action behind a triple lock — the founder's per-tap arm flag, a deploy-level env, and a registered channel adapter must ALL be present, or it dry-runs; auto-publish is deliberately not a feature.
 
 **Self-checking.** The debate loop forces advisors to confront each other before a verdict. The graduated prosecutor adversarially attacks the sealed verdict. kalai's brand-fidelity panel scores work against the vault's brand block. Claims are verified upstream of the mouth: manas's curator enforces no-citation-no-fact and kalai's fail-closed compliance gate clears the copy — kural carries it verbatim.
 
@@ -65,8 +65,8 @@ One primitive, one place to audit, and the same shape echoed in every faculty.
 | Seat type | Model | Where |
 |---|---|---|
 | Routine + panel calls | `gemini-3.1-pro-preview`, `gemini-3.5-flash` | Vertex AI |
-| 7 highest-stakes seats — verdict, prosecutor, founder voice, memory curator, creative director, compliance, envoy lead (the prosecutor's reviser and kural's delivery planner ride the same model) | `claude-sonnet-4-6` | Vertex AI Model Garden |
-| Stills / reels (live) | `imagen-4.0-generate-001` / `veo-3.1-generate-001` | Vertex AI |
+| 8 highest-stakes seats — verdict, prosecutor, founder voice, memory curator, creative director, compliance, envoy lead, delivery planner (the prosecutor's reviser rides the verdict's model) | `claude-sonnet-4-6` | Vertex AI Model Garden |
+| Stills (live) | `imagen-4.0-generate-001` (env-pinned via `SAAKSHE_MODEL_IMAGEN`; Veo reels are wrapped but not yet wired into the flywheel) | Vertex AI |
 
 | Mode | Gemini | Claude | Media |
 |---|---|---|---|
@@ -102,7 +102,7 @@ Or run the flywheel end-to-end in the terminal:
 PYTHONPATH=. ./.venv/bin/python run_flywheel.py
 ```
 
-**Tests — 287 pass, 6 skipped, no credentials needed:**
+**Tests — 316 pass, 6 skipped, no credentials needed:**
 
 ```bash
 for d in common manas kalai kural arivu; do PYTHONPATH=. ./.venv/bin/python -m pytest "$d" -q; done
