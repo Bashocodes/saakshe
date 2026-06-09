@@ -1009,7 +1009,7 @@ html[data-theme="dark"] .sdoss .sdfoot{ border-top-color:var(--line); box-shadow
       <button class="pill red" id="pillQ" data-tip="questions needing you" type="button"><svg class="ic"><use href="#i-question"/></svg><span id="pillQV">0</span></button>
       <button class="pill amber" id="pillTap" data-tip="taps waiting — gates held" type="button"><svg class="ic"><use href="#i-hand"/></svg><span id="pillTapV">0</span></button>
     </div>
-    <button type="button" class="theme-toggle" id="liveToggle" data-tip="open the live backend — the real ADK flywheel (run: cd saakshe &amp;&amp; uvicorn service.app:app --port 8000)" style="gap:7px;align-items:center"><span id="liveDot" style="width:8px;height:8px;border-radius:50%;background:var(--ink-3,#9c8f83)"></span>live</button>
+    <button type="button" class="theme-toggle" id="liveToggle" data-tip="open the live backend console — the real ADK flywheel behind this page" style="gap:7px;align-items:center"><span id="liveDot" style="width:8px;height:8px;border-radius:50%;background:var(--ink-3,#9c8f83)"></span>live</button>
     <button class="theme-toggle rail-reopen" id="railReopen" type="button" data-tip="reopen saakshe rail"><svg class="ic"><use href="#i-compass"/></svg>rail</button>
     <button class="theme-toggle" id="themeToggle" type="button" aria-label="Switch light or dark theme">
       <svg class="ic" id="themeIcon"><use href="#i-moon"/></svg><span id="themeLabel">dark</span>
@@ -2237,11 +2237,18 @@ html[data-theme="dark"] .sdoss .sdfoot{ border-top-color:var(--line); box-shadow
     return { lead:lead, pills:[ fp((n>0?n+" open":"0 open"),(n>0?"red":"green")), fp("source: you","saksi") ],
       chips:[ ac("the questions view","nav:questions","question") ] };
   }
-  var R_FALLBACK = {
-    lead:"No project connected yet, so I only know the empty state. Connect over setu and ask a real decision to begin — or try one of these:",
-    pills:[],
-    chips:[ ac("anyone waiting?","ask:anyone waiting on me?","hand"), ac("what's in memory?","ask:what's in memory?","database"), ac("what is saakshe?","ask:what is saakshe?","compass") ]
-  };
+  function build_R_FALLBACK(){
+    if(ORG.grounded) return {
+      lead:"I answer from the live stream for "+orgName()+" (Context Pack "+orgPack()+"). Try: anyone waiting on me? · what did today cost? · what's reversible? · what did manas learn?",
+      pills:[ fp("grounded · "+orgPack(),"green") ],
+      chips:[ ac("anyone waiting?","ask:anyone waiting on me?","hand"), ac("what did today cost?","ask:what did today cost?","database"), ac("what's reversible?","ask:what's reversible?","compass") ]
+    };
+    return {
+      lead:"No project connected yet, so I only know the empty state. Connect over setu and ask a real decision to begin — or try one of these:",
+      pills:[],
+      chips:[ ac("anyone waiting?","ask:anyone waiting on me?","hand"), ac("what's in memory?","ask:what's in memory?","database"), ac("what is saakshe?","ask:what is saakshe?","compass") ]
+    };
+  }
 
   /* seed: one honest opening line. The connect gate appends the real open_questions
      line via window.cockpitSeedChat(...) after the cockpit is revealed. */
@@ -2291,13 +2298,36 @@ html[data-theme="dark"] .sdoss .sdfoot{ border-top-color:var(--line); box-shadow
     if(s.indexOf('cost')!==-1) return R_COST;
     if(s.indexOf('why')!==-1 || s.indexOf('verdict')!==-1 || s.indexOf('decision')!==-1 || s.indexOf('arivu')!==-1) return R_WHY;
     if(s.indexOf('status')!==-1) return build_R_STATUS();
-    return R_FALLBACK;
+    return build_R_FALLBACK();
+  }
+  /* the REAL witness first: same-origin /api/saakshe/ask (Gemini in live, the
+     deterministic router in demo). The keyword respond() above survives only as
+     the offline fallback for a file:// open or a dead backend. */
+  async function askBackend(v){
+    var r=await fetch('/api/saakshe/ask',{method:'POST',headers:{'content-type':'application/json'},
+      body:JSON.stringify({text:v, idem_key:'ask:'+Date.now()+':'+Math.random().toString(36).slice(2)})});
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    var d=await r.json();
+    if(d.kind==='flywheel_started'){
+      var rid=(d.flywheel&&d.flywheel.run_id)||'run';
+      return { lead:(d.text||'Starting the day — arivu is deliberating. Tap 1 is the decision, tap 2 the publish.'),
+               pills:[ fp('flywheel · '+rid,'arivu'), fp('live backend','green') ],
+               prov:'live · POST /api/saakshe/ask',
+               chips:[ ac('open the live console','live:open','compass',true) ] };
+    }
+    var pills=[ fp('live backend','green') ];
+    if(d.refused) pills.unshift(fp('refused — beyond telemetry','red'));
+    else if(d.tool) pills.unshift(fp('tool: '+d.tool,'saksi'));
+    return { lead:(d.text||'(no reply)'), pills:pills, prov:'live · POST /api/saakshe/ask' };
   }
   function submit(v){
     v=(v!==undefined?v:input.value).trim(); if(!v) return;
     userBubble(v); input.value='';
-    var r=respond(v);
-    if(reduced){ saksiBubble(r); } else { setTimeout(function(){ saksiBubble(r); }, 320); }
+    askBackend(v).then(function(r){ saksiBubble(r); })
+      .catch(function(){
+        var r=respond(v);
+        if(reduced){ saksiBubble(r); } else { setTimeout(function(){ saksiBubble(r); }, 320); }
+      });
   }
   /* reflect live state into already-rendered chat action chips (publish approved +
      held-reply answered). Checks STATE so NEW bubbles render already-resolved correctly. */
@@ -2319,6 +2349,7 @@ html[data-theme="dark"] .sdoss .sdfoot{ border-top-color:var(--line); box-shadow
     if(act.indexOf('tab:')===0){ openRail(); switchTab(act.slice(4)); return; }
     if(act.indexOf('ask:')===0){ switchTab('ask'); submit(act.slice(4)); return; }
     if(act==='approve:publish'){ approveGate('publish'); syncChatChips(); return; }
+    if(act==='live:open'){ var lt=document.getElementById('liveToggle'); if(lt) lt.click(); return; }
     if(act==='goreply'){ go('kural', null); return; }
   }
   log.addEventListener('click', function(e){

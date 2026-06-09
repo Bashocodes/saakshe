@@ -70,3 +70,28 @@ def test_voice_hello_tool_names_are_real_telemetry_functions():
         "anyone_waiting", "cost_today", "whats_reversible", "what_learned", "whos_acting_now"]
     for name in witness_voice._TOOL_NAMES:
         assert callable(getattr(tel, name)), name
+
+
+# ─── tenant-stream regression: the live agent's tools read the CALLER's stream ─
+def test_live_witness_tools_read_the_passed_stream_not_the_global():
+    """build_witness_agent(stream, run_id) must close its telemetry tools over the
+    tenant stream it was handed — a gate open in that stream is reported even when
+    the module-global STREAM is empty (the multi-tenant contract)."""
+    from common.stream import EventStream
+    from witness import agent as wagent
+
+    tenant = EventStream()
+    tenant.gate("run-t", "arivu", "Chair", "g1", "raise Pro",
+                gate_kind="decision", reversible=True)
+
+    built = wagent.build_witness_agent(tenant, "run-t")
+    tools = {t.func.__name__: t.func for t in built.tools}
+    out = tools["anyone_waiting"]()
+    assert out["waiting"], "the tenant stream's open gate must be visible"
+    assert out["gates"][0]["gate_id"] == "g1"
+
+    # And the same tool over a fresh (empty) stream sees nothing — proving the
+    # closure binds per-call state, not the module global.
+    empty_built = wagent.build_witness_agent(EventStream(), "run-t")
+    empty_tools = {t.func.__name__: t.func for t in empty_built.tools}
+    assert not empty_tools["anyone_waiting"]()["waiting"]

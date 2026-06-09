@@ -105,35 +105,34 @@ def answer(question: str, run_id: Optional[str] = None, stream: EventStream = ST
 # The same telemetry tools as FunctionTools on a Gemini LlmAgent. In demo mode
 # answer() above is the responder (it exercises the identical tools); in live mode
 # this Gemini agent calls them and the WITNESS_SYSTEM prompt enforces the refusal.
-def _t_anyone_waiting() -> dict:
-    """Is anyone/anything waiting on the founder? Returns the open gate queue."""
-    return tel.anyone_waiting(None, STREAM)
+def build_witness_agent(stream: EventStream = STREAM, run_id: Optional[str] = None):
+    """A Gemini LlmAgent whose only tools are the telemetry readers (live path).
 
-
-def _t_cost_today() -> dict:
-    """What did today cost? Aggregates token usage across the live stream."""
-    return tel.cost_today(None, STREAM)
-
-
-def _t_whats_reversible() -> dict:
-    """What is reversible right now? Reads gates + dry-run actions in the stream."""
-    return tel.whats_reversible(None, STREAM)
-
-
-def _t_what_learned() -> dict:
-    """What did manas learn? Returns the current Context Pack version."""
-    return tel.what_learned(None, STREAM)
-
-
-def _t_whos_acting_now() -> dict:
-    """Who is acting right now? Returns the most recent in-flight agents."""
-    return tel.whos_acting_now(None, STREAM)
-
-
-def build_witness_agent():
-    """A Gemini LlmAgent whose only tools are the telemetry readers (live path)."""
+    The tools close over the CALLER'S stream + run_id — under a per-user store
+    the witness must read the tenant's stream, never the module-global one, or
+    its answers contradict the gate queue rendered on the same screen."""
     from google.adk.agents import LlmAgent
     from google.adk.tools import FunctionTool
+
+    def anyone_waiting() -> dict:
+        """Is anyone/anything waiting on the founder? Returns the open gate queue."""
+        return tel.anyone_waiting(run_id, stream)
+
+    def cost_today() -> dict:
+        """What did today cost? Aggregates token usage across the live stream."""
+        return tel.cost_today(run_id, stream)
+
+    def whats_reversible() -> dict:
+        """What is reversible right now? Reads gates + dry-run actions in the stream."""
+        return tel.whats_reversible(run_id, stream)
+
+    def what_learned() -> dict:
+        """What did manas learn? Returns the current Context Pack version."""
+        return tel.what_learned(run_id, stream)
+
+    def whos_acting_now() -> dict:
+        """Who is acting right now? Returns the most recent in-flight agents."""
+        return tel.whos_acting_now(run_id, stream)
 
     return LlmAgent(
         name="saakshe_witness",
@@ -141,7 +140,7 @@ def build_witness_agent():
         description="The witness — answers only from live telemetry, refuses beyond its data.",
         instruction=WITNESS_SYSTEM,
         tools=[FunctionTool(func=f) for f in (
-            _t_anyone_waiting, _t_cost_today, _t_whats_reversible, _t_what_learned, _t_whos_acting_now,
+            anyone_waiting, cost_today, whats_reversible, what_learned, whos_acting_now,
         )],
     )
 
@@ -155,7 +154,7 @@ async def respond(question: str, run_id: Optional[str] = None, stream: EventStre
         from google.adk.runners import InMemoryRunner
         from google.genai import types
 
-        runner = InMemoryRunner(agent=build_witness_agent(), app_name="saakshe_witness")
+        runner = InMemoryRunner(agent=build_witness_agent(stream, run_id), app_name="saakshe_witness")
         session = await runner.session_service.create_session(
             app_name="saakshe_witness", user_id="founder", state={}
         )
