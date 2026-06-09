@@ -86,6 +86,50 @@ async def test_make_loop_actually_climbs_the_canon_sequence():
     assert scores[-1] >= config.FIDELITY_THRESHOLD
 
 
+async def test_fidelity_is_the_live_aggregate_not_the_canon_fallback(monkeypatch):
+    """Task 3.5: the master's fidelity_score is the loop's REAL 4-scorer aggregate,
+    never the 9.1 CANON constant stamped on.
+
+    The demo climb ends at 9.1 — which is ALSO ``CANON["fidelity_pass"]`` — so an
+    assertion of ``== 9.1`` cannot tell a runner that reads the real aggregate from
+    one that hardcodes the constant. This test breaks that coincidence: it injects a
+    RISING, NON-CANON per-seat sequence (7.0 fail → 8.8 pass) so the four real scorer
+    seats report those numbers, they flow through the REAL ScorerReducer →
+    FidelityCheckAgent → runner, and the master must carry the crossing value 8.8 —
+    NOT 9.1. This is the "or inject" real-path test (creds-free, runs in CI): it
+    proves the live climb is sourced from scored runs, not the fallback.
+
+    Monkeypatching ``scorers.demo_subscores`` (not the module-level table) auto-reverts,
+    so the sealed ``[6.8, 8.4, 9.1]`` climb pins stay green."""
+    from kalai import scorers
+
+    # Two rounds: round 1 → 7.0 (under 8.5, continue), round 2 → 8.8 (crosses, exits).
+    # 8.8 ≥ 8.5 (so the master is produced) and 8.8 ≠ 9.1 (so it can't be the fallback).
+    rising = {
+        1: {lens: 7.0 for lens in scorers.WEIGHTS},   # aggregate → 7.0 (fail)
+        2: {lens: 8.8 for lens in scorers.WEIGHTS},   # aggregate → 8.8 (pass, ≠ canon)
+    }
+    monkeypatch.setattr(
+        scorers, "demo_subscores", lambda rnd: dict(rising[min(max(int(rnd), 1), 2)])
+    )
+
+    stream = EventStream()
+    res = await runner.make(stream, "run-agg", _BRIEF, _PACK)
+
+    assert res.status == "handoff"
+    out = res.output
+    assert out["compliance"] == "cleared"
+    # The crossing aggregate the loop actually produced — sourced, not stamped.
+    assert out["fidelity_score"] == 8.8
+    # The discriminator: it is NOT the CANON fallback (which is also 9.1).
+    assert out["fidelity_score"] != config.CANON["fidelity_pass"]
+    # And it really climbed there from the injected sequence, crossing the bar.
+    scores = [e.meta["fidelity_score"] for e in stream.all()
+              if e.meta.get("fidelity_round")]
+    assert scores == [7.0, 8.8]
+    assert scores[-1] >= config.FIDELITY_THRESHOLD
+
+
 async def test_make_emits_a2a_handoff_to_kural_on_happy_path():
     stream = EventStream()
     await runner.make(stream, "run-a2a", _BRIEF, _PACK)
