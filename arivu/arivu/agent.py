@@ -20,135 +20,63 @@ see runner.execute_decision / tools.executor.
 
 from __future__ import annotations
 
-from typing import AsyncGenerator
+import sys
+from pathlib import Path
 
-from google.adk.agents import (
-    BaseAgent,
-    LoopAgent,
-    ParallelAgent,
-    SequentialAgent,
-)
-from google.adk.agents.invocation_context import InvocationContext
-from google.adk.events import Event, EventActions
+# arivu now builds its chamber on the shared `common.chamber` skeleton. When the
+# arivu suite runs standalone (`cd arivu && PYTHONPATH=. pytest`), only arivu's
+# root is on sys.path, so make the saakshe root importable too. Symmetric with
+# `common/__init__.py`, which adds arivu's root to sys.path; no cycle, because
+# `common.chamber` never imports arivu (skeleton only).
+_SAAKSHE_ROOT = Path(__file__).resolve().parent.parent.parent
+if (_SAAKSHE_ROOT / "common").is_dir() and str(_SAAKSHE_ROOT) not in sys.path:
+    sys.path.insert(0, str(_SAAKSHE_ROOT))
 
-from . import config, models, sub_agents
-from .tools import analyst
-from .util import parse_json
+from common import chamber  # noqa: E402
+
+from . import config, models, sub_agents  # noqa: E402
+from .tools import analyst  # noqa: E402
 
 models.configure_runtime()
 SK = config.StateKeys
 
 
-# ─── Deterministic termination agents (no model — pure safety logic) ──────────
-class DebateCheckAgent(BaseAgent):
-    """Computes convergence from the positions and escalates on threshold / cap."""
-
-    async def _run_async_impl(
-        self, ctx: InvocationContext
-    ) -> AsyncGenerator[Event, None]:
-        state = ctx.session.state
-        rnd = int(state.get(SK.DEBATE_ROUND, 0)) + 1
-        positions = analyst.read_positions(state)
-        conv = analyst.compute_convergence(positions, rnd)
-        stop, reason = analyst.debate_should_stop(conv, rnd)
-        history = list(state.get(SK.DEBATE_HISTORY, []))
-        history.append({"round": rnd, "convergence": conv, "reason": reason})
-        delta = {
-            SK.DEBATE_ROUND: rnd,
-            SK.CONVERGENCE: conv,
-            SK.DEBATE_DONE: stop,
-            SK.DEBATE_HISTORY: history,
-        }
-        state.update(delta)
-        yield Event(
-            author=self.name,
-            actions=EventActions(state_delta=delta, escalate=stop),
-        )
-
-
-class ProsecutionCheckAgent(BaseAgent):
-    """Reads the prosecutor's self-assessed defensibility and escalates on
-    threshold; a max-iteration cap triggers a rollback ('no safe decision')."""
-
-    async def _run_async_impl(
-        self, ctx: InvocationContext
-    ) -> AsyncGenerator[Event, None]:
-        state = ctx.session.state
-        prosecution = state.get(SK.PROSECUTION, {})
-        if not isinstance(prosecution, dict):
-            prosecution = parse_json(prosecution)
-        try:
-            defens = float(prosecution.get("defensibility", 0.0))
-        except (TypeError, ValueError):
-            defens = 0.0
-        rnd = int(state.get(SK.PROSECUTION_ROUND, 0)) + 1
-        stop, survived, reason = analyst.prosecution_should_stop(defens, rnd)
-        history = list(state.get(SK.PROSECUTION_HISTORY, []))
-        history.append({"round": rnd, "defensibility": defens, "survived": survived, "reason": reason})
-        delta = {
-            SK.PROSECUTION_ROUND: rnd,
-            SK.DEFENSIBILITY: defens,
-            SK.VERDICT_SURVIVED: survived,
-            SK.PROSECUTION_HISTORY: history,
-        }
-        state.update(delta)
-        yield Event(
-            author=self.name,
-            actions=EventActions(state_delta=delta, escalate=stop),
-        )
-
-
-class GateAgent(BaseAgent):
-    """The single HITL gate. Sets the gate status and halts — the pipeline ends
-    here; execution is a separate, human-approved step."""
-
-    async def _run_async_impl(
-        self, ctx: InvocationContext
-    ) -> AsyncGenerator[Event, None]:
-        state = ctx.session.state
-        survived = bool(state.get(SK.VERDICT_SURVIVED, False))
-        status = "awaiting_approval" if survived else "no_safe_decision"
-        state[SK.GATE_STATUS] = status
-        yield Event(
-            author=self.name,
-            actions=EventActions(state_delta={SK.GATE_STATUS: status}),
-        )
-
-
 # ─── Assemble the chamber ────────────────────────────────────────────────────
-def build_root_agent() -> SequentialAgent:
-    deliberation = ParallelAgent(
-        name="sabha_deliberation",
-        description="Five disjoint mantris argue in parallel — anti-groupthink fan-out.",
-        sub_agents=sub_agents.build_mantris(),
+# The three deterministic control agents (DebateCheckAgent / ProsecutionCheckAgent
+# / GateAgent) + the loop/history wiring now live in `common.chamber` as the
+# reusable skeleton. arivu rebuilds its root_agent on that skeleton, passing its
+# OWN seats, its `analyst` predicates, and its `StateKeys` bindings — so the
+# skeleton reproduces today's behaviour byte-for-bit (the existing 4 tests are the
+# proof). `human_tap=True` makes this the one chamber that halts for the founder.
+def build_root_agent() -> chamber.BaseAgent:
+    spec = chamber.ChamberSpec(
+        namespace="arivu",
+        frame=sub_agents.build_frame_agent(),
+        panel=sub_agents.build_mantris(),
+        debate=sub_agents.build_debate_moderator(),
+        convergence_fn=analyst.compute_convergence,
+        convergence_key=SK.CONVERGENCE,
+        convergence_threshold=config.CONVERGENCE_THRESHOLD,
+        max_debate_rounds=config.MAX_DEBATE_ROUNDS,
+        debate_should_stop=analyst.debate_should_stop,
+        positions_reader=analyst.read_positions,
+        debate_round_key=SK.DEBATE_ROUND,
+        debate_done_key=SK.DEBATE_DONE,
+        debate_history_key=SK.DEBATE_HISTORY,
+        verdict=sub_agents.build_chair_synthesizer(),
+        prosecutor=sub_agents.build_prosecutor(),
+        score_key=SK.DEFENSIBILITY,
+        survived_key=SK.VERDICT_SURVIVED,
+        threshold=config.DEFENSIBILITY_THRESHOLD,
+        max_prosecution_rounds=config.MAX_PROSECUTION_ROUNDS,
+        prosecution_should_stop=analyst.prosecution_should_stop,  # arivu's exact rollback
+        prosecution_key=SK.PROSECUTION,
+        prosecution_round_key=SK.PROSECUTION_ROUND,
+        prosecution_history_key=SK.PROSECUTION_HISTORY,
+        gate_status_key=SK.GATE_STATUS,
+        human_tap=True,  # company chamber = the single HITL gate (tap-1)
     )
-    debate_loop = LoopAgent(
-        name="debate_loop",
-        description="Cross-rebuttal until a numeric convergence threshold or cap.",
-        sub_agents=[sub_agents.build_debate_moderator(), DebateCheckAgent(name="debate_check")],
-        max_iterations=config.MAX_DEBATE_ROUNDS,
-    )
-    prosecution_loop = LoopAgent(
-        name="prosecution_loop",
-        description="Verdict ↔ prosecution until defensibility ≥ 0.80 or rollback.",
-        sub_agents=[sub_agents.build_prosecutor(), ProsecutionCheckAgent(name="prosecution_check")],
-        max_iterations=config.MAX_PROSECUTION_ROUNDS,
-    )
-    return SequentialAgent(
-        name="arivu",
-        description=(
-            "arivu — the faculty of judgment. A grounded chamber that deliberates, "
-            "prosecutes its own verdict, and halts at one human gate before acting."
-        ),
-        sub_agents=[
-            sub_agents.build_frame_agent(),
-            deliberation,
-            debate_loop,
-            sub_agents.build_chair_synthesizer(),
-            prosecution_loop,
-            GateAgent(name="gate"),
-        ],
-    )
+    return chamber.build_chamber(spec)
 
 
 root_agent = build_root_agent()
