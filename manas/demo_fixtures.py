@@ -16,12 +16,16 @@ from __future__ import annotations
 
 import json
 
+from . import state as st
 from .tools import corpus
 
 # Public corpus accessors kept here for backward-compat with callers that import
 # fx.context_pack / fx.founder_voice (both now read the project store via corpus).
 context_pack = corpus.context_pack
 founder_voice = corpus.founder_voice
+
+# The primary imbiber sub-lens (the reducer lifts its blob verbatim — 5.3).
+_PRIMARY_SUBLENS = st.imbiber_primary()
 
 
 # ─── Synthetic per-channel extraction (brand-free; covers the 4 required dims) ──
@@ -75,6 +79,117 @@ _INGEST = {
 _COMMIT_CLAIMS = [c for blob in _INGEST.values() for c in blob["claims"]]
 
 
+# ─── Imbiber pod sub-reader replay (5.3) ─────────────────────────────────────
+# Each channel imbiber fans into four disjoint sub-readers. The PRIMARY sub-lens
+# (claims) replays the channel's canonical _INGEST[channel] blob VERBATIM, so the
+# reducer's consolidated INGEST_* stays byte-identical to today's value (claims +
+# voice_rules + brand_rules). The three SECONDARY sub-lenses (voice · brand ·
+# contradiction) replay distinct, cited supporting sub-claims, so the pod surfaces
+# a `by_lens` evidence map of four cited sub-extractions per channel. Mirrors
+# arivu's _SUBPOSITIONS exactly.
+#
+# Keyed `channel__sublens` → {sub_lens, claim, source}. The primary is synthesised
+# from _INGEST at lookup time (no duplication of the canon text). Brand-free and
+# forbidden-value-clean, like _INGEST (it surfaces in the cockpit's by_lens map).
+_SUBINGEST = {
+    # Repo — primary: claims (lifts _INGEST["repo"]).
+    "repo__voice": {
+        "sub_lens": "voice-semantics",
+        "claim": "The repo's own copy reads plain and direct — terse README prose, "
+        "no marketing tone.",
+        "source": "README.md",
+    },
+    "repo__brand": {
+        "sub_lens": "brand-visual",
+        "claim": "The manifest encodes honouring existing subscribers on any change "
+        "as a held policy rule.",
+        "source": "package.json · pricing notes",
+    },
+    "repo__contradiction": {
+        "sub_lens": "contradiction-precheck",
+        "claim": "No internal clash in the repo: the free-tier and Pro-tier claims "
+        "are consistent across README and manifest.",
+        "source": "README.md · package.json",
+    },
+    # Web — primary: claims (lifts _INGEST["web"]).
+    "web__voice": {
+        "sub_lens": "voice-semantics",
+        "claim": "The site copy is warm, never hypey — speaks to makers directly.",
+        "source": "homepage",
+    },
+    "web__brand": {
+        "sub_lens": "brand-visual",
+        "claim": "The pricing page holds a no-dark-pattern-urgency promise — no "
+        "countdown timers or forced scarcity.",
+        "source": "/pricing",
+    },
+    "web__contradiction": {
+        "sub_lens": "contradiction-precheck",
+        "claim": "No internal clash on the site: the homepage positioning and the "
+        "pricing page agree on the Pro plan.",
+        "source": "homepage · /pricing",
+    },
+    # Docs — primary: claims (lifts _INGEST["docs"]).
+    "docs__voice": {
+        "sub_lens": "voice-semantics",
+        "claim": "The docs read instructional and calm — onboarding written to "
+        "guide, not to sell.",
+        "source": "docs/overview.md",
+    },
+    "docs__brand": {
+        "sub_lens": "brand-visual",
+        "claim": "The docs hold the core-workflow promise — what the product does is "
+        "described consistently with the site.",
+        "source": "docs/overview.md",
+    },
+    "docs__contradiction": {
+        "sub_lens": "contradiction-precheck",
+        "claim": "No internal clash in the docs: onboarding and the core workflow "
+        "describe one consistent product.",
+        "source": "docs/overview.md",
+    },
+    # Social — primary: claims (lifts _INGEST["social"]).
+    "social__voice": {
+        "sub_lens": "voice-semantics",
+        "claim": "The social channel's tone is plain and warm, never hypey — speaks "
+        "to the audience directly.",
+        "source": "social handle",
+    },
+    "social__brand": {
+        "sub_lens": "brand-visual",
+        "claim": "The channel posts product updates and behind-the-scenes notes — a "
+        "consistent, low-key brand presence.",
+        "source": "social handle",
+    },
+    "social__contradiction": {
+        "sub_lens": "contradiction-precheck",
+        "claim": "No internal clash on the channel: the posts agree with the site "
+        "on what the product is and who it's for.",
+        "source": "social handle",
+    },
+}
+
+
+def _subingest_payload(sub_role: str, llm_request=None) -> str:
+    """Scripted output for one imbiber pod sub-reader (`channel__sublens`).
+
+    Honors the no-source marker across ALL four sub-lenses so an unconnected
+    channel reassembles empty. The PRIMARY sub-lens (claims) lifts the canonical
+    _INGEST[channel] blob verbatim (so the reducer's roll-up is byte-identical);
+    the secondaries return their cited supporting sub-claim from _SUBINGEST.
+    """
+    channel, _, sub = sub_role.partition("__")
+    no_source = "(no source connected for this channel)" in _request_text(llm_request)
+    if sub == _PRIMARY_SUBLENS:
+        if no_source or channel not in _INGEST:
+            return json.dumps({"channel": channel, "claims": [],
+                               "voice_rules": [], "brand_rules": []})
+        return json.dumps(_INGEST[channel])
+    if no_source or sub_role not in _SUBINGEST:
+        return json.dumps({"sub_lens": sub, "claim": "", "source": ""})
+    return json.dumps(_SUBINGEST[sub_role])
+
+
 def _curation(round_: int, version_to: str) -> dict:
     """The Curator's synthesis for a round (offline learn-narrative).
 
@@ -99,6 +214,11 @@ def scripted_payload(role: str, llm_request=None) -> str:
             {"topic": "company", "imbibe": ["repo", "web", "docs", "social"],
              "why": "ground the company's memory across every connected channel"}
         )
+    # Imbiber pod sub-readers (`channel__sublens`) — four disjoint cited sub-reads
+    # per channel that the reducer folds into the consolidated INGEST_*. Checked
+    # BEFORE the bare-channel branch so `repo__claims` never matches `role in _INGEST`.
+    if "__" in role:
+        return _subingest_payload(role, llm_request)
     if role in _INGEST:                       # one of the four channel readers
         # Honest per-channel: a channel with no connected source extracts nothing
         # (the instruction carries the "(no source connected…)" marker).

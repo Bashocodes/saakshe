@@ -23,34 +23,53 @@ Return ONLY a JSON object:
 {"topic": "<the memory topic>", "imbibe": ["repo","web","docs","social"], "why": "<one line>"}
 """
 
-# ─── The four imbibers (Gemini Flash · one per connected channel, in parallel) ─
-IMBIBER_BASE = """\
-You are the {display} in the manas chamber for {org}. Your ONLY source is the \
-{channel}. You are one of four readers ingesting in parallel — disjoint sources, \
-so the company imbibes everything at once without overlap.
+# ─── Imbiber sub-readers (Gemini Flash · the pod fan-out, 5.3) ───────────────
+# Each channel imbiber fans into FOUR disjoint sub-readers arguing one sub-lens
+# each, in parallel. They write disjoint sub-extractions; a deterministic reducer
+# folds them into the channel's consolidated INGEST_* blob with a cited `by_lens`
+# evidence map. Mirrors arivu's SUBADVISOR_BASE + MANTRI_SUBLENS.
+IMBIBER_SUBREADER_BASE = """\
+You are the {sub_display} sub-reader inside the {display} of the manas chamber for \
+{org}. Your channel is the {channel}, narrowed to ONE sub-lens only — read for that \
+sub-lens and nothing else. You are one of four disjoint sub-readers on this channel, \
+working in parallel; you have NOT seen the others, so the channel is read four ways \
+at once without overlap.
 
 RULE — imbibe, never invent: extract ONLY what the SOURCE TEXT below actually \
-contains, and attach a real SOURCE to every claim (the file path or URL it came \
-from). If the source is empty or has nothing useful, return empty lists — do NOT \
-fabricate. Prefer specific, load-bearing facts (what the company is, what it does, \
-who it's for, how it prices, real numbers) over vague description.
+contains, and attach a real SOURCE to everything you surface (the file path or URL \
+it came from). If the source is empty or has nothing for your sub-lens, return \
+empty — do NOT fabricate.
 
-Extract three kinds of thing:
-  - claims:      concrete facts about the company, each with its source path/url
-  - voice_rules: how the company sounds / writes (tone, dos and don'ts)
-  - brand_rules: visual / promise / policy rules it holds
+OUTPUT SHAPE:
+  - The CLAIMS sub-lens returns the channel's full blob:
+    {"channel": "<channel>", "claims": [{"claim": "<fact>", "source": "<path/url>"}],
+     "voice_rules": ["<rule>"], "brand_rules": ["<rule>"]}
+  - Every OTHER sub-lens returns ONE cited supporting sub-claim:
+    {"sub_lens": "<your sub-lens>", "claim": "<your single cited sub-claim>",
+     "source": "<the file path or url it came from>"}
+Return ONLY that JSON object.
 
 THE SOURCE TEXT (your channel only):
 {source}
-
-Return ONLY a JSON object:
-{
-  "channel": "{channel_key}",
-  "claims": [ {"claim": "<a single extracted fact>", "source": "<file path or url>"} ],
-  "voice_rules": ["<rule>"],
-  "brand_rules": ["<rule>"]
-}
 """
+
+# Per-sub-lens steering appended to IMBIBER_SUBREADER_BASE, keyed `channel__sublens`.
+# The PRIMARY sub-lens (claims) extracts the full claims+rules blob; the secondaries
+# each surface one cited supporting sub-claim for their lens.
+IMBIBER_SUBLENS = {
+    "claims": "Own the concrete facts: extract every load-bearing claim about the "
+    "company (what it is, what it does, who it's for, how it prices, real numbers), "
+    "each with its source. Return the channel's full claims + voice_rules + "
+    "brand_rules blob.",
+    "voice": "Own the voice semantics: how does this company sound and write — tone, "
+    "dos and don'ts? Surface ONE cited voice signal you read in this channel.",
+    "brand": "Own the brand / visual / promise: palette, visual identity, and the "
+    "policy or promise rules it holds. Surface ONE cited brand signal you read here.",
+    "contradiction": "Own the contradiction pre-check: scan THIS channel for any "
+    "internal clash (a number or promise stated two different ways). Surface the "
+    "cleanest cited signal you can stand behind — flag a clash if you find one.",
+}
+
 
 # ─── Curator (Claude · Vertex · verify-before-commit) ────────────────────────
 CURATOR = """\

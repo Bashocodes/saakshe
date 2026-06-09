@@ -139,6 +139,7 @@ def test_no_forbidden_values_or_names_in_corpus(grounded_company):
     blob = json.dumps({
         "pack": corpus.context_pack("pricing").as_dict(),
         "ingest": fx._INGEST,                      # the offline replay net
+        "subingest": fx._SUBINGEST,                # the imbiber-pod sub-reads (5.3)
     })
     for bad in config.FORBIDDEN["numbers"]:
         assert str(bad) not in blob, f"forbidden number {bad} leaked into manas memory"

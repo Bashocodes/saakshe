@@ -16,7 +16,7 @@ from __future__ import annotations
 
 import json
 
-from google.adk.agents import LlmAgent
+from google.adk.agents import BaseAgent, LlmAgent
 from google.adk.agents.readonly_context import ReadonlyContext
 
 from common import config, models
@@ -70,40 +70,20 @@ def build_mind_keeper() -> LlmAgent:
     )
 
 
-# ─── The four imbibers (Gemini Flash · one per connected channel, parallel) ──
-def _imbiber_instruction(display: str, channel_key: str, channel_desc: str, source_key: str):
-    def provider(ctx: ReadonlyContext) -> str:
-        src = ctx.state.get(source_key) or ""
-        body = (
-            prompts.IMBIBER_BASE
-            .replace("{display}", display)
-            .replace("{org}", _org_name(ctx))
-            .replace("{channel}", channel_desc)
-            .replace("{channel_key}", channel_key)
-            .replace("{source}", (str(src)[:20000] if src else "(no source connected for this channel)"))
-        )
-        outcome = _outcome_text(ctx)
-        if outcome:
-            body += ("\n\nALSO — treat today's founder-stated outcome as a fact to "
-                     f"imbibe (source: founder decision · today):\n{outcome}\n")
-        return body
+# ─── The four imbibers — each fans into a 4-sub-reader pod (5.3) ──────────────
+# A channel imbiber is no longer a lone reader. Each is a SequentialAgent of:
+#   ParallelAgent([claims · voice · brand · contradiction sub-readers]) → a reducer.
+# The four sub-readers read the SAME channel through four disjoint sub-lenses in
+# parallel (anti-collapse WITHIN the channel) and write disjoint sub-keys; the
+# reducer folds them into the SAME INGEST_* blob the curator already consumes —
+# the consolidated claims/voice_rules/brand_rules are lifted VERBATIM from the
+# PRIMARY sub-reader, so the rolled-up blob stays byte-identical to today's
+# _INGEST[channel]. This mirrors arivu's build_mantri_ensemble exactly. The pod
+# code lives in imbiber_pod.py (kept beside the arivu ensemble template).
+def build_imbibers() -> list[BaseAgent]:
+    from . import imbiber_pod
 
-    return provider
-
-
-def build_imbibers() -> list[LlmAgent]:
-    agents: list[LlmAgent] = []
-    for role, display, source_key, ingest_key, channel_desc in st.IMBIBERS:
-        agents.append(
-            LlmAgent(
-                name=f"imbiber_{role}",
-                model=models.gemini_flash(NS, role),
-                description=f"The {display} — reads the {channel_desc}; one source, never invents.",
-                instruction=_imbiber_instruction(display, role, channel_desc, source_key),
-                output_key=ingest_key,
-            )
-        )
-    return agents
+    return [imbiber_pod.build(role) for role, *_rest in st.IMBIBERS]
 
 
 # ─── Memory Curator (Claude · Vertex · CLAUDE SEAT 1) ────────────────────────

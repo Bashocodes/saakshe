@@ -59,3 +59,44 @@ IMBIBERS = (
     ("social", "Social Reader", StateKeys.SOURCE_SOCIAL, StateKeys.INGEST_SOCIAL,
      "the world's pulse — socials, audience and market signal"),
 )
+
+
+# ─── Imbiber pods (5.3) ──────────────────────────────────────────────────────
+# Each channel imbiber is no longer a lone reader: it fans into a 4-sub-reader
+# ParallelAgent of disjoint sub-lenses (anti-collapse WITHIN the channel — one
+# prompt could never argue all four), then a deterministic reducer folds the four
+# disjoint sub-extractions into the SAME INGEST_* blob the curator already
+# consumes — now carrying a cited `by_lens` evidence map. Mirrors arivu's
+# MANTRI_ENSEMBLES exactly.
+#
+# Per channel: four (sub_lens_key, display) sub-readers. The FIRST entry is the
+# PRIMARY sub-lens — the reducer lifts the consolidated INGEST_* blob (claims +
+# voice_rules + brand_rules) verbatim from it, so the rolled-up blob stays
+# byte-identical to today's _INGEST[channel]; the other three attach as cited
+# supporting sub-claims (voice-semantics, brand-visual, contradiction-precheck).
+IMBIBER_SUBLENSES = (
+    ("claims", "Claims extractor"),
+    ("voice", "Voice-semantics reader"),
+    ("brand", "Brand-visual reader"),
+    ("contradiction", "Contradiction pre-check"),
+)
+
+
+def imbiber_subroles(channel: str) -> list[str]:
+    """The four sub-reader role keys for a channel (namespaced `channel__sublens`)."""
+    return [f"{channel}__{sub}" for sub, _display in IMBIBER_SUBLENSES]
+
+
+def imbiber_primary() -> str:
+    """The primary sub-lens key for an imbiber pod (the reducer lifts its blob)."""
+    return IMBIBER_SUBLENSES[0][0] if IMBIBER_SUBLENSES else ""
+
+
+# (channel → its source_key / ingest_key / display / description) for the pods.
+_CHANNEL_META = {role: (display, source_key, ingest_key, channel_desc)
+                 for role, display, source_key, ingest_key, channel_desc in IMBIBERS}
+
+
+def channel_meta(channel: str) -> tuple[str, str, str, str]:
+    """(display, source_key, ingest_key, channel_desc) for a channel."""
+    return _CHANNEL_META[channel]
