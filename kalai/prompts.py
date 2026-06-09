@@ -59,23 +59,28 @@ Return ONLY a JSON object:
 }
 """
 
-# ── Brand-Fidelity scorer (Gemini — in the loop) ─────────────────────────────
-# The scorer reports a 0–10 fidelity score against the brand asset bank. The
-# deterministic checker (tools/analyst.fidelity_should_stop) owns the loop exit —
-# the model's number never decides the loop, only reports it.
-BRAND_FIDELITY = """\
-You are the BRAND-FIDELITY scorer at kalai for {org}. Score how faithfully the \
-current design + copy match the brand asset bank below, from 0.0 (off-brand) to \
-10.0 (indistinguishable from the canon). Be a harsh, specific judge: name what is \
-off and what would raise the score on the next pass.
+# ── Brand-Fidelity panel (Gemini — 4 scorer seats, one per lens) ─────────────
+# The single scorer is decomposed into a panel of four seats (scorers.py).
+# Each seat scores ONE lens 0–10 against the brand asset bank; a deterministic
+# reducer (a documented weighted mean) folds the four into the one score the loop
+# reads. The model's numbers are reported, never the loop exit — that stays with
+# tools/analyst.fidelity_should_stop. The {round} marker lets the demo resolver
+# replay the sealed climb deterministically.
+SCORER_BASE = """\
+You are the {display} scorer on kalai's Brand-Fidelity panel for {org}. You judge \
+ONE lens — {lens} — of how faithfully the current design + copy match the brand \
+asset bank below. Score 0.0 (off-brand on your lens) to 10.0 (indistinguishable \
+from the canon on your lens). Stay in YOUR lens only; the other seats cover theirs. \
+Be a harsh, specific judge: name what is off on your lens and what would raise it.
 
 [FIDELITY_ROUND::{round}]
 
 Return ONLY a JSON object:
 {
+  "lens": "{lens}",
   "score": <0.0-10.0>,
-  "off_brand": ["<what is off>", "<...>"],
-  "fix_next": "<the single change that would raise the score most>"
+  "off_lens": ["<what is off on this lens>", "<...>"],
+  "fix_next": "<the single change that would raise THIS lens most>"
 }
 """
 

@@ -28,9 +28,11 @@ class StateKeys:
     DESIGN = "design"                # Designer/Producer output (example media spec)
     COPY = "copy"                    # Copy & SEO output (per-platform copy)
 
-    # ── Brand-Fidelity loop (Gemini scorer + deterministic check) ────────────
+    # ── Brand-Fidelity loop (4-scorer panel + deterministic reducer + check) ──
+    # The panel's four seats each write a DISJOINT sub-key (fidelity_score_sub_<lens>,
+    # built by scorers._sub_state_key); the reducer folds them into FIDELITY_SCORE.
     FIDELITY_ROUND = "fidelity_round"
-    FIDELITY_SCORE = "fidelity_score"
+    FIDELITY_SCORE = "fidelity_score"     # the reducer's consolidated {"score", "subs", ...}
     FIDELITY_DONE = "fidelity_done"
     FIDELITY_PASSED = "fidelity_passed"   # crossed the threshold (vs max-round escalate)
     FIDELITY_HISTORY = "fidelity_history"
@@ -49,4 +51,20 @@ class StateKeys:
 PRODUCERS = [
     ("designer", "Designer · Producer", StateKeys.DESIGN, "visual / example media"),
     ("copy", "Copy & SEO", StateKeys.COPY, "platform copy + SEO"),
+]
+
+
+# The four Brand-Fidelity scorer seats — kalai's chamber panel for the one
+# deciding question "is it on-brand + cleared?". (lens, display, focus). The lens
+# key matches scorers.WEIGHTS, the sub-state-key suffix, and the demo_subscores key
+# — one name, no mapping table. All four are Gemini Flash (panel advisors).
+SCORERS = [
+    ("brand", "Brand-Consistency",
+     "palette · lockups · grid · the asset-bank references vs. the canon"),
+    ("voice", "Voice-Tone",
+     "calm, candid, anti-hype — the voice rules, no exclamation-mark hype"),
+    ("platform", "Platform-Fit",
+     "the crop / format / length right for x · ig · linkedin"),
+    ("compliance", "Compliance-Edge",
+     "claims / rights / tone risk a hair before the fail-closed gate"),
 ]

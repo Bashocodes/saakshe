@@ -62,7 +62,10 @@ _COPY = {
 
 
 def _fidelity_for_round(rnd: int) -> dict:
-    """Scripted scorer output for a 0-indexed loop round → the sealed climb value."""
+    """Scripted scorer output for a 0-indexed loop round → the sealed climb value.
+
+    Kept for back-compat (the single-scorer shape); the 4-scorer panel now uses
+    :func:`_scorer_for_lens`, which decomposes the SAME climb per lens."""
     score = FIDELITY_CLIMB[min(max(rnd, 0), len(FIDELITY_CLIMB) - 1)]
     if score >= config.FIDELITY_THRESHOLD:
         off, fix = [], "on brand — ship"
@@ -70,6 +73,26 @@ def _fidelity_for_round(rnd: int) -> dict:
         off = ["accent skew warm of canon", "headline kerning loose"]
         fix = "tighten the accent to the canon amber and re-set the headline"
     return {"score": score, "off_brand": off, "fix_next": fix}
+
+
+def _scorer_for_lens(lens: str, rnd_0indexed: int) -> dict:
+    """Scripted output for one Brand-Fidelity panel seat at a 0-indexed loop round.
+
+    The four seats' scores AGGREGATE (via ``scorers.aggregate``) to the sealed climb
+    value for the round — sourced from ``scorers.demo_subscores`` so the unit test
+    (``test_scorers``) and the live climb (``test_make``) can't drift onto two
+    tables. The marker round is 0-indexed (the check-agent increments after), so we
+    feed ``demo_subscores`` the 1-indexed round (+1)."""
+    from . import scorers
+
+    subs = scorers.demo_subscores(rnd_0indexed + 1)
+    score = subs.get(lens, 0.0)
+    if score >= config.FIDELITY_THRESHOLD:
+        off, fix = [], f"on brand on the {lens} lens — ship"
+    else:
+        off = [f"{lens}: skews off the canon"]
+        fix = f"tighten the {lens} lens toward the asset bank"
+    return {"lens": lens, "score": score, "off_lens": off, "fix_next": fix}
 
 
 def _compliance_for_brief(brief: str) -> dict:
@@ -97,7 +120,13 @@ def scripted_payload(role: str, llm_request=None) -> str:
         return json.dumps(_DESIGN)
     if role == "copy":
         return json.dumps(_COPY)
+    if role.startswith("fidelity__"):
+        # One of the four panel seats — role is "fidelity__<lens>".
+        lens = role.split("__", 1)[1]
+        rnd = _round_from_request(llm_request)
+        return json.dumps(_scorer_for_lens(lens, rnd))
     if role == "fidelity":
+        # Back-compat: the retired single-scorer seat (no longer in the pipeline).
         rnd = _round_from_request(llm_request)
         return json.dumps(_fidelity_for_round(rnd))
     if role == "compliance":

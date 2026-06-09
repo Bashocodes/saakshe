@@ -125,33 +125,12 @@ def build_producers() -> list[LlmAgent]:
     return agents
 
 
-# ─── Brand-Fidelity scorer (Gemini · in the loop) ────────────────────────────
-def _fidelity_instruction(ctx: ReadonlyContext) -> str:
-    rnd = ctx.state.get(StateKeys.FIDELITY_ROUND, 0)
-    design = ctx.state.get(StateKeys.DESIGN, {})
-    copy = ctx.state.get(StateKeys.COPY, {})
-    if not isinstance(design, dict):
-        design = parse_json(design)
-    if not isinstance(copy, dict):
-        copy = parse_json(copy)
-    return (
-        prompts.BRAND_FIDELITY
-        .replace("{org}", _org_name(ctx))
-        .replace("{round}", str(rnd))
-        + f"\n\nDESIGN:\n{json.dumps(design, indent=2)}\n\n"
-        + f"COPY:\n{json.dumps(copy, indent=2)}\n\n"
-        + f"BRAND ASSET BANK (manas canon):\n{_brand(ctx)}\n"
-    )
-
-
-def build_fidelity_scorer() -> LlmAgent:
-    return LlmAgent(
-        name="brand_fidelity_scorer",
-        model=models.gemini_flash(NS, "fidelity"),
-        description="Scores design+copy against the brand asset bank (in the fidelity loop).",
-        instruction=_fidelity_instruction,
-        output_key=StateKeys.FIDELITY_SCORE,
-    )
+# ─── Brand-Fidelity panel (Gemini · in the loop) ─────────────────────────────
+# The single Brand-Fidelity scorer is replaced by a 4-seat ParallelAgent panel
+# (brand · voice · platform · compliance) + a deterministic aggregate reducer —
+# see ``kalai/scorers.py`` (build_scorer_panel) and ``kalai/agent.py``
+# (ScorerReducer). The panel is kalai's chamber for the deciding question
+# "is it on-brand + cleared?"; the loop exit stays owned by the checker.
 
 
 # ─── Compliance gate (Claude · Vertex — seat 2 of 2, FAIL-CLOSED) ────────────

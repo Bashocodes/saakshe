@@ -34,9 +34,36 @@ from google.adk.agents.invocation_context import InvocationContext
 from google.adk.events import Event, EventActions
 
 from common import config
-from . import sub_agents
+from . import scorers, sub_agents
 from .state import StateKeys as SK
 from .tools import analyst
+
+
+# ─── Deterministic panel reducer (no model — pure assembly of the 4 sub-scores) ─
+class ScorerReducer(BaseAgent):
+    """Fold the four Brand-Fidelity scorer seats into the ONE FIDELITY_SCORE the
+    loop's checker reads. No model — pure assembly: read each seat's disjoint
+    sub-key, pull its 0–10 ``score``, and write the documented weighted mean
+    (``scorers.aggregate``) as a DICT ``{"score", "subs"}`` (a dict because
+    ``analyst.read_score`` does ``d.get("score")`` — a bare float would parse to
+    0.0 and silently stall the climb). Routing both the demo replay and this reducer
+    through ``scorers`` keeps the unit test and the live climb on ONE table."""
+
+    async def _run_async_impl(
+        self, ctx: InvocationContext
+    ) -> AsyncGenerator[Event, None]:
+        state = ctx.session.state
+        subs: dict[str, float] = {}
+        for lens in scorers.WEIGHTS:
+            raw = state.get(scorers._sub_state_key(lens))
+            subs[lens] = analyst.read_score(raw)
+        score = scorers.aggregate(subs)
+        consolidated = {"score": score, "subs": subs}
+        state[SK.FIDELITY_SCORE] = consolidated
+        yield Event(
+            author=self.name,
+            actions=EventActions(state_delta={SK.FIDELITY_SCORE: consolidated}),
+        )
 
 
 # ─── Deterministic termination / safety agents (no model — pure safety logic) ─
@@ -96,10 +123,19 @@ def build_root_agent() -> SequentialAgent:
         description="Designer/Producer + Copy & SEO produce in parallel — disjoint lanes.",
         sub_agents=sub_agents.build_producers(),
     )
+    scorer_panel = ParallelAgent(
+        name="brand_fidelity_panel",
+        description="Four disjoint scorers (brand · voice · platform · compliance) score in parallel.",
+        sub_agents=scorers.build_scorer_panel(),
+    )
     fidelity_loop = LoopAgent(
         name="brand_fidelity_loop",
-        description="Score against the brand asset bank until ≥ threshold or max-round rollback.",
-        sub_agents=[sub_agents.build_fidelity_scorer(), FidelityCheckAgent(name="fidelity_check")],
+        description="Panel-score against the brand asset bank until ≥ threshold or max-round rollback.",
+        sub_agents=[
+            scorer_panel,
+            ScorerReducer(name="fidelity_reducer"),
+            FidelityCheckAgent(name="fidelity_check"),
+        ],
         max_iterations=config.MAX_FIDELITY_ROUNDS,
     )
     return SequentialAgent(
