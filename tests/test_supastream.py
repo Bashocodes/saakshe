@@ -84,6 +84,33 @@ def stream() -> SupabaseEventStream:
     return SupabaseEventStream("founder", client=FakeClient())
 
 
+# ─── per-user isolation (two tenants sharing ONE backing store) ──────────────
+def test_streams_are_tenant_isolated():
+    """A and B share the same tables (one client) but must never see each other's
+    events or gates — the user_id stamp + scoped reads enforce §7.6 isolation."""
+    shared = FakeClient()
+    a = SupabaseEventStream("user_A", client=shared)
+    b = SupabaseEventStream("user_B", client=shared)
+
+    a.emit("rA", "manas", "scribe", "A-secret")
+    a.gate("rA", "arivu", "chair", "gA", "A decision", gate_kind="decision", reversible=True)
+    b.emit("rB", "kalai", "maker", "B-secret")
+
+    # A sees A's rows and NEVER B's; B sees B's rows and NEVER A's
+    a_texts = [r["text"] for r in a.rows(0)]
+    b_texts = [r["text"] for r in b.rows(0)]
+    assert "A-secret" in a_texts and "B-secret" not in a_texts
+    assert "B-secret" in b_texts and "A-secret" not in b_texts
+    # B's open-gate view is empty; A's shows gA
+    assert b.open_gates() == []
+    assert [g["gate_id"] for g in a.open_gates()] == ["gA"]
+    # B cannot resolve A's gate (its scoped patch matches nothing) — A's stays open
+    b.resolve_gate("rA", "gA", "approved")
+    assert [g["gate_id"] for g in a.open_gates()] == ["gA"]
+    # A's own seq is unaffected by B's parallel writes (rA: emit=0, gate=1, so next=2)
+    assert a.emit("rA", "manas", "scribe", "A-next").seq == 2
+
+
 # ─── per-run seq counter ──────────────────────────────────────────────────────
 def test_seq_is_local_and_per_run(stream):
     e0 = stream.emit("r1", "manas", "scribe", "first")
@@ -113,7 +140,7 @@ def test_seed_max_seq_is_queried_once_per_unseen_run(stream):
 def test_seed_resumes_from_existing_rows(stream):
     """An unseen run seeds its counter from max(seq) of rows already in the table."""
     client = stream.client
-    client.events.append({"run_id": "r9", "seq": 7, "source": "manas",
+    client.events.append({"user_id": "founder", "run_id": "r9", "seq": 7, "source": "manas",
                           "agent": "a", "span": "agent_run", "kind": "span_end",
                           "text": "old", "meta": {}, "ts": 1.0})
     ev = stream.emit("r9", "manas", "scribe", "resumed")
@@ -167,7 +194,7 @@ def test_since_returns_event_objects(stream):
 def test_meta_jsonb_string_is_coerced(stream):
     """A DB that hands back jsonb meta as a STRING must be coerced to a dict."""
     client = stream.client
-    client.events.append({"run_id": "r1", "seq": 0, "source": "manas", "agent": "a",
+    client.events.append({"user_id": "founder", "run_id": "r1", "seq": 0, "source": "manas", "agent": "a",
                           "span": "agent_run", "kind": "note", "text": "raw",
                           "meta": json.dumps({"k": 9}), "ts": 1.0})
     rows = stream.rows(0)
@@ -178,7 +205,7 @@ def test_meta_jsonb_string_is_coerced(stream):
 
 def test_meta_null_becomes_empty_dict(stream):
     client = stream.client
-    client.events.append({"run_id": "r1", "seq": 0, "source": "manas", "agent": "a",
+    client.events.append({"user_id": "founder", "run_id": "r1", "seq": 0, "source": "manas", "agent": "a",
                           "span": "agent_run", "kind": "note", "text": "raw",
                           "meta": None, "ts": 1.0})
     assert stream.rows(0)[0]["meta"] == {}

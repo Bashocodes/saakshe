@@ -3,31 +3,35 @@ file-based ProjectStore).
 
 WHY: persists the founder's project state, the witness CHAT, manas's versioned
 Context Packs, clarifying questions, the ordered event stream, and the HITL gate
-queue in Postgres (the `saakshe` schema inside your own Supabase project), so the
-product survives restarts, supports multiple founders (the `user_id` seam), and
-can push live updates via Supabase Realtime.
+queue in Postgres (the dedicated `saakshe` Supabase project), so the product
+survives restarts, supports multiple founders (the `user_id` seam), and can push
+live updates via Supabase Realtime.
 
-ISOLATION + SECURITY: its own dedicated Supabase project (`saakshe`, ref
-a dedicated project, separate from your app DB), public schema, RLS deny-by-default
-on every table. The BACKEND uses the **service_role** key, which bypasses RLS — so
-only this server (holding the secret) can read/write. Client/Realtime access
-(anon/authenticated) stays denied until sign-in lands and we add owner policies
-keyed on auth.uid().
+ISOLATION + SECURITY: its own dedicated Supabase project, public schema, RLS
+deny-by-default on every table. The BACKEND uses the **service_role** key, which
+bypasses RLS — so only this server (holding the secret) can read/write. Client/
+Realtime access (anon/authenticated) stays denied until sign-in lands and we add
+owner policies keyed on auth.uid().
 
-TRANSPORT: PostgREST over httpx (httpx is already a dependency); public schema, so
-no schema-profile headers needed. No new driver dependency.
+INTERCHANGEABLE WITH ProjectStore: this class mirrors the file ``ProjectStore``
+public surface EXACTLY (``add_connection``/``set_org``/``set_status``/
+``commit_pack``/``pack``/``all_facts``/``set_questions``/``open_questions``/
+``blocking_questions``/``answer_question``/``is_connected``/``is_grounded``/
+``version``/``ingest_status``/``org``/``connections``/``org_for_flywheel``/
+``status_dict``/``reset``) returning the same shapes (``a2a.ContextPack``,
+``a2a.ClarifyingQuestion``, ``project.Connection``) — so the orchestrator, manas,
+corpus, and the service call it unchanged. It activates only when
+``SAAKSHE_STORE=supabase`` AND a service key is configured; otherwise the callers
+use the file store and the 135 demo tests are untouched.
+
+TRANSPORT: PostgREST over httpx (already a dependency); public schema, so no
+schema-profile headers needed. No new driver dependency.
 
 CONFIG (the one secret you provide — never commit it):
-    SAAKSHE_SUPABASE_URL   default https://YOUR-PROJECT.supabase.co
-    SAAKSHE_SUPABASE_KEY   the **service_role** secret (Supabase dashboard →
-                           saakshe → Settings → API → service_role) — or put it in
-                           ~/.saakshe_supabase_key (chmod 600).
-`available()` is False when no key is set, so callers fall back to the file store.
-
-WIRING (one line, when the connect-flow sessions settle): in common/project.py,
-choose the backend at STORE construction —
-    STORE = supastore.SupabaseStore() if supastore.available() else FileProjectStore()
-The method surface here mirrors the documented ProjectStore so nothing else changes.
+    SAAKSHE_SUPABASE_URL   the project URL (e.g. https://<ref>.supabase.co)
+    SAAKSHE_SUPABASE_KEY   the **service_role** secret — or ~/.saakshe_supabase_key
+                           (chmod 600).
+``available()`` is False when no key is set, so callers fall back to the file store.
 """
 
 from __future__ import annotations
@@ -38,9 +42,22 @@ from typing import Any, Optional
 
 import httpx
 
+from . import a2a
+
 DEFAULT_URL = "https://YOUR-PROJECT.supabase.co"  # placeholder — set SAAKSHE_SUPABASE_URL in your env
 _SECRET_FILE = Path(os.path.expanduser("~/.saakshe_supabase_key"))
 _DEFAULT_USER = "founder"
+
+# Ingest-lifecycle vocabulary, mirrored from project.py so we never import it at
+# module load (project lazily imports THIS module when SAAKSHE_STORE=supabase, so a
+# top-level `from . import project` here would be a circular import). project.* is
+# imported lazily inside the two methods that build Connection objects.
+EMPTY = "empty"
+CONNECTING = "connecting"
+INGESTING = "ingesting"
+NEEDS_ANSWERS = "needs_answers"
+GROUNDED = "grounded"
+TOPIC = "company"
 
 
 def _read_key() -> str:
@@ -61,15 +78,13 @@ def available() -> bool:
 
 
 class SupabaseStore:
-    """Operational store over the `saakshe` Postgres schema via PostgREST.
-
-    Mirrors the ProjectStore surface (status/connect/ground/version/org) and adds
-    chat + event-stream + gate persistence. One row in saakshe.projects per user_id.
-    """
+    """Operational store over the public schema via PostgREST. One row in
+    ``projects`` per ``user_id``; mirrors the file ProjectStore surface exactly."""
 
     def __init__(self, user_id: str = _DEFAULT_USER, url: Optional[str] = None,
                  key: Optional[str] = None) -> None:
         self.user_id = user_id
+        self.user = user_id  # ProjectStore exposes `.user`; keep the alias for parity
         self.url = (url or os.environ.get("SAAKSHE_SUPABASE_URL") or DEFAULT_URL).rstrip("/")
         self.key = key or _read_key()
         if not self.key:
@@ -126,58 +141,175 @@ class SupabaseStore:
             self._project()
         return self._pid  # type: ignore[return-value]
 
-    # ── ProjectStore surface (the swappable interface) ───────────────────────
+    # ── state queries (ProjectStore parity) ──────────────────────────────────
     def is_connected(self) -> bool:
         return bool(self._get("connections", project_id=f"eq.{self.pid}", select="id", limit=1))
 
     def is_grounded(self) -> bool:
-        return bool(self._project().get("grounded"))
+        p = self._project()
+        return bool(p.get("grounded")) and p.get("version", "v0") != "v0"
 
     @property
     def version(self) -> str:
         return self._project().get("version", "v0")
 
-    def org_for_flywheel(self) -> dict:
-        return self._project().get("org") or {}
+    @property
+    def ingest_status(self) -> str:
+        return self._project().get("status", EMPTY)
 
-    def add_connection(self, kind: str, ref: str, meta: Optional[dict] = None) -> dict:
-        conn = self._insert("connections", {
-            "project_id": self.pid, "kind": kind, "ref": ref, "meta": meta or {}})
-        if self._project().get("status") == "empty":
-            self._patch("projects", {"id": self.pid}, {"status": "connected"})
-        return conn
+    @property
+    def org(self) -> dict:
+        return self._project().get("org") or {"name": "", "kind": "", "one_liner": ""}
+
+    @property
+    def connections(self) -> list:
+        """Live connections as ``project.Connection`` objects (so callers can read
+        ``c.kind`` / ``c.ref`` / ``c.meta`` exactly as on the file store)."""
+        from . import project  # lazy: avoids the project↔supastore import cycle
+        return [
+            project.Connection(kind=c["kind"], ref=c["ref"],
+                               status=c.get("status") or "connected",
+                               meta=c.get("meta") or {})
+            for c in self.list_connections()
+        ]
 
     def list_connections(self) -> list[dict]:
         return self._get("connections", project_id=f"eq.{self.pid}", select="*",
                          order="created_at.asc")
 
-    def commit_pack(self, version: str, facts: list, voice_rules: list,
-                    brand_rules: list, grounded: bool = True) -> dict:
-        pack = self._insert("context_packs", {
-            "project_id": self.pid, "version": version, "facts": facts,
-            "voice_rules": voice_rules, "brand_rules": brand_rules, "grounded": grounded})
+    def org_for_flywheel(self) -> dict:
+        """The org dict the orchestrator/arivu consume (never a canned default)."""
+        org = self.org
+        return {
+            "name": org.get("name") or "your company",
+            "kind": org.get("kind") or "the connected company",
+            "memory_pack": self.version,
+            "one_liner": org.get("one_liner", ""),
+        }
+
+    # ── mutations ─────────────────────────────────────────────────────────────
+    def add_connection(self, kind: str, ref: str, meta: Optional[dict] = None):
+        """Register a source; return a ``project.Connection`` (parity with file store)."""
+        from . import project  # lazy import (cycle-safe)
+        self._insert("connections", {
+            "project_id": self.pid, "kind": kind, "ref": ref, "meta": meta or {}})
+        if self._project().get("status") in (EMPTY, None):
+            self._patch("projects", {"id": self.pid}, {"status": CONNECTING})
+        return project.Connection(kind=kind, ref=ref, meta=meta or {})
+
+    def set_status(self, status: str) -> None:
+        self._patch("projects", {"id": self.pid}, {"status": status})
+
+    def set_org(self, name: str = "", kind: str = "", one_liner: str = "") -> None:
+        org = dict(self.org)
+        if name:
+            org["name"] = name
+        if kind:
+            org["kind"] = kind
+        if one_liner:
+            org["one_liner"] = one_liner
+        self._patch("projects", {"id": self.pid}, {"org": org})
+
+    def _next_version(self) -> str:
+        try:
+            n = int(str(self.version).lstrip("v") or "0")
+        except ValueError:
+            n = 0
+        return f"v{n + 1}"
+
+    def commit_pack(self, facts: list, voice_rules: list, brand_rules: list, *,
+                    topic: str = TOPIC, note: str = "",
+                    groundedness: Optional[float] = None) -> str:
+        """Write a Context Pack and tick the company memory version; return the new
+        version. Grounded once a clean pack exists and no contradiction blocks it
+        (missing-field questions are enrichment, they don't block) — mirrors the
+        file store's grounding rule."""
+        new_v = self._next_version()
+        has_facts = bool(facts)
+        blocking = bool(self.blocking_questions())
+        self._insert("context_packs", {
+            "project_id": self.pid, "version": new_v,
+            "facts": [dict(f) for f in facts],
+            "voice_rules": list(voice_rules), "brand_rules": list(brand_rules),
+            "grounded": has_facts})
+        grounded = has_facts and not blocking
+        if grounded:
+            status = GROUNDED
+        elif blocking:
+            status = NEEDS_ANSWERS
+        else:
+            status = self.ingest_status
         self._patch("projects", {"id": self.pid},
-                    {"version": version, "grounded": grounded, "status": "grounded"})
-        return pack
+                    {"version": new_v, "grounded": grounded, "status": status})
+        return new_v
 
     def latest_pack(self) -> Optional[dict]:
         rows = self._get("context_packs", project_id=f"eq.{self.pid}", select="*",
                          order="created_at.desc", limit=1)
         return rows[0] if rows else None
 
-    def set_org(self, org: dict) -> None:
-        self._patch("projects", {"id": self.pid}, {"org": org})
+    def pack(self, topic: str = TOPIC) -> a2a.ContextPack:
+        """The versioned, source-cited Context Pack — empty/ungrounded when nothing
+        is committed yet (preserves the refuse-out-of-corpus contract)."""
+        row = self.latest_pack()
+        if not row or not row.get("facts"):
+            return a2a.ContextPack(version=self.version, topic=topic, facts=[],
+                                   voice_rules=[], brand_rules=[], grounded=False)
+        return a2a.ContextPack(
+            version=row.get("version", self.version), topic=topic,
+            facts=[dict(f) for f in row.get("facts", [])],
+            voice_rules=list(row.get("voice_rules", [])),
+            brand_rules=list(row.get("brand_rules", [])),
+            grounded=bool(row.get("facts")),
+        )
 
-    # ── clarifying questions ─────────────────────────────────────────────────
-    def add_question(self, q: dict) -> dict:
-        return self._insert("questions", {"project_id": self.pid, **q})
+    def all_facts(self) -> list[dict]:
+        row = self.latest_pack()
+        return [dict(f) for f in (row or {}).get("facts", [])]
 
-    def open_questions(self) -> list[dict]:
-        return self._get("questions", project_id=f"eq.{self.pid}", status="eq.open", select="*")
+    # ── clarifying questions (a2a.ClarifyingQuestion parity) ──────────────────
+    def _to_question(self, row: dict) -> a2a.ClarifyingQuestion:
+        return a2a.ClarifyingQuestion(
+            id=row.get("qid", ""), text=row.get("text", ""), why=row.get("why", "") or "",
+            trigger=row.get("trigger", "") or "", blocks=row.get("blocks", "") or "",
+            status=row.get("status", "open"), answer=row.get("answer", "") or "",
+            options=list(row.get("options") or []), sources=list(row.get("sources") or []),
+        )
 
-    def answer_question(self, qid: str, answer: str) -> dict:
-        return self._patch("questions", {"project_id": self.pid, "qid": qid},
-                           {"status": "answered", "answer": answer})
+    def set_questions(self, questions: list) -> None:
+        """Replace the open question set with a freshly-detected one; answered
+        questions are preserved (a re-ingest never re-asks what's settled)."""
+        existing = self._get("questions", project_id=f"eq.{self.pid}", select="*")
+        answered_ids = {q["qid"] for q in existing if q.get("status") == "answered"}
+        # Drop currently-open rows (we re-detect them); keep answered rows untouched.
+        self._delete("questions", {"project_id": self.pid, "status": "open"})
+        for q in questions:
+            if q.id in answered_ids:
+                continue
+            self._insert("questions", {
+                "project_id": self.pid, "qid": q.id, "text": q.text, "why": q.why,
+                "trigger": q.trigger, "blocks": q.blocks, "status": q.status,
+                "answer": q.answer, "options": list(q.options), "sources": list(q.sources)})
+        if self.blocking_questions() and self.ingest_status in (INGESTING, CONNECTING, GROUNDED):
+            self.set_status(NEEDS_ANSWERS)
+
+    def open_questions(self) -> list:
+        return [self._to_question(r) for r in
+                self._get("questions", project_id=f"eq.{self.pid}", status="eq.open", select="*")]
+
+    def blocking_questions(self) -> list:
+        """Open questions that BLOCK grounding — only a contradiction blocks."""
+        return [q for q in self.open_questions() if q.trigger == "contradiction"]
+
+    def answer_question(self, qid: str, answer: str):
+        rows = self._get("questions", project_id=f"eq.{self.pid}", qid=f"eq.{qid}",
+                         select="*", limit=1)
+        if not rows:
+            return None
+        self._patch("questions", {"project_id": self.pid, "qid": qid},
+                    {"status": "answered", "answer": answer})
+        row = dict(rows[0]); row["status"] = "answered"; row["answer"] = answer
+        return self._to_question(row)
 
     # ── witness chat ─────────────────────────────────────────────────────────
     def append_message(self, role: str, text: str, run_id: str = "", meta: Optional[dict] = None) -> dict:
@@ -189,52 +321,66 @@ class SupabaseStore:
         return self._get("messages", project_id=f"eq.{self.pid}", select="*",
                          order="created_at.asc", limit=limit)
 
-    # ── the ordered event stream (operational mirror; BigQuery = analytics) ──
+    # ── the ordered event stream (low-level; SupabaseEventStream is the surface) ─
     def append_event(self, run_id: str, seq: int, source: str, agent: str,
                      text: str, span: str = "agent_run", kind: str = "note",
                      meta: Optional[dict] = None) -> dict:
         return self._insert("events", {
-            "run_id": run_id, "seq": seq, "source": source, "agent": agent,
-            "text": text, "span": span, "kind": kind, "meta": meta or {}})
+            "user_id": self.user_id, "run_id": run_id, "seq": seq, "source": source,
+            "agent": agent, "text": text, "span": span, "kind": kind, "meta": meta or {}})
 
     def events_since(self, run_id: str, cursor: int = 0) -> list[dict]:
-        return self._get("events", run_id=f"eq.{run_id}", seq=f"gte.{cursor}",
-                         select="*", order="seq.asc")
+        return self._get("events", user_id=f"eq.{self.user_id}", run_id=f"eq.{run_id}",
+                         seq=f"gte.{cursor}", select="*", order="seq.asc")
 
-    # ── the HITL gate queue ──────────────────────────────────────────────────
+    # ── the HITL gate queue (low-level) ───────────────────────────────────────
     def upsert_gate(self, run_id: str, gate_id: str, quadrant: str, gate_kind: str,
                     proposal: str, reversible: bool, agent: str = "", detail: Optional[dict] = None) -> dict:
         return self._insert("gates", {
-            "run_id": run_id, "gate_id": gate_id, "quadrant": quadrant, "agent": agent,
-            "gate_kind": gate_kind, "proposal": proposal, "reversible": reversible,
-            "detail": detail or {}})
+            "user_id": self.user_id, "run_id": run_id, "gate_id": gate_id, "quadrant": quadrant,
+            "agent": agent, "gate_kind": gate_kind, "proposal": proposal,
+            "reversible": reversible, "detail": detail or {}})
 
     def open_gates(self, run_id: Optional[str] = None) -> list[dict]:
-        params: dict[str, Any] = {"status": "eq.open", "select": "*", "order": "created_at.asc"}
+        params: dict[str, Any] = {"user_id": f"eq.{self.user_id}", "status": "eq.open",
+                                  "select": "*", "order": "created_at.asc"}
         if run_id:
             params["run_id"] = f"eq.{run_id}"
         return self._get("gates", **params)
 
     def resolve_gate(self, run_id: str, gate_id: str, decision: str = "approved") -> dict:
-        return self._patch("gates", {"run_id": run_id, "gate_id": gate_id}, {"status": decision})
+        return self._patch("gates",
+                            {"user_id": self.user_id, "run_id": run_id, "gate_id": gate_id},
+                            {"status": decision})
 
-    # ── status (the single dict the cockpit boots on — mirrors ProjectStore) ─
+    # ── status (the single dict the cockpit boots on — file-store shape) ──────
     def status_dict(self) -> dict:
         p = self._project()
+        all_q = self._get("questions", project_id=f"eq.{self.pid}", select="*")
         return {
             "connected": self.is_connected(),
-            "grounded": bool(p.get("grounded")),
-            "status": p.get("status", "empty"),
-            "org": p.get("org") or {},
+            "grounded": self.is_grounded(),
+            "ingest_status": p.get("status", EMPTY),
             "version": p.get("version", "v0"),
-            "connections": [{"kind": c["kind"], "ref": c["ref"]} for c in self.list_connections()],
-            "open_questions": self.open_questions(),
+            "org": p.get("org") or {"name": "", "kind": "", "one_liner": ""},
+            "connections": [c.as_dict() for c in self.connections],
+            "open_questions": [q.as_dict() for q in self.open_questions()],
+            "questions": [self._to_question(r).as_dict() for r in all_q],
+            "fact_count": len(self.all_facts()),
+            "connected_day": 0,
             "backend": "supabase",
         }
 
-    def reset(self) -> dict:
-        """Wipe this user's project back to empty-state (re-connect from scratch)."""
+    def reset(self, persist: bool = True) -> dict:
+        """Wipe this user's project back to empty-state (re-connect from scratch).
+        ``persist`` is accepted for ProjectStore signature parity (always persisted)."""
         self._delete("projects", {"user_id": self.user_id})  # cascades to children
+        # events/gates are keyed by user_id (no project FK), so clear them explicitly.
+        try:
+            self._delete("events", {"user_id": self.user_id})
+            self._delete("gates", {"user_id": self.user_id})
+        except httpx.HTTPError:
+            pass
         self._pid = None
         return self.status_dict()
 

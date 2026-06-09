@@ -93,8 +93,8 @@ class SupabaseEventStream(EventStream):
         SELECT happens at most once per run_id, never on every emit."""
         if run_id not in self._next_seq:
             rows = self.client._get(
-                "events", run_id=f"eq.{run_id}", select="seq",
-                order="seq.desc", limit=1,
+                "events", user_id=f"eq.{self.user_id}", run_id=f"eq.{run_id}",
+                select="seq", order="seq.desc", limit=1,
             )
             last = int(rows[0]["seq"]) if rows else -1
             self._next_seq[run_id] = last + 1
@@ -125,13 +125,17 @@ class SupabaseEventStream(EventStream):
             meta=dict(meta),
         )
         row = ev.as_row()
-        self.client._insert("events", {c: row[c] for c in _EVENT_COLUMNS})
+        payload = {c: row[c] for c in _EVENT_COLUMNS}
+        payload["user_id"] = self.user_id      # tenant stamp → reads are user-scoped
+        self.client._insert("events", payload)
         self._next_seq[run_id] = seq + 1
         return ev
 
-    # ── read (always from the table, so cross-process rows are visible) ──────
+    # ── read (always from the table, scoped to THIS tenant) ──────────────────
     def _all_rows(self) -> list[dict]:
-        return self.client._get("events", select="*", order="seq.asc")
+        return self.client._get(
+            "events", user_id=f"eq.{self.user_id}", select="*", order="seq.asc",
+        )
 
     def since(self, cursor: int = 0) -> list[Event]:
         return [_row_to_event(r) for r in self._all_rows() if int(r.get("seq", 0)) >= cursor]
@@ -167,6 +171,7 @@ class SupabaseEventStream(EventStream):
         )
         # mirror upsert_gate: quadrant ← source; status defaults to 'open' in the DB
         self.client._insert("gates", {
+            "user_id": self.user_id,
             "run_id": run_id, "gate_id": gate_id, "quadrant": source, "agent": agent,
             "gate_kind": gate_kind, "proposal": proposal, "reversible": reversible,
             "detail": dict(meta),
@@ -175,13 +180,18 @@ class SupabaseEventStream(EventStream):
 
     def resolve_gate(self, run_id: str, gate_id: str, decision: str = "approved") -> Event:
         ev = super().resolve_gate(run_id, gate_id, decision)
-        self.client._patch("gates", {"run_id": run_id, "gate_id": gate_id}, {"status": decision})
+        # match includes user_id → a tenant can only resolve its own gate
+        self.client._patch("gates",
+                            {"user_id": self.user_id, "run_id": run_id, "gate_id": gate_id},
+                            {"status": decision})
         return ev
 
     def open_gates(self, run_id: Optional[str] = None) -> list[dict]:
         """Unresolved gates, read from the gates TABLE (status='open') — not
-        stream-derived. The persisted queue is the source of truth here."""
-        params: dict[str, Any] = {"status": "eq.open", "select": "*", "order": "created_at.asc"}
+        stream-derived. The persisted queue is the source of truth here, scoped
+        to this tenant."""
+        params: dict[str, Any] = {"user_id": f"eq.{self.user_id}",
+                                  "status": "eq.open", "select": "*", "order": "created_at.asc"}
         if run_id:
             params["run_id"] = f"eq.{run_id}"
         return self.client._get("gates", **params)
