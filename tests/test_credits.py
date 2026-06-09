@@ -169,16 +169,21 @@ def test_charge_owner_is_noop(monkeypatch):
     assert rec.calls == []  # owners are never charged — no RPC at all
 
 
-def test_charge_demo_mode_is_noop(monkeypatch):
-    rec = RecordingRpc()
+def test_charge_demo_mode_with_supabase_still_bills(monkeypatch):
+    """DELIBERATE: billing tracks the Supabase backend + a real founder, NOT the
+    model-liveness mode. So a signed-in user on the Supabase store IS billed even in
+    demo/scripted mode (this is what makes the billing path testable creds-free, and
+    bills correctly in the hybrid deploy). The public file-store demo stays free —
+    see test_charge_non_supabase_store_is_noop."""
+    rec = RecordingRpc(ret=80)
     monkeypatch.setattr(credits, "_rpc", rec)
     monkeypatch.setenv("SAAKSHE_STORE", "supabase")
     monkeypatch.setattr(config, "mode", lambda: "demo")
 
     with credits.charge(_User(is_owner=False), "flywheel_run",
                         idem_key="k", reason="r") as r:
-        assert r["charged"] is False
-    assert rec.calls == []
+        assert r["charged"] is True
+    assert [c[0] for c in rec.calls] == ["saakshe_spend"]
 
 
 def test_charge_non_supabase_store_is_noop(monkeypatch):

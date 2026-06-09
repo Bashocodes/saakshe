@@ -55,6 +55,9 @@ class FlywheelState:
     verdict: dict = field(default_factory=dict)
     actions: list[dict] = field(default_factory=list)
     store: Any = None                # the per-user store this run is bound to
+    user_id: str = ""                # the founder who owns this run (route-layer auth)
+    spend_idem_key: str = ""         # the stable credit-spend key (for refund-on-failure)
+    charged: bool = False            # whether this run was actually billed
 
 
 _RUNS: dict[str, FlywheelState] = {}
@@ -76,6 +79,9 @@ async def start(
     org: Optional[dict] = None,
     stream: EventStream = STREAM,
     store: Any = None,
+    user_id: str = "",
+    spend_idem_key: str = "",
+    charged: bool = False,
 ) -> dict:
     config.sync_runtime_mode()
     # Resolve + bind the per-user store for the whole run so every deep read
@@ -84,18 +90,19 @@ async def start(
     store = store or project.current_store()
     token = project.set_current_store(store)
     try:
-        return await _start(question, org, stream, store)
+        return await _start(question, org, stream, store, user_id, spend_idem_key, charged)
     finally:
         project.reset_current_store(token)
 
 
-async def _start(question, org, stream, store) -> dict:
+async def _start(question, org, stream, store, user_id="", spend_idem_key="", charged=False) -> dict:
     run_id = "fw_" + uuid4().hex[:10]
     # The question is the founder's (from chat); the org is the REAL connected
     # company from the project store — never a canned default.
     q = question or "Should we make this change?"
     org = org or dict(store.org_for_flywheel())
-    state = FlywheelState(run_id=run_id, question=q, org=org, store=store)
+    state = FlywheelState(run_id=run_id, question=q, org=org, store=store,
+                          user_id=user_id, spend_idem_key=spend_idem_key, charged=charged)
     _RUNS[run_id] = state
 
     stream.emit(run_id, "saakshe", "founder", f'asks: "{q}"', span="invocation", kind="span_start")

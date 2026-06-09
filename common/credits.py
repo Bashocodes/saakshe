@@ -37,7 +37,6 @@ from typing import Iterator
 
 import httpx
 
-from common import config
 from common.config import _int
 from common import supastore
 
@@ -227,8 +226,11 @@ def charge(user, cost_key: str, *, idem_key: str, reason: str) -> Iterator[dict]
     """Charge ``cost(cost_key)`` around a block of work, refunding on failure.
 
     NO-OP (yields ``{'charged': False}`` and touches no RPC) when the founder is
-    the owner, when the company is in demo mode, or when the Supabase store isn't
-    the active backend — billing only runs against the live, persisted store.
+    the owner, or when the Supabase store isn't the active backend — billing tracks
+    the persisted backend + a real signed-in founder, NOT the model-liveness mode.
+    So the public, creds-free demo (file store, no sign-in) is always free, while a
+    real authed user on the Supabase backend is billed even in the hybrid (scripted-
+    Claude) deploy — and the billing path stays testable in scripted mode.
 
     Otherwise it spends *before* the work; if the block raises, it refunds (under a
     derived ``:refund`` key so the refund is replay-safe) and re-raises — the
@@ -237,7 +239,6 @@ def charge(user, cost_key: str, *, idem_key: str, reason: str) -> Iterator[dict]
     """
     if (
         getattr(user, "is_owner", False)
-        or config.mode() == "demo"
         or os.environ.get("SAAKSHE_STORE", "").lower() != "supabase"
     ):
         yield {"charged": False}

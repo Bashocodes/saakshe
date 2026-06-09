@@ -4,32 +4,39 @@ quadrants and the witness live.
 The founder talks only to saakshe (chat at /api/saakshe/ask, voice at /ws/voice).
 The flywheel runs through the orchestrator (the resumable 2-gate state machine).
 Every surface is a pure render of the one ordered stream (/api/stream); the gate
-queue (/api/gates) is derived from it. arivu's standalone console is retired —
-its chamber now runs as step 1 of the flywheel, inside saakshe.
+queue (/api/gates) is derived from it.
 
     cd ~/Desktop/Working/saakshe && PYTHONPATH=. ./.venv/bin/uvicorn service.app:app --port 8000
-    open http://localhost:8000/        → the cockpit, in live mode
+    open http://localhost:8000/        → the cockpit
 
-Demo by default (no creds). Real side effects only when ARIVU/SAAKSHE are live AND
-SAAKSHE_SERVER_ALLOW_LIVE_EXEC=true — the server never fires a real publish on its own.
+AUTH + CREDITS (the gate): demo-first by default — with no Supabase backend
+(SAAKSHE_STORE != supabase) there is NO sign-in and NO billing, so the public demo
+and the 135 tests run unchanged. When SAAKSHE_STORE=supabase, a per-request
+``Session`` resolves the founder from the verified JWT, binds their per-user store
++ stream for the request (the multi-tenant seam), and chargeable actions spend
+credits (refunded on any internal failure, including the resumable flywheel's later
+gates). Owners + the file-store demo are always free.
 """
 
 from __future__ import annotations
 
 import json
 import os
+import traceback
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Optional
+from uuid import uuid4
 
-from fastapi import FastAPI, HTTPException, Request, WebSocket
+from fastapi import Depends, FastAPI, HTTPException, Request, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
 from pydantic import BaseModel
-import traceback
 
 import common  # noqa: F401 — bootstraps arivu onto sys.path
-from common import a2a, config, models, project
+from common import a2a, auth, config, credits, models, project
 from common.stream import STREAM
+from common.supastream import SupabaseEventStream
 import orchestrator
 import manas.runner as manas_runner
 from witness import agent as witness
@@ -67,9 +74,7 @@ app.add_middleware(
 @app.exception_handler(Exception)
 async def _json_error_handler(request: Request, exc: Exception) -> JSONResponse:
     """Never return a plain-text 500. A live model call can raise mid-flywheel;
-    the cockpit calls r.json(), so an unhandled exception MUST still be valid JSON
-    (otherwise the console dies on 'Unexpected token I, Internal S…'). This turns
-    every failure into a structured, renderable error."""
+    the cockpit calls r.json(), so an unhandled exception MUST still be valid JSON."""
     print("saakshe error @", request.url.path, "\n", traceback.format_exc())
     return JSONResponse(
         status_code=500,
@@ -77,14 +82,94 @@ async def _json_error_handler(request: Request, exc: Exception) -> JSONResponse:
     )
 
 
+# ─── the per-request session (auth + per-user store/stream binding) ───────────
+@dataclass
+class Session:
+    user: Any            # auth.User | None
+    store: Any           # the founder's ProjectStore / SupabaseStore (or the global)
+    stream: Any          # the founder's event stream (or the global)
+
+
+def _supabase_backend() -> bool:
+    return os.environ.get("SAAKSHE_STORE", "").lower() == "supabase"
+
+
+_GRANTED: set[str] = set()  # process cache: signup-grant a user once per process
+
+
+def _ensure_account(user) -> None:
+    """Idempotently create the account + first-time credit grant on first authed
+    touch (the RPC is ON CONFLICT DO NOTHING; the cache just avoids a round-trip)."""
+    if not user or user.user_id in _GRANTED:
+        return
+    try:
+        credits.grant_signup(user.user_id, getattr(user, "email", ""), getattr(user, "is_owner", False))
+        _GRANTED.add(user.user_id)
+    except Exception:  # noqa: BLE001 — never block a request on a grant hiccup
+        pass
+
+
+def _stream_factory(user_id: str):
+    """The per-user event stream (overridable in tests)."""
+    return SupabaseEventStream(user_id)
+
+
+async def _session_dep(request: Request):
+    """Resolve the founder from the Bearer JWT, bind their per-user store + stream
+    for the whole request (so every deep read follows the right tenant), and reset
+    on the way out. Demo/file-store (no Supabase backend) → no auth, the globals."""
+    user = auth.optional_user(request) if auth.auth_enabled() else None
+    if _supabase_backend() and user is not None:
+        _ensure_account(user)
+        store = project.store_for(user.user_id)
+        stream = _stream_factory(user.user_id)
+    else:
+        store = project.STORE
+        stream = STREAM
+    token = project.set_current_store(store)
+    try:
+        yield Session(user=user, store=store, stream=stream)
+    finally:
+        project.reset_current_store(token)
+
+
+def _require_auth_if_live(user) -> None:
+    """A chargeable / own-data route needs a signed-in founder when the Supabase
+    backend is active. The public file-store demo needs none."""
+    if _supabase_backend() and auth.auth_enabled() and user is None:
+        raise HTTPException(status_code=401, detail="auth_required")
+
+
+def _billing_active(user) -> bool:
+    """Billing tracks the persisted backend + a real, non-owner founder (NOT the
+    model-liveness mode) — so the file-store demo is free and owners are free."""
+    return _supabase_backend() and user is not None and not getattr(user, "is_owner", False)
+
+
+def _refund_run(run, user, reason: str) -> bool:
+    """Refund a charged flywheel run once (idempotent on the spend key; releases the
+    claim so a genuine retry re-charges). Returns whether a refund was issued."""
+    if run is None or not getattr(run, "charged", False) or not run.spend_idem_key or user is None:
+        return False
+    try:
+        credits.refund(user.user_id, credits.cost("flywheel_run"), reason,
+                       run.spend_idem_key, run.spend_idem_key + ":refund")
+    except Exception:  # noqa: BLE001
+        pass
+    run.charged = False
+    return True
+
+
 # ─── request bodies ──────────────────────────────────────────────────────────
 class AskRequest(BaseModel):
     text: str
     run_id: Optional[str] = None
+    idem_key: Optional[str] = None
 
 
 class RunRequest(BaseModel):
     question: Optional[str] = None
+    idem_key: Optional[str] = None     # stable client key → idempotent spend + refund
 
 
 class ApproveRequest(BaseModel):
@@ -93,10 +178,10 @@ class ApproveRequest(BaseModel):
 
 
 class ConnectRequest(BaseModel):
-    kind: str                       # "github" | "website" | "docs" | "social"
-    ref: str                        # repo url/owner-repo, site url, docs url, handle
-    mechanism: Optional[str] = None  # github: "ssh" (default) | "pat" | "public"
-    token: Optional[str] = None      # github PAT (only when mechanism == "pat")
+    kind: str
+    ref: str
+    mechanism: Optional[str] = None
+    token: Optional[str] = None
 
 
 class AnswerRequest(BaseModel):
@@ -104,10 +189,35 @@ class AnswerRequest(BaseModel):
     answer: str
 
 
-# A decision-shaped question (starts the flywheel) needs an explicit decision phrase —
-# NOT a bare noun like "price", so "what's our price?" stays a telemetry question.
 _DECISION_HINTS = ("should we", "should i", "should the", "run the day", "start the day",
                    "raise pro", "raise our", "raise the price", "decide whether", "decide if")
+
+
+# ─── public config + identity ─────────────────────────────────────────────────
+@app.get("/api/public-config")
+def public_config() -> dict[str, Any]:
+    """What the cockpit needs to boot Supabase-JS (the anon key is public-safe)."""
+    return {
+        "supabase_url": os.environ.get("SAAKSHE_SUPABASE_URL", ""),
+        "anon_key": os.environ.get("SUPABASE_ANON_KEY", ""),
+        "store": os.environ.get("SAAKSHE_STORE", "file"),
+        "auth_enabled": auth.auth_enabled() and _supabase_backend(),
+        "mode": config.mode(),
+    }
+
+
+@app.get("/api/me")
+def me(sess: Session = Depends(_session_dep)) -> dict[str, Any]:
+    """The founder's identity + live credit balance (the cockpit's balance pill)."""
+    if not _supabase_backend():
+        return {"demo": True, "balance": None, "auth_enabled": False}
+    if sess.user is None:
+        raise HTTPException(status_code=401, detail="auth_required")
+    _ensure_account(sess.user)
+    return {
+        "user_id": sess.user.user_id, "email": sess.user.email,
+        "is_owner": sess.user.is_owner, "balance": credits.balance(sess.user.user_id),
+    }
 
 
 # ─── health ──────────────────────────────────────────────────────────────────
@@ -122,18 +232,16 @@ def health() -> dict[str, Any]:
     }
 
 
-# ─── setu · the connect bridge (empty until the founder connects a real source) ─
+# ─── setu · the connect bridge ────────────────────────────────────────────────
 @app.get("/api/connect/status")
-def connect_status() -> dict[str, Any]:
-    """The single source of truth the cockpit boots on: connected? grounded? what
-    org, what version, which open clarifying questions."""
-    return project.STORE.status_dict()
+def connect_status(sess: Session = Depends(_session_dep)) -> dict[str, Any]:
+    _require_auth_if_live(sess.user)
+    return sess.store.status_dict()
 
 
 @app.post("/api/connect/source")
-def connect_source(req: ConnectRequest) -> dict[str, Any]:
-    """Register a real source over setu (a GitHub repo, a website, docs, a social
-    handle). Granted, never taken — this only records the ref; ingestion reads it."""
+def connect_source(req: ConnectRequest, sess: Session = Depends(_session_dep)) -> dict[str, Any]:
+    _require_auth_if_live(sess.user)
     kind = (req.kind or "").strip().lower()
     if kind not in ("github", "repo", "website", "web", "docs", "social"):
         raise HTTPException(status_code=400, detail=f"unknown source kind {kind!r}")
@@ -143,106 +251,173 @@ def connect_source(req: ConnectRequest) -> dict[str, Any]:
         meta["mechanism"] = (req.mechanism or "ssh").lower()
         if req.token:
             meta["token"] = req.token
-    conn = project.STORE.add_connection(kind, req.ref.strip(), meta)
-    return {"ok": True, "connection": conn.as_dict(), "status": project.STORE.status_dict()}
+    conn = sess.store.add_connection(kind, req.ref.strip(), meta)
+    return {"ok": True, "connection": conn.as_dict(), "status": sess.store.status_dict()}
 
 
 @app.post("/api/connect/ingest")
-async def connect_ingest() -> dict[str, Any]:
-    """Run the REAL manas ingestion over the connected sources: read repo + site →
-    live Gemini extracts cited facts/voice/brand → commit a versioned Context Pack →
-    surface any honest clarifying questions. All automatic after connect."""
-    if not project.STORE.is_connected():
+async def connect_ingest(sess: Session = Depends(_session_dep)) -> Any:
+    """Run the REAL manas ingestion over the connected sources (chargeable)."""
+    _require_auth_if_live(sess.user)
+    store, stream, user = sess.store, sess.stream, sess.user
+    if not store.is_connected():
         raise HTTPException(status_code=409, detail="nothing connected yet — add a source first")
     run_id = "ingest_" + os.urandom(4).hex()
-    result = await manas_runner.ingest_connected(STREAM, run_id, project.STORE)
+    try:
+        with credits.charge(user, "connect_ingest", idem_key="ingest:" + run_id, reason="connect ingest"):
+            result = await manas_runner.ingest_connected(stream, run_id, store)
+    except credits.OutOfCredits as exc:
+        return JSONResponse(status_code=402, content=credits.out_of_credits_payload(exc.balance))
+    except Exception as exc:  # noqa: BLE001 — charge() already refunded on the inner failure
+        print("ingest failed @", run_id, "\n", traceback.format_exc())
+        return JSONResponse(status_code=200, content={
+            "status": "error", "text": credits.TEMPORARY_FAILURE_MSG, "detail": str(exc)[:300]})
     return {"run_id": run_id, **result}
 
 
 @app.post("/api/connect/answer")
-async def connect_answer(req: AnswerRequest) -> dict[str, Any]:
-    """Answer a clarifying question; manas folds it back into the corpus + re-grounds."""
+async def connect_answer(req: AnswerRequest, sess: Session = Depends(_session_dep)) -> dict[str, Any]:
+    _require_auth_if_live(sess.user)
     run_id = "answer_" + os.urandom(4).hex()
-    result = await manas_runner.answer_question(STREAM, run_id, req.qid, req.answer, project.STORE)
+    result = await manas_runner.answer_question(sess.stream, run_id, req.qid, req.answer, sess.store)
     if not result.get("ok"):
         raise HTTPException(status_code=404, detail=result.get("error", "no such question"))
     return result
 
 
 @app.post("/api/connect/reset")
-def connect_reset() -> dict[str, Any]:
-    """Disconnect everything and return to empty-state (re-connect from scratch)."""
-    project.STORE.reset()
-    return {"ok": True, "status": project.STORE.status_dict()}
+def connect_reset(sess: Session = Depends(_session_dep)) -> dict[str, Any]:
+    _require_auth_if_live(sess.user)
+    sess.store.reset()
+    return {"ok": True, "status": sess.store.status_dict()}
 
 
-# ─── the witness chat (the founder talks ONLY to saakshe) ────────────────────
+# ─── the witness chat ─────────────────────────────────────────────────────────
 @app.post("/api/saakshe/ask")
-async def ask(req: AskRequest) -> dict[str, Any]:
+async def ask(req: AskRequest, sess: Session = Depends(_session_dep)) -> Any:
     """Telemetry Q&A through the witness; a decision-shaped question starts the flywheel."""
+    _require_auth_if_live(sess.user)
     text = (req.text or "").strip()
     low = text.lower()
     if any(h in low for h in _DECISION_HINTS) and "?" in text:
-        if not project.STORE.is_grounded():
+        if not sess.store.is_grounded():
             return {"kind": "connect_first",
                     "text": "I can't run a decision on a blank memory — connect your project first "
                             "(a repo + your site), and I'll ground the company before deciding.",
-                    "status": project.STORE.status_dict()}
-        summary = await orchestrator.start(question=text)
-        return {"kind": "flywheel_started",
-                "text": "That's a real decision — routing it to arivu. A gate will land in your queue.",
-                "flywheel": summary}
-    reply = await witness.respond(text, req.run_id, STREAM)
+                    "status": sess.store.status_dict()}
+        return await _start_flywheel(sess, question=text, idem_key=req.idem_key,
+                                     ok_text="That's a real decision — routing it to arivu. A gate will land in your queue.",
+                                     wrap_key="flywheel")
+    reply = await witness.respond(text, req.run_id, sess.stream)
     return {"kind": "witness", **reply}
 
 
 # ─── the flywheel (resumable 2-gate state machine) ───────────────────────────
+async def _start_flywheel(sess: Session, *, question: Optional[str], idem_key: Optional[str],
+                          ok_text: Optional[str] = None, wrap_key: str = "raw") -> Any:
+    """Spend → start the flywheel → refund on internal failure or a terminal
+    no-safe-decision. The spend is ONCE per run (keyed on a stable client key) and
+    is refunded by /api/hero/approve too, since the run spans three requests."""
+    store, stream, user = sess.store, sess.stream, sess.user
+    billing = _billing_active(user)
+    spend_key = idem_key or ("run:" + uuid4().hex)
+    if billing:
+        try:
+            credits.spend(user.user_id, credits.cost("flywheel_run"), "flywheel run", spend_key)
+        except credits.OutOfCredits as exc:
+            return JSONResponse(status_code=402, content=credits.out_of_credits_payload(exc.balance))
+    try:
+        summary = await orchestrator.start(
+            question=question, stream=stream, store=store,
+            user_id=(user.user_id if user else ""), spend_idem_key=spend_key, charged=billing)
+    except Exception as exc:  # noqa: BLE001 — internal failure: refund + reassure
+        if billing:
+            credits.refund(user.user_id, credits.cost("flywheel_run"), credits.TEMPORARY_FAILURE_MSG,
+                           spend_key, spend_key + ":refund")
+        print("flywheel start failed:\n", traceback.format_exc())
+        return JSONResponse(status_code=200, content={
+            "status": "error", "refunded": billing, "text": credits.TEMPORARY_FAILURE_MSG,
+            "detail": str(exc)[:300]})
+    if summary.get("status") == "no_safe_decision":
+        # The run produced nothing shippable → make the founder whole.
+        if _refund_run(orchestrator.get_run(summary["run_id"]), user, "no safe decision — not charged"):
+            summary["refunded"] = True
+    if wrap_key == "flywheel":
+        return {"kind": "flywheel_started", "text": ok_text, "flywheel": summary}
+    return summary
+
+
 @app.post("/api/hero/run")
-async def hero_run(req: RunRequest) -> dict[str, Any]:
-    if not project.STORE.is_grounded():
-        return {"status": "not_connected", "connected": project.STORE.is_connected(),
+async def hero_run(req: RunRequest, sess: Session = Depends(_session_dep)) -> Any:
+    _require_auth_if_live(sess.user)
+    if not sess.store.is_grounded():
+        return {"status": "not_connected", "connected": sess.store.is_connected(),
                 "text": "Connect your project first — saakshe runs on YOUR company, never a canned example.",
-                "connect": project.STORE.status_dict()}
-    return await orchestrator.start(question=req.question)
+                "connect": sess.store.status_dict()}
+    return await _start_flywheel(sess, question=req.question, idem_key=req.idem_key)
 
 
 @app.post("/api/hero/approve")
-async def hero_approve(req: ApproveRequest) -> dict[str, Any]:
+async def hero_approve(req: ApproveRequest, sess: Session = Depends(_session_dep)) -> Any:
+    _require_auth_if_live(sess.user)
+    run = orchestrator.get_run(req.run_id)
+    if run is None:
+        raise HTTPException(status_code=404, detail=f"unknown flywheel run_id {req.run_id!r}")
+    # Run ownership: a tenant may only advance its OWN run (don't reveal existence).
+    if _supabase_backend() and run.user_id and (sess.user is None or run.user_id != sess.user.user_id):
+        raise HTTPException(status_code=404, detail=f"unknown flywheel run_id {req.run_id!r}")
     try:
-        return await orchestrator.approve(req.run_id, req.gate_id)
+        summary = await orchestrator.approve(req.run_id, req.gate_id,
+                                             stream=sess.stream, store=run.store or sess.store)
     except KeyError as exc:
         raise HTTPException(status_code=404, detail=str(exc))
     except RuntimeError as exc:
-        raise HTTPException(status_code=409, detail=str(exc))
+        raise HTTPException(status_code=409, detail=str(exc))   # bad gate / not awaiting → no refund
+    except Exception as exc:  # noqa: BLE001 — internal failure mid-flywheel: refund the run
+        _refund_run(run, sess.user, credits.TEMPORARY_FAILURE_MSG)
+        print("flywheel approve failed:\n", traceback.format_exc())
+        return JSONResponse(status_code=200, content={
+            "status": "error", "refunded": True, "text": credits.TEMPORARY_FAILURE_MSG,
+            "detail": str(exc)[:300]})
+    if summary.get("status") == "no_safe_decision":
+        if _refund_run(run, sess.user, "no safe decision — not charged"):
+            summary["refunded"] = True
+    return summary
 
 
 # ─── the one ordered stream + the derived gate queue ─────────────────────────
 @app.get("/api/stream")
-def stream(cursor: int = 0, run_id: Optional[str] = None) -> dict[str, Any]:
-    rows = STREAM.rows(cursor)
+def stream(cursor: int = 0, run_id: Optional[str] = None,
+           sess: Session = Depends(_session_dep)) -> dict[str, Any]:
+    _require_auth_if_live(sess.user)
+    rows = sess.stream.rows(cursor)
     if run_id:
         rows = [r for r in rows if r["run_id"] == run_id]
-    return {"cursor": STREAM.cursor, "rows": rows}
+    return {"cursor": sess.stream.cursor, "rows": rows}
 
 
 @app.get("/api/gates")
-def gates(run_id: Optional[str] = None) -> dict[str, Any]:
-    return {"gates": STREAM.open_gates(run_id)}
+def gates(run_id: Optional[str] = None, sess: Session = Depends(_session_dep)) -> dict[str, Any]:
+    _require_auth_if_live(sess.user)
+    return {"gates": sess.stream.open_gates(run_id)}
 
 
-# ─── witness telemetry tools (also reachable directly, for the cockpit pills) ─
+# ─── witness telemetry tools ──────────────────────────────────────────────────
 @app.get("/api/witness/telemetry")
-def witness_telemetry(run_id: Optional[str] = None) -> dict[str, Any]:
+def witness_telemetry(run_id: Optional[str] = None,
+                      sess: Session = Depends(_session_dep)) -> dict[str, Any]:
+    _require_auth_if_live(sess.user)
+    s = sess.stream
     return {
-        "waiting": tel.anyone_waiting(run_id, STREAM),
-        "cost": tel.cost_today(run_id, STREAM),
-        "reversible": tel.whats_reversible(run_id, STREAM),
-        "learned": tel.what_learned(run_id, STREAM),
-        "acting": tel.whos_acting_now(run_id, STREAM),
+        "waiting": tel.anyone_waiting(run_id, s),
+        "cost": tel.cost_today(run_id, s),
+        "reversible": tel.whats_reversible(run_id, s),
+        "learned": tel.what_learned(run_id, s),
+        "acting": tel.whos_acting_now(run_id, s),
     }
 
 
-# ─── A2A agent cards (served manually; a2a-sdk to_a2a() pending) ──────────────
+# ─── A2A agent cards (open) ───────────────────────────────────────────────────
 @app.get("/api/{quadrant}/agent-card")
 def agent_card(quadrant: str) -> Any:
     if quadrant == "arivu" and _ARIVU_CARD.exists():
@@ -262,12 +437,7 @@ async def voice(websocket: WebSocket) -> None:
     await witness_voice.handle_ws(websocket)
 
 
-# ─── serve the site: landing at /, every page under web/ at /<name>.html ─────
-# The whole experience lives in web/ — landing → onboarding → cockpit, plus the
-# faculty pages (manas·arivu·kalai·kural·setu·darshana) and the explainers. The
-# pages link each other by bare filename (href="cockpit.html"), so serving each at
-# /<name>.html makes that navigation work with no link rewriting. API routes above
-# are multi-segment, so this single-segment catch-all never shadows them.
+# ─── serve the site ───────────────────────────────────────────────────────────
 def _serve_page(name: str) -> Any:
     if not name.endswith(".html"):
         name += ".html"
@@ -279,6 +449,13 @@ def _serve_page(name: str) -> Any:
     if name == "cockpit.html" and _LEGACY_COCKPIT.exists():
         return FileResponse(_LEGACY_COCKPIT)
     raise HTTPException(status_code=404, detail=f"no page {name!r}")
+
+
+@app.get("/auth/callback", response_class=HTMLResponse)
+def auth_callback() -> Any:
+    """Completes the Supabase OAuth round-trip (supabase-js parses the URL, then we
+    bounce to the cockpit). Explicit route since the catch-all is single-segment."""
+    return _serve_page("auth-callback.html")
 
 
 @app.get("/", response_class=HTMLResponse)
