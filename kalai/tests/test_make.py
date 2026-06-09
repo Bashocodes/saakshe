@@ -221,3 +221,62 @@ async def test_no_forbidden_numbers_or_names_as_canon():
         assert name not in blob.lower()
     # the master carries the sealed fidelity final, not a midpoint.
     assert res.output["fidelity_score"] == config.CANON["fidelity_pass"]
+
+
+# ─── fail-closed fidelity + guarded render (audit hardening) ─────────────────
+async def test_sub_threshold_fidelity_escalates_and_never_hands_off(monkeypatch):
+    """A climb that maxes out below FIDELITY_THRESHOLD must escalate — no master,
+    no canon 9.1 restamp, no A2A to kural, and no media render fired."""
+    from kalai import scorers, media
+
+    flat = {lens: 7.0 for lens in scorers.WEIGHTS}   # every round aggregates to 7.0
+    monkeypatch.setattr(scorers, "demo_subscores", lambda rnd: dict(flat))
+
+    fired = []
+    monkeypatch.setattr(media, "render_still",
+                        lambda *a, **k: fired.append(1) or {"image_ref": "x", "bytes": None, "spend_usd": 0.0})
+
+    stream = EventStream()
+    res = await runner.make(stream, "run-lowfid", _BRIEF, _PACK)
+
+    assert res.status == "no_safe_decision"
+    assert res.output["fidelity"] == "escalated"
+    assert res.output["fidelity_score"] == 7.0
+    assert res.output["fidelity_score"] != config.CANON["fidelity_pass"]
+    assert not fired, "a sub-threshold master must never burn a Vertex render"
+    assert not [e for e in stream.all() if e.kind == "a2a"], "no handoff to kural"
+
+
+async def test_render_failure_ships_pixel_less_master(monkeypatch):
+    """A raising render must not strand the run: the cleared master ships on a
+    deterministic placeholder ref and still reaches the kural handoff."""
+    from kalai import runner as r
+
+    def _boom(*a, **k):
+        raise RuntimeError("vertex unavailable")
+
+    # Patch the name the runner actually calls (module attr on kalai.media).
+    import kalai.media as media
+    monkeypatch.setattr(media, "render_still", _boom)
+
+    stream = EventStream()
+    res = await r.make(stream, "run-renderfail", _BRIEF, _PACK)
+
+    assert res.status == "handoff"
+    assert res.output["media"]["image_ref"].startswith("vertex://imagen/placeholder/")
+    warns = [e for e in stream.all() if e.meta.get("warning") == "render_failed"]
+    assert warns, "the degradation must be visible on the stream, not silent"
+
+
+def test_render_asset_skill_escalates_sub_threshold(monkeypatch):
+    """The A2A skill mirrors make(): a failed climb returns accepted=False with the
+    REAL score — the canon constant is never stamped over a failure."""
+    from kalai import scorers
+
+    flat = {lens: 7.0 for lens in scorers.WEIGHTS}
+    monkeypatch.setattr(scorers, "demo_subscores", lambda rnd: dict(flat))
+
+    out = runner._render_asset(_BRIEF, _PACK)
+    assert out["accepted"] is False
+    assert out["fidelity"] == "escalated"
+    assert out["fidelity_score"] == 7.0

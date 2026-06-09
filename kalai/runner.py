@@ -120,6 +120,24 @@ async def make(stream: EventStream, run_id: str, brief: str, context_pack: dict,
         transcript.append({"actor": "Brand-Fidelity», round " + str(h.get("round")),
                            "text": f"{h.get('score'):.1f} — {h.get('reason')}"})
 
+    # Fail-closed fidelity: the climb must actually cross the bar. A loop that
+    # maxed out below threshold escalates HERE — before the gate, before any
+    # Vertex render is paid for — and never gets a canon score stamped on.
+    passed = bool(state.get(SK.FIDELITY_PASSED, False))
+    if not passed:
+        stream.emit(run_id, NS, "Brand-Fidelity scorer",
+                    f"escalated: fidelity {final_score:.1f} < {config.FIDELITY_THRESHOLD} "
+                    "after max rounds — no master ships off-brand",
+                    span="agent_run", fidelity="escalated", fidelity_score=final_score)
+        transcript.append({"actor": "Brand-Fidelity», escalated",
+                           "text": f"{final_score:.1f} below {config.FIDELITY_THRESHOLD} — refuse, not restamp"})
+        return a2a.QuadrantResult(
+            quadrant=NS, status="no_safe_decision",
+            output={"fidelity": "escalated", "fidelity_score": final_score},
+            transcript=transcript,
+            state={"fidelity": "escalated"},
+        )
+
     # Fail-closed compliance gate (Claude) — must explicitly clear.
     stream.emit(run_id, NS, "Compliance check",
                 "fail-closed review: claims, rights, tone, sensitive — " + ("CLEAR" if cleared else "BLOCK"),
@@ -150,9 +168,16 @@ async def make(stream: EventStream, run_id: str, brief: str, context_pack: dict,
     # pixel-free placeholder ref in demo). Rendered ONLY now, post-clearance, so a
     # blocked brief never burns a Vertex render. This is the real media call that
     # replaces the cosmetic "Imagen" stream label above.
-    media_out = media_mod.render_still(
-        prompt=design.get("visual", ""), palette=design.get("palette", "")
-    )
+    try:
+        media_out = media_mod.render_still(
+            prompt=design.get("visual", ""), palette=design.get("palette", "")
+        )
+    except Exception as exc:  # fail-soft: a render error never strands the run
+        stream.emit(run_id, NS, "Designer · Producer",
+                    f"render failed ({type(exc).__name__}) — master ships pixel-less on a placeholder ref",
+                    span="execute_tool", warning="render_failed")
+        media_out = {"image_ref": media_mod._placeholder_ref("imagen", design.get("visual", "")),
+                     "bytes": None, "spend_usd": 0.0}
     image_ref = media_out.get("image_ref", "")
     media_block = {"image_ref": image_ref, "video_ref": ""}
     stream.emit(run_id, NS, "Designer · Producer",
@@ -203,13 +228,21 @@ def _render_asset(brief: str = "", context_pack: dict | None = None, assets=None
         copy = _as_dict(state.get(SK.COPY))
         score = float(state.get(SK.FIDELITY_SCORE) or 0.0)
         passed = bool(state.get(SK.FIDELITY_PASSED, False))
+        if not passed:
+            # Fail-closed: an off-brand master is refused, never restamped with canon.
+            return {"accepted": False, "fidelity": "escalated",
+                    "fidelity_score": score, "brief": brief}
         from . import media as media_mod
-        media_out = media_mod.render_still(
-            prompt=design.get("visual", ""), palette=design.get("palette", "")
-        )
+        try:
+            media_out = media_mod.render_still(
+                prompt=design.get("visual", ""), palette=design.get("palette", "")
+            )
+        except Exception:  # fail-soft: ship pixel-less rather than strand the caller
+            media_out = {"image_ref": media_mod._placeholder_ref("imagen", design.get("visual", "")),
+                         "bytes": None, "spend_usd": 0.0}
         master = fx.assemble_master(
             brief, design=design, copy=copy,
-            fidelity_score=score if passed else config.CANON["fidelity_pass"],
+            fidelity_score=score if score > 0.0 else config.CANON["fidelity_pass"],
             media={"image_ref": media_out.get("image_ref", ""), "video_ref": ""},
         )
         out = master.as_dict()
