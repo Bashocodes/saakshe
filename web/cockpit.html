@@ -2687,7 +2687,7 @@ html[data-theme="dark"] .sdoss .sdfoot{ border-top-color:var(--line); box-shadow
         docs=$("cgDocs").value.trim(), soc=$("cgSocial").value.trim();
     if(!gh && !web && !docs && !soc){ $("cgConnectStatus").textContent="add at least a repo or a website"; return; }
     var sources=[];
-    if(gh){ var mech = /^git@|\.git$|^ssh:/.test(gh) ? "ssh" : (/^https?:\/\//.test(gh)?"public":"ssh"); sources.push({kind:"github", ref:gh, mechanism:mech}); }
+    if(gh){ var mech = /^git@|^ssh:\/\//.test(gh) ? "ssh" : "public"; sources.push({kind:"github", ref:gh, mechanism:mech}); }
     if(web) sources.push({kind:"website", ref:web, mechanism:"public"});
     if(docs) sources.push({kind:"docs", ref:docs});
     if(soc) sources.push({kind:"social", ref:soc});

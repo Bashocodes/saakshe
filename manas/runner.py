@@ -180,7 +180,7 @@ async def _read_sources(store: project.ProjectStore) -> list[src.SourceBundle]:
 
     def _read_one(kind: str, ref: str, meta: dict) -> src.SourceBundle:
         if kind in ("github", "repo"):
-            return src.GitHubSource(mechanism=meta.get("mechanism", "ssh"),
+            return src.GitHubSource(mechanism=meta.get("mechanism", "public"),
                                     token=meta.get("token")).read(ref)
         if kind in ("website", "web"):
             return src.WebsiteSource().read(ref)

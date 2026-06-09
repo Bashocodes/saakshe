@@ -264,7 +264,10 @@ def connect_source(req: ConnectRequest, sess: Session = Depends(_session_dep)) -
     kind = {"repo": "github", "web": "website"}.get(kind, kind)
     meta: dict[str, Any] = {}
     if kind == "github":
-        meta["mechanism"] = (req.mechanism or "ssh").lower()
+        # Default to a mechanism that can actually work in-container: https for
+        # public repos, PAT when a token rides along. ssh only when asked for —
+        # the container ships no deploy key, so an ssh default can never clone.
+        meta["mechanism"] = (req.mechanism or ("pat" if req.token else "public")).lower()
         if req.token:
             meta["token"] = req.token
     conn = sess.store.add_connection(kind, req.ref.strip(), meta)
