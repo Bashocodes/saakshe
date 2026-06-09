@@ -172,10 +172,10 @@ async def _read_sources(store: project.ProjectStore) -> list[src.SourceBundle]:
         if kind == "docs":
             return src.DocsSource().read(ref)
         if kind == "social":
-            # A light, honest signal: the handle itself (no scraping API wired yet).
-            return src.SourceBundle(channel="social", ref=ref,
-                                    text=f"Primary social presence: {ref}.",
-                                    provenance=[ref], ok=True)
+            # A real, structured handle read (demo: deterministic bundle; live: a
+            # mockable profile/oEmbed fetch) — see manas/social.py.
+            from . import social
+            return social.read_handle(ref)
         return src.SourceBundle(channel=kind, ref=ref, ok=False, meta={"error": "unknown channel"})
 
     tasks = [asyncio.to_thread(_read_one, c.kind, c.ref, c.meta) for c in store.connections]
