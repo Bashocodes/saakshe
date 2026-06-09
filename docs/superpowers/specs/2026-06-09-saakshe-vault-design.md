@@ -25,6 +25,8 @@ The index (small metadata) and the blobs (large binaries) live in different plac
 
 Rejected: **B** (everything in a Supabase bucket, metadata as sidecar JSON) — querying becomes a bucket scan, bad for the serve selector, and the demo needs a fake bucket. **C** (blobs as Postgres `bytea`) — Postgres is wrong for multi-MB images/fonts.
 
+**Cost note (forward-looking, not v1 work):** the live blob backend is Supabase Storage. Brand assets (logos / a few reference images / fonts) and even generated *images* are small — storage + egress are pennies, so Supabase is the right simple home and where it stays. The one future swap: **generated video served to audiences at scale** is egress-heavy, where **Cloudflare R2's zero egress** wins. So keep `common/vault.py`'s backend **pluggable** (a thin `put/get` seam) so a `video → R2` home can be added later by config without touching callers. Google credits cover Google egress during the contest; the R2 move is a post-credits, at-scale decision — explicitly **deferred**.
+
 ---
 
 ## 3 · Components + interfaces
@@ -52,8 +54,8 @@ New methods (reuse `_next_version()`, `_day()`, `_save()`):
 - `assets_for(kinds=None, tags=None) -> list[dict]` — the serve selector (in-memory filter by kind/tag).
 - `asset_count() -> int`.
 
-### 3.3 `common/a2a.py` — the serve channel (EXTEND `Dispatch`)
-`Dispatch` gains `assets: list[dict] = field(default_factory=list)` (+ in `as_dict`), mirroring how `CreativeMaster` gained `media` in Track A. Empty by default → byte-identical to today. An `AssetRef` is just the index record dict (id/kind/uri/filename/content_type/provenance) — no new class needed.
+### 3.3 The serve channel — `kalai.make(..., assets=None) → BRAND_BLOCK`
+kalai's real entry is `kalai.runner.make(stream, run_id, brief, context_pack)` (`orchestrator.py:203`) and the `kalai.render_asset(brief, context_pack)` A2A skill. Both gain an optional `assets: list[dict] | None = None` (default → `[]`), threaded into a new `kalai/state.StateKeys.ASSETS` and rendered into the **existing** `StateKeys.BRAND_BLOCK` (kalai already reserves a "brand-asset-bank text for prompts" slot). Assets stay **out of the `ContextPack`** (rules-only, per decision #1). An asset ref is just the index record dict (id/kind/uri/filename/content_type/provenance) — no new class. Empty default → byte-identical to today.
 
 ### 3.4 `manas/vault.py` — the manas face (NEW)
 ```
@@ -70,8 +72,8 @@ A2A skill `manas.get_assets(kinds=None, tags=None) -> list[dict]` registered for
 
 ### 3.5 Wiring
 - **Populate** (`manas/runner.py`): after `_read_sources` yields each `SourceBundle`, call `vault.extract_assets(bundle)` (off-loop, alongside the imbiber pipeline). The asset index commits with the connect, versioned like the pack.
-- **Serve / push** (arivu executor, `arivu/.../tools/executor.py` `dispatch_a2a`): when building kalai's `Dispatch`, set `dispatch.assets = manas_get_assets(...)` via the existing A2A bridge (`a2a.dispatch("manas","get_assets", kinds=["logo","reference"])`). Fail-soft: an empty/erroring manas → `assets=[]` → today's behavior.
-- **Consume** (kalai `designer` + `media.py`): read `dispatch.assets`. **Gated on non-empty:** empty → kalai's instruction + `render_still` are byte-identical to today; non-empty → the designer instruction lists the assets and (live) `render_still` passes the reference image URIs to Imagen as conditioning. Demo `render_still` stays the deterministic `vertex://` placeholder regardless.
+- **Serve / push** (`orchestrator.py:203`): pass `assets=a2a.dispatch("manas","get_assets", kinds=["logo","reference"])` into `kalai.make(...)`. Fail-soft: an empty/erroring manas → `assets=[]` → today's behavior.
+- **Consume** (kalai `runner.make`/`render_asset` → `state[ASSETS]` → designer's `BRAND_BLOCK`): the designer renders the served assets into `BRAND_BLOCK` **only when non-empty**. Empty → today's prompt + `render_still` placeholder byte-for-byte; non-empty (live) → the prompt lists the assets and `render_still` may pass reference image URIs to Imagen. Demo `render_still` stays the deterministic `vertex://` placeholder regardless.
 
 ### 3.6 Service (`service/app.py`)
 - `GET /api/vault/list` → `store.assets` (metadata only; never streams bytes inline).
