@@ -147,6 +147,43 @@ def _billing_active(user) -> bool:
     return _supabase_backend() and user is not None and not getattr(user, "is_owner", False)
 
 
+# ─── public-demo lock + per-IP rate limiting ──────────────────────────────────
+# The public deploy is ONE shared file-store any visitor can reach. With
+# SAAKSHE_PUBLIC_DEMO=1 the mutating connect/vault surface is sealed (a visitor
+# could otherwise wipe the seeded company for everyone), and the model-burning
+# routes get a small per-IP token bucket so an open demo can't be farmed.
+def _public_demo() -> bool:
+    return os.environ.get("SAAKSHE_PUBLIC_DEMO", "") == "1"
+
+
+def _require_not_public_demo() -> None:
+    if _public_demo():
+        raise HTTPException(
+            status_code=403,
+            detail="the public demo is sealed — its grounded company is shared and read-only; "
+                   "run saakshe locally (or sign in on a billing deploy) to connect your own",
+        )
+
+
+_BUCKETS: dict[str, tuple[float, float]] = {}  # key → (tokens, last_refill_ts)
+
+
+def _rate_limit(request, route: str, capacity: float, per_seconds: float) -> None:
+    """A tiny in-process token bucket per (client-ip, route). Single-instance
+    deploy (max-instances=1) makes in-process state authoritative."""
+    import time as _time
+
+    ip = (request.headers.get("x-forwarded-for", "").split(",")[0].strip()
+          or (request.client.host if request.client else "?"))
+    key = f"{ip}:{route}"
+    now = _time.monotonic()
+    tokens, last = _BUCKETS.get(key, (capacity, now))
+    tokens = min(capacity, tokens + (now - last) * (capacity / per_seconds))
+    if tokens < 1.0:
+        raise HTTPException(status_code=429, detail="slow down — the demo is shared")
+    _BUCKETS[key] = (tokens - 1.0, now)
+
+
 def _refund_run(run, user, reason: str) -> bool:
     """Refund a charged flywheel run once (idempotent on the spend key; releases the
     claim so a genuine retry re-charges). Returns whether a refund was issued."""
@@ -218,6 +255,7 @@ def public_config() -> dict[str, Any]:
         "anon_key": os.environ.get("SUPABASE_ANON_KEY", ""),
         "store": os.environ.get("SAAKSHE_STORE", "file"),
         "auth_enabled": auth.auth_enabled() and _supabase_backend(),
+        "public_demo": _public_demo(),
         "mode": config.mode(),
     }
 
@@ -257,6 +295,7 @@ def connect_status(sess: Session = Depends(_session_dep)) -> dict[str, Any]:
 
 @app.post("/api/connect/source")
 def connect_source(req: ConnectRequest, sess: Session = Depends(_session_dep)) -> dict[str, Any]:
+    _require_not_public_demo()
     _require_auth_if_live(sess.user)
     kind = (req.kind or "").strip().lower()
     if kind not in ("github", "repo", "website", "web", "docs", "social"):
@@ -277,6 +316,7 @@ def connect_source(req: ConnectRequest, sess: Session = Depends(_session_dep)) -
 @app.post("/api/connect/ingest")
 async def connect_ingest(sess: Session = Depends(_session_dep)) -> Any:
     """Run the REAL manas ingestion over the connected sources (chargeable)."""
+    _require_not_public_demo()
     _require_auth_if_live(sess.user)
     store, stream, user = sess.store, sess.stream, sess.user
     if not store.is_connected():
@@ -306,6 +346,7 @@ async def connect_answer(req: AnswerRequest, sess: Session = Depends(_session_de
 
 @app.post("/api/connect/reset")
 def connect_reset(sess: Session = Depends(_session_dep)) -> dict[str, Any]:
+    _require_not_public_demo()
     _require_auth_if_live(sess.user)
     sess.store.reset()
     return {"ok": True, "status": sess.store.status_dict()}
@@ -323,6 +364,7 @@ def vault_list(sess: Session = Depends(_session_dep)) -> dict[str, Any]:
 def vault_add(req: VaultAddRequest, sess: Session = Depends(_session_dep)) -> dict[str, Any]:
     """The manual add path: stores bytes via the blob backend + records the index
     (through manas's vault face — kalai consumes, never owns the index)."""
+    _require_not_public_demo()
     _require_auth_if_live(sess.user)
     from manas import vault
     data = base64.b64decode(req.data_b64)
@@ -333,8 +375,9 @@ def vault_add(req: VaultAddRequest, sess: Session = Depends(_session_dep)) -> di
 
 # ─── the witness chat ─────────────────────────────────────────────────────────
 @app.post("/api/saakshe/ask")
-async def ask(req: AskRequest, sess: Session = Depends(_session_dep)) -> Any:
+async def ask(req: AskRequest, request: Request, sess: Session = Depends(_session_dep)) -> Any:
     """Telemetry Q&A through the witness; a decision-shaped question starts the flywheel."""
+    _rate_limit(request, "ask", capacity=12, per_seconds=60)
     _require_auth_if_live(sess.user)
     text = (req.text or "").strip()
     low = text.lower()
@@ -387,7 +430,8 @@ async def _start_flywheel(sess: Session, *, question: Optional[str], idem_key: O
 
 
 @app.post("/api/hero/run")
-async def hero_run(req: RunRequest, sess: Session = Depends(_session_dep)) -> Any:
+async def hero_run(req: RunRequest, request: Request, sess: Session = Depends(_session_dep)) -> Any:
+    _rate_limit(request, "hero_run", capacity=4, per_seconds=60)
     _require_auth_if_live(sess.user)
     if not sess.store.is_grounded():
         return {"status": "not_connected", "connected": sess.store.is_connected(),

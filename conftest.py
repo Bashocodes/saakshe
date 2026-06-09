@@ -42,6 +42,18 @@ def _isolate_store():
     project.STORE.reset()
 
 
+@pytest.fixture(autouse=True)
+def _drain_rate_buckets():
+    """Every TestClient request shares one client IP, so the per-IP token buckets
+    on /api/saakshe/ask + /api/hero/run would otherwise leak 429s across tests."""
+    yield
+    try:
+        from service.app import _BUCKETS
+        _BUCKETS.clear()
+    except Exception:  # noqa: BLE001 — service may not be importable in unit suites
+        pass
+
+
 @pytest.fixture
 def grounded_company(_isolate_store):
     """A connected + grounded synthetic company (stands in for a real connect)."""
