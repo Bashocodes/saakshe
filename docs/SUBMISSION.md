@@ -15,9 +15,9 @@ One founder, a whole company, one witness. Three faculties work; you tap twice a
 
 ## 2. Inspiration / the problem
 
-A solo founder is not one job. The same person is the company's memory (what did we promise customers, what does the brand actually say), its decision-maker (should we change the price), its maker (write the announcement, design the creative), and its mouth (post it, reply, follow up). Every hour spent in one role is stolen from the others. The founder who is deep in a pricing decision is not making the launch graphic. The founder making the graphic is not remembering that they promised existing customers grandfathered pricing — six months ago, in a doc they wrote themselves.
+I am that founder. I run **AIKIZI** — an AI image platform, live for about five months, with an iOS app — alone. I am the company's memory (what did we promise users, what does the brand actually say), its decision-maker (should we change the price), its maker (write the announcement, design the creative), and its mouth (post it, reply, follow up). Every hour spent in one role is stolen from the others. When I am deep in a pricing decision I am not making the launch graphic. When I am making the graphic I am not remembering the grandfathering promise I wrote into a doc months ago. And I want to run the company from anywhere — I travel.
 
-The existing answer is "hire," which a solo founder can't, or "use AI tools," which means ten disconnected chat windows with no shared memory, no deliberation, and no governance — a copy tool that doesn't know your brand promises, a scheduler that will happily post whatever you paste into it. We built saakshe so a one-person company gets the faculties of a whole one: grounded memory, an adversarial decision chamber, a maker, and a mouth — with the founder still holding the only two switches that touch the real world.
+The existing answer is "hire," which I can't, or "use AI tools," which means ten disconnected chat windows with no shared memory, no deliberation, and no governance — a copy tool that doesn't know your brand promises, a scheduler that will happily post whatever you paste into it. I built saakshe for myself first: a one-person company gets the faculties of a whole one — grounded memory, an adversarial decision chamber, a maker, and a mouth — with me still holding the only two switches that touch the real world. The demo runs on AIKIZI because that is the actual use, not a staging trick.
 
 ---
 
@@ -75,7 +75,7 @@ Throughout, the witness answers the founder from tools, not vibes: `anyone_waiti
 
 ## 6. Challenges we ran into
 
-**Vertex Claude quota on a fresh project.** Our new GCP project's Claude-on-Vertex quota hasn't cleared yet (expected ~Jun 10). Instead of faking it, we built hybrid mode: real Gemini drives the flywheel on prod today, while the 7 Claude seats run scripted replay of their transcripts. The same orchestration code runs in all three modes — only the token source changes. Credibility is a feature.
+**Vertex Claude quota on a fresh project.** Our new GCP project's Claude-on-Vertex quota hasn't cleared yet; a resubmission is pending. Instead of faking it, we built hybrid mode: real Gemini drives the flywheel on prod today, while the 7 Claude seats run scripted replay of their transcripts. The same orchestration code runs in all three modes — only the token source changes. Credibility is a feature.
 
 **Determinism vs. reality.** A demo that drifts between runs is a demo you can't trust. Keeping demo mode byte-identical — same day, same verdicts, same renders as `vertex://` placeholders — while the identical code paths go fully real in live mode forced a clean seam between orchestration and token generation, which is also what made hybrid mode possible.
 
@@ -86,6 +86,7 @@ Throughout, the witness answers the founder from tools, not vibes: `anyone_waiti
 ## 7. Accomplishments we're proud of
 
 - **Deployed and grounded on a real company.** saakshe.com runs on Cloud Run and boots already connected to AIKIZI — a real company, ingested through the product's own connect flow: live Gemini read its GitHub repo and website and extracted cited facts, voice, and brand rules into a versioned Context Pack.
+- **kalai's hands are proven live.** A real Vertex Imagen render (`imagen-4.0-generate-001`), generated from a brand-grounded prompt, is checked into the repo at `docs/first_creation.png`.
 - **287 tests pass (6 skipped), creds-free.** The full flywheel — both gates, fail-soft error paths, the separation contract — runs under test with no credentials.
 - **Safety as tested structure.** The byte-for-byte copy in kural, the schema with no text field, gates that fail closed, dry-run as the hardcoded executor default — these are properties under test, not promises in a prompt.
 - **Honest modes.** Demo, hybrid, and live share one codebase; what's real and what's replayed is explicit in every run.
@@ -101,7 +102,9 @@ Throughout, the witness answers the founder from tools, not vibes: `anyone_waiti
 **Next.**
 - **Learning flywheel, deeper:** outcomes already commit back as cited facts; next is measuring downstream results and citing those too.
 - **Precedent in the chamber:** let the prosecutor cite the company's own past verdicts, so decisions compound instead of repeating.
-- **BYOK + per-faculty token budgets:** founders bring their own Vertex and channel keys; the witness's `cost_today` becomes a governor, not just a readout.
+- **A code-exec agent:** a faculty that executes code, fed by arivu's sealed decision briefs — the manas pending-changes seam is designed as its entry point.
+- **BYOK, two layers:** founders bring their own Vertex and channel keys, and connect their own generator APIs — image, video, audio models that kalai then uses. The witness's `cost_today` becomes a governor, not just a readout.
+- **Sub-agent pods everywhere:** our depth bar is AIKIZI's production decode pipeline — one input fanned out to ~10 specialized parallel Gemini calls. Bring that depth to every faculty seat.
 - **Marketplace / A2A:** the agent cards are already served; let outside agents petition the chamber through the same gates a faculty does.
 
 ---
@@ -122,7 +125,7 @@ Three things to try:
 2. **Run the day.** Start the flywheel and watch the chamber work a real question: panel, debate, verdict, prosecutor.
 3. **Approve the two gates.** Tap the company-decision gate, watch kalai's creative and kural's verbatim delivery plan, then tap the publish gate. Nothing fires before your taps.
 
-Note on what's real today: prod runs in hybrid mode — Gemini seats are live; the 7 Claude seats replay scripted transcripts until our Vertex quota clears (~Jun 10). The UI doesn't hide this.
+Note on what's real today: prod runs in hybrid mode — Gemini seats are live; the 7 Claude seats replay scripted transcripts while our Vertex quota resubmission is pending. The UI doesn't hide this.
 
 **Local, creds-free:** clone the repo and follow the README quickstart — demo mode runs the entire orchestration deterministically with zero credentials on `:8000`.
 

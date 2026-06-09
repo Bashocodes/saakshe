@@ -74,7 +74,11 @@ One primitive, one place to audit, and the same shape echoed in every faculty.
 | **hybrid** | **real** | scripted | real |
 | **live** | **real** | **real** | real |
 
-Demo mode is creds-free and byte-identical run to run — the entire ADK orchestration executes for real; only model token-generation is replayed. The honest note: production today runs **hybrid** — real Gemini drives the flywheel on prod, while the Claude seats run scripted replay until our Vertex Model Garden quota clears (~Jun 10). We'd rather show you exactly where the line is than blur it. Credibility is a feature.
+Demo mode is creds-free and byte-identical run to run — the entire ADK orchestration executes for real; only model token-generation is replayed. The honest note: production today runs **hybrid** — real Gemini drives the flywheel on prod, while the Claude seats run scripted replay; our Vertex Model Garden quota resubmission is pending. We'd rather show you exactly where the line is than blur it. Credibility is a feature.
+
+kalai's hands are already proven live: a real Vertex Imagen render (`imagen-4.0-generate-001`), generated from a brand-grounded prompt, is checked into the repo.
+
+![first creation](docs/first_creation.png)
 
 ---
 
@@ -170,7 +174,7 @@ Auth and the per-user store are Supabase-backed and opt-in (`SAAKSHE_STORE=supab
 
 ## Why this is a business
 
-A solo founder or tiny team gets a whole company's faculties — grounded memory, an adversarial decision chamber, a maker, a mouth — governed by exactly two taps a day. That replaces the daily grind of a researcher keeping the facts straight, a strategist arguing the decision, a designer-copywriter producing the asset, and a social manager carrying it out — hours of coordination compressed into two approvals. Target: SaaS at $200–500/mo, with BYOK (your own Gemini, Claude-on-Vertex, and channel keys) on the roadmap.
+The founder built saakshe to run his own company. He runs **AIKIZI** — a real AI image platform with an iOS app — alone, and wants to run it while traveling. He is customer zero, proudly. The live demo being grounded on AIKIZI is not a demo trick: it is the actual use, connected through the product's own ingest flow. What saakshe replaces is his own day — the historian keeping facts straight, the strategist arguing the decision, the designer-copywriter producing the asset, the channel manager carrying it out — compressed into two taps. Pricing: SaaS at $200–500/mo, with BYOK (your own Gemini, Claude-on-Vertex, and channel keys) on the roadmap.
 
 ---
 
