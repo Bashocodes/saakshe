@@ -25,10 +25,11 @@ from google.adk.agents.readonly_context import ReadonlyContext
 from google.adk.events import Event, EventActions
 from pydantic import BaseModel, Field
 
-from common import models
+from common import config, models
 
 from . import prompts
 from .state import StateKeys
+from .tools import analyst
 from .util import parse_json
 
 # The four delivery readers — disjoint lenses, in parallel (the kural panel).
@@ -66,6 +67,29 @@ def _master_formats(state) -> dict:
     return fmts if isinstance(fmts, dict) else {}
 
 
+# ─── Live read-tools over the org's own funnel/feed (Phase 4.3) ───────────────
+# Each reader holds a read-tool to compute over the org's REAL list/consent/feed
+# numbers — audience-fit for the audience lenses, the timing window for the feed.
+# Attached ONLY in live (like arivu's mantri MCP tools): demo readers stay
+# tool-free, so the scripted replay + the demo-published-output byte-identical
+# contract hold. In live the reader reads the org's own funnel (grounded by 4.1).
+_READER_TOOLS = {
+    "consent": [analyst.audience_fit_tool],
+    "reach": [analyst.audience_fit_tool],
+    "topic_fit": [analyst.audience_fit_tool],
+    "timing": [analyst.timing_window_tool],
+}
+
+
+def read_tools_for(role: str) -> list:
+    """The live read-tools a delivery reader holds over the org's funnel/feed.
+
+    Empty in demo (scripted readers cite the seed bundle; no tool fires) so demo
+    stays byte-identical; in live the reader can read the org's own
+    list/consent/topic-fit (audience_fit) or feed timing (timing_window)."""
+    return list(_READER_TOOLS.get(role, [])) if config.is_live() else []
+
+
 # ─── The four deep readers (Gemini · disjoint lenses, in parallel) ────────────
 def _reader_instruction(role: str, display: str, lens: str):
     def provider(ctx: ReadonlyContext) -> str:
@@ -94,6 +118,7 @@ def build_delivery_readers() -> list[LlmAgent]:
                 model=models.gemini_flash("kural", role),
                 description=f"The {display} — {lens} lens (delivery fan-out).",
                 instruction=_reader_instruction(role, display, lens),
+                tools=read_tools_for(role),   # live: read the org's own funnel/feed
                 output_key=out_key,
             )
         )
