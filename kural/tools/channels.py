@@ -121,8 +121,8 @@ def publish_master(post: dict, *, dry_run: bool) -> dict:
     world-facing act stays gated behind the founder's publish sign-off (tap 2)."""
     channel = post.get("channel", "x+ig+linkedin")
     slug = config.CANON.get("resolution_slug", "launch")
-    # Preview URLs are keyed to the CONNECTED org, never a canned name — an
-    # AIKIZI-grounded run must not flash someone else's handle at the founder.
+    # Preview URLs are keyed to the CONNECTED org, never a canned name — a
+    # grounded run must not flash someone else's handle at the founder.
     import re as _re
     try:
         from common import project as _project
