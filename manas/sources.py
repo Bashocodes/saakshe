@@ -173,6 +173,7 @@ class WebsiteSource:
                               headers={"user-agent": "saakshe-setu/1.0 (+manas ingestion)"}) as cli:
                 home = cli.get(url)
                 title, desc, body, links = _parse_html(home.text, base=str(home.url))
+                images = _collect_images(home.text, base=str(home.url))
                 if title:
                     org["name"] = _site_name(title)
                 if desc:
@@ -191,8 +192,10 @@ class WebsiteSource:
                             prov.append(link)
                     except Exception:  # noqa: BLE001
                         continue
+            meta = {"images": images} if images else {}  # key absent unless real images found
             return SourceBundle(channel="web", ref=url, text="\n\n".join(parts)[:cap],
-                                provenance=prov, org_hint={k: v for k, v in org.items() if v}, ok=True)
+                                provenance=prov, org_hint={k: v for k, v in org.items() if v},
+                                ok=True, meta=meta)
         except Exception as e:  # noqa: BLE001
             return SourceBundle(channel="web", ref=url, ok=False, meta={"error": str(e)[:300]})
 
@@ -225,6 +228,37 @@ def _parse_html(html: str, base: str = "") -> tuple[str, str, str, list[str]]:
     cleaned = _unescape(cleaned)
     text = _collapse(cleaned)
     return title, desc, text[:8000], [_resolve(base, h) for h in hrefs]
+
+
+def _collect_images(html: str, base: str = "") -> list[str]:
+    """Discover brand-image URLs a page surfaces — og:image, <img src>, and the
+    favicon — resolved to absolute URLs (the auto-extract input for the vault).
+    Returns a de-duplicated, order-preserving list (empty when the page has none,
+    so the bundle's meta stays free of an empty key)."""
+    html = html or ""
+    raw: list[str] = []
+    for m in re.finditer(
+        r'<meta[^>]+(?:property|name)=["\']og:image(?::secure_url)?["\'][^>]+content=["\']([^"\']+)["\']',
+        html, re.I,
+    ):
+        raw.append(m.group(1))
+    raw.extend(re.findall(r'<img[^>]+src=["\']([^"\']+)["\']', html, re.I))
+    for m in re.finditer(
+        r'<link[^>]+rel=["\'][^"\']*icon[^"\']*["\'][^>]+href=["\']([^"\']+)["\']',
+        html, re.I,
+    ):
+        raw.append(m.group(1))
+    out: list[str] = []
+    seen: set[str] = set()
+    for href in raw:
+        href = (href or "").strip()
+        if not href or href.startswith("data:"):
+            continue
+        abs_url = _resolve(base, href)
+        if abs_url.startswith(("http://", "https://")) and abs_url not in seen:
+            seen.add(abs_url)
+            out.append(abs_url)
+    return out
 
 
 def _pick_links(links: list[str], base: str) -> list[str]:

@@ -16,6 +16,7 @@ so importing for config/tools/tests does not require the full ADK runtime.
 
 from . import sub_agents  # noqa: F401  (registers the demo resolver at import)
 from . import runner      # noqa: F401  (registers A2A skills + agent card at import)
+from . import vault       # noqa: F401  (registers the manas.get_assets A2A skill at import)
 
 __all__ = ["runner", "root_agent", "founder_voice_agent"]
 
