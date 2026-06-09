@@ -107,6 +107,15 @@ def claude_prosecutor():
     return ScriptedLlm(model="scripted/prosecutor", role="prosecutor")
 
 
+def claude_reviser():
+    """Claude via Vertex — the graduated reviser (2b.2). Strengthens ONLY the one
+    reason the prosecutor faulted, between prosecution rounds. Same adversarial-
+    repair tier as the prosecutor; scripted in a hybrid run."""
+    if config.claude_live():
+        return VertexClaude(model=config.MODEL_PROSECUTOR)
+    return ScriptedLlm(model="scripted/reviser", role="reviser")
+
+
 def describe() -> dict:
     """Human-readable summary of what will actually run — surfaced in the UI."""
     live = config.is_live()

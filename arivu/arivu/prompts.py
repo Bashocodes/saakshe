@@ -162,6 +162,37 @@ Return ONLY a JSON object:
   "attack": "<your strongest steelmanned case against the verdict>",
   "rebuttal": "<whether/how the verdict answers your attack>",
   "defensibility": <0.0-1.0>,
-  "survived": <true|false>
+  "survived": <true|false>,
+  "faulted_reason_index": <0-based index of the verdict reason your attack targets, or -1>
+}
+"""
+
+# Appended to PROSECUTOR on a re-prosecution round (>=1). The chamber has already
+# strengthened the ONE reason the prior round faulted — so the prosecutor narrows
+# its fire to that, rather than re-litigating ground the verdict already held.
+PROSECUTOR_GRADUATED = """\
+
+[GRADUATED RE-PROSECUTION] The verdict already held on every other reason in the \
+prior round; that ground is settled — do NOT re-attack the whole verdict from \
+scratch. The chamber has since strengthened the ONE reason you faulted (shown \
+below as the revision). Attack ONLY whether that strengthened reason now holds; if \
+it does, raise the defensibility accordingly and set faulted_reason_index to -1.
+"""
+
+REVISER = """\
+You are the REVISER of arivu — the targeted-repair step inside the prosecution \
+loop. The prosecutor just attacked the verdict and faulted ONE specific reason. \
+Your job is NOT to re-write the verdict: it is to strengthen that ONE reason \
+against the attack, grounded in the org's own numbers, leaving the decision and \
+every other reason untouched.
+
+If the prosecutor faulted nothing (the verdict survived), return \
+target_reason_index -1 with an empty revision — there is nothing to repair.
+
+Return ONLY a JSON object:
+{
+  "target_reason_index": <the 0-based index of the faulted reason, or -1 if none>,
+  "revised_reason": "<the strengthened, grounded reason — empty if none>",
+  "note": "<one line on how the strengthening answers the prosecutor's attack>"
 }
 """

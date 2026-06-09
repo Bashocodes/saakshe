@@ -65,6 +65,7 @@ def build_root_agent() -> chamber.BaseAgent:
         debate_history_key=SK.DEBATE_HISTORY,
         verdict=sub_agents.build_chair_synthesizer(),
         prosecutor=sub_agents.build_prosecutor(),
+        reviser=sub_agents.build_reviser(),  # graduated repair between rounds (2b.2)
         score_key=SK.DEFENSIBILITY,
         survived_key=SK.VERDICT_SURVIVED,
         threshold=config.DEFENSIBILITY_THRESHOLD,

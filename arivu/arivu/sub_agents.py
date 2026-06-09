@@ -42,6 +42,18 @@ class ProsecutionSchema(BaseModel):
     rebuttal: str = Field(description="whether/how the verdict answers the attack")
     defensibility: float = Field(description="0.0-1.0 — probability a board upholds it")
     survived: bool = Field(description="whether the verdict survives the attack")
+    faulted_reason_index: int = Field(
+        default=-1,
+        description="0-based index of the verdict reason the attack targets, or -1 if none/survived",
+    )
+
+
+class RevisionSchema(BaseModel):
+    """The graduated reviser's output: strengthen ONE faulted reason (2b.2)."""
+
+    target_reason_index: int = Field(description="0-based index of the faulted reason, or -1 if none")
+    revised_reason: str = Field(description="the strengthened, grounded reason (empty if none)")
+    note: str = Field(description="one line on how the strengthening answers the attack")
 
 
 def _org_name(ctx: ReadonlyContext) -> str:
@@ -267,20 +279,31 @@ def build_chair_synthesizer() -> LlmAgent:
     )
 
 
-# ─── Prosecutor (Claude · Vertex) ────────────────────────────────────────────
+# ─── Prosecutor (Claude · Vertex) — graduated re-prosecution (2b.2) ───────────
 def _prosecutor_instruction(ctx: ReadonlyContext) -> str:
     verdict = ctx.state.get(config.StateKeys.VERDICT, {})
     if not isinstance(verdict, dict):
-        from .util import parse_json
-
         verdict = parse_json(verdict)
     rnd = ctx.state.get(config.StateKeys.PROSECUTION_ROUND, 0)
-    return (
+    body = (
         prompts.PROSECUTOR
         + f"\n\n[PROSECUTION_ROUND::{rnd}]\n\n"
         + f"THE VERDICT UNDER PROSECUTION:\n{json.dumps(verdict, indent=2)}\n\n"
         + f"THE ORG'S OWN LIVE NUMBERS:\n{_grounding_block(ctx)}\n"
     )
+    # Graduated: on a re-prosecution round, the chamber has strengthened the ONE
+    # reason the prior round faulted — narrow the attack to that, don't reset.
+    if int(rnd or 0) >= 1:
+        revisions = ctx.state.get(config.StateKeys.REASON_REVISIONS, []) or []
+        prior = ctx.state.get(config.StateKeys.PROSECUTION, {})
+        if not isinstance(prior, dict):
+            prior = parse_json(prior)
+        body += (
+            prompts.PROSECUTOR_GRADUATED
+            + f"\nYOUR PRIOR ATTACK:\n{prior.get('attack', '')}\n\n"
+            + f"THE STRENGTHENED REASON(S):\n{json.dumps(revisions, indent=2)}\n"
+        )
+    return body
 
 
 def build_prosecutor() -> LlmAgent:
@@ -291,4 +314,83 @@ def build_prosecutor() -> LlmAgent:
         instruction=_prosecutor_instruction,
         output_schema=ProsecutionSchema,
         output_key=config.StateKeys.PROSECUTION,
+    )
+
+
+# ─── Reviser (Claude · Vertex) — strengthen the ONE faulted reason (2b.2) ─────
+def _reviser_instruction(ctx: ReadonlyContext) -> str:
+    prosecution = ctx.state.get(config.StateKeys.PROSECUTION, {})
+    if not isinstance(prosecution, dict):
+        prosecution = parse_json(prosecution)
+    verdict = ctx.state.get(config.StateKeys.VERDICT, {})
+    if not isinstance(verdict, dict):
+        verdict = parse_json(verdict)
+    survived = bool(prosecution.get("survived"))
+    try:
+        idx = int(prosecution.get("faulted_reason_index", -1))
+    except (TypeError, ValueError):
+        idx = -1
+    # A marker the deterministic offline replay keys on; in live it just narrows
+    # the Claude reviser to the faulted reason (or tells it there's nothing to do).
+    marker = "[REVISE::none]" if (survived or idx < 0) else f"[REVISE::reason_index={idx}]"
+    reasons = verdict.get("reasons", []) if isinstance(verdict, dict) else []
+    return (
+        prompts.REVISER
+        + f"\n\n{marker}\n\n"
+        + f"THE PROSECUTOR'S ATTACK:\n{prosecution.get('attack', '')}\n\n"
+        + f"THE VERDICT'S REASONS:\n{json.dumps(reasons, indent=2)}\n\n"
+        + f"THE ORG'S OWN LIVE NUMBERS:\n{_grounding_block(ctx)}\n"
+    )
+
+
+class ReviserReducer(BaseAgent):
+    """Append the reviser's per-round targeted revision to the revisions ledger.
+
+    Deterministic — records ONLY a real repair (target_reason_index >= 0 with a
+    non-empty revised reason), so a surviving round (the reviser returns -1) adds
+    nothing. This keeps the ledger a faithful record of graduated repairs."""
+
+    async def _run_async_impl(
+        self, ctx: InvocationContext
+    ) -> AsyncGenerator[Event, None]:
+        state = ctx.session.state
+        raw = state.get(config.StateKeys.LATEST_REASON_REVISION)
+        rev = raw if isinstance(raw, dict) else parse_json(raw)
+        revisions = list(state.get(config.StateKeys.REASON_REVISIONS, []))
+        try:
+            idx = int(rev.get("target_reason_index", -1))
+        except (TypeError, ValueError):
+            idx = -1
+        if idx >= 0 and rev.get("revised_reason"):
+            rnd = int(state.get(config.StateKeys.PROSECUTION_ROUND, 0)) + 1
+            revisions.append(
+                {
+                    "round": rnd,
+                    "target_reason_index": idx,
+                    "revised_reason": rev.get("revised_reason", ""),
+                    "note": rev.get("note", ""),
+                }
+            )
+        delta = {config.StateKeys.REASON_REVISIONS: revisions}
+        state.update(delta)
+        yield Event(author=self.name, actions=EventActions(state_delta=delta))
+
+
+def build_reviser() -> SequentialAgent:
+    """The graduated repair step inside the prosecution loop: a Claude seat that
+    strengthens ONLY the faulted reason, then a deterministic reducer that records
+    the repair in the revisions ledger. Runs between the prosecutor and the
+    prosecution check, so the next round re-prosecutes the strengthened verdict."""
+    author = LlmAgent(
+        name="reviser_author",
+        model=models.claude_reviser(),
+        description="Claude via Vertex — strengthens ONLY the reason the prosecutor faulted.",
+        instruction=_reviser_instruction,
+        output_schema=RevisionSchema,
+        output_key=config.StateKeys.LATEST_REASON_REVISION,
+    )
+    return SequentialAgent(
+        name="reviser",
+        description="Targeted reason-repair (Claude) + a deterministic revision ledger.",
+        sub_agents=[author, ReviserReducer(name="reviser_reducer")],
     )

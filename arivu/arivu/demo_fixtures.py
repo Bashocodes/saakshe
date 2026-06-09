@@ -204,7 +204,9 @@ _VERDICT = {
     "confidence": 0.88,
 }
 
-# Two prosecution rounds: round 1 nearly shatters (<0.80), round 2 re-forms (>=0.80).
+# Two prosecution rounds: round 1 nearly shatters (<0.80) and faults reason #0
+# (the margin-below-the-cliff claim); the reviser strengthens THAT reason; round 2
+# re-prosecutes the strengthened verdict and re-forms (>=0.80, nothing left to fault).
 _PROSECUTION_BY_ROUND = [
     {
         "attack": "Steelman do-nothing: at $29 the funnel is proven and churn is "
@@ -213,6 +215,7 @@ _PROSECUTION_BY_ROUND = [
         "30-day notice neutralise the trust and conversion risks.",
         "defensibility": 0.71,
         "survived": False,
+        "faulted_reason_index": 0,
     },
     {
         "attack": "Stronger do-nothing: even $34 forfeits the simplicity of one price "
@@ -221,8 +224,21 @@ _PROSECUTION_BY_ROUND = [
         "grandfathering preserves trust and adds margin without crossing the cliff.",
         "defensibility": 0.84,
         "survived": True,
+        "faulted_reason_index": -1,
     },
 ]
+
+# The graduated reviser's targeted repair of the faulted reason #0 (2b.2). Replayed
+# only when the prosecutor faulted a reason; a surviving round replays the no-op.
+_REASON_REVISION = {
+    "target_reason_index": 0,
+    "revised_reason": "Captures most of the margin upside while holding a ~$2 buffer "
+    "below the $36 churn cliff (admin_analytics(activity): retention breaks past $36) "
+    "— so $34 is bounded by the cohort-retention data, not untested.",
+    "note": "answers the 'untested $34 risks the cliff' attack with the explicit "
+    "$2 cliff headroom from cohort retention",
+}
+_REVISION_NOOP = {"target_reason_index": -1, "revised_reason": "", "note": "verdict survived — no repair needed"}
 
 
 def scripted_payload(role: str, llm_request=None) -> str:
@@ -244,6 +260,13 @@ def scripted_payload(role: str, llm_request=None) -> str:
             if "PROSECUTION_ROUND::0" in text:
                 rnd = 0
         return json.dumps(_PROSECUTION_BY_ROUND[rnd])
+    if role == "reviser":
+        # Strengthen the faulted reason; a surviving round (marker [REVISE::none])
+        # replays the no-op, so the revision ledger records only real repairs.
+        text = _request_text(llm_request) if llm_request is not None else ""
+        if "[REVISE::none]" in text:
+            return json.dumps(_REVISION_NOOP)
+        return json.dumps(_REASON_REVISION)
     if role == "chair":
         return json.dumps(
             {

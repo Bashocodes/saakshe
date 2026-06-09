@@ -155,6 +155,9 @@ class StateKeys:
     PROSECUTION_HISTORY = "prosecution_history"
     DEFENSIBILITY = "defensibility"
     VERDICT_SURVIVED = "verdict_survived"
+    # Graduated prosecution (2b.2): targeted single-reason repair between rounds.
+    LATEST_REASON_REVISION = "latest_reason_revision"  # the reviser's per-round output
+    REASON_REVISIONS = "reason_revisions"              # accumulated targeted revisions
     # Gate + execution.
     GATE_STATUS = "gate_status"      # awaiting_approval | approved | rejected
     RESOLUTION = "resolution"        # {url, doc_id, content_hash}
