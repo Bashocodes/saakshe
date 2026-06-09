@@ -406,9 +406,29 @@ def _get_founder_context(topic: str = "pricing") -> dict:
     return corpus.context_pack(topic).as_dict()
 
 
+def _run_coro_blocking(make_coro):
+    """Run a coroutine to completion from SYNC code that may itself sit inside a
+    running event loop — always on a FRESH thread (its own loop). Keeps a2a.dispatch
+    a plain blocking call that never raises "loop already running"."""
+    import asyncio
+    from concurrent.futures import ThreadPoolExecutor
+
+    with ThreadPoolExecutor(max_workers=1) as ex:
+        return ex.submit(lambda: asyncio.run(make_coro())).result()
+
+
 def _ask_founder_voice(question: str) -> dict:
-    # SYNC + pure (no async agent, no asyncio.run): an async caller anywhere or a
-    # plain `def` test must both work. Grounded in the SAME corpus the agent uses.
+    """The sibling-facing founder-voice skill (what other faculties reach via
+    ``a2a.dispatch``). In LIVE it drives the REAL Claude ``founder_voice_agent`` —
+    the audited fix — bridged to this SYNC A2A skill via a fresh thread so a plain
+    ``def`` caller is never forced onto a running loop. In demo (or if the live
+    agent errors) it returns the SAME corpus-grounded answer, byte-identical to the
+    agent's own refusal contract, so the two paths can never disagree."""
+    if config.is_live():
+        try:
+            return _run_coro_blocking(lambda: ask_founder_voice_live(question)).as_dict()
+        except Exception:
+            pass  # fail-safe to the corpus net — never hard-fail a sibling call
     return corpus.founder_voice(question).as_dict()
 
 

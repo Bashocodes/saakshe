@@ -102,6 +102,43 @@ def test_sync_handler_is_synchronous_and_pure(grounded_company):
     assert not inspect.iscoroutinefunction(corpus.founder_voice)
 
 
+def test_sync_handler_drives_claude_agent_in_live(grounded_company, monkeypatch):
+    """The audited fix: the REGISTERED A2A skill — what siblings actually reach via
+    ``a2a.dispatch`` — routes through the REAL Claude founder_voice_agent in live,
+    NOT the corpus stem-match. Forced live + a mocked agent seam prove the route
+    with no network/model call (the sync handler bridges to it on a fresh thread)."""
+    monkeypatch.setenv("SAAKSHE_MODE", "live")
+    seen = {}
+
+    async def _sentinel(question):
+        seen["q"] = question
+        return a2a.FounderVoiceAnswer(
+            answer="VIA_CLAUDE_AGENT",
+            citations=[{"claim": "c", "source": "s"}],
+            refused=False,
+        )
+
+    monkeypatch.setattr(runner, "ask_founder_voice_live", _sentinel)
+    out = a2a.dispatch("manas", "ask_founder_voice", "do we grandfather existing subscribers?")
+    assert out["answer"] == "VIA_CLAUDE_AGENT"
+    assert seen["q"] == "do we grandfather existing subscribers?"
+    assert out["refused"] is False and out["citations"]
+
+
+def test_sync_handler_falls_back_to_corpus_when_live_agent_errors(grounded_company, monkeypatch):
+    """Fail-safe: if the live agent errors, the sibling-facing skill NEVER hard-fails
+    — it returns the same corpus-grounded answer the demo path returns."""
+    monkeypatch.setenv("SAAKSHE_MODE", "live")
+
+    async def _boom(question):
+        raise RuntimeError("vertex unavailable")
+
+    monkeypatch.setattr(runner, "ask_founder_voice_live", _boom)
+    out = a2a.dispatch("manas", "ask_founder_voice", "do we grandfather existing subscribers?")
+    net = corpus.founder_voice("do we grandfather existing subscribers?").as_dict()
+    assert out == net
+
+
 # ─── the Context Pack: cited facts in-corpus, ungrounded out-of-corpus ───────
 def test_context_pack_grounded_in_corpus(grounded_company):
     pack = corpus.context_pack("pricing")
