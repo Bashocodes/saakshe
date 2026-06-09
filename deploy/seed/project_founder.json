@@ -1,0 +1,189 @@
+{
+  "version": "v5",
+  "org": {
+    "name": "AIKIZI",
+    "kind": "software product",
+    "one_liner": "Upload any image and decode its complete creative DNA \u2014 style lineage, mood signature, composition blueprint, and a production-ready AI prompt. 120+ visual attributes analyzed in seconds. Free to start."
+  },
+  "connections": [
+    {
+      "kind": "github",
+      "ref": "git@github.com:Bashocodes/aikizi.git",
+      "status": "connected",
+      "day": 0,
+      "meta": {
+        "mechanism": "ssh"
+      }
+    },
+    {
+      "kind": "website",
+      "ref": "https://aikizi.com",
+      "status": "connected",
+      "day": 0,
+      "meta": {}
+    }
+  ],
+  "packs": {
+    "company": {
+      "version": "v5",
+      "topic": "company",
+      "facts": [
+        {
+          "claim": "Aikizi is an AI-powered visual intelligence platform that decodes images, videos, and audio to provide deep insights into style, composition, mood, and cultural context.",
+          "source": "README.md"
+        },
+        {
+          "claim": "The platform's key features include Image Decode, Video Decode, Audio Decode, AI Image Generation, an Explore Gallery, and Realms (a template-driven reusable creation workflow system).",
+          "source": "README.md"
+        },
+        {
+          "claim": "The development stack requires Node.js 18+ and npm or pnpm.",
+          "source": "README.md"
+        },
+        {
+          "claim": "The frontend is built using React 18, TypeScript, Vite, TailwindCSS, TanStack Query, and React Context.",
+          "source": "README.md"
+        },
+        {
+          "claim": "The backend runs on Cloudflare Workers (Edge) and integrates with Supabase (PostgreSQL) for database management and Supabase Auth (Google OAuth) for authentication.",
+          "source": "README.md"
+        },
+        {
+          "claim": "Aikizi integrates with Google Gemini 2.5/3.0 for AI capabilities, and uses Cloudflare Images and Cloudflare R2 for storage.",
+          "source": "README.md"
+        },
+        {
+          "claim": "The project is proprietary with all rights reserved.",
+          "source": "README.md"
+        },
+        {
+          "claim": "The API includes endpoints such as POST /v1/decode, POST /v1/decode-video, POST /v1/decode-sound, POST /v1/generate, GET /v1/library-search, and GET /v1/decode-search-enhanced.",
+          "source": "README.md"
+        },
+        {
+          "claim": "The package name is registered as 'aikizi-web' with version '0.0.0'.",
+          "source": "package.json"
+        },
+        {
+          "claim": "In production, the application enforces security by restricting CORS origins exclusively to 'https://aikizi.com,https://www.aikizi.com' with no localhost fallback.",
+          "source": "wrangler.toml"
+        },
+        {
+          "claim": "The primary database mode is 'supabase' with 'neon' configured as a warm standby.",
+          "source": "wrangler.toml"
+        },
+        {
+          "claim": "The platform includes custom Cloudflare AI Gateways including 'aikizi-gemini-decode', 'aikizi-gemini-create', 'aikizi-brain', and 'aikizi-byteplus'.",
+          "source": "wrangler.toml"
+        },
+        {
+          "claim": "Aikizi is owned and operated by Kalai Labs Pvt Ltd (India), with the project starting on October 3, 2025.",
+          "source": "docs/AIKIZI-COMPLETE-CONTEXT.md"
+        },
+        {
+          "claim": "As of March 5, 2026, the codebase consists of 317,853 lines of hand-written source code across 1,400+ source files and 3,942 Git commits.",
+          "source": "docs/AIKIZI-COMPLETE-CONTEXT.md"
+        },
+        {
+          "claim": "The database contains 128 total tables, consisting of 67 Supabase tables and 61 Cloudflare D1 tables.",
+          "source": "docs/AIKIZI-COMPLETE-CONTEXT.md"
+        },
+        {
+          "claim": "The architecture incorporates 31 scheduled cron triggers, 2 queues (brain and media), and 3 active workflows.",
+          "source": "docs/AIKIZI-COMPLETE-CONTEXT.md"
+        },
+        {
+          "claim": "The platform utilizes 10 parallel Gemini streams to extract over 180 data points across 7 to 8 tabs in 15 to 25 seconds.",
+          "source": "docs/AIKIZI-COMPLETE-REPORT.md"
+        },
+        {
+          "claim": "Aikizi offers a Bring Your Own Key (BYOK) model priced at $30 for 3 months, aligning with Google's $300 free tier credits for high-volume generation.",
+          "source": "docs/AIKIZI-COMPLETE-REPORT.md"
+        },
+        {
+          "claim": "AIKIZI is a tool that reverse-engineers any image into AI prompts and functions as a Style DNA Decoder.",
+          "source": "https://aikizi.com"
+        },
+        {
+          "claim": "The service allows users to upload any image and decode its creative DNA, including style lineage, mood signature, composition blueprint, and a production-ready AI prompt.",
+          "source": "https://aikizi.com"
+        },
+        {
+          "claim": "AIKIZI analyzes 120+ visual attributes in seconds.",
+          "source": "https://aikizi.com"
+        },
+        {
+          "claim": "AIKIZI is free to start.",
+          "source": "https://aikizi.com"
+        },
+        {
+          "claim": "Decided: Raise Pro to $34 (not $39), grandfather all existing subscribers, give 30-day notice before the new price applies.",
+          "source": "founder decision \u00b7 today"
+        },
+        {
+          "claim": "Decided: Raise Pro to $34 (not $39), grandfather all existing subscribers, give 30-day notice before the new price applies.",
+          "source": "founder decision \u00b7 today"
+        },
+        {
+          "claim": "Decided: Raise Pro to $34 (not $39), grandfather all existing subscribers, give 30-day notice before the new price applies.",
+          "source": "founder decision \u00b7 today"
+        }
+      ],
+      "voice_rules": [
+        "Emphasize a decode-first narrative over standard text-to-image generation tools.",
+        "Adopt the user-centric mindset: 'You're not a prompt engineer. You're a creator.'",
+        "Focus on solving the prompt engineering struggle: 'You know great work when you see it. Describing it to AI? That's the hard part.'",
+        "Highlight the simplicity and immediacy of the solution using phrases like 'Zero prompts needed' and 'Style DNA -- decoded in seconds.'",
+        "Consistently use proprietary terminology such as 'Style DNA', 'Blueprints', 'Weaves', 'Decode', and 'Realms'.",
+        "Use highly technical, analytical creative phrasing (e.g., 'reverse-engineer', 'creative DNA', 'style lineage', 'mood signature', 'composition blueprint').",
+        "Maintain a precise, direct, and capability-focused tone."
+      ],
+      "brand_rules": [
+        "The primary tagline of the product must always be 'Decode Any Media'.",
+        "The hero subtitle must be 'Images. Video. Audio. Style DNA -- decoded in seconds.'",
+        "Key copy must reference the analytical capabilities: '120+ attributes extracted. 7 analysis layers. 4 media types. Zero prompts needed.'",
+        "Target messaging must focus on creative professionals (designers, photographers, artists, directors, concept artists), content creators, and prompt-weary AI enthusiasts.",
+        "All email communications must flow from 'AIKIZI <hello@aikizi.com>' or 'AIKIZI Blog <hello@newsletter.aikizi.com>' depending on the context.",
+        "Position the product as a 'Style DNA Decoder' that translates images into production-ready AI prompts.",
+        "Highlight the analysis of '120+ visual attributes' and speed ('in seconds') as key selling points.",
+        "Promote the entry offer as 'Free to start'."
+      ],
+      "grounded": true
+    }
+  },
+  "questions": [],
+  "ingest_status": "grounded",
+  "connected_at": 1780907812.2695522,
+  "history": [
+    {
+      "version": "v1",
+      "at": 1780907842.6235971,
+      "note": "ingested github, website",
+      "groundedness": 0.9
+    },
+    {
+      "version": "v2",
+      "at": 1780907880.588469,
+      "note": "ingested github, website",
+      "groundedness": 0.9
+    },
+    {
+      "version": "v3",
+      "at": 1780923944.7012491,
+      "note": "remembered the day's decision",
+      "groundedness": 0.9
+    },
+    {
+      "version": "v4",
+      "at": 1781017531.960459,
+      "note": "remembered the day's decision",
+      "groundedness": 0.9
+    },
+    {
+      "version": "v5",
+      "at": 1781017548.793421,
+      "note": "remembered the day's decision",
+      "groundedness": 0.9
+    }
+  ]
+}
