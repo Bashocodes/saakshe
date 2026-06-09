@@ -114,7 +114,7 @@ END; $$;
 -- Balance guard: block any UPDATE that changes balance unless the audited money
 -- functions authorized it via the transaction-local flag they set around their write.
 CREATE OR REPLACE FUNCTION public.accounts_block_balance_writes()
-RETURNS trigger LANGUAGE plpgsql AS $$
+RETURNS trigger LANGUAGE plpgsql SET search_path = public AS $$
 BEGIN
   IF NEW.balance IS DISTINCT FROM OLD.balance
      AND COALESCE(current_setting('saakshe.allow_balance_write', true), '0') <> '1' THEN
