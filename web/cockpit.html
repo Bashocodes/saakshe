@@ -2964,11 +2964,85 @@ html[data-theme="dark"] .sdoss .sdfoot{ border-top-color:var(--line); box-shadow
   @media(max-width:820px){.lc-grid{grid-template-columns:1fr}.lc-right{border-top:1px solid var(--line,#e3dad0)}}
 </style>
 <script>
+/* ── Supabase Google sign-in + credit balance (live console only) ──────────────
+   Additive + demo-safe: when the backend is the file store (auth_enabled=false)
+   this is a no-op stub and the cockpit behaves exactly as before. When the Supabase
+   backend is live it injects a "Sign in with Google" control + a balance pill into
+   the topbar and exposes window.SAAKSHE_AUTH for the live-console fetches. */
+(function(){
+  "use strict";
+  var $=function(id){return document.getElementById(id);};
+  var A = window.SAAKSHE_AUTH = {
+    enabled:false, _token:null, _balance:null, _sb:null, refresh:null, onChange:null,
+    token:function(){ return this._token; },
+    signedIn:function(){ return !!this._token; },
+    balance:function(){ return this._balance; },
+    idemKey:function(){ return (window.crypto&&crypto.randomUUID)? crypto.randomUUID()
+                              : (String(Date.now())+Math.random().toString(16).slice(2)); },
+    signIn:async function(){ if(this._sb) await this._sb.auth.signInWithOAuth(
+      {provider:"google", options:{redirectTo: location.origin+"/auth/callback"}}); },
+    signOut:async function(){ if(this._sb){ await this._sb.auth.signOut(); this._token=null; this._balance=null; render(); } }
+  };
+
+  function injectControl(){
+    var lt=$("liveToggle"); if(!lt||$("saIn")) return;
+    function mk(html){ var s=document.createElement("span"); s.innerHTML=html; return s.firstElementChild; }
+    var bal=mk('<button class="pill" id="saBal" type="button" data-tip="your credit balance" style="display:none"><span style="opacity:.7">◈</span>&nbsp;<span id="saBalV">—</span></button>');
+    var sin=mk('<button class="theme-toggle" id="saIn" type="button" data-tip="sign in to run the live flywheel" style="display:none;gap:6px">Sign in</button>');
+    var out=mk('<button class="theme-toggle" id="saOut" type="button" data-tip="sign out" style="display:none">sign out</button>');
+    lt.parentNode.insertBefore(bal, lt);
+    lt.parentNode.insertBefore(sin, lt);
+    lt.parentNode.insertBefore(out, lt);
+    sin.addEventListener("click", function(){ A.signIn(); });
+    out.addEventListener("click", function(){ A.signOut(); });
+  }
+  function render(){
+    var inB=$("saIn"), outB=$("saOut"), balB=$("saBal"); if(!inB) return;
+    if(!A.enabled){ inB.style.display="none"; outB.style.display="none"; balB.style.display="none"; return; }
+    if(A.signedIn()){
+      inB.style.display="none"; outB.style.display=""; balB.style.display="";
+      $("saBalV").textContent = (A.balance()==null? "—" : A.balance());
+    } else { inB.style.display=""; outB.style.display="none"; balB.style.display="none"; }
+  }
+
+  (async function(){
+    var cfg;
+    try{ cfg = await fetch("/api/public-config",{cache:"no-store"}).then(function(r){return r.json();}); }
+    catch(e){ return; }
+    injectControl();
+    if(!cfg || !cfg.auth_enabled || !cfg.supabase_url || !cfg.anon_key){ A.enabled=false; render(); return; }
+    A.enabled=true; render();
+    var mod;
+    try{ mod = await import("https://esm.sh/@supabase/supabase-js@2"); }
+    catch(e){ A.enabled=false; render(); return; }
+    var sb = mod.createClient(cfg.supabase_url, cfg.anon_key,
+      {auth:{persistSession:true, autoRefreshToken:true, detectSessionInUrl:true}});
+    A._sb = sb;
+    async function refresh(){
+      var s=null; try{ s=(await sb.auth.getSession()).data.session; }catch(e){}
+      A._token = s ? s.access_token : null;
+      if(A._token){
+        try{ var me = await fetch("/api/me",{headers:{Authorization:"Bearer "+A._token},cache:"no-store"}).then(function(r){return r.json();});
+          A._balance = (me && typeof me.balance==="number")? me.balance : null; }catch(e){ A._balance=null; }
+      } else A._balance=null;
+      render(); if(typeof A.onChange==="function") A.onChange();
+    }
+    A.refresh = refresh;
+    sb.auth.onAuthStateChange(function(){ refresh(); });
+    await refresh();
+  })();
+})();
+</script>
+<script>
 (function(){
   "use strict";
   var HUE={saakshe:"var(--saksi)",manas:"var(--manas)",arivu:"var(--arivu)",kalai:"var(--kalai)",kural:"var(--kural)"};
   var base=null, runId=null, cursor=0, status=null, polling=false, open=false;
   var $=function(id){return document.getElementById(id);};
+  // Attach the founder's Bearer token to live-console requests (no-op in demo).
+  function AH(extra){ var h=extra||{}; var A=window.SAAKSHE_AUTH;
+    if(A&&A.signedIn()){ h["Authorization"]="Bearer "+A.token(); } return h; }
+  function refreshBal(){ var A=window.SAAKSHE_AUTH; if(A&&A.refresh) A.refresh(); }
 
   async function detectBase(){
     var cands=["", "http://localhost:8000", "http://localhost:8011"];
@@ -3024,12 +3098,12 @@ html[data-theme="dark"] .sdoss .sdfoot{ border-top-color:var(--line); box-shadow
     });
   }
   async function refreshGates(){
-    try{ var r=await fetch(base+"/api/gates?run_id="+encodeURIComponent(runId),{cache:"no-store"});
+    try{ var r=await fetch(base+"/api/gates?run_id="+encodeURIComponent(runId),{cache:"no-store",headers:AH()});
       var d=await r.json(); renderGates(d.gates); }catch(e){}
   }
   async function pumpStream(){
     if(!runId) return;
-    try{ var r=await fetch(base+"/api/stream?run_id="+encodeURIComponent(runId)+"&cursor="+cursor,{cache:"no-store"});
+    try{ var r=await fetch(base+"/api/stream?run_id="+encodeURIComponent(runId)+"&cursor="+cursor,{cache:"no-store",headers:AH()});
       var d=await r.json(); (d.rows||[]).forEach(function(row){ feedRow(row); cursor=Math.max(cursor,row.seq+1); }); }catch(e){}
   }
   async function poll(){
@@ -3043,10 +3117,12 @@ html[data-theme="dark"] .sdoss .sdfoot{ border-top-color:var(--line); box-shadow
     $("lcFeed").innerHTML=""; cursor=0; runId=null; status="running";
     $("lcStatus").textContent="running…"; $("lcRun").disabled=true;
     try{
-      var r=await fetch(base+"/api/hero/run",{method:"POST",headers:{"content-type":"application/json"},body:"{}"});
+      var r=await fetch(base+"/api/hero/run",{method:"POST",headers:AH({"content-type":"application/json"}),
+        body:JSON.stringify({idem_key:"run:"+(window.SAAKSHE_AUTH?window.SAAKSHE_AUTH.idemKey():Math.random())})});
       var j=await lcJson(r);
-      if(!j.ok){ feedErr((j.data&&(j.data.detail||j.data.error)) || j.error || ("HTTP "+j.status)); $("lcStatus").textContent="run failed"; $("lcRun").disabled=false; return; }
-      var d=j.data; runId=d.run_id; status=d.status; cursor=0;
+      if(j.status===402){ feedErr("out of credits — balance "+((j.data&&j.data.balance)||0)); $("lcStatus").textContent="out of credits"; $("lcRun").disabled=false; refreshBal(); return; }
+      if(!j.ok){ feedErr((j.data&&(j.data.detail||j.data.error||j.data.text)) || j.error || ("HTTP "+j.status)); $("lcStatus").textContent="run failed"; $("lcRun").disabled=false; refreshBal(); return; }
+      var d=j.data; runId=d.run_id; status=d.status; cursor=0; refreshBal();
       if(!polling) poll();
     }catch(e){ feedErr(String(e)); $("lcStatus").textContent="run failed"; }
     $("lcRun").disabled=false;
@@ -3055,11 +3131,11 @@ html[data-theme="dark"] .sdoss .sdfoot{ border-top-color:var(--line); box-shadow
     if(!runId) return;
     $("lcStatus").textContent="tapping "+gid+"…";
     try{
-      var r=await fetch(base+"/api/hero/approve",{method:"POST",headers:{"content-type":"application/json"},
+      var r=await fetch(base+"/api/hero/approve",{method:"POST",headers:AH({"content-type":"application/json"}),
         body:JSON.stringify({run_id:runId,gate_id:gid})});
       var j=await lcJson(r);
-      if(!j.ok){ feedErr((j.data&&(j.data.detail||j.data.error)) || j.error || ("HTTP "+j.status)); $("lcStatus").textContent="approve failed"; return; }
-      status=j.data.status;
+      if(!j.ok){ feedErr((j.data&&(j.data.detail||j.data.error||j.data.text)) || j.error || ("HTTP "+j.status)); $("lcStatus").textContent="approve failed"; refreshBal(); return; }
+      status=j.data.status; if(j.data.refunded) refreshBal();
       await pumpStream(); await refreshGates();   // render this tap's new rows immediately
       $("lcStatus").textContent = status==="completed" ? "flywheel closed ✓" : "approved "+gid+" — advancing…";
       if(status!=="completed" && !polling) poll();
@@ -3073,18 +3149,24 @@ html[data-theme="dark"] .sdoss .sdfoot{ border-top-color:var(--line); box-shadow
   async function ask(q){
     chatMsg("you",q,false);
     try{
-      var r=await fetch(base+"/api/saakshe/ask",{method:"POST",headers:{"content-type":"application/json"},
-        body:JSON.stringify({text:q,run_id:runId})});
+      var r=await fetch(base+"/api/saakshe/ask",{method:"POST",headers:AH({"content-type":"application/json"}),
+        body:JSON.stringify({text:q,run_id:runId,idem_key:"ask:"+(window.SAAKSHE_AUTH?window.SAAKSHE_AUTH.idemKey():Math.random())})});
       var j=await lcJson(r);
-      if(!j.ok){ chatMsg("saakshe",(j.data&&(j.data.detail||j.data.error)) || j.error || ("HTTP "+j.status), true); return; }
+      if(j.status===402){ chatMsg("saakshe","You're out of credits (balance "+((j.data&&j.data.balance)||0)+").",true); refreshBal(); return; }
+      if(!j.ok){ chatMsg("saakshe",(j.data&&(j.data.detail||j.data.error||j.data.text)) || j.error || ("HTTP "+j.status), true); return; }
       var d=j.data;
-      if(d.kind==="flywheel_started"){ runId=d.flywheel.run_id; status=d.flywheel.status; cursor=0; $("lcFeed").innerHTML=""; chatMsg("saakshe",d.text,false); if(!polling) poll(); }
+      if(d.kind==="flywheel_started"){ runId=d.flywheel.run_id; status=d.flywheel.status; cursor=0; $("lcFeed").innerHTML=""; chatMsg("saakshe",d.text,false); refreshBal(); if(!polling) poll(); }
       else chatMsg("saakshe",d.text||"(no reply)",!!d.refused);
     }catch(e){ chatMsg("saakshe","backend error: "+e,true); }
   }
 
   async function openConsole(){
     $("liveConsole").hidden=false; $("liveConsole").setAttribute("aria-hidden","false"); open=true;
+    var A=window.SAAKSHE_AUTH;
+    if(A && A.enabled && !A.signedIn()){
+      $("lcMode").textContent="sign in with Google (top bar) to run the live flywheel on your company";
+      $("lcRun").disabled=true; base=""; return;
+    }
     $("lcMode").textContent="connecting…";
     var res=await detectBase();
     if(res){ base=res.base; setMode(res.health); $("lcRun").disabled=false; }
