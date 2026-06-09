@@ -199,8 +199,14 @@ async def _after_decision(state: FlywheelState, stream: EventStream) -> None:
     stream.a2a(run_id, "arivu", "kalai", "render_asset", state="submitted", brief=brief)
     stream.a2a(run_id, "arivu", "kural", "launch_campaign (held at publish gate)", state="submitted")
 
-    # kalai makes — handoff, no gate.
-    kalai_res = await kalai.make(stream, run_id, brief, state.context_pack)
+    # kalai makes — handoff, no gate. Serve manas's brand-asset vault into the
+    # studio. Fail-soft: a vault error never sinks the render (demo = empty = [] =
+    # the designer prompt stays byte-identical to the pre-vault path).
+    try:
+        assets = a2a.dispatch("manas", "get_assets", kinds=["logo", "reference"])
+    except Exception:
+        assets = []
+    kalai_res = await kalai.make(stream, run_id, brief, state.context_pack, assets=assets)
     if kalai_res.status != "handoff":
         state.status = "no_safe_decision"
         state.step = "kalai_blocked"

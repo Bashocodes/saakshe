@@ -47,7 +47,7 @@ def _as_dict(value: Any) -> dict:
     return value if isinstance(value, dict) else parse_json(value)
 
 
-async def _run_pipeline(brief: str, context_pack: dict) -> dict[str, Any]:
+async def _run_pipeline(brief: str, context_pack: dict, assets=None) -> dict[str, Any]:
     """Drive the assembled studio root_agent and return the final session state."""
     from google.adk.runners import InMemoryRunner
     from google.genai import types
@@ -57,6 +57,7 @@ async def _run_pipeline(brief: str, context_pack: dict) -> dict[str, Any]:
     init_state: dict[str, Any] = {
         SK.BRIEF: brief,
         SK.CONTEXT_PACK: context_pack if isinstance(context_pack, dict) else {},
+        SK.ASSETS: list(assets or []),   # [] in demo -> the designer prompt is byte-identical
         "org": dict(project.current_store().org_for_flywheel()),
     }
     session = await runner.session_service.create_session(
@@ -77,12 +78,12 @@ async def _run_pipeline(brief: str, context_pack: dict) -> dict[str, Any]:
     return state
 
 
-async def make(stream: EventStream, run_id: str, brief: str, context_pack: dict) -> a2a.QuadrantResult:
+async def make(stream: EventStream, run_id: str, brief: str, context_pack: dict, assets=None) -> a2a.QuadrantResult:
     pack_v = context_pack.get("version", "?") if isinstance(context_pack, dict) else "?"
     transcript: list[dict] = []
 
     # ── drive the real ADK studio pipeline ───────────────────────────────────
-    state = await _run_pipeline(brief, context_pack)
+    state = await _run_pipeline(brief, context_pack, assets=assets)
     from common.usage import emit_authoritative
     emit_authoritative(stream, run_id, NS, state.get("_usage"), live=config.is_live())
 
@@ -187,14 +188,14 @@ async def make(stream: EventStream, run_id: str, brief: str, context_pack: dict)
 
 
 # ─── A2A skill: render a master and hand its dict back (no channel keys ever) ─
-def _render_asset(brief: str = "", context_pack: dict | None = None) -> dict:
+def _render_asset(brief: str = "", context_pack: dict | None = None, assets=None) -> dict:
     """kalai.render_asset — synchronous A2A entrypoint. Drives the pipeline and
     returns the compliance-cleared master as a dict, or a blocked marker. NEVER
     returns channel keys and NEVER publishes."""
     import asyncio
 
     async def _go() -> dict:
-        state = await _run_pipeline(brief, context_pack or {})
+        state = await _run_pipeline(brief, context_pack or {}, assets=assets)
         cleared = bool(state.get(SK.COMPLIANCE_CLEARED, False))
         if not cleared:
             return {"accepted": False, "compliance": "blocked", "brief": brief}

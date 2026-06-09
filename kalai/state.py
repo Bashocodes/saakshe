@@ -20,6 +20,7 @@ class StateKeys:
     BRIEF = "brief"                  # the approved launch brief (input)
     CONTEXT_PACK = "context_pack"    # manas Context Pack dict (brand/voice rules)
     BRAND_BLOCK = "brand_block"      # rendered brand-asset-bank text for prompts
+    ASSETS = "assets"                # served vault assets (manas → kalai); [] in demo
 
     # ── Creative Director (Claude · coordinator + taste) ─────────────────────
     CREATIVE_FRAME = "creative_frame"   # the director's frame: concept + brand guardrails

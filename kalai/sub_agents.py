@@ -55,6 +55,20 @@ def _brand(ctx: ReadonlyContext) -> str:
     return ctx.state.get(StateKeys.BRAND_BLOCK, "(brand canon pending)")
 
 
+def render_brand_block(assets) -> str:
+    """Render the served vault assets into the designer's brand-asset-bank text.
+    Empty/None -> "" so the prompt is byte-identical to the pre-vault path."""
+    assets = assets or []
+    if not assets:
+        return ""
+    lines = ["BRAND ASSETS ON FILE (use these — they are the company's real marks):"]
+    for a in assets:
+        lines.append(
+            f"  - {a.get('kind')}: {a.get('filename')} ({a.get('uri')}) — from {a.get('provenance', '')}"
+        )
+    return "\n".join(lines)
+
+
 # ─── before-agent callback: seed the studio's deterministic state ────────────
 def prime_studio(callback_context):
     """before_agent_callback on the Creative Director: render the brand asset bank
@@ -101,11 +115,19 @@ def _producer_instruction(role: str):
     body = prompts.DESIGNER if role == "designer" else prompts.COPY_SEO
 
     def provider(ctx: ReadonlyContext) -> str:
-        return (
+        prompt = (
             body.replace("{org}", _org_name(ctx))
             + f"\n\nCREATIVE DIRECTOR'S FRAME:\n{_frame_block(ctx)}\n\n"
             + f"BRAND ASSET BANK (manas canon):\n{_brand(ctx)}\n"
         )
+        # Ground the Designer on the SERVED vault assets — but ONLY when manas
+        # actually served some. Empty/demo -> render_brand_block("") -> zero chars
+        # appended -> the designer prompt is byte-for-byte the pre-vault path.
+        if role == "designer":
+            served = render_brand_block(ctx.state.get(StateKeys.ASSETS))
+            if served:
+                prompt = prompt + "\n" + served + "\n"
+        return prompt
 
     return provider
 
