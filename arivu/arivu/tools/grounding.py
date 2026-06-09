@@ -58,16 +58,51 @@ def example_mcp_toolset():
     )
 
 
+def _mcp_admin_fetch(url: str, secret: str) -> dict | None:
+    """The single seam the real MCP admin read lands in (and the test mocks).
+
+    The example MCP StreamableHTTP transport is unverified, so this is isolated as
+    one mockable call. Until the transport is confirmed live, it returns None — so
+    a live run grounds via the agent-held MCP tools plus the seed bundle, never an
+    ungrounded position. Wire the real admin_stats/admin_analytics read here once
+    the transport is confirmed; it must return the DEMO_GROUNDING bundle shape.
+    """
+    return None
+
+
+def _live_admin_bundle() -> dict | None:
+    """Best-effort live fetch of the org's REAL numbers from the example MCP admin
+    surface, in the grounding-bundle shape. Gated on EXAMPLE_MCP_ENABLE + a secret
+    (opt-in, exactly like ``example_mcp_toolset``); returns None when not enabled
+    or on any failure, so ``fetch_grounding`` falls back to the seed bundle.
+
+    Mockable: the live-branch tests patch this to prove real numbers flow at frame
+    time instead of the fixture.
+    """
+    if os.environ.get("EXAMPLE_MCP_ENABLE", "").strip().lower() not in ("1", "true", "yes", "on"):
+        return None
+    secret = _read_secret()
+    if not secret:
+        return None
+    try:
+        bundle = _mcp_admin_fetch(config.EXAMPLE_MCP_URL, secret)
+    except Exception:  # noqa: BLE001 — a flaky admin surface must never break grounding
+        return None
+    return bundle if isinstance(bundle, dict) and bundle else None
+
+
 def fetch_grounding() -> dict:
     """Frame-time grounding bundle.
 
-    In demo mode this is the Sundara fixtures. In live mode the agents also hold
-    the MCP tools and cite figures directly; this bundle seeds the prompts so a
-    position is never ungrounded even if a model forgets to call a tool.
+    LIVE: pull the org's REAL numbers from the example MCP admin surface; if no
+    live source resolves, fall back to the seed bundle so a position is never
+    ungrounded even if a model forgets to call a tool. DEMO: always the seed
+    fixtures, byte-identical (the four original chamber tests depend on this).
     """
-    # NOTE(live): a direct MCP fetch can be wired here once transport/auth is
-    # confirmed; until then live runs ground via the agent-held MCP tools plus
-    # this seed bundle. The reasoning over these numbers is fully live.
+    if config.is_live():
+        live = _live_admin_bundle()
+        if live:
+            return live
     return dict(DEMO_GROUNDING)
 
 
