@@ -98,3 +98,27 @@ def test_website_source_surfaces_images_in_meta(tmp_path, monkeypatch):
     assert "https://co.example/img/logo.png" in imgs
     assert "https://cdn.x/hero.jpg" in imgs
     assert "https://co.example/favicon.ico" in imgs
+
+
+# ─── V4: populate at connect-time ────────────────────────────────────────────
+import asyncio
+from manas import runner
+
+
+def test_ingest_populates_the_vault_from_bundles(tmp_path, monkeypatch):
+    _iso(tmp_path, monkeypatch)
+    captured = {}
+    def _fake_extract(bundle, **kw):
+        captured.setdefault("n", 0)
+        captured["n"] += 1
+        return []
+    monkeypatch.setattr(runner_vault_mod(), "extract_assets", _fake_extract)
+    bundles = [src.SourceBundle(channel="web", ref="x", ok=True, text="t", meta={})]
+    # the populate hook runs extract over each bundle (helper exercised directly)
+    runner._populate_vault(bundles)
+    assert captured["n"] == 1
+
+
+def runner_vault_mod():
+    from manas import vault
+    return vault

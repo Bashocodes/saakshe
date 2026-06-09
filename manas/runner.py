@@ -86,6 +86,8 @@ async def ingest_connected(
                 span="agent_run")
 
     bundles = await _read_sources(store)
+    import asyncio
+    await asyncio.to_thread(_populate_vault, bundles)   # off-loop; fail-soft
     for b in bundles:
         if b.ok and b.text:
             stream.emit(run_id, NS, f"{b.channel.title()} Reader",
@@ -157,6 +159,17 @@ async def ingest_connected(
         "channels": [b.as_dict() for b in bundles],
         "grounded": store.is_grounded(), "ingest_status": store.ingest_status,
     }
+
+
+def _populate_vault(bundles) -> None:
+    """Auto-fill the brand-asset vault from the freshly-read sources. Fail-soft:
+    a vault error never blocks the ingest. Demo/image-free bundles add nothing."""
+    from . import vault
+    for b in bundles:
+        try:
+            vault.extract_assets(b)
+        except Exception:
+            pass
 
 
 async def _read_sources(store: project.ProjectStore) -> list[src.SourceBundle]:
