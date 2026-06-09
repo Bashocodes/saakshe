@@ -51,6 +51,7 @@ canon (calm, candid, anti-hype). Never invent claims the brief did not authorise
 
 Return ONLY a JSON object:
 {
+  "caption": "<the one base caption, on voice — the single line every channel derives from>",
   "x": "<the x / twitter post>",
   "ig": "<the instagram caption>",
   "linkedin": "<the linkedin post>",

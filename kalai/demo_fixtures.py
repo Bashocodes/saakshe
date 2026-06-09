@@ -49,6 +49,8 @@ _DESIGN = {
 }
 
 _COPY = {
+    "caption": "Same coffee obsession, clearer pricing: Pro moves to $34. Early "
+    "believers keep their price; everyone gets 30 days' notice.",
     "x": "Pro is moving to $34 — and if you're already with us, you keep your price. "
     "30 days' notice, no surprises.",
     "ig": "Same coffee obsession, clearer pricing. Pro → $34. Early believers "
@@ -127,6 +129,7 @@ def assemble_master(
     return a2a.CreativeMaster(
         asset_id=design.get("asset_id", "kalai-sundara-pro34-launch"),
         brief=brief,
+        caption=copy.get("caption", _COPY["caption"]),
         formats=formats,
         fidelity_score=fidelity_score if fidelity_score is not None else config.CANON["fidelity_pass"],
         compliance="cleared",

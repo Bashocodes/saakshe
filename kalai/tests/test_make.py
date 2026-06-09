@@ -38,6 +38,19 @@ async def test_make_hands_off_a_cleared_master_at_fidelity_9_1():
     assert set(out["formats"]) == {"x", "ig", "linkedin"}
 
 
+async def test_master_carries_a_caption_and_all_variants():
+    """Separation fix #1: kalai authors ONE base caption + every channel variant.
+
+    The caption is the single on-voice line kalai owns; the variants are the
+    per-platform formats. kural will carry both untouched (it authors nothing)."""
+    stream = EventStream()
+    res = await runner.make(stream, "run-caption", _BRIEF, _PACK)
+    out = res.output
+    assert out["caption"]                        # kalai authored ONE base caption
+    assert set(out["formats"]) == {"x", "ig", "linkedin"}
+    assert out["compliance"] == "cleared"
+
+
 async def test_make_loop_actually_climbs_the_canon_sequence():
     """Pin that the LIVE pipeline produced the sealed climb 6.8 -> 8.4 -> 9.1.
 
