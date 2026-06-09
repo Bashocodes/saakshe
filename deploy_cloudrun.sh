@@ -43,9 +43,14 @@ echo "→ deploying $SERVICE to Cloud Run ($REGION) — Cloud Build runs server-
 #   gcloud resource-manager org-policies disable-enforce iam.allowedPolicyMemberDomains --project "$PROJECT"
 # The app's OWN Google-login gate then protects credits — the policy lift only makes
 # the gated app reachable.
+# --max-instances=1 --min-instances=1: the resumable flywheel keeps run state in an
+# in-process dict (orchestrator._RUNS), so start() and approve() MUST land on the same
+# warm instance — otherwise approve 404s "unknown run" and the refund can't fire. One
+# warm instance is correct for launch; persisting run state (Supabase) is the follow-up
+# that lets this scale out.
 gcloud run deploy "$SERVICE" --quiet \
   --source . --region "$REGION" --allow-unauthenticated \
-  --memory 2Gi --cpu 2 --timeout 300 --project "$PROJECT" \
+  --memory 2Gi --cpu 2 --timeout 300 --max-instances 1 --min-instances 1 --project "$PROJECT" \
   --set-env-vars "^@^SAAKSHE_MODE=live@ARIVU_MODE=live@SAAKSHE_CLAUDE_MODE=demo@ARIVU_CLAUDE_MODE=demo@GOOGLE_CLOUD_PROJECT=${PROJECT}@GOOGLE_CLOUD_LOCATION=global@SAAKSHE_CLAUDE_LOCATION=global@ARIVU_CLAUDE_LOCATION=global@GOOGLE_GENAI_USE_VERTEXAI=TRUE@SAAKSHE_MODEL_PRO=gemini-3.1-pro-preview@SAAKSHE_MODEL_FLASH=gemini-3.5-flash@ARIVU_MODEL_CHAIR=gemini-3.1-pro-preview@ARIVU_MODEL_MANTRI=gemini-3.5-flash@SAAKSHE_STORE=supabase@SAAKSHE_SUPABASE_URL=${SAAKSHE_SUPABASE_URL}@SAAKSHE_SUPABASE_KEY=${SAAKSHE_SUPABASE_KEY}@SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}@OWNER_EMAILS=${OWNER_EMAILS}@SIGNUP_GRANT=${SIGNUP_GRANT}@COST_FLYWHEEL_RUN=${COST_FLYWHEEL_RUN}@COST_CONNECT_INGEST=${COST_CONNECT_INGEST}@COST_MANAS_EDIT=${COST_MANAS_EDIT}@COST_KALAI_MAKE=${COST_KALAI_MAKE}@COST_KURAL_ENGAGE=${COST_KURAL_ENGAGE}"
 
 echo "→ live at:"
