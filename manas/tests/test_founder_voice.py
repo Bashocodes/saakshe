@@ -51,6 +51,39 @@ async def test_agent_does_not_false_match_prompt_words(grounded_company):
     assert ans.citations == []
 
 
+# ─── the DEFAULT path drives Claude in live (mock the seam, force live) ──────
+async def test_default_path_drives_claude_agent_in_live(grounded_company, monkeypatch):
+    """The default founder-voice entry point routes through the REAL Claude
+    founder_voice_agent in live — NOT the sync stem-match. Forced live + a mocked
+    agent seam prove the route without any network/model call in CI."""
+    monkeypatch.setenv("SAAKSHE_MODE", "live")
+    called = {}
+
+    async def _sentinel(question):
+        called["q"] = question
+        return a2a.FounderVoiceAnswer(answer="VIA_CLAUDE_AGENT", citations=[{"claim": "c", "source": "s"}], refused=False)
+
+    monkeypatch.setattr(runner, "ask_founder_voice_live", _sentinel)
+    ans = await runner.ask_founder_voice("do we grandfather existing subscribers?")
+    # the default path invoked the Claude agent seam, not the corpus stem-match
+    assert ans.answer == "VIA_CLAUDE_AGENT"
+    assert called["q"] == "do we grandfather existing subscribers?"
+
+
+async def test_default_path_falls_back_to_corpus_net_in_demo(grounded_company, monkeypatch):
+    """In demo (no creds) the default path NEVER drives the async agent — it returns
+    the same corpus-grounded answer the sync handler returns, byte-identical."""
+    monkeypatch.setenv("SAAKSHE_MODE", "demo")
+
+    async def _must_not_call(question):
+        raise AssertionError("ask_founder_voice_live must NOT run in demo")
+
+    monkeypatch.setattr(runner, "ask_founder_voice_live", _must_not_call)
+    ans = await runner.ask_founder_voice("do we grandfather existing subscribers?")
+    net = corpus.founder_voice("do we grandfather existing subscribers?")
+    assert ans.answer == net.answer and ans.refused is net.refused and ans.citations == net.citations
+
+
 # ─── the SYNC A2A handler agrees with the agent (shared store) ───────────────
 def test_sync_handler_matches_agent_contract(grounded_company):
     grounded = a2a.dispatch("manas", "ask_founder_voice", "do we grandfather existing subscribers?")

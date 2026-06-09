@@ -384,6 +384,23 @@ async def ask_founder_voice_live(question: str) -> a2a.FounderVoiceAnswer:
     )
 
 
+async def ask_founder_voice(question: str) -> a2a.FounderVoiceAnswer:
+    """The DEFAULT founder-voice entry point (orchestrator / critical path).
+
+    In LIVE this drives the REAL Claude founder_voice_agent (so the company answers
+    in the founder's voice through Claude, not a keyword stem-match). In demo/offline
+    it falls back to the SAME corpus net the SYNC A2A handler returns — byte-identical,
+    no event loop spun on a model, no network in CI. Both branches return a
+    FounderVoiceAnswer, so the refusal contract (refused=True, citations=[]) is
+    identical whichever path runs. The SYNC `a2a.dispatch("manas","ask_founder_voice")`
+    handler stays the pure corpus net (`_ask_founder_voice`) so a plain `def` caller is
+    never forced onto the event loop — this async default is a separate entry point.
+    """
+    if config.is_live():
+        return await ask_founder_voice_live(question)
+    return corpus.founder_voice(question)
+
+
 # ─── A2A skills (sibling-facing, SYNC + pure-corpus-backed) ──────────────────
 def _get_founder_context(topic: str = "pricing") -> dict:
     return corpus.context_pack(topic).as_dict()
