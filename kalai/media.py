@@ -15,7 +15,7 @@ two functions — there is no client to construct before the dispatch.
 Demo path (``not is_live()`` and not ``_force_live``): a DETERMINISTIC placeholder
 ref keyed by a hash of the prompt (``vertex://imagen/placeholder/<hash>`` /
 ``vertex://veo/placeholder/<hash>``), ``bytes=None``, ``spend_usd=0.0`` — no network,
-no creds. ZERO-aikizi: real media is Vertex only; this module never touches aikizi.
+no creds. Real media is Vertex-only; this module never touches any third-party gen platform.
 """
 
 from __future__ import annotations
