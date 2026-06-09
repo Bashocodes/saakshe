@@ -2,8 +2,8 @@
 
 When ``common.config.OTEL_CONSOLE`` is truthy this installs a global
 ``TracerProvider`` with a console span exporter, so every ADK span (the Claude
-qualify, the two scouts fanning out in parallel, each write/fact-check loop turn,
-the Claude Claim-Judge, the publish gate) is printed locally. In a deployed Agent
+qualify, the two scouts fanning out in parallel, the send-eligibility gate, the
+publish gate) is printed locally. In a deployed Agent
 Engine ``enable_tracing=True`` already ships spans to Cloud Trace, so calling this
 there is harmless but optional.
 

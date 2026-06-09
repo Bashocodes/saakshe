@@ -166,7 +166,7 @@
     </div>
     <div class="card">
       <h3>kural</h3><div class="role">the mouth · engages</div>
-      <p>The company's only mouth. Researches, drafts founder-voice outreach, fact-checks every claim,
+      <p>The company's only mouth. Researches the audience and timing, carries kalai's cleared words untouched (it authors nothing),
       and <b>halts at the publish tap</b> before anything reaches the world.</p>
     </div>
     <div class="card">
@@ -290,21 +290,21 @@
 
     <!-- KURAL -->
     <div class="card">
-      <h3>kural — engages</h3><div class="role">5 LLM seats · 2 Claude · claim-judge loop</div>
+      <h3>kural — engages</h3><div class="role">5 LLM seats · 1 Claude · carries kalai's master untouched</div>
       <div class="agents">
         <div class="ag"><i class="dot claude"></i><span class="who">Envoy Lead</span> qualifies the campaign<span class="mdl">Claude Sonnet</span></div>
         <div class="ag"><i class="dot gem"></i><span class="who">2 Scouts</span> audience + timing<span class="mdl">Gemini Flash ×2</span></div>
-        <div class="ag"><i class="dot gem"></i><span class="who">Outreach Writer</span> founder-voice draft<span class="mdl">Gemini Flash</span></div>
-        <div class="ag"><i class="dot claude"></i><span class="who">Claim-Judge</span> fact-checks every claim<span class="mdl">Claude Sonnet</span></div>
+        <div class="ag"><i class="dot gem"></i><span class="who">Email Envoy</span> sends on clearance<span class="mdl">Gemini Flash</span></div>
+        <div class="ag"><i class="dot gem"></i><span class="who">Channel Mouth</span> holds the channel keys<span class="mdl">Gemini Flash</span></div>
         <div class="ag"><i class="dot gate"></i><span class="who">Gate</span> founder publish sign-off (tap 2)<span class="mdl">human</span></div>
       </div>
-      <p style="margin-top:14px">Holds the channel keys; sends behind an eligibility/value-cap gate + no-double-send ledger.</p>
-      <span class="pill ok">claim_support ≥ 0.80</span><span class="pill">max 2 rounds</span><span class="pill gate">tap 2 · publish</span>
+      <p style="margin-top:14px">Authors nothing — carries kalai's cleared words; sends behind an eligibility/value-cap gate + no-double-send ledger.</p>
+      <span class="pill ok">send-eligible · consent + value cap</span><span class="pill gate">tap 2 · publish</span>
     </div>
   </div>
 
   <div class="note" style="margin-top:18px"><b>The pattern is the point.</b> Every quadrant ends in a verifiable
-  gate: a numeric threshold (groundedness, convergence, defensibility, fidelity, claim-support) or a fail-closed
+  gate: a numeric threshold (groundedness, convergence, defensibility, fidelity) or a fail-closed send-eligibility /
   compliance check. The two <i>human</i> taps are the only places the autonomous chain pauses — decision (arivu)
   and publish (kural). manas and kalai have <b>no</b> human gate by design.</div>
 </section>
@@ -312,7 +312,7 @@
 <!-- ===================== MODELS ===================== -->
 <section id="models">
   <h2><span class="num">04</span>The model stack</h2>
-  <p class="sub">Routine intelligence runs on Gemini; high-stakes seats (verdicts, fact-checks, compliance,
+  <p class="sub">Routine intelligence runs on Gemini; high-stakes seats (verdicts, compliance,
   curation) run on <b>Claude via Vertex</b> in <span class="mono">us-east5</span>. Every ID is an env-overridable
   default pinned in code — <b>8 Claude seats, 18 Gemini seats</b> across the quadrants.</p>
   <div class="tbl">
@@ -345,7 +345,7 @@
     <div class="rail"></div>
     <div class="step"><div class="ico gate">✋</div><div class="body"><div class="t" style="color:var(--gate)">GATE 1 · decision tap <span style="color:var(--ink3);font-weight:400">(reversible)</span></div><div class="d">founder approves the verdict before any side effect fires</div></div></div>
     <div class="rail"></div>
-    <div class="step"><div class="ico">3</div><div class="body"><div class="t">arivu executes → kalai makes → kural drafts</div><div class="d">resolution doc + A2A dispatch → brand-cleared master → fact-checked outreach (no gates between)</div></div></div>
+    <div class="step"><div class="ico">3</div><div class="body"><div class="t">arivu executes → kalai makes → kural carries</div><div class="d">resolution doc + A2A dispatch → brand-cleared master → kural carries it untouched to the channel (no gates between)</div></div></div>
     <div class="rail"></div>
     <div class="step"><div class="ico gate">✋</div><div class="body"><div class="t" style="color:var(--gate)">GATE 2 · publish tap <span style="color:var(--ink3);font-weight:400">(irreversible)</span></div><div class="d">founder signs off before anything reaches the world</div></div></div>
     <div class="rail"></div>

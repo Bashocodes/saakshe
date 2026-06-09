@@ -109,7 +109,7 @@ def is_live() -> bool:
 
 
 def claude_live() -> bool:
-    """Whether the 8 Claude·Vertex seats run live.
+    """Whether the Claude·Vertex seats run live.
 
     Live only when the company is live AND Claude isn't explicitly forced off.
     Set SAAKSHE_CLAUDE_MODE=demo (or ARIVU_CLAUDE_MODE=demo) to keep the Claude
@@ -151,10 +151,15 @@ QUADRANTS = {
     "manas": {"verb": "knows", "seats": 7, "claude_seats": 2, "hue": "#88602c"},
     "arivu": {"verb": "decides", "seats": 9, "claude_seats": 2, "hue": "#5166a7"},
     "kalai": {"verb": "makes", "seats": 5, "claude_seats": 2, "hue": "#b35a4e"},
-    "kural": {"verb": "engages", "seats": 7, "claude_seats": 2, "hue": "#3e725f"},
+    # kural shed its Outreach Writer + Claim Judge in the separation fix (kalai
+    # authors everything; kural carries the master untouched). Live roster now:
+    # Envoy Lead (Claude) · Prospect Scout · Market Watcher · Email Envoy · Channel
+    # Mouth = 5 seats, 1 Claude. (Phase 4's delivery readers aren't built yet — we
+    # count what exists, not what's incoming.)
+    "kural": {"verb": "engages", "seats": 5, "claude_seats": 1, "hue": "#3e725f"},
 }
-TOTAL_SEATS = sum(q["seats"] for q in QUADRANTS.values())          # 28
-TOTAL_CLAUDE_SEATS = sum(q["claude_seats"] for q in QUADRANTS.values())  # 8
+TOTAL_SEATS = sum(q["seats"] for q in QUADRANTS.values())          # 26
+TOTAL_CLAUDE_SEATS = sum(q["claude_seats"] for q in QUADRANTS.values())  # 7
 
 # NO canned company. The product boots empty and runs on the founder's REAL
 # connected project — the org comes from ``common.project.STORE.org_for_flywheel()``

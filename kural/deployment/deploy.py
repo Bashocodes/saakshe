@@ -15,9 +15,10 @@
 """Deployment script for kural (ENGAGES) — Vertex AI Agent Engine.
 
 Packages the full ADK mouth pipeline (Claude Coordinator → ParallelAgent research
-→ Writer → Claude Claim-Judge after-agent gate, halting before the publish gate)
-and pushes it to a managed Agent Engine with tracing on. The world-facing publish
-stays human-gated (tap 2); the deployed engine runs the verify-then-halt spine.
+→ send-eligibility gate, halting before the publish gate) and pushes it to a managed
+Agent Engine with tracing on. kural authors nothing — it carries kalai's cleared
+master untouched. The world-facing publish stays human-gated (tap 2); the deployed
+engine runs the qualify-then-halt spine.
 
 Run from the saakshe project root (PYTHONPATH=. so `kural` and `common` import):
 

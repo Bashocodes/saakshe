@@ -3,11 +3,12 @@
 > _kural · Tamil — the spoken word, the utterance; speech made to carry weight (as in Thirukkural, the classic of couplets). The faculty that says the right thing, once, and means it._
 
 **kural is a company's ENGAGE faculty made operational.** It discovers who to
-talk to, researches them, writes outreach worth reading in the founder's voice,
-**fact-checks every claim before it says it**, sends as the buyer (never a blast),
-and publishes the studio's approved creative **only behind the founder's
-sign-off**. It holds the channel keys. It never edits the creative, never says
-unverified things, never blasts, and never publishes without the gate.
+talk to, researches them, and **carries kalai's already-cleared words untouched**
+(it authors nothing — kalai owns and fact-checks all copy in its own brand-fidelity
+loop), sends as the buyer (never a blast), and publishes the studio's approved
+creative **only behind the founder's sign-off**. It holds the channel keys. It
+never edits the creative, never re-authors, never blasts, and never publishes
+without the gate.
 
 Built on the **Google Agent Development Kit (ADK)**. Submitted to the
 **Google for Startups AI Agents Challenge — Track 1 · Build**.
@@ -38,35 +39,30 @@ reason.
 ```
 envoy_lead          (Claude · Vertex)   qualify the engagement + ground · spine entry
   → research_fanout (ParallelAgent)     Prospect Scout ∥ Market Watcher  (Gemini, disjoint)
-  → message_loop    (LoopAgent)         Outreach Writer (Gemini)
-                                          → Claim-Judge (Claude · Vertex, fact-checks)
-                                          → ClaimCheck (deterministic numeric gate)
   → gate            (HALT)              the founder's publish sign-off — NOT auto-published
 ```
 
-**Parallel and Loop are earned here, not decorative:**
+kural **authors nothing**: in the separation fix the old Outreach Writer +
+Claim-Judge were retired. kalai owns all copy (caption + every channel variant,
+fact-checked in its own brand-fidelity loop); kural reads that cleared master and
+carries it **untouched**. One company, one author.
 
-- **ParallelAgent** — the two research lenses are genuinely disjoint and
-  independent (*who* the audience is + their consent vs. *when* the feed is open),
-  so they run in parallel as an anti-serialization fan-out.
-- **LoopAgent** — the write↔fact-check is a real loop: a failed claim sends the
-  draft **back to the writer to re-ground**, bounded by `MAX_CLAIM_ROUNDS`. It is
-  not a one-shot "looks good."
+**Parallel is earned here, not decorative:** the two research lenses are genuinely
+disjoint and independent (*who* the audience is + their consent vs. *when* the feed
+is open), so they run in parallel as an anti-serialization fan-out.
 
-**Every loop exits on a number, never on vibes.** The Claim-Judge is an
-LLM-as-judge (Claude), but the *gate* is a pure threshold:
-`claim_support >= CLAIM_THRESHOLD` (0.80; the demo verifies at the sealed canon
-**0.86**). Below the bar with rounds left → loop back; at the bound without
-crossing → stop **unverified** ("no safe message" — the mouth stays shut). The
-numeric logic lives in pure functions in `kural/tools/analyst.py` so the tests
-pin it to exact literals — a model can never talk the mouth past the bar.
+**The gate exits on a property, never on vibes.** It opens only when the engagement
+is qualified **and** the send is eligible — a real recipient, recorded consent, and
+within the per-send value cap (`SEND_VALUE_CAP_USD`), fail-closed. Miss any and the
+mouth stays shut ("no safe message"). The eligibility logic lives in pure functions
+in `kural/tools/analyst.py` so the tests pin it to exact literals — a model can
+never talk the mouth past the bar.
 
-**Two Claude-via-Vertex seats, everything else Gemini.** The two highest-stakes
-judgments — *is this worth saying* (Envoy Lead) and *is every claim true*
-(Claim-Judge) — run on Claude via Vertex Model Garden, each forced through an ADK
-`output_schema` (pydantic) so a live reply can never collapse to prose and silently
-zero the numeric gate. The five routine seats (the two scouts, the writer, the
-sender, the publisher) run on Gemini.
+**One Claude-via-Vertex seat, everything else Gemini.** The highest-stakes judgment
+— *is this worth saying* (Envoy Lead) — runs on Claude via Vertex Model Garden,
+forced through an ADK `output_schema` (pydantic) so a live reply can never collapse
+to prose and silently zero the numeric gate. The four routine seats (the two
+scouts, the sender, the publisher) run on Gemini.
 
 **The world-facing acts are NOT in `root_agent`.** Send and publish fire only
 through `kural/tools/channels.py`, each wrapped in two rails:
@@ -108,14 +104,15 @@ SAAKSHE_MODE=demo PYTHONPATH=. ./.venv/bin/python -m pytest kural/tests -q
 # the company-level integration guard (must stay green)
 SAAKSHE_MODE=demo PYTHONPATH=. ./.venv/bin/python -m pytest tests/test_flywheel.py -q
 
-# the ADK eval set (creds-gated — grades outreach quality + claim soundness @0.80)
+# the ADK eval set (creds-gated — grades engagement quality + send-eligibility)
 SAAKSHE_MODE=live GOOGLE_CLOUD_PROJECT=... \
   ./.venv/bin/python -m pytest kural/eval/test_eval.py -s
 ```
 
 In **demo** the deterministic offline replay reproduces the sealed canon (the
-Claim-Judge re-grounds once at 0.72, then verifies at 0.86; the post announces
-Pro → $34) and never presents a forbidden value (0.62 / 0.81) as canon. **Live**
-is the product; the replay is the net that lets the whole flywheel demo creds-free
-and survive a 429 mid-demo — the orchestration (Parallel / Loop / escalate / HITL
-/ ledger / A2A) is fully real either way.
+Coordinator qualifies the engagement, the scouts cite the consented/topic-fit slice
+and the open window; the post announces Pro → $34, carrying kalai's cleared words)
+and never presents a forbidden value (0.62 / 0.81) as canon. **Live** is the
+product; the replay is the net that lets the whole flywheel demo creds-free and
+survive a 429 mid-demo — the orchestration (Parallel / escalate / HITL / ledger /
+A2A) is fully real either way.

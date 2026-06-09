@@ -4,7 +4,8 @@ memory ("grounded or silent").
 LIVE: the manas Context Pack (via A2A) + the funnel are the admissible evidence,
 and the example MCP read-tools can be exposed to the agents. DEMO: the bundle is
 the Sundara fixtures. The before_agent_callback seeds state at the spine entry so
-the Writer's claims and the Claim-Judge's check share one grounding.
+the Coordinator's qualify and the research scouts share one grounding (kural carries
+kalai's already-cleared words — it authors nothing of its own).
 """
 
 from __future__ import annotations

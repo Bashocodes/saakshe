@@ -1,11 +1,12 @@
-"""kural — the only mouth (ENGAGES). Discovers, researches in parallel, writes
-outreach worth reading, fact-checks every claim, sends as the buyer, and publishes
-kalai's approved creative behind the founder's publish sign-off (tap 2). Holds the
-channel keys; never edits creative; never says unverified things; never blasts;
-never publishes without the gate.
+"""kural — the only mouth (ENGAGES). Discovers, researches in parallel, sends as
+the buyer, and publishes kalai's approved creative behind the founder's publish
+sign-off (tap 2). It authors nothing — kalai owns all copy (caption + every channel
+variant, fact-checked in its own fidelity loop); kural carries that cleared master
+untouched. Holds the channel keys; never edits creative; never re-authors; never
+blasts; never publishes without the gate.
 
 The real ADK pipeline lives in ``kural.agent`` (root_agent: Coordinator →
-ParallelAgent research → Writer → Claim-Judge gate, halting before publish).
+ParallelAgent research → send-eligibility gate, halting before publish).
 ``kural.runner`` drives it behind the LOCKED orchestrator-facing interface and is
 where the company's A2A skill + agent card are registered. ``root_agent`` is
 exported lazily so importing the package for config/tools/tests does not require

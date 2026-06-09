@@ -1,9 +1,9 @@
 """End-to-end engagement test, in demo mode (full ADK orchestration, replayed LLM).
 
 The whole pipeline runs — Coordinator (Claude) qualify, the ParallelAgent research
-fan-out, the Writer ↔ Claim-Judge LoopAgent (re-grounding once before it verifies),
-the publish gate — and HALTS at g2 awaiting the founder's tap-2. The publish is the
-separate, human-approved step, dry-run by default and only real when dry_run=False.
+fan-out, the send-eligibility gate — and HALTS at g2 awaiting the founder's tap-2.
+kural authors nothing: it carries kalai's cleared master untouched. The publish is
+the separate, human-approved step, dry-run by default and only real when dry_run=False.
 """
 
 from __future__ import annotations

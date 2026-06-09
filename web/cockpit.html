@@ -1482,8 +1482,8 @@ html[data-theme="dark"] .sdoss .sdfoot{ border-top-color:var(--line); box-shadow
           +'<div class="sub" style="margin-top:13px;">Outreach pipeline</div>'
           +'<div class="pipe">'
             +'<div class="pstep"><span class="pn">·</span><span class="pt">Prospect Scout — <span class="meta">fans parallel research across prospects</span></span></div>'
-            +'<div class="pstep"><span class="pn">·</span><span class="pt">Outreach Writer — <span class="meta">drafts tailored outreach, fact-checked</span></span></div>'
-            +'<div class="pstep"><span class="pn">·</span><span class="pt">Email Envoy — <span class="meta">sends only on your clearance</span></span></div>'
+            +'<div class="pstep"><span class="pn">·</span><span class="pt">Market Watcher — <span class="meta">tracks competitor moves &amp; timing</span></span></div>'
+            +'<div class="pstep"><span class="pn">·</span><span class="pt">Email Envoy — <span class="meta">sends kalai\'s cleared words only on your clearance</span></span></div>'
           +'</div>'
           +'<div class="sub" style="margin-top:13px;">Channels × scopes</div>'
           +'<table class="matrix"><thead><tr><th>Channel</th><th>posts</th><th>replies</th><th>listen</th><th>DMs</th></tr></thead><tbody>'
@@ -1536,9 +1536,7 @@ html[data-theme="dark"] .sdoss .sdfoot{ border-top-color:var(--line); box-shadow
     'ENVOY LEAD':{ role:'qualifies inbound prospects', why:'high-stakes — leads the only mouth' },
     'PROSPECT SCOUT':{ role:'fans parallel research across prospects' },
     'MARKET WATCHER':{ role:'tracks competitor moves' },
-    'OUTREACH WRITER':{ role:'drafts tailored outreach, fact-checked' },
-    'CLAIM JUDGE':{ role:'verifies every outreach fact before it leaves', why:'high-stakes — nothing unverified leaves' },
-    'EMAIL ENVOY':{ role:'sends only on your clearance', wake:'awaiting send clearance' },
+    'EMAIL ENVOY':{ role:'sends kalai\'s cleared words only on your clearance', wake:'awaiting send clearance' },
     'CHANNEL MOUTH':{ role:'holds the publish gate for your tap', prov:'holds the channel keys, granted over setu', wake:'holding the publish gate' }
   };
 
@@ -1578,7 +1576,7 @@ html[data-theme="dark"] .sdoss .sdfoot{ border-top-color:var(--line); box-shadow
     var map = { 'SOURCE READERS':'Source Readers','MIND KEEPER':'Mind Keeper','MEMORY CURATOR':'Memory Curator','FOUNDER VOICE':'Founder Voice',
       'MEETING CALLER':'Meeting Caller','ADVISOR COUNCIL':'Advisor Council','VERDICT BENCH':'Verdict Bench','ORDER DISPATCHER':'Order Dispatcher',
       'STUDIO DIRECTOR':'Studio Director','MAKER DESK':'Maker Desk','BRAND CHECK':'Brand Check','LEGAL CHECK':'Legal Check',
-      'ENVOY LEAD':'Envoy Lead','RESEARCH DESK':'Research Desk','MESSAGE DESK':'Message Desk','CHANNEL DESK':'Channel Desk' };
+      'ENVOY LEAD':'Envoy Lead','RESEARCH DESK':'Research Desk','CHANNEL DESK':'Channel Desk' };
     return map[t]||t;
   }
   function deskFlowHTML(quad, hereTitle){
@@ -1610,7 +1608,7 @@ html[data-theme="dark"] .sdoss .sdfoot{ border-top-color:var(--line); box-shadow
     if(quad==='manas'){ fills='Imbibed facts and the cited Context Pack fill here after the first run.'; next='grants land in versioned buckets → Memory Curator commits the Pack'; }
     else if(quad==='arivu'){ fills='The five lenses, the sealed verdict and any dissent fill here once you ask a decision.'; next='a real question → five lenses → verdict bench → your tap'; }
     else if(quad==='kalai'){ fills='The brief, the brand-fidelity loop and the master fill here once a verdict asks for a make.'; next='an approved make → render → brand + legal checks → handoff to kural'; }
-    else { fills='Research, verified words and the publish gate fill here once there is something to say.'; next='an approved make → verified words → your tap → the world'; }
+    else { fills='Research, kalai\'s cleared words and the publish gate fill here once there is something to say.'; next='a cleared master → research → your tap → the world'; }
     var gate = (t==='CHANNEL DESK')
       ? '<div class="sub" style="margin-top:11px;">the publish gate</div><div class="gates-col" style="display:flex;flex-direction:column;gap:9px;">'+emptyGateHTML()+'</div>'
       : '';
@@ -1743,19 +1741,19 @@ html[data-theme="dark"] .sdoss .sdfoot{ border-top-color:var(--line); box-shadow
     +'</div></div></div>';
   }
 
-  /* kural/outreach — the full engage: research → verified words → the two gates */
+  /* kural/outreach — the full engage: research → kalai's cleared words → the two gates */
   function drillOutreach(){
     return '<div class="view">'+backChip('back to kural')
     +'<div class="vhead"><div><div class="vid"><span class="drillanchor c-kural">The outreach &amp; gates</span></div>'
-      +'<div class="vline"><span style="font-style:italic;">research → verified words → the world, only after your tap</span></div></div></div>'
+      +'<div class="vline"><span style="font-style:italic;">research → kalai\'s cleared words → the world, only after your tap</span></div></div></div>'
     +'<div class="vbody"><div class="grid2" style="flex:1 1 auto;min-height:0;">'
-      +'<div class="panel flex"><div class="phead"><h3>'+icon('mail','sm')+' Outreach pipeline</h3><span class="ct">verified-before-send</span></div>'
+      +'<div class="panel flex"><div class="phead"><h3>'+icon('mail','sm')+' Outreach pipeline</h3><span class="ct">cleared-before-send</span></div>'
         +'<div class="pbody" style="display:flex;flex-direction:column;">'
           +'<div class="pipe">'
-            +'<div class="pstep"><span class="pn">01</span><span class="pt">Prospect Scout — <span class="meta">fans parallel research across prospects</span></span></div>'
-            +'<div class="pstep"><span class="pn">02</span><span class="pt">Outreach Writer — <span class="meta">drafts tailored outreach, fact-checked</span></span></div>'
-            +'<div class="pstep"><span class="pn">03</span><span class="pt">Claim Judge — <span class="meta">verifies every fact · below the bar, back to the writer</span></span></div>'
-            +'<div class="pstep"><span class="pn">04</span><span class="pt">Email Envoy — <span class="meta">sends only on your clearance</span></span></div>'
+            +'<div class="pstep"><span class="pn">01</span><span class="pt">Envoy Lead — <span class="meta">qualifies the engagement · the spine entry</span></span></div>'
+            +'<div class="pstep"><span class="pn">02</span><span class="pt">Prospect Scout — <span class="meta">fans parallel research across prospects</span></span></div>'
+            +'<div class="pstep"><span class="pn">03</span><span class="pt">Market Watcher — <span class="meta">tracks competitor moves &amp; timing</span></span></div>'
+            +'<div class="pstep"><span class="pn">04</span><span class="pt">Email Envoy — <span class="meta">sends kalai\'s cleared words only on your clearance</span></span></div>'
           +'</div>'
           +'<div class="sub" style="margin-top:13px;">Outputs</div>'
           +'<ul class="outs"><li>No engage yet — posted replies and outreach land here, each cited.</li>'
@@ -2200,8 +2198,8 @@ html[data-theme="dark"] .sdoss .sdfoot{ border-top-color:var(--line); box-shadow
     chips:[ ac("→ arivu","nav:arivu","seal") ]
   };
   var R_OUTREACH = {
-    lead:"No outreach yet — kural speaks only on an approved make, after your tap. Every claim is fact-checked first; nothing unverified leaves.",
-    pills:[ fp("no engage yet","amber"), fp("verified-before-send","kural") ],
+    lead:"No outreach yet — kural speaks only on an approved make, after your tap. kalai already cleared every word; kural carries that master untouched and never re-authors.",
+    pills:[ fp("no engage yet","amber"), fp("cleared-before-send","kural") ],
     chips:[ ac("→ kural","nav:kural","handoff"), ac("the outreach surface","nav:kural/outreach","mail") ]
   };
   var R_CHANNELS = {
@@ -2406,8 +2404,7 @@ html[data-theme="dark"] .sdoss .sdfoot{ border-top-color:var(--line); box-shadow
    kural:[
     {t:'ENVOY LEAD', s:'qualifying inbound prospect', m:['ENVOY LEAD']},
     {t:'RESEARCH DESK', s:'citing live signals', m:['PROSPECT SCOUT','MARKET WATCHER']},
-    {t:'MESSAGE DESK', s:'writing verified words', m:['OUTREACH WRITER','CLAIM JUDGE']},
-    {t:'CHANNEL DESK', s:'holding the keys', m:['EMAIL ENVOY','CHANNEL MOUTH']}
+    {t:'CHANNEL DESK', s:'carrying kalai\'s cleared words, holding the keys', m:['EMAIL ENVOY','CHANNEL MOUTH']}
    ]
   }; }
 
@@ -2469,16 +2466,14 @@ html[data-theme="dark"] .sdoss .sdfoot{ border-top-color:var(--line); box-shadow
       {twoWord:"ENVOY LEAD",threeWord:"qualifies inbound prospects",claude:true,status:"idle"},
       {twoWord:"PROSPECT SCOUT",threeWord:"fans parallel research",claude:false,status:"idle"},
       {twoWord:"MARKET WATCHER",threeWord:"tracks competitor moves",claude:false,status:"idle"},
-      {twoWord:"OUTREACH WRITER",threeWord:"drafts tailored outreach",claude:false,status:"idle"},
-      {twoWord:"CLAIM JUDGE",threeWord:"verifies every outreach fact",claude:true,status:"idle"},
-      {twoWord:"EMAIL ENVOY",threeWord:"sends only on clearance",claude:false,status:"idle"},
+      {twoWord:"EMAIL ENVOY",threeWord:"sends kalai's cleared words on clearance",claude:false,status:"idle"},
       {twoWord:"CHANNEL MOUTH",threeWord:"holds the publish gate",claude:false,status:"idle"}
      ],
      questions:[],
      outputs:[
       "No engage yet — kural speaks only on an approved make.",
-      "Posted replies and outreach, each fact-checked and cited, land here.",
-      "It is the only mouth; nothing leaves without your tap at the publish gate."
+      "Posted replies and outreach, carrying kalai's cleared and cited words, land here.",
+      "It is the only mouth; it authors nothing — nothing leaves without your tap at the publish gate."
      ]
     },
    chatScript:{

@@ -1,9 +1,10 @@
 """kural — the session-state contract between pipeline stages.
 
 Centralised (like arivu's config.StateKeys) so the Coordinator, the ParallelAgent
-research fan-out, the Writer, the Claim-Judge loop, and the channel agents never
-drift on a key name. kural reads the *shared* thresholds from common.config; only
-the state-key names and the one local send cap live here.
+research fan-out, and the channel agents never drift on a key name. kural reads the
+*shared* thresholds from common.config; only the state-key names and the one local
+send cap live here. (The Outreach Writer + Claim-Judge loop were retired in the
+separation fix — kalai authors everything; kural carries the master untouched.)
 """
 
 from __future__ import annotations
