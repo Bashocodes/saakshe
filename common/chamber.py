@@ -152,6 +152,9 @@ class ChamberSpec:
     human_tap: bool = False                 # True = halt for the founder (ONLY company arivu, tap-1)
     gate_status_key: str = "gate_status"
     gate_condition: Optional[Callable[[dict], bool]] = None  # default: survived_key is True
+    # ── cosmetic: the parallel-panel agent name (preserves a caller's exact ADK
+    #    node name; default keeps it namespaced) ──
+    deliberation_name: str = ""             # default: f"{namespace}_deliberation"
     # ── token budget (constraint #5 — RESERVED now, enforced Track B) ──
     budget: Optional[TokenBudget] = None    # default None = no-op passthrough
 
@@ -311,7 +314,7 @@ def build_chamber(spec: ChamberSpec) -> BaseAgent:
             pass
 
     deliberation = ParallelAgent(
-        name=f"{spec.namespace}_deliberation",
+        name=spec.deliberation_name or f"{spec.namespace}_deliberation",
         description="Disjoint advisors argue in parallel — anti-groupthink fan-out.",
         sub_agents=list(spec.panel),
     )

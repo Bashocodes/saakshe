@@ -75,6 +75,7 @@ def build_root_agent() -> chamber.BaseAgent:
         prosecution_history_key=SK.PROSECUTION_HISTORY,
         gate_status_key=SK.GATE_STATUS,
         human_tap=True,  # company chamber = the single HITL gate (tap-1)
+        deliberation_name="sabha_deliberation",  # preserve arivu's exact ADK node name
     )
     return chamber.build_chamber(spec)
 
