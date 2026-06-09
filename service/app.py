@@ -189,6 +189,13 @@ class AnswerRequest(BaseModel):
     answer: str
 
 
+class ManasEditRequest(BaseModel):
+    instruction: str
+    entity_type: str = "company_profile"
+    target: Optional[dict] = None
+    idem_key: Optional[str] = None
+
+
 _DECISION_HINTS = ("should we", "should i", "should the", "run the day", "start the day",
                    "raise pro", "raise our", "raise the price", "decide whether", "decide if")
 
@@ -415,6 +422,101 @@ def witness_telemetry(run_id: Optional[str] = None,
         "learned": tel.what_learned(run_id, s),
         "acting": tel.whos_acting_now(run_id, s),
     }
+
+
+# ─── manas live-edits → charged, immutable pending changes ───────────────────
+def _pending_factory(user_id: str):
+    """The per-user pending-changes store (overridable in tests)."""
+    from common.pending import PendingChanges
+    return PendingChanges(user_id)
+
+
+def _generate_edit(entity_type: str, instruction: str, target: dict) -> tuple[dict, dict, list, str]:
+    """Produce a STRUCTURED edit (a real deploy swaps in a Gemini-Flash call here;
+    saakshe only persists the diff — executing it is wired elsewhere)."""
+    target = dict(target or {})
+    field = "tagline" if "tagline" in target else ("summary" if "summary" in target else "note")
+    old_val = str(target.get(field, ""))
+    new_val = (f"{old_val} — {instruction}".strip(" —")) if old_val else instruction
+    new_json = {**target, field: new_val}
+    return new_json, {field: [old_val, new_val]}, [field], ("gemini-flash" if config.is_live() else "scripted")
+
+
+def _public_pending(row: dict) -> dict:
+    return {k: row.get(k) for k in (
+        "id", "entity_type", "diff_json", "changed_fields", "status", "review_status",
+        "ai_model", "cost_credits", "created_at", "applied_at")}
+
+
+@app.post("/api/manas/edit")
+async def manas_edit(req: ManasEditRequest, sess: Session = Depends(_session_dep)) -> Any:
+    """Charge + persist a manas-authored edit as an immutable pending change."""
+    _require_auth_if_live(sess.user)
+    target = req.target or {}
+    new_json, diff_json, changed, model = _generate_edit(req.entity_type, req.instruction, target)
+    if not _supabase_backend():
+        # Demo preview — the edit is generated but neither charged nor persisted.
+        return {"persisted": False, "entity_type": req.entity_type, "diff": diff_json,
+                "changed_fields": changed, "new_json": new_json}
+    user = sess.user
+    billing = _billing_active(user)
+    edit_key = req.idem_key or ("edit:" + uuid4().hex)
+    cost = credits.cost("manas_edit")
+    try:
+        with credits.charge(user, "manas_edit", idem_key=edit_key, reason="manas edit"):
+            row = _pending_factory(user.user_id).create(
+                entity_type=req.entity_type, old_json=target, new_json=new_json,
+                diff_json=diff_json, changed_fields=changed, idem_key=edit_key,
+                ai_model=model, cost_credits=(cost if billing else 0))
+    except credits.OutOfCredits as exc:
+        return JSONResponse(status_code=402, content=credits.out_of_credits_payload(exc.balance))
+    except Exception as exc:  # noqa: BLE001 — charge() already refunded on the inner failure
+        print("manas edit failed:\n", traceback.format_exc())
+        return JSONResponse(status_code=200, content={
+            "status": "error", "text": credits.TEMPORARY_FAILURE_MSG, "detail": str(exc)[:300]})
+    return {"persisted": True, "pending": _public_pending(row)}
+
+
+@app.get("/api/manas/pending")
+def manas_pending(sess: Session = Depends(_session_dep)) -> dict[str, Any]:
+    _require_auth_if_live(sess.user)
+    if not _supabase_backend() or sess.user is None:
+        return {"pending": []}
+    return {"pending": [_public_pending(r) for r in _pending_factory(sess.user.user_id).list_open()]}
+
+
+@app.post("/api/manas/pending/{pid}/apply")
+def manas_apply(pid: str, sess: Session = Depends(_session_dep)) -> dict[str, Any]:
+    _require_auth_if_live(sess.user)
+    if not _supabase_backend() or sess.user is None:
+        raise HTTPException(status_code=401, detail="auth_required")
+    pc = _pending_factory(sess.user.user_id)
+    if pc.get(pid) is None:
+        raise HTTPException(status_code=404, detail="no such pending change")
+    applied = pc.apply(pid)
+    return {"ok": True, "pending": _public_pending(applied or pc.get(pid) or {})}
+
+
+@app.post("/api/manas/pending/{pid}/reject")
+def manas_reject(pid: str, sess: Session = Depends(_session_dep)) -> dict[str, Any]:
+    _require_auth_if_live(sess.user)
+    if not _supabase_backend() or sess.user is None:
+        raise HTTPException(status_code=401, detail="auth_required")
+    pc = _pending_factory(sess.user.user_id)
+    row = pc.get(pid)
+    if row is None:
+        raise HTTPException(status_code=404, detail="no such pending change")
+    pc.reject(pid)
+    # Refund the edit charge (idempotent; releases the claim so a re-edit re-charges).
+    refunded = False
+    if _billing_active(sess.user) and row.get("idem_key") and row.get("cost_credits"):
+        try:
+            credits.refund(sess.user.user_id, int(row["cost_credits"]), "edit rejected",
+                           row["idem_key"], row["idem_key"] + ":refund")
+            refunded = True
+        except Exception:  # noqa: BLE001
+            pass
+    return {"ok": True, "refunded": refunded}
 
 
 # ─── A2A agent cards (open) ───────────────────────────────────────────────────

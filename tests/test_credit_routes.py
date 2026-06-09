@@ -19,7 +19,32 @@ import pytest
 from fastapi.testclient import TestClient
 
 from common import auth, credits, project
+from common.pending import PendingChanges
 from common.stream import EventStream
+
+
+class PendFake:
+    """In-memory pending_changes table (eq. matching) for the route tests."""
+    def __init__(self) -> None:
+        self.rows: list[dict] = []; self._id = 0
+
+    def _get(self, table, **p):
+        p.pop("select", None); p.pop("order", None); lim = p.pop("limit", None)
+        out = [dict(r) for r in self.rows
+               if all(str(r.get(k)).lower() == str(v).split(".", 1)[1].lower() for k, v in p.items())]
+        return out[: int(lim)] if lim else out
+
+    def _insert(self, table, row):
+        self._id += 1
+        r = dict(row); r["id"] = str(self._id); r["created_at"] = self._id; r.setdefault("applied_at", None)
+        self.rows.append(r); return r
+
+    def _patch(self, table, match, patch):
+        out = {}
+        for r in self.rows:
+            if all(str(r.get(k)) == str(v) for k, v in match.items()):
+                r.update(patch); out = dict(r)
+        return out
 
 
 # ─── an in-memory credit ledger standing in for the Postgres RPCs ─────────────
@@ -94,9 +119,13 @@ def client(monkeypatch):
     monkeypatch.setattr(credits, "_get_balance", ledger.get_balance)
     appmod._GRANTED.clear()
 
+    pend = PendFake()
+    monkeypatch.setattr(appmod, "_pending_factory", lambda uid: PendingChanges(uid, client=pend))
+
     c = TestClient(appmod.app)
     c.ledger = ledger          # type: ignore[attr-defined]
     c.stores = stores          # type: ignore[attr-defined]
+    c.pend = pend              # type: ignore[attr-defined]
     return c
 
 
@@ -201,6 +230,43 @@ def test_session_binds_each_users_own_store(client):
     assert [c["kind"] for c in b["connections"]] == ["github"]
     # anonymous read in supabase mode is gated
     assert client.get("/api/connect/status").status_code == 401
+
+
+# ─── manas live-edits → charged, immutable pending changes ───────────────────
+def test_manas_edit_charges_and_persists(client):
+    client.get("/api/me", headers=_auth("alice"))
+    r = client.post("/api/manas/edit", headers=_auth("alice"), json={
+        "entity_type": "company_profile", "instruction": "warmer tagline",
+        "target": {"tagline": "We sell software"}, "idem_key": "edit-1"})
+    assert r.status_code == 200
+    body = r.json()
+    assert body["persisted"] is True
+    assert body["pending"]["status"] == "pending"
+    assert body["pending"]["changed_fields"] == ["tagline"]
+    assert client.ledger.get_balance("u_alice") == 100 - credits.cost("manas_edit")
+
+
+def test_manas_reject_refunds_the_edit(client):
+    client.get("/api/me", headers=_auth("alice"))
+    pid = client.post("/api/manas/edit", headers=_auth("alice"), json={
+        "instruction": "x", "target": {"tagline": "t"}, "idem_key": "edit-2"}).json()["pending"]["id"]
+    assert client.ledger.get_balance("u_alice") == 90
+    r = client.post(f"/api/manas/pending/{pid}/reject", headers=_auth("alice"))
+    assert r.json()["refunded"] is True
+    assert client.ledger.get_balance("u_alice") == 100
+    # applying after reject is a no-op (status no longer pending)
+    client.post(f"/api/manas/pending/{pid}/apply", headers=_auth("alice"))
+    assert client.pend.rows[0]["status"] == "rejected"
+
+
+def test_manas_edit_is_owner_scoped(client):
+    client.get("/api/me", headers=_auth("alice"))
+    pid = client.post("/api/manas/edit", headers=_auth("alice"), json={
+        "instruction": "x", "target": {"tagline": "t"}, "idem_key": "edit-3"}).json()["pending"]["id"]
+    client.get("/api/me", headers=_auth("mallory"))
+    # Mallory can't see or apply Alice's pending change
+    assert client.get("/api/manas/pending", headers=_auth("mallory")).json()["pending"] == []
+    assert client.post(f"/api/manas/pending/{pid}/apply", headers=_auth("mallory")).status_code == 404
 
 
 def test_full_flywheel_debits_once_and_completes(client):
