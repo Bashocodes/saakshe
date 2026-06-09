@@ -1,0 +1,442 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="icon" href="data:,">
+<title>saakshe &mdash; privacy policy</title>
+<meta name="description" content="How saakshe handles your Google account, the read-only project you connect, the facts manas extracts, your chat, and your credit ledger. Draft, pre-launch.">
+<!-- no-flash theme: set before first paint, before any CSS applies (same key as the landing) -->
+<script>
+(function(){
+  try{
+    var p=new URLSearchParams(location.search).get('theme');
+    var t=(p==='dark'||p==='light')?p:(localStorage.getItem('saakshe-theme')||'light');
+    document.documentElement.setAttribute('data-theme',t);
+  }catch(e){document.documentElement.setAttribute('data-theme','light');}
+})();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Archivo:wght@500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Michroma&display=swap">
+<style>
+/* ════════════════════════════════════════════════════════════════════
+   saakshe — dual theme · BRUT (light) / OBSIDIAN (dark). Tokens lifted
+   verbatim from saakshe_landing.html so these pages are the same site.
+   ════════════════════════════════════════════════════════════════════ */
+:root{
+  --paper:#F4EEE2;--paper-2:#ECE4D3;--card:#FBF7EE;--card-2:#F4EEE2;
+  --ink:#161410;--ink-2:#45413A;--ink-3:#6B6557;
+  --line:#161410;--line-w:2.5px;
+  --c-manas:#E3A52B;--c-kalai:#CC4632;--c-kural:#3E8F5E;--c-arivu:#3551C8;
+  --t-manas:#F1DC95;--t-kalai:#EBBAAC;--t-kural:#BFE0C6;--t-arivu:#C6CFF2;
+  --tx-manas:#7F5A0F;--tx-kalai:#A33321;--tx-kural:#2C6B45;--tx-arivu:#2A41A0;
+  --on-manas:#161410;--on-kalai:#fff;--on-kural:#fff;--on-arivu:#fff;
+  --act:#CC4632;--on-act:#fff;
+  --act-text:#A33321;
+  --witness:#161410;
+  --shadow:5px 5px 0 var(--ink);
+  --offset:8px;
+  --glow:none;--glow-soft:none;
+  --grid:var(--paper-2);
+  --disp:'Space Grotesk','Archivo',system-ui,sans-serif;
+  --head:'Space Grotesk','Archivo',system-ui,sans-serif;
+  --body:'Space Grotesk',system-ui,sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,monospace;
+  --word:'Michroma',var(--disp);
+  --maxw:1140px;--radius:0px;
+}
+html[data-theme="dark"]{
+  --paper:#0A0D0A;--paper-2:#0E120E;--card:#0F140F;--card-2:#0C100C;
+  --ink:#D4F5DE;--ink-2:#9DBBA6;--ink-3:#6F8C78;
+  --line:#1E2A20;--line-w:1px;
+  --c-manas:#E0B25A;--c-kalai:#E0685C;--c-kural:#5EF08A;--c-arivu:#7C97F2;
+  --t-manas:#19170F;--t-kalai:#1A1310;--t-kural:#0E1A11;--t-arivu:#10131F;
+  --tx-manas:var(--c-manas);--tx-kalai:var(--c-kalai);--tx-kural:var(--c-kural);--tx-arivu:var(--c-arivu);
+  --on-manas:#19170F;--on-kalai:#0A0D0A;--on-kural:#0A0D0A;--on-arivu:#0A0D0A;
+  --act:#5EF08A;--on-act:#06140A;
+  --act-text:#5EF08A;
+  --witness:#5EF08A;
+  --shadow:none;
+  --offset:0px;
+  --glow:none;--glow-soft:none;
+  --grid:#13181300;
+  --head:'JetBrains Mono','IBM Plex Mono',monospace;
+  --body:'IBM Plex Mono',ui-monospace,monospace;
+  --radius:5px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--body);
+  font-size:17px;line-height:1.62;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+  overflow-x:hidden}
+html[data-theme="dark"] body{font-size:15.5px;line-height:1.66}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.55;
+  background:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:46px 46px;mask:linear-gradient(180deg,#000,transparent 78%)}
+html[data-theme="dark"] body::before{opacity:1;
+  background:linear-gradient(rgba(94,240,138,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(94,240,138,.045) 1px,transparent 1px);
+  background-size:38px 38px;mask:linear-gradient(180deg,#000,#000)}
+html[data-theme="dark"] body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:repeating-linear-gradient(0deg,rgba(0,0,0,0) 0px,rgba(0,0,0,0) 2px,rgba(0,0,0,.16) 3px);opacity:.5}
+.wrap{position:relative;z-index:1;max-width:var(--maxw);margin:0 auto;
+  padding:clamp(16px,3.5vw,40px) clamp(14px,5vw,40px) 120px}
+h1,h2,h3,h4{margin:0;font-family:var(--head);font-weight:700;letter-spacing:-.02em;color:var(--ink)}
+html[data-theme="dark"] h1,html[data-theme="dark"] h2,html[data-theme="dark"] h3,html[data-theme="dark"] h4{letter-spacing:0}
+p{margin:0}
+b,strong{font-weight:700;color:var(--ink)}
+em{font-style:italic}
+.mono{font-family:var(--mono)}
+.mute{color:var(--ink-2)}
+a{color:inherit}
+::selection{background:var(--c-manas);color:#161410}
+html[data-theme="dark"] ::selection{background:var(--c-kural);color:#06140A}
+
+/* logo lockup */
+.logo{display:inline-flex;align-items:center;border:var(--line-w) solid var(--line);border-radius:var(--radius);
+  padding:11px 18px 11px 16px;background:var(--card);box-shadow:var(--shadow);
+  text-decoration:none;color:var(--ink)}
+html[data-theme="dark"] .logo{border-color:var(--line);box-shadow:none;background:var(--card)}
+.logo:hover{text-decoration:none}
+.logo .pr{font-family:var(--mono);font-weight:700;font-size:22px;line-height:1;color:var(--ink);letter-spacing:-.06em}
+.logo .dv{width:2px;height:24px;background:var(--line);margin:0 16px 0 15px}
+html[data-theme="dark"] .logo .pr{color:var(--ink)}
+html[data-theme="dark"] .logo .dv{background:var(--line);opacity:.6}
+.logo .wd{font-family:var(--word);font-size:18px;line-height:1;color:var(--ink);letter-spacing:.40em;padding-left:.40em}
+html[data-theme="dark"] .logo .wd{color:var(--ink)}
+@media(max-width:480px){.logo .wd{font-size:14px;letter-spacing:.26em}.logo .pr{font-size:18px}.logo{padding:9px 14px}}
+
+/* topbar + toggle */
+.bar{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.toggle{display:inline-flex;align-items:center;gap:0;border:var(--line-w) solid var(--line);border-radius:var(--radius);
+  background:var(--card);font-family:var(--mono);font-size:11px;font-weight:600;overflow:hidden;cursor:pointer;
+  box-shadow:var(--shadow)}
+html[data-theme="dark"] .toggle{border-color:var(--line);box-shadow:none}
+.toggle button{appearance:none;border:0;background:transparent;color:var(--ink-2);font:inherit;letter-spacing:.1em;
+  text-transform:uppercase;padding:9px 13px;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.toggle button .dot{width:8px;height:8px;border:1.5px solid currentColor}
+.toggle button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.toggle button[aria-pressed="true"] .dot{background:currentColor;border-color:currentColor}
+html[data-theme="light"] .toggle button#tg-light[aria-pressed="true"] .dot{border-radius:50%}
+html[data-theme="dark"] .toggle button#tg-dark[aria-pressed="true"]{background:var(--c-kural);color:#06140A;text-shadow:none}
+html[data-theme="dark"] .toggle button#tg-dark[aria-pressed="true"] .dot{box-shadow:none}
+
+/* kicker (page hero) */
+.kick{font-family:var(--mono);font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-2);
+  display:inline-flex;align-items:center;gap:9px}
+.kick::before{content:'';width:11px;height:11px;background:var(--c-kural);flex:none}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-weight:600;font-size:13px;
+  letter-spacing:.06em;text-transform:uppercase;padding:14px 22px;border:var(--line-w) solid var(--line);
+  border-radius:var(--radius);cursor:pointer;text-decoration:none;background:var(--card);color:var(--ink);
+  box-shadow:var(--shadow);transition:transform .12s ease,box-shadow .12s ease}
+.btn:hover{transform:translate(-2px,-2px);box-shadow:7px 7px 0 var(--ink)}
+.btn.prim{background:var(--act);color:var(--on-act);border-color:var(--line)}
+html[data-theme="dark"] .btn{border-color:var(--line);box-shadow:none;background:var(--card)}
+html[data-theme="dark"] .btn.prim{background:var(--act);color:var(--on-act)}
+html[data-theme="dark"] .btn:hover{transform:none;box-shadow:none}
+html[data-theme="dark"] .btn::before{content:'[ ';color:var(--ink-3)}
+html[data-theme="dark"] .btn::after{content:' ]';color:var(--ink-3)}
+html[data-theme="dark"] .btn.prim::before,html[data-theme="dark"] .btn.prim::after{color:var(--on-act)}
+
+/* sections */
+.sec{margin-top:clamp(44px,7vw,76px);border-top:3px solid var(--line);padding-top:22px}
+html[data-theme="dark"] .sec{border-top:1px solid var(--line)}
+.sec__n{display:inline-flex;align-items:center;gap:10px;font-family:var(--mono);font-size:12px;letter-spacing:.18em;
+  text-transform:uppercase;color:var(--ink-2)}
+.sec__n::before{content:'';width:13px;height:13px;background:var(--ink);flex:none}
+html[data-theme="dark"] .sec__n::before{display:none}
+html[data-theme="dark"] .sec__n .num::before{content:'// '}
+.sec__t{font-size:clamp(24px,3.6vw,38px);line-height:1.05;margin-top:14px;max-width:26ch}
+html[data-theme="dark"] .sec__t{font-size:clamp(19px,2.8vw,30px);line-height:1.12}
+.sec__lead{color:var(--ink-2);font-size:clamp(15px,1.9vw,17.5px);margin-top:14px;max-width:76ch;line-height:1.55}
+.sec__lead b{color:var(--ink)}
+
+/* governed-action card grid (reused for policy/credit cards) */
+.gov{display:grid;grid-template-columns:repeat(2,1fr);gap:18px;margin-top:26px}
+@media(max-width:760px){.gov{grid-template-columns:1fr}}
+.gcard{border:var(--line-w) solid var(--line);background:var(--card);border-radius:var(--radius);padding:18px 20px;box-shadow:var(--shadow)}
+html[data-theme="dark"] .gcard{border-color:var(--line);box-shadow:none;background:var(--card)}
+.gcard .gh{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink);
+  display:flex;align-items:center;gap:9px;margin-bottom:12px;font-weight:700}
+.gcard .gh::before{content:'';width:12px;height:12px;background:var(--c-kural);flex:none}
+html[data-theme="dark"] .gcard .gh{color:var(--ink)}
+html[data-theme="dark"] .gcard .gh::before{background:var(--ink-3);box-shadow:none}
+.gcard .gd{color:var(--ink-2);font-size:14.5px;line-height:1.55}
+.gcard .gd b{color:var(--ink)}
+.gcard .gd+.gd{margin-top:10px}
+.gates{display:flex;gap:12px;flex-wrap:wrap;margin-top:14px}
+.gate{flex:1;min-width:130px;border:1.5px solid var(--line);border-radius:var(--radius);padding:12px;background:var(--card-2)}
+html[data-theme="dark"] .gate{border-color:var(--act);background:var(--card-2)}
+.gate .gt{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--act-text);font-weight:700}
+.gate .gn{font-family:var(--head);font-weight:700;font-size:15px;margin-top:5px}
+html[data-theme="dark"] .gate .gn{font-weight:500}
+.gate .gx{font-size:12.5px;color:var(--ink-2);margin-top:4px;line-height:1.4}
+.tags{display:flex;flex-wrap:wrap;gap:9px;margin-top:16px}
+.tag{font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;
+  border:1.5px solid var(--line);padding:6px 11px;border-radius:var(--radius);color:var(--ink);background:var(--card-2)}
+html[data-theme="dark"] .tag{border-color:var(--line);color:var(--ink-2);background:transparent}
+html[data-theme="dark"] .tag::before{content:'[ '}html[data-theme="dark"] .tag::after{content:' ]'}
+.tag.no{border-color:var(--act);color:var(--act-text)}
+html[data-theme="dark"] .tag.no{border-color:var(--c-kalai);color:var(--c-kalai)}
+
+/* informational note (arivu-blue rail) */
+.honest{margin-top:20px;border-left:5px solid var(--c-arivu);padding:11px 0 11px 16px;background:var(--card-2);
+  font-family:var(--mono);font-size:13px;color:var(--ink-2);line-height:1.6;border-radius:var(--radius)}
+html[data-theme="dark"] .honest{border-left-color:var(--c-arivu);background:transparent}
+.honest b{color:var(--ink)}
+
+/* witness-voice one-liner */
+.witness-line{margin-top:24px;border:var(--line-w) solid var(--line);background:var(--card);border-radius:var(--radius);
+  padding:18px 20px;display:flex;gap:16px;align-items:flex-start;box-shadow:var(--shadow)}
+html[data-theme="dark"] .witness-line{border-color:var(--line);box-shadow:none;background:var(--card)}
+.witness-line .eye{width:14px;height:14px;border-radius:50%;background:var(--act);flex:none;margin-top:5px}
+html[data-theme="dark"] .witness-line .eye{background:var(--c-kural);box-shadow:none}
+.witness-line .txt{font-size:15.5px;color:var(--ink-2);line-height:1.55}
+.witness-line .txt b{color:var(--ink)}
+.witness-line .nm{font-family:var(--head);font-weight:700;color:var(--ink)}
+html[data-theme="dark"] .witness-line .nm{color:var(--c-kural);font-weight:500}
+
+/* end CTA */
+.endcta{margin-top:clamp(52px,8vw,84px);border:3px solid var(--line);border-radius:var(--radius);background:var(--card);
+  padding:clamp(28px,5vw,52px);text-align:center;box-shadow:var(--shadow)}
+html[data-theme="dark"] .endcta{border:1px solid var(--line);box-shadow:none;background:var(--card)}
+.endcta h2{font-size:clamp(26px,5vw,46px);line-height:1.02;letter-spacing:-.03em;max-width:20ch;margin:0 auto}
+html[data-theme="dark"] .endcta h2{letter-spacing:0;font-size:clamp(21px,4vw,36px)}
+.endcta p{margin:18px auto 0;max-width:56ch;color:var(--ink-2);font-size:16px}
+.endcta .cta-row{justify-content:center}
+.cta-row{display:flex;flex-wrap:wrap;gap:14px;margin-top:28px}
+
+/* footer */
+.foot{margin-top:60px;border-top:3px solid var(--line);padding-top:26px;font-family:var(--mono);font-size:12px;
+  line-height:1.8;color:var(--ink-2);display:flex;flex-direction:column;gap:18px}
+html[data-theme="dark"] .foot{border-top:1px solid var(--line)}
+.foot .flogo{display:inline-flex;align-items:center}
+.foot .flogo .logo{box-shadow:none;padding:7px 13px}
+html[data-theme="dark"] .foot .flogo .logo{box-shadow:none}
+.foot-nav{display:flex;flex-wrap:wrap;gap:8px 18px}
+.foot-nav a{color:var(--ink-2);text-decoration:none;font-family:var(--mono);font-size:12px;letter-spacing:.04em}
+.foot-nav a:hover{color:var(--ink)}
+.foot-nav a[aria-current="page"]{color:var(--ink);font-weight:700}
+html[data-theme="dark"] .foot-nav a[aria-current="page"]{color:var(--c-kural)}
+.vmap{display:flex;flex-wrap:wrap;gap:0 18px;color:var(--ink-2)}
+.vmap span{white-space:nowrap}
+.vmap b{color:var(--ink)}
+.vmap .a-manas{color:var(--tx-manas);font-weight:700}
+.vmap .a-arivu{color:var(--tx-arivu);font-weight:700}
+.vmap .a-kalai{color:var(--tx-kalai);font-weight:700}
+.vmap .a-kural{color:var(--tx-kural);font-weight:700}
+.vmap .a-saakshe{color:var(--witness);font-weight:700}
+html[data-theme="dark"] .vmap .a-kural,html[data-theme="dark"] .vmap .a-saakshe{text-shadow:none}
+.foot .meta{color:var(--ink-3)}
+.foot .meta b{color:var(--ink-2)}
+
+/* scroll-reveal */
+@media (prefers-reduced-motion:no-preference){
+  .reveal{opacity:0;transform:translateY(16px);transition:opacity .6s ease,transform .6s ease}
+  .reveal.in{opacity:1;transform:none}
+}
+
+/* ─────────── content-page additions (each with a dark override) ─────────── */
+.phero{padding-top:26px}
+.phero .h1wrap{margin-top:18px}
+.phero h1{font-size:clamp(34px,7vw,64px);line-height:.98;letter-spacing:-.04em;max-width:17ch}
+html[data-theme="dark"] .phero h1{font-size:clamp(26px,5vw,46px);letter-spacing:-.01em;line-height:1.05;max-width:26ch}
+.lede{font-size:clamp(16px,2.3vw,20px);color:var(--ink-2);margin-top:20px;max-width:64ch;line-height:1.55}
+.lede b{color:var(--ink)}
+html[data-theme="dark"] .lede{font-size:clamp(14px,1.9vw,16.5px);max-width:74ch}
+
+/* draft banner (legal pages) — red in light, kalai-red in dark (never the green action colour) */
+.draft{margin-top:24px;border:var(--line-w) solid var(--act);border-radius:var(--radius);background:var(--card);
+  padding:13px 18px;font-family:var(--mono);font-size:12.5px;letter-spacing:.02em;color:var(--act-text);
+  display:flex;align-items:center;gap:11px;box-shadow:var(--shadow)}
+html[data-theme="dark"] .draft{border-color:var(--c-kalai);color:var(--c-kalai);box-shadow:none;background:var(--card)}
+.draft::before{content:'';width:11px;height:11px;background:var(--act);flex:none}
+html[data-theme="dark"] .draft::before{background:var(--c-kalai)}
+.draft b{color:var(--ink)}
+
+/* prose blocks */
+.prose{margin-top:22px;max-width:78ch}
+.prose h3{font-family:var(--head);font-weight:700;font-size:clamp(18px,2.6vw,22px);margin-top:30px;letter-spacing:-.01em}
+html[data-theme="dark"] .prose h3{font-weight:500}
+html[data-theme="dark"] .prose h3::before{content:'// ';color:var(--ink-3)}
+.prose p{margin-top:13px;color:var(--ink-2);font-size:16px;line-height:1.62}
+.prose p b{color:var(--ink)}
+.prose p a{color:var(--act-text);text-decoration:underline;text-underline-offset:2px}
+.prose ul{margin:12px 0 0;padding:0;list-style:none}
+.prose li{position:relative;padding:8px 0 8px 24px;color:var(--ink-2);font-size:15.5px;line-height:1.55;border-bottom:1px solid var(--line)}
+.prose li:last-child{border-bottom:0}
+.prose li::before{content:'\203A';position:absolute;left:2px;top:7px;color:var(--act-text);font-weight:700;font-family:var(--mono)}
+.prose li b{color:var(--ink)}
+
+/* token-native pricing table */
+.ptable{margin-top:24px;border:var(--line-w) solid var(--line);border-radius:var(--radius);background:var(--card);
+  overflow:hidden;box-shadow:var(--shadow)}
+html[data-theme="dark"] .ptable{border-color:var(--line);box-shadow:none}
+.ptable table{width:100%;border-collapse:collapse}
+.ptable th,.ptable td{text-align:left;padding:14px 18px;border-bottom:var(--line-w) solid var(--line);vertical-align:top}
+html[data-theme="dark"] .ptable th,html[data-theme="dark"] .ptable td{border-bottom:1px solid var(--line)}
+.ptable tr:last-child td{border-bottom:0}
+.ptable th{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);font-weight:700}
+.ptable td{font-size:15px;color:var(--ink-2)}
+.ptable td.act{font-family:var(--head);font-weight:700;color:var(--ink);white-space:nowrap}
+html[data-theme="dark"] .ptable td.act{font-weight:500}
+.ptable td .cost{font-family:var(--mono);font-weight:700;color:var(--act-text);white-space:nowrap}
+.ptable td.x{color:var(--ink-3);font-size:13.5px}
+
+/* big-number stat band */
+.bignum{margin-top:26px;display:flex;flex-wrap:wrap;gap:18px}
+.bignum .bn{flex:1;min-width:200px;border:var(--line-w) solid var(--line);border-radius:var(--radius);background:var(--card);
+  padding:22px 22px;box-shadow:var(--shadow)}
+html[data-theme="dark"] .bignum .bn{border-color:var(--line);box-shadow:none;background:var(--card)}
+.bignum .bn .n{font-family:var(--head);font-weight:700;font-size:clamp(34px,6vw,48px);line-height:1;letter-spacing:-.03em;color:var(--ink)}
+html[data-theme="dark"] .bignum .bn .n{font-weight:500;color:var(--act)}
+.bignum .bn .l{margin-top:12px;font-size:14px;color:var(--ink-2);line-height:1.45}
+.bignum .bn .l b{color:var(--ink)}
+
+/* FAQ accordion (native <details>, works JS-off) */
+.qa{border:var(--line-w) solid var(--line);border-radius:var(--radius);background:var(--card);box-shadow:var(--shadow);margin-top:14px}
+html[data-theme="dark"] .qa{border-color:var(--line);box-shadow:none}
+.qa>summary{cursor:pointer;list-style:none;padding:16px 20px;font-family:var(--head);font-weight:700;
+  font-size:clamp(16px,2.3vw,19px);color:var(--ink);display:flex;align-items:flex-start;gap:13px}
+html[data-theme="dark"] .qa>summary{font-weight:500}
+.qa>summary::-webkit-details-marker{display:none}
+.qa>summary::before{content:'+';font-family:var(--mono);color:var(--act-text);font-weight:700;font-size:18px;line-height:1.35;flex:none}
+.qa[open]>summary::before{content:'\2013'}
+.qa[open]>summary{border-bottom:1.5px dashed var(--line)}
+.qa__b{padding:15px 20px 18px;color:var(--ink-2);font-size:15.5px;line-height:1.62}
+.qa__b b{color:var(--ink)}
+.qa__b a{color:var(--act-text);text-decoration:underline;text-underline-offset:2px}
+.qa__b p+p{margin-top:11px}
+
+/* 404 glyph */
+.fourkick{font-family:var(--mono);font-size:clamp(64px,16vw,150px);font-weight:700;line-height:.9;letter-spacing:-.05em;color:var(--ink)}
+html[data-theme="dark"] .fourkick{color:var(--act)}
+
+@media(max-width:560px){
+  body{font-size:16px}
+  .phero h1{font-size:clamp(30px,10vw,48px)}
+}
+</style>
+<noscript><style>.reveal{opacity:1!important;transform:none!important}</style></noscript>
+</head>
+<body>
+<main class="wrap">
+
+  <!-- ═══ TOPBAR: logo → home + theme toggle ═══ -->
+  <div class="bar">
+    <a class="logo" href="/" aria-label="saakshe home">
+      <span class="pr">&gt;_</span><span class="dv"></span><span class="wd">SAAKSHE</span>
+    </a>
+    <div class="toggle" role="group" aria-label="Theme">
+      <button id="tg-light" type="button" aria-pressed="true"><span class="dot"></span>Brut</button>
+      <button id="tg-dark" type="button" aria-pressed="false"><span class="dot"></span>Obsidian</button>
+    </div>
+  </div>
+
+  <!-- ═══ HERO ═══ -->
+  <header class="phero">
+    <div class="kick"><span class="num">Legal &middot; privacy</span></div>
+    <div class="h1wrap"><h1>Privacy Policy</h1></div>
+    <p class="lede">How saakshe handles your account, the project you connect, and what its faculties learn. We keep it short and concrete &mdash; saakshe is built so your sources are <b>granted, never taken.</b></p>
+    <div class="draft"><b>Draft</b>&nbsp;&mdash;&nbsp;review with counsel before launch. Placeholder contact and terms below.</div>
+  </header>
+
+  <section class="sec reveal">
+    <div class="sec__n"><span class="num">01 &mdash; What we collect</span></div>
+    <h2 class="sec__t">Only what the company needs to run your project.</h2>
+    <div class="prose">
+      <ul>
+        <li><b>Your Google account.</b> Email, name, and avatar, received through Google sign-in when you authenticate.</li>
+        <li><b>The project you connect.</b> A repository and a site you grant us &mdash; accessed <b>read-only</b>. We read to ground; we don't write to your sources.</li>
+        <li><b>The facts manas extracts.</b> The cited facts and versioned <b>Context Packs</b> that manas builds from your connected sources.</li>
+        <li><b>Your chat with the witness.</b> The messages you exchange with saakshe in text and voice, so it can answer from your live telemetry.</li>
+        <li><b>Your usage &amp; credit ledger.</b> Which actions ran, when, and the credits they spent or refunded.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="sec reveal">
+    <div class="sec__n"><span class="num">02 &mdash; How we use it</span></div>
+    <h2 class="sec__t">To run the company on your connected project &mdash; nothing else.</h2>
+    <div class="prose">
+      <ul>
+        <li><b>To run the agentic company on <em>your</em> project.</b> The faculties ground, decide, make, and engage against the project you connected &mdash; that's the entire purpose of the data.</li>
+        <li><b>AI processing via Google Gemini on Vertex AI.</b> Routine seats run on Gemini; high-stakes seats run Claude via Vertex AI. Your content is processed to produce <em>your</em> outputs.</li>
+        <li><b>Authentication &amp; storage via Supabase (Postgres).</b> Sign-in sessions and your data are stored in a Supabase Postgres database with row-level access controls.</li>
+        <li><b>We do <em>not</em> sell your data.</b> And we do <b>not</b> train public or shared models on it. Your corpus is used to serve you, not the market.</li>
+        <li><b>Granted, never taken.</b> Your connected sources are <b>read-only</b>. saakshe holds no keys that move money or post on your behalf &mdash; you bring your own.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="sec reveal">
+    <div class="sec__n"><span class="num">03 &mdash; Storage, retention &amp; your controls</span></div>
+    <h2 class="sec__t">You can see it, and you can have it deleted.</h2>
+    <div class="prose">
+      <h3>Storage &amp; retention</h3>
+      <p>Your account, Context Packs, chat history, and credit ledger are stored in Supabase (Postgres) for as long as your account is active, so the company can keep working from what it has learned. When you delete your account, we delete or irreversibly anonymise this data within a reasonable window, except where we must retain limited records to meet a legal obligation.</p>
+      <h3>Cookies &amp; session</h3>
+      <p>We use a <b>Supabase auth</b> session cookie/token to keep you signed in. It is essential to the service &mdash; without it you can't stay authenticated. We don't use third-party advertising or cross-site tracking cookies.</p>
+      <h3>Data deletion on request</h3>
+      <p>You can request export or deletion of your data at any time. Email us and we'll disconnect your sources, purge your Context Packs and chat history, and confirm when it's done.</p>
+      <h3>Contact</h3>
+      <p>Questions, requests, or data concerns: <a href="mailto:hello@saakshe.com">hello@saakshe.com</a> <span class="mute">(placeholder &mdash; to be confirmed before launch).</span></p>
+    </div>
+    <p class="honest"><b>Draft &middot; review with counsel.</b> This policy describes intended behaviour and will be finalised with legal review before launch. It is not yet a binding agreement.</p>
+  </section>
+
+  <!-- ═══ FOOTER ═══ -->
+  <footer class="foot">
+    <div class="flogo">
+      <a class="logo" href="/" aria-label="saakshe"><span class="pr">&gt;_</span><span class="dv"></span><span class="wd">SAAKSHE</span></a>
+    </div>
+    <nav class="foot-nav" aria-label="Pages"><a href="/">Home</a><a href="/cockpit.html">Cockpit</a><a href="/pricing.html">Pricing</a><a href="/privacy.html" aria-current="page">Privacy</a><a href="/terms.html">Terms</a><a href="/faq.html">FAQ</a></nav>
+    <div class="vmap">
+      <span>knows&nbsp;&rarr;&nbsp;<b class="a-manas">manas</b></span>
+      <span>decides&nbsp;&rarr;&nbsp;<b class="a-arivu">arivu</b></span>
+      <span>creates&nbsp;&rarr;&nbsp;<b class="a-kalai">kalai</b></span>
+      <span>engages&nbsp;&rarr;&nbsp;<b class="a-kural">kural</b></span>
+      <span>witnesses&nbsp;&rarr;&nbsp;<b class="a-saakshe">saakshe</b></span>
+    </div>
+    <div class="meta">saakshe &mdash; <b>the agentic company you talk to.</b> One front door, a four-faculty company behind it. Built on Google ADK &middot; Gemini &middot; Claude&middot;Vertex.</div>
+  </footer>
+
+</main>
+
+<script>
+(function(){
+  var root=document.documentElement;
+  var bL=document.getElementById('tg-light');
+  var bD=document.getElementById('tg-dark');
+  var chip=document.getElementById('cp-theme-chip');
+  function sync(t){
+    var dark=t==='dark';
+    bL.setAttribute('aria-pressed',String(!dark));
+    bD.setAttribute('aria-pressed',String(dark));
+    if(chip) chip.textContent=dark?'obsidian':'brut';
+  }
+  function setTheme(t){
+    root.setAttribute('data-theme',t);
+    try{localStorage.setItem('saakshe-theme',t);}catch(e){}
+    sync(t);
+  }
+  sync(root.getAttribute('data-theme')||'light');
+  bL.addEventListener('click',function(){setTheme('light');});
+  bD.addEventListener('click',function(){setTheme('dark');});
+
+  var rm=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(!rm && 'IntersectionObserver' in window){
+    var io=new IntersectionObserver(function(es){
+      es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target);} });
+    },{threshold:.12,rootMargin:'0px 0px -8% 0px'});
+    document.querySelectorAll('.reveal').forEach(function(el){io.observe(el);});
+  } else {
+    document.querySelectorAll('.reveal').forEach(function(el){el.classList.add('in');});
+  }
+})();
+</script>
+</body>
+</html>

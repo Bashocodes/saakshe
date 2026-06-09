@@ -579,6 +579,9 @@ def _serve_page(name: str) -> Any:
         return FileResponse(page)
     if name == "cockpit.html" and _LEGACY_COCKPIT.exists():
         return FileResponse(_LEGACY_COCKPIT)
+    branded = _WEB / "404.html"
+    if branded.exists():  # a typo'd URL lands on a saakshe page, not bare JSON
+        return FileResponse(branded, status_code=404)
     raise HTTPException(status_code=404, detail=f"no page {name!r}")
 
 
