@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="900" viewBox="0 0 1400 900" role="img" aria-label="saakshe architecture diagram">
+  <title>saakshe — architecture</title>
+  <defs>
+    <marker id="ah" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#111111"/>
+    </marker>
+  </defs>
+
+  <!-- background -->
+  <rect x="0" y="0" width="1400" height="900" fill="#F4EEE2"/>
+
+  <!-- ======================= TOP BAND ======================= -->
+  <!-- founder box -->
+  <rect x="85" y="50" width="300" height="100" fill="#111111"/>
+  <rect x="80" y="45" width="300" height="100" fill="#F4EEE2" stroke="#111111" stroke-width="3"/>
+  <text x="230" y="92" font-family="Helvetica, Arial, sans-serif" font-size="20" font-weight="bold" fill="#111111" text-anchor="middle">THE FOUNDER</text>
+  <text x="230" y="120" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#111111" text-anchor="middle">two taps a day — approves both gates</text>
+
+  <!-- founder <-> saakshe -->
+  <line x1="384" y1="95" x2="536" y2="95" stroke="#111111" stroke-width="2" marker-start="url(#ah)" marker-end="url(#ah)"/>
+  <text x="460" y="80" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#111111" text-anchor="middle">chat + voice</text>
+
+  <!-- saakshe box -->
+  <rect x="545" y="50" width="780" height="100" fill="#111111"/>
+  <rect x="540" y="45" width="780" height="100" fill="#F4EEE2" stroke="#111111" stroke-width="3"/>
+  <text x="930" y="92" font-family="Helvetica, Arial, sans-serif" font-size="28" font-weight="bold" fill="#111111" text-anchor="middle">SAAKSHE — the witness</text>
+  <text x="930" y="122" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#111111" text-anchor="middle">tools-over-telemetry &#183; refuses beyond its data &#183; reads the event stream behind every span</text>
+
+  <!-- ======================= FLYWHEEL RETURN PATH (kural -> manas) ======================= -->
+  <path d="M 1130 260 L 1130 190 L 260 190 L 260 258" fill="none" stroke="#111111" stroke-width="3" marker-end="url(#ah)"/>
+  <text x="1144" y="232" font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="bold" fill="#111111" text-anchor="start">&#9315; publish</text>
+  <text x="274" y="232" font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="bold" fill="#111111" text-anchor="start">&#9316; learns &#183; pack v+1</text>
+
+  <!-- TAP 2 (on return path, kural's publish gate) -->
+  <rect x="870" y="177" width="150" height="36" fill="#111111"/>
+  <rect x="865" y="172" width="150" height="36" fill="#C8341F" stroke="#111111" stroke-width="2"/>
+  <text x="940" y="195" font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="bold" fill="#F4EEE2" text-anchor="middle">TAP 2 &#183; HUMAN</text>
+
+  <!-- ======================= FACULTY ROW ======================= -->
+  <!-- manas -->
+  <rect x="105" y="265" width="300" height="130" fill="#111111"/>
+  <rect x="100" y="260" width="300" height="130" fill="#F4EEE2" stroke="#111111" stroke-width="3"/>
+  <circle cx="211" cy="301" r="13" fill="#bd853e" stroke="#111111" stroke-width="2"/>
+  <text x="234" y="309" font-family="Helvetica, Arial, sans-serif" font-size="22" font-weight="bold" fill="#111111" text-anchor="start">manas</text>
+  <text x="250" y="345" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#111111" text-anchor="middle">knows &#183; cited, versioned memory</text>
+  <text x="250" y="368" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#111111" text-anchor="middle">refuses out-of-corpus</text>
+
+  <!-- kalai -->
+  <rect x="555" y="265" width="300" height="130" fill="#111111"/>
+  <rect x="550" y="260" width="300" height="130" fill="#F4EEE2" stroke="#111111" stroke-width="3"/>
+  <polygon points="668,288 654,314 682,314" fill="#c06a5e" stroke="#111111" stroke-width="2"/>
+  <text x="692" y="309" font-family="Helvetica, Arial, sans-serif" font-size="22" font-weight="bold" fill="#111111" text-anchor="start">kalai</text>
+  <text x="700" y="345" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#111111" text-anchor="middle">makes &#183; media + every word of copy</text>
+  <text x="700" y="368" font-family="Menlo, monospace" font-size="14" fill="#111111" text-anchor="middle">Imagen / Veo &#183; brand vault</text>
+
+  <!-- kural -->
+  <rect x="985" y="265" width="300" height="130" fill="#111111"/>
+  <rect x="980" y="260" width="300" height="130" fill="#F4EEE2" stroke="#111111" stroke-width="3"/>
+  <rect x="1083" y="288" width="26" height="26" fill="#4e8f78" stroke="#111111" stroke-width="2"/>
+  <text x="1121" y="309" font-family="Helvetica, Arial, sans-serif" font-size="22" font-weight="bold" fill="#111111" text-anchor="start">kural</text>
+  <text x="1130" y="345" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#111111" text-anchor="middle">engages &#183; carries verbatim</text>
+  <text x="1130" y="368" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#111111" text-anchor="middle">authors nothing (no text field)</text>
+
+  <!-- kalai -> kural hand-off -->
+  <line x1="854" y1="325" x2="976" y2="325" stroke="#111111" stroke-width="3" marker-end="url(#ah)"/>
+  <text x="915" y="310" font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="bold" fill="#111111" text-anchor="middle">&#9314; cleared</text>
+  <text x="915" y="350" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#111111" text-anchor="middle">verbatim</text>
+
+  <!-- ======================= CALLS INTO ARIVU ======================= -->
+  <!-- manas -> arivu (doubles as flywheel step 1: grounds) -->
+  <line x1="250" y1="394" x2="520" y2="498" stroke="#111111" stroke-width="3" marker-end="url(#ah)"/>
+  <text x="255" y="470" font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="bold" fill="#111111" text-anchor="start">&#9312; grounds</text>
+
+  <!-- kalai -> arivu (thin call) -->
+  <line x1="700" y1="394" x2="700" y2="496" stroke="#111111" stroke-width="2" marker-end="url(#ah)"/>
+
+  <!-- kural -> arivu (thin call) -->
+  <line x1="1130" y1="394" x2="880" y2="498" stroke="#111111" stroke-width="2" marker-end="url(#ah)"/>
+
+  <!-- ======================= FLYWHEEL: arivu -> TAP 1 -> kalai ======================= -->
+  <line x1="610" y1="500" x2="610" y2="463" stroke="#111111" stroke-width="3"/>
+  <line x1="610" y1="427" x2="610" y2="394" stroke="#111111" stroke-width="3" marker-end="url(#ah)"/>
+  <text x="523" y="450" font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="bold" fill="#111111" text-anchor="end">&#9313; decide</text>
+
+  <!-- TAP 1 (arivu's company-decision gate) -->
+  <rect x="540" y="432" width="150" height="36" fill="#111111"/>
+  <rect x="535" y="427" width="150" height="36" fill="#C8341F" stroke="#111111" stroke-width="2"/>
+  <text x="610" y="450" font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="bold" fill="#F4EEE2" text-anchor="middle">TAP 1 &#183; HUMAN</text>
+
+  <!-- ======================= ARIVU — SHARED DECISION CHAMBER ======================= -->
+  <rect x="425" y="505" width="560" height="130" fill="#111111"/>
+  <rect x="420" y="500" width="560" height="130" fill="#F4EEE2" stroke="#111111" stroke-width="3"/>
+  <rect x="495" y="521" width="18" height="18" fill="#5a6fb0" stroke="#111111" stroke-width="2"/>
+  <text x="525" y="537" font-family="Helvetica, Arial, sans-serif" font-size="20" font-weight="bold" fill="#111111" text-anchor="start">arivu — the shared decision chamber</text>
+  <text x="700" y="568" font-family="Menlo, monospace" font-size="14" fill="#111111" text-anchor="middle">frame &#8594; panel &#8594; debate &#8594; Claude verdict &#8594; prosecutor &#8594; gate</text>
+  <text x="700" y="594" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#111111" text-anchor="middle">built once (common/chamber.py) &#183; panel &#8594; verify in every faculty</text>
+  <text x="700" y="616" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#111111" text-anchor="middle">prosecutor revises only the faulted reason, never a full reset</text>
+
+  <!-- executor note -->
+  <text x="700" y="668" font-family="Menlo, monospace" font-size="14" fill="#111111" text-anchor="middle">executor: fires only after approval &#183; dry-run by default &#183; fail-soft ops, fail-closed gates</text>
+
+  <!-- ======================= GOOGLE STACK STRIP ======================= -->
+  <rect x="85" y="715" width="1240" height="80" fill="#111111"/>
+  <rect x="80" y="710" width="1240" height="80" fill="#F4EEE2" stroke="#111111" stroke-width="3"/>
+  <text x="700" y="742" font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="bold" fill="#111111" text-anchor="middle" letter-spacing="3">GOOGLE STACK</text>
+  <text x="700" y="772" font-family="Menlo, monospace" font-size="14" fill="#111111" text-anchor="middle">Cloud Run (saakshe.com) &#183; Vertex AI — Gemini 3.1 Pro (preview) / 3.5 Flash &#183; Claude Sonnet 4.6 via Model Garden &#183; ADK &#183; Imagen / Veo &#183; OTel</text>
+
+  <!-- ======================= CAPTIONS ======================= -->
+  <text x="80" y="845" font-family="Menlo, monospace" font-size="13" fill="#111111" text-anchor="start">saakshe — one founder, a whole company, one witness &#183; Track 1</text>
+  <text x="1320" y="845" font-family="Menlo, monospace" font-size="13" fill="#111111" text-anchor="end">modes: demo (creds-free, byte-identical) &#183; hybrid &#183; live</text>
+</svg>

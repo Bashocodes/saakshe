@@ -1,57 +1,95 @@
-# saakshe — the agentic company, behind one witness
+# saakshe — one founder, a whole company, one witness
 
-> The founder talks only to **saakshe** (the witness). Behind it, a four-quadrant
-> agentic company runs the work: **manas** knows · **arivu** decides · **kalai** makes ·
-> **kural** engages. Every action flows through a resumable **two-gate flywheel** —
-> the founder taps twice, and nothing irreversible happens without a tap.
->
-> Built for the **Google for Startups · AI Agents Challenge** (Track 1 · Build), on
-> **Google ADK** with routine intelligence on **Gemini** and the highest-stakes seats
-> on **Claude via Vertex AI Model Garden**.
+**Live demo: [https://saakshe.com](https://saakshe.com)** — open access, no sign-in. The demo boots already grounded on **AIKIZI**, a real company, connected through the product's own ingest flow: live Gemini read its GitHub repo and website and extracted cited facts. Ask saakshe questions, run the day, approve the two gates.
 
----
+saakshe is a startup-buddy agent system for companies that already exist (a repo plus a website). The founder talks only to **saakshe**, the witness. Behind it, three faculties do the work:
 
-## The idea
+- ⬤ **manas** *knows* — versioned, source-cited memory of the company; grounds everyone; refuses out-of-corpus.
+- ▲ **kalai** *makes* — all media and every word of copy.
+- ◼ **kural** *engages* — carries kalai's cleared work out verbatim; authors nothing.
 
-One front door (the witness) over a real company of agents. A founder asks a real
-decision; the flywheel grounds it in the company's own memory, argues it, seals a
-defensible verdict, makes the asset, writes the outreach, and learns from it — halting
-at exactly **two human gates** (the decision, and the publish). The witness holds **no
-static knowledge**: it answers only from the live event stream and **refuses** anything
-it can't see. That refusal is the point — it's an agent, not a dashboard with a chatbot.
-
-```
-founder ──▶ saakshe (witness) ──▶ manas.ground + arivu.deliberate ──▶ ◗ GATE 1 (decision)
-                                                                          │ tap
-        arivu.execute + kalai.make + kural.engage ◀──────────────────────┘
-                                  │
-                                  └──▶ ◗ GATE 2 (publish) ──tap──▶ kural.publish + manas.learn ──▶ closed
-```
-
-- **manas** (KNOWS) — memory: parallel imbibers + a Claude curator that verifies every
-  claim cites a source before commit; a Founder-Voice that refuses out-of-corpus.
-- **arivu** (DECIDES) — five Gemini lenses debate; a Claude bench seals + prosecutes the
-  verdict against a deterministic defensibility threshold. *(imported untouched)*
-- **kalai** (MAKES) — a brand-fidelity loop + a fail-closed compliance gate; no channel keys.
-- **kural** (ENGAGES) — the only mouth; a claim-judge loop, then holds the publish gate.
-- **witness** — tools-over-telemetry + refusal + a voice bridge (text-over-WS demo today).
-
-Everything is a pure render of **one ordered event stream**.
+All three call **arivu**, the shared decision chamber. The whole day runs on exactly **two human taps**: approve the decision, approve the publish. Nothing irreversible happens without a tap.
 
 ---
 
-## Quickstart (demo — creds-free)
+## Architecture
 
-Demo mode is the default and needs **no credentials** — the ADK orchestration runs for
-real; only the model token-generation is replayed from per-quadrant fixtures.
+![architecture](docs/architecture.svg)
+
+The witness sits on top. It holds no static knowledge — it answers from live telemetry tools (`anyone_waiting`, `cost_today`, `whats_reversible`, `what_learned`, `whos_acting_now`) and refuses anything beyond its data. In live mode it speaks over Gemini Live.
+
+Below it, the flywheel (`orchestrator.py`) runs the day:
+
+1. **Ground** — manas builds a versioned Context Pack from the company's real repo + website: cited facts, voice, brand rules.
+2. **Deliberate** — arivu's chamber argues the company decision and seals a verdict. **Gate 1: the founder taps.**
+3. **Execute + make** — arivu's executor fires only after approval (dry-run is the hardcoded default); kalai renders the asset and authors the copy under a brand-fidelity panel and a fail-closed compliance gate.
+4. **Engage** — kural plans delivery and holds the publish. **Gate 2: the founder taps.** Then kural carries kalai's text out byte-for-byte and manas `learn()` commits the day's decision back as a cited fact, ticking the pack version.
+
+Errors never sink a connect, a render, or the flywheel — the run degrades and continues (fail-soft). Safety gates fail closed.
+
+---
+
+## The chamber primitive
+
+The crown jewel is one reusable decision pipeline, built once in [`common/chamber.py`](common/chamber.py):
+
+```
+frame → parallel advisor panel → debate loop → Claude verdict
+      → graduated prosecutor → gate
+```
+
+The prosecutor attacks the verdict; when it finds a fault, a **reviser** repairs only the faulted reason — never a full reset — so the verdict converges instead of thrashing. The skeleton has two hard rules: it never imports a faculty, and it constructs no model. arivu instantiates it via `ChamberSpec`, injecting its exact predicates — deciding factor, threshold, `human_tap` flag — so the original extraction stays byte-identical. The other faculties run chamber-shaped panels and verify-loops of their own (kalai's 4-seat brand-fidelity panel, kural's readers→planner pick, manas's curator loop) that follow the same act-then-verify pattern.
+
+One primitive, one place to audit, and the same shape echoed in every faculty.
+
+---
+
+## Agent, not chatbot
+
+**Real actions.** Token spend is metered per run (`cost_today` reads the real stream). kalai renders actual stills and reels via Vertex Imagen / Veo in live mode. kural's publish is a real outbound action — and it is human-gated by design; auto-publish is deliberately not a feature.
+
+**Self-checking.** The debate loop forces advisors to confront each other before a verdict. The graduated prosecutor adversarially attacks the sealed verdict. kalai's brand-fidelity panel scores work against the vault's brand block. Claims are verified upstream of the mouth: manas's curator enforces no-citation-no-fact and kalai's fail-closed compliance gate clears the copy — kural carries it verbatim.
+
+**Structural safety.** The separation contract is enforced in code, not in prompts:
+
+- kural's delivery planner schema has **no text field** — it picks, it cannot author ([`kural/delivery.py`](kural/delivery.py)), and its assembler copies kalai's variant byte-for-byte.
+- `dry_run=True` is hardcoded at both execution sites in `orchestrator.py`; a real side effect requires a human tap *and* an explicit flag.
+- Compliance and publish gates fail closed; everything else fails soft.
+
+---
+
+## Models and modes
+
+3rd-party LLM access is exclusively via Vertex AI.
+
+| Seat type | Model | Where |
+|---|---|---|
+| Routine + panel calls | `gemini-3.1-pro-preview`, `gemini-3.5-flash` | Vertex AI |
+| 7 highest-stakes seats — verdict, prosecutor, founder voice, memory curator, creative director, compliance, envoy lead (the prosecutor's reviser and kural's delivery planner ride the same model) | `claude-sonnet-4-6` | Vertex AI Model Garden |
+| Stills / reels (live) | `imagen-4.0-generate-001` / `veo-3.1-generate-001` | Vertex AI |
+
+| Mode | Gemini | Claude | Media |
+|---|---|---|---|
+| **demo** (default) | scripted | scripted | deterministic `vertex://` placeholder |
+| **hybrid** | **real** | scripted | real |
+| **live** | **real** | **real** | real |
+
+Demo mode is creds-free and byte-identical run to run — the entire ADK orchestration executes for real; only model token-generation is replayed. The honest note: production today runs **hybrid** — real Gemini drives the flywheel on prod, while the Claude seats run scripted replay until our Vertex Model Garden quota clears (~Jun 10). We'd rather show you exactly where the line is than blur it. Credibility is a feature.
+
+---
+
+## Quickstart
 
 ```bash
 python3.12 -m venv .venv
 ./.venv/bin/pip install -r requirements.txt
+```
 
-# run the whole site (landing → onboarding → cockpit + API + WebSocket) on one port:
+**Demo (creds-free):** the whole site — landing, onboarding, cockpit, API, voice WebSocket — on one port:
+
+```bash
 PYTHONPATH=. ./.venv/bin/uvicorn service.app:app --port 8000
-# → open http://localhost:8000/   (landing; "enter" → the cockpit at /cockpit.html)
+# → http://localhost:8000/
 ```
 
 Or run the flywheel end-to-end in the terminal:
@@ -60,76 +98,83 @@ Or run the flywheel end-to-end in the terminal:
 PYTHONPATH=. ./.venv/bin/python run_flywheel.py
 ```
 
-Run the tests (135 green):
+**Tests — 287 pass, 6 skipped, no credentials needed:**
 
 ```bash
-PYTHONPATH=. ./.venv/bin/pytest -q                       # core (flywheel + witness)
-PYTHONPATH=. ./.venv/bin/pytest manas/tests kalai/tests kural/tests -q
-( cd arivu && PYTHONPATH=. ../.venv/bin/pytest tests/ -q )   # arivu runs from its own dir
+for d in common manas kalai kural arivu; do PYTHONPATH=. ./.venv/bin/python -m pytest "$d" -q; done
+PYTHONPATH=. ./.venv/bin/python -m pytest tests -q
 ```
 
----
-
-## Modes
-
-| Mode | Command | Gemini | Claude |
-|------|---------|--------|--------|
-| **demo** (default) | `uvicorn service.app:app --port 8000` | scripted replay | scripted replay |
-| **hybrid** | `./run_hybrid_server.sh` | **real (Vertex)** | scripted (quota pending) |
-| **live** | `./run_live.sh server` | **real** | **real (Vertex)** |
-
-Hybrid is the runnable live path today (the Claude·Vertex quota is still pending). In the
-cockpit, click the **● live** toggle to drive a real run through the live console.
-
-### Live/hybrid setup
-
-Live runs need a Google Cloud project with Vertex AI + Model Garden enabled, and ADC:
+**Hybrid (real Gemini, scripted Claude):** needs a GCP project with Vertex AI enabled and ADC.
 
 ```bash
 gcloud auth application-default login
-cp .env.local.example .env.local      # then set GOOGLE_CLOUD_PROJECT in .env.local
+cp .env.local.example .env.local   # set GOOGLE_CLOUD_PROJECT (git-ignored)
+./run_hybrid_server.sh             # cockpit on :8000; ./run_hybrid.sh for the CLI run
 ```
 
-`.env.local` is **git-ignored** — the real project id never enters the repo. Model ids
-and regions live in `.env` (also git-ignored; see `.env.example`), but the app already
-defaults to the verified ids in `common/config.py`, so demo works with no `.env` at all.
+**Full live (real Gemini + real Claude via Model Garden):**
+
+```bash
+./run_live.sh server               # or ./run_live.sh for the one-shot CLI flywheel
+```
 
 ---
 
-## Layout
+## Repo layout
 
 ```
 saakshe/
-├── service/app.py        # the ONE FastAPI service — cockpit at / + all /api + /ws/voice
-├── orchestrator.py       # the resumable 2-gate flywheel
-├── common/               # shared substrate: config · models · a2a · project store · stream
-├── manas/ kalai/ kural/  # three real-ADK quadrants (knows · makes · engages)
-├── arivu/                # the decides quadrant (nested arivu/arivu/, imported untouched)
-├── witness/              # tools-over-telemetry + refusal + voice
-├── web/                  # the whole site — landing (/) · onboarding · cockpit ·
-│                         #   faculty pages (manas·arivu·kalai·kural·setu·darshana) · explainers
-├── docs/                 # cockpit + landing specs
-├── tests/                # cross-quadrant integration + witness regression tests
-├── requirements.txt
-└── run_*.sh              # demo / hybrid / live entry points
+├── service/app.py        # the ONE FastAPI service — site + /api + /ws/voice on one port
+├── orchestrator.py       # the resumable two-tap flywheel
+├── common/               # shared substrate: chamber.py · config · models · a2a ·
+│                         #   project store · event stream · vault · auth · credits
+├── manas/                # ⬤ knows — imbiber pods, cited Context Pack, founder voice, vault extraction
+├── kalai/                # ▲ makes — creative direction, brand-fidelity panel, Imagen/Veo media
+├── kural/                # ◼ engages — envoy lead, no-text-field delivery planner, publish gate
+├── arivu/                # the shared decision chamber all three faculties call
+├── witness/              # tools-over-telemetry + refusal + Gemini Live voice bridge
+├── web/                  # landing · onboarding · cockpit · faculty pages
+├── tests/                # cross-faculty integration + witness regression tests
+├── supabase/             # migrations for the opt-in per-user store
+├── deploy/seed/          # the grounded demo company state the container boots with
+├── Dockerfile            # Cloud Run image (demo-seeded, hybrid/live via env)
+└── run_hybrid*.sh run_live.sh deploy_cloudrun.sh
 ```
 
-> **Note on imports:** the quadrants are imported from the repo root via `PYTHONPATH=.`
-> (not pip-installed). `common/__init__.py` adds `arivu/` to `sys.path`, so `import arivu`
-> resolves even though arivu lives at `arivu/arivu/`. This is intentional.
+Faculties are imported from the repo root via `PYTHONPATH=.`; `common/__init__.py` bootstraps `arivu/` onto `sys.path`. Each faculty ships an A2A agent card, served at `/api/{faculty}/agent-card`.
 
 ---
 
-## The store
+## Evals and observability
 
-State persists to `~/.saakshe/project_founder.json` (a file-based store, **outside** the
-repo). A Supabase-backed store is wired as an opt-in (`SAAKSHE_STORE=supabase` + a service
-key at `~/.saakshe_supabase_key`); the default stays file-based.
+- **Per-faculty ADK evalsets** are checked in (`manas/eval`, `kalai/eval`, `kural/eval`, `arivu/eval`) with the pass bar set at **0.8**. They are credentials-gated and have not yet been run against live models — that run happens when the Vertex quota clears. We're stating that plainly rather than implying green eval badges we don't have.
+- **OTel span callbacks** (`kural/callbacks/otel.py`, mirrored from arivu) print every ADK span — panel fan-outs, gates, publishes — locally via a console exporter; the Agent Engine deployment path (`deployment/deploy.py`, `enable_tracing=True`) ships the same spans to Cloud Trace. Every OpenTelemetry import is guarded: observability never breaks a run.
+- The witness reads the same event stream the spans describe — telemetry is the product surface, not an afterthought.
 
 ---
 
-## Deployment
+## Deploy
 
-Runs locally on `:8000` for now. The domain (saakshe.com) connects on demo day via
-Cloudflare; until then everything is local. Each quadrant also carries a `deployment/`
-config for Vertex AI Agent Engine.
+One service, one image, one command:
+
+```bash
+./deploy_cloudrun.sh
+```
+
+The `Dockerfile` builds the FastAPI service for Cloud Run (`us-central1`). The image is seeded with `deploy/seed/project_founder.json` — the grounded AIKIZI state — so a visitor lands on a working, grounded product, not an empty connect gate; container restarts reset to the seed, so the public demo self-heals. Hybrid/live is flipped at deploy time with `SAAKSHE_MODE=live` + the project env; on Cloud Run the service account provides Vertex credentials.
+
+Auth and the per-user store are Supabase-backed and opt-in (`SAAKSHE_STORE=supabase`); the default store is a plain file at `~/.saakshe/`. The domain **saakshe.com** is live in front of the Cloud Run service.
+
+---
+
+## Why this is a business
+
+A solo founder or tiny team gets a whole company's faculties — grounded memory, an adversarial decision chamber, a maker, a mouth — governed by exactly two taps a day. That replaces the daily grind of a researcher keeping the facts straight, a strategist arguing the decision, a designer-copywriter producing the asset, and a social manager carrying it out — hours of coordination compressed into two approvals. Target: SaaS at $200–500/mo, with BYOK (your own Gemini, Claude-on-Vertex, and channel keys) on the roadmap.
+
+---
+
+## Hackathon
+
+Built for the **Google for Startups AI Agents Challenge — Track 1 (Build)**.
+Stack: **Python ADK** (`google-adk`) · **Vertex AI** (Gemini + Claude via Model Garden, Imagen, Veo, Gemini Live) · one FastAPI service on **Cloud Run** · Supabase · OpenTelemetry.
