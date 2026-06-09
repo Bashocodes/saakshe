@@ -203,6 +203,18 @@ def test_meta_jsonb_string_is_coerced(stream):
     assert evs[0].meta == {"k": 9}
 
 
+def test_iso_timestamptz_string_is_coerced(stream):
+    """PostgREST returns events.ts as an ISO-8601 string, not a float — rows()/since()
+    must coerce it without crashing (regression: the live acceptance caught this)."""
+    client = stream.client
+    client.events.append({"user_id": "founder", "run_id": "r1", "seq": 0, "source": "manas",
+                          "agent": "a", "span": "agent_run", "kind": "note", "text": "iso",
+                          "meta": {}, "ts": "2026-06-09T07:35:36.948593+00:00"})
+    rows = stream.rows(0)
+    assert len(rows) == 1 and isinstance(rows[0]["ts"], float) and rows[0]["ts"] > 0
+    assert stream.since(0)[0].text == "iso"
+
+
 def test_meta_null_becomes_empty_dict(stream):
     client = stream.client
     client.events.append({"user_id": "founder", "run_id": "r1", "seq": 0, "source": "manas", "agent": "a",

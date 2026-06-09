@@ -40,6 +40,24 @@ from common.stream import Event, EventStream
 _EVENT_COLUMNS = ("run_id", "seq", "source", "agent", "span", "kind", "text", "meta")
 
 
+def _to_ts(raw: Any) -> float:
+    """events.ts is a Postgres timestamptz → PostgREST returns it as an ISO-8601
+    STRING ('2026-06-09T07:35:36.94+00:00'); the in-memory stream stamps a float.
+    Accept both (and a numeric string), falling back to 0.0."""
+    if isinstance(raw, (int, float)):
+        return float(raw)
+    if isinstance(raw, str) and raw:
+        try:
+            return float(raw)
+        except ValueError:
+            try:
+                from datetime import datetime
+                return datetime.fromisoformat(raw).timestamp()
+            except (ValueError, TypeError):
+                return 0.0
+    return 0.0
+
+
 def _coerce_meta(raw: Any) -> dict[str, Any]:
     """jsonb may arrive as a dict (already parsed) or a JSON string, or be NULL."""
     if isinstance(raw, dict):
@@ -56,7 +74,7 @@ def _coerce_meta(raw: Any) -> dict[str, Any]:
 def _row_to_event(row: dict) -> Event:
     return Event(
         seq=int(row.get("seq", 0)),
-        ts=float(row.get("ts") or 0.0),
+        ts=_to_ts(row.get("ts")),
         run_id=str(row.get("run_id", "")),
         source=str(row.get("source", "")),
         agent=str(row.get("agent", "")),
