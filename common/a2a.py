@@ -130,7 +130,7 @@ class ClarifyingQuestion:
     id: str
     text: str                       # the question, in plain words
     why: str                        # what the trigger saw (the honest reason it's asking)
-    trigger: str                    # "contradiction" | "missing_field"
+    trigger: str                    # "contradiction" | "missing_field" | "missing_asset"
     blocks: str = ""                # what staying-unanswered blocks (e.g. "pricing grounding")
     status: str = "open"            # "open" | "answered"
     answer: str = ""                # the founder's answer (folded back into corpus)

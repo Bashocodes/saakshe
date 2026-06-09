@@ -131,7 +131,9 @@ async def ingest_connected(
                 span="call_llm", model="claude·vertex")
 
     has_social = any(b.channel == "social" and b.ok and b.text for b in bundles)
-    qs = doubts.detect(cited, voice_rules, brand_rules, has_social_connection=has_social)
+    has_logo = bool(store.assets_for(kinds=["logo"]))
+    qs = doubts.detect(cited, voice_rules, brand_rules,
+                       has_social_connection=has_social, has_logo_asset=has_logo)
     store.set_org(**org_hint)
     store.set_questions(qs)
 

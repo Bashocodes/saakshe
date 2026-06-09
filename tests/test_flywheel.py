@@ -122,3 +122,50 @@ async def test_no_forbidden_numbers_as_canon(stream):
     for bad in config.FORBIDDEN["numbers"]:
         assert str(bad) not in proposal
     assert str(config.CANON["defensibility_final"]) in proposal
+
+
+# ─── make-time vault warning (live + connected only; the demo stream is sealed) ──
+def _warning_events(s):
+    return [e for e in s.all() if "vault has no logo" in e.text]
+
+
+def test_make_warns_when_a_real_vault_has_no_logo(monkeypatch):
+    monkeypatch.setattr(config, "is_live", lambda: True)
+    project.STORE.add_connection("github", "git@github.com:example/app.git")
+    s = EventStream()
+    state = orchestrator.FlywheelState(run_id="fw_test", question="q", org={}, store=project.STORE)
+    orchestrator._warn_if_no_logo(state, s, [])
+    notes = _warning_events(s)
+    assert len(notes) == 1 and notes[0].kind == "note"
+
+
+def test_make_warning_silent_when_a_logo_was_served(monkeypatch):
+    monkeypatch.setattr(config, "is_live", lambda: True)
+    project.STORE.add_connection("github", "git@github.com:example/app.git")
+    s = EventStream()
+    state = orchestrator.FlywheelState(run_id="fw_test", question="q", org={}, store=project.STORE)
+    orchestrator._warn_if_no_logo(state, s, [{"kind": "logo"}])
+    assert s.all() == []
+
+
+def test_make_warning_silent_in_demo_and_when_unconnected(monkeypatch):
+    # demo mode (the suite default), even connected with an empty vault → silent
+    project.STORE.add_connection("github", "git@github.com:example/app.git")
+    s = EventStream()
+    state = orchestrator.FlywheelState(run_id="fw_test", question="q", org={}, store=project.STORE)
+    orchestrator._warn_if_no_logo(state, s, [])
+    assert s.all() == []
+    # live but unconnected → silent
+    monkeypatch.setattr(config, "is_live", lambda: True)
+    project.STORE.reset()
+    state = orchestrator.FlywheelState(run_id="fw_test", question="q", org={}, store=project.STORE)
+    orchestrator._warn_if_no_logo(state, s, [])
+    assert s.all() == []
+
+
+async def test_demo_flywheel_never_emits_the_vault_warning(stream):
+    # The deployed demo boots CONNECTED (the baked seed) with an empty vault —
+    # the warning must still never appear: the canned demo stream stays byte-identical.
+    project.STORE.add_connection("github", "git@github.com:example/app.git")
+    await _run_full(stream)
+    assert _warning_events(stream) == []

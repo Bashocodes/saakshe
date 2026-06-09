@@ -48,6 +48,62 @@ def test_doubts_silent_when_well_grounded():
     assert qs == []
 
 
+_WELL_GROUNDED = [
+    {"claim": "Pro is a paid monthly subscription.", "source": "/pricing"},
+    {"claim": "Built for independent makers and small teams (our customers).", "source": "home"},
+    {"claim": "We post updates on Instagram, our main channel.", "source": "social"},
+]
+
+
+def test_doubts_flags_a_missing_logo_asset():
+    # Well-grounded corpus, but the vault holds no logo → one non-blocking ask.
+    qs = doubts.detect(_WELL_GROUNDED, voice_rules=["plain and warm"],
+                       brand_rules=["honor subscribers"], has_logo_asset=False)
+    logo = [q for q in qs if q.trigger == "missing_asset"]
+    assert logo and "logo" in logo[0].text.lower()
+    assert logo[0].status == "open"            # a ClarifyingQuestion, never a gate
+
+
+def test_doubts_silent_about_logo_when_vault_holds_one():
+    qs = doubts.detect(_WELL_GROUNDED, voice_rules=["plain and warm"],
+                       brand_rules=["honor subscribers"], has_logo_asset=True)
+    assert qs == []
+
+
+# ─── vault-completeness doubt rides the real ingest, without blocking it ─────
+async def _fake_read(store):
+    return [
+        src.SourceBundle(channel="repo", ref="git@github.com:example/app.git",
+                         text="(scripted in demo)", provenance=["README.md"],
+                         org_hint={"name": "Example", "one_liner": "a tiny web app"}, ok=True),
+        src.SourceBundle(channel="web", ref="https://example.test",
+                         text="(scripted)", provenance=["https://example.test"],
+                         org_hint={"name": "Example", "one_liner": "for makers"}, ok=True),
+    ]
+
+
+async def test_ingest_asks_for_logo_but_stays_grounded(monkeypatch):
+    monkeypatch.setattr(runner, "_read_sources", _fake_read)
+    store = project.STORE
+    store.add_connection("github", "git@github.com:example/app.git", {"mechanism": "ssh"})
+    res = await runner.ingest_connected(EventStream(), "r1", store)
+
+    assert any(q["trigger"] == "missing_asset" for q in res["questions"])
+    assert res["grounded"] is True             # the doubt must NOT flip grounded
+    assert store.is_grounded() is True
+
+
+async def test_ingest_logo_doubt_not_raised_when_vault_has_one(monkeypatch):
+    monkeypatch.setattr(runner, "_read_sources", _fake_read)
+    store = project.STORE
+    store.add_connection("github", "git@github.com:example/app.git", {"mechanism": "ssh"})
+    store.add_asset(kind="logo", filename="logo.png", content_type="image/png",
+                    uri="vault://a1", sha256="ab" * 32, provenance="https://example.test/logo.png")
+    res = await runner.ingest_connected(EventStream(), "r1", store)
+
+    assert not any(q["trigger"] == "missing_asset" for q in res["questions"])
+
+
 # ─── ingest: connect sources → grounded, versioned Context Pack ──────────────
 async def test_ingest_grounds_the_company(monkeypatch):
     async def fake_read(store):

@@ -8,6 +8,7 @@ even while manas is curious:
   * contradiction  — two imbibed facts clash (the existing curator.find_contradictions
                      detector; e.g. a price in the repo vs a different price on the site)
   * missing_field  — a dimension the company NEEDS grounded was not found in any source
+  * missing_asset  — the org is connected but the brand-asset vault holds no logo
 
 Phrasing is plain English (could be Gemini-written later); the trigger is pure code.
 These become ``a2a.ClarifyingQuestion``s surfaced in the saakshe chat. They are NOT
@@ -77,6 +78,7 @@ def detect(
     brand_rules: list[str] | None = None,
     *,
     has_social_connection: bool = False,
+    has_logo_asset: bool = True,
     max_questions: int = 4,
 ) -> list[a2a.ClarifyingQuestion]:
     """Return the clarifying questions a connect raises. Contradictions first
@@ -117,6 +119,18 @@ def detect(
             why=f"no connected source mentioned {dim['label']}",
             trigger="missing_field",
             blocks=dim["blocks"],
+        ))
+
+    # 3) Missing brand assets — the vault index served no logo (the caller reads
+    #    the store's assets index and tells us). Non-blocking like every doubt:
+    #    kalai can still make; it just makes bare until the founder adds one.
+    if not has_logo_asset:
+        out.append(a2a.ClarifyingQuestion(
+            id=_qid("missing_asset", "logo"),
+            text="I don't have your logo. Add one to the vault so kalai can put it on what it makes?",
+            why="the brand-asset vault holds no asset of kind 'logo'",
+            trigger="missing_asset",
+            blocks="logo placement on creative (kalai)",
         ))
 
     return out[:max_questions]

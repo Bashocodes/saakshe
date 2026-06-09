@@ -183,6 +183,22 @@ async def _approve(run_id: str, state: FlywheelState, gate_id: Optional[str],
     return _summary(state, stream)
 
 
+def _warn_if_no_logo(state: FlywheelState, stream: EventStream, assets: list[dict]) -> None:
+    """The honest make-time warning: a LIVE, connected company whose vault served
+    no logo-kind asset hears it before kalai makes. Gated like the studio's
+    ``if served:`` — demo mode (the canned flywheel, the baked seed) and an
+    unconnected store emit nothing, so the demo stream stays byte-identical."""
+    if not config.is_live():
+        return
+    if state.store is None or not state.store.is_connected():
+        return
+    if any(a.get("kind") == "logo" for a in assets):
+        return
+    stream.emit(state.run_id, "manas", "Brand Vault",
+                "making without brand assets — the vault has no logo",
+                span="agent_run", kind="note")
+
+
 async def _after_decision(state: FlywheelState, stream: EventStream) -> None:
     run_id = state.run_id
     # arivu executes the approved verdict (dry-run) — commit + A2A dispatch + resolution.
@@ -206,6 +222,7 @@ async def _after_decision(state: FlywheelState, stream: EventStream) -> None:
         assets = a2a.dispatch("manas", "get_assets", kinds=["logo", "reference"])
     except Exception:
         assets = []
+    _warn_if_no_logo(state, stream, assets)
     kalai_res = await kalai.make(stream, run_id, brief, state.context_pack, assets=assets)
     if kalai_res.status != "handoff":
         state.status = "no_safe_decision"
