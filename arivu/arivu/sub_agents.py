@@ -12,13 +12,17 @@ prompt from live state ourselves — no ADK brace-templating, JSON schemas safe.
 from __future__ import annotations
 
 import json
+from typing import AsyncGenerator
 
-from google.adk.agents import LlmAgent
+from google.adk.agents import BaseAgent, LlmAgent, ParallelAgent, SequentialAgent
+from google.adk.agents.invocation_context import InvocationContext
 from google.adk.agents.readonly_context import ReadonlyContext
+from google.adk.events import Event, EventActions
 from pydantic import BaseModel, Field
 
 from . import config, models, prompts
 from .tools import analyst, grounding
+from .util import parse_json
 
 
 # ─── Forced-shape schemas for the two Claude steps ───────────────────────────
@@ -73,19 +77,41 @@ def build_frame_agent() -> LlmAgent:
     )
 
 
-# ─── The five mantris ────────────────────────────────────────────────────────
-def _mantri_instruction(role: str, display: str, lens: str):
+# ─── The five mantris — each fans into a 3-advisor ensemble (2b.1) ────────────
+# A mantri is no longer a lone advisor. Each is a SequentialAgent of:
+#   ParallelAgent([three disjoint sub-advisors])  → a deterministic reducer.
+# The three sub-advisors argue disjoint sub-lenses in parallel (anti-groupthink
+# WITHIN the lens) and write disjoint sub-keys; the reducer folds them into the
+# SAME consolidated POS_* position the chamber already reads — now carrying a
+# cited `evidence` list. The consolidated claim/confidence/stance are lifted
+# verbatim from the PRIMARY sub-advisor, so the rolled-up position stays
+# byte-identical to today's _POSITIONS[role] (the original four tests pin this).
+
+# Extra deterministic tools belong to the sub-lens that reasons over them.
+_SUBLENS_TOOLS = {
+    "economist__margin": ["elasticity_tool"],
+    "economist__retention": ["elasticity_tool"],
+    "risk__churn_cliff": ["scenario_stress_tool"],
+}
+_TOOLS = {
+    "elasticity_tool": analyst.elasticity_tool,
+    "scenario_stress_tool": analyst.scenario_stress_tool,
+}
+
+
+def _subadvisor_instruction(role: str, sub_role: str, display: str, lens: str, sub_display: str):
     def provider(ctx: ReadonlyContext) -> str:
         base = (
-            prompts.MANTRI_BASE
+            prompts.SUBADVISOR_BASE
+            .replace("{sub_display}", sub_display)
             .replace("{display}", display)
             .replace("{org}", _org_name(ctx))
             .replace("{lens}", lens)
         )
-        steer = prompts.MANTRI_LENS.get(role, "")
+        steer = prompts.MANTRI_SUBLENS.get(sub_role, prompts.MANTRI_LENS.get(role, ""))
         return (
             base
-            + f"\nLENS FOCUS: {steer}\n\n"
+            + f"\nSUB-LENS FOCUS: {steer}\n\n"
             + f"THE QUESTION:\n{_question(ctx)}\n\n"
             + f"THE ORG'S OWN LIVE NUMBERS:\n{_grounding_block(ctx)}\n"
         )
@@ -93,28 +119,109 @@ def _mantri_instruction(role: str, display: str, lens: str):
     return provider
 
 
-def build_mantris() -> list[LlmAgent]:
-    agents: list[LlmAgent] = []
-    extra_tools = {
-        "economist": [analyst.elasticity_tool],
-        "risk": [analyst.scenario_stress_tool],
-    }
+def _sub_state_key(state_key: str, sub: str) -> str:
+    """The disjoint sub-key a sub-advisor writes (e.g. pos_economist__margin)."""
+    return f"{state_key}__{sub}"
+
+
+class MantriReducer(BaseAgent):
+    """Deterministically fold three disjoint sub-claims into the lens's
+    consolidated POS_* position. No model — pure assembly, so the rolled-up
+    claim/confidence/stance stay byte-identical to today's _POSITIONS[role]
+    while the position gains a cited `evidence` list of >= 3 sub-claims."""
+
+    role: str
+    display: str
+    lens: str
+    state_key: str
+    sub_keys: list[str]
+    primary_sub: str
+
+    async def _run_async_impl(
+        self, ctx: InvocationContext
+    ) -> AsyncGenerator[Event, None]:
+        state = ctx.session.state
+        evidence: list[dict] = []
+        primary: dict = {}
+        for sub, sub_key in zip(
+            [s for s, _d in config.MANTRI_ENSEMBLES[self.role]], self.sub_keys
+        ):
+            raw = state.get(sub_key)
+            d = raw if isinstance(raw, dict) else parse_json(raw)
+            entry = {
+                "sub_lens": d.get("sub_lens", sub),
+                "claim": d.get("claim", ""),
+                "source": d.get("source", d.get("citation", "")),
+                "confidence": d.get("confidence"),
+            }
+            evidence.append(entry)
+            if sub == self.primary_sub:
+                primary = d
+
+        # The consolidated position: claim/confidence/stance/citation lifted
+        # verbatim from the primary sub-advisor (byte-identical roll-up), plus
+        # the disjoint sub-claims as cited evidence.
+        consolidated = {
+            "lens": primary.get("lens", self.lens),
+            "claim": primary.get("claim", ""),
+            "citation": primary.get("citation", primary.get("source", "")),
+            "confidence": primary.get("confidence"),
+            "stance": primary.get("stance"),
+            "evidence": evidence,
+        }
+        delta = {self.state_key: consolidated}
+        state.update(delta)
+        yield Event(author=self.name, actions=EventActions(state_delta=delta))
+
+
+def build_mantri_ensemble(role: str, display: str, state_key: str, lens: str) -> SequentialAgent:
+    """One mantri as a 3-advisor parallel ensemble + a deterministic reducer."""
     live_mcp = grounding.example_mcp_toolset() if config.is_live() else None
-    for role, display, state_key, lens in config.MANTRIS:
-        tools = list(extra_tools.get(role, []))
+    subs: list[LlmAgent] = []
+    sub_keys: list[str] = []
+    for sub, sub_display in config.MANTRI_ENSEMBLES[role]:
+        sub_role = f"{role}__{sub}"
+        tools = [_TOOLS[t] for t in _SUBLENS_TOOLS.get(sub_role, [])]
         if live_mcp is not None:
             tools.append(live_mcp)
-        agents.append(
+        sub_key = _sub_state_key(state_key, sub)
+        sub_keys.append(sub_key)
+        subs.append(
             LlmAgent(
-                name=f"mantri_{role}",
-                model=models.gemini_flash(role),
-                description=f"The {display} mantri — {lens} lens.",
-                instruction=_mantri_instruction(role, display, lens),
+                name=f"mantri_{role}__{sub}",
+                model=models.gemini_flash(sub_role),
+                description=f"The {sub_display} sub-advisor of the {display} mantri.",
+                instruction=_subadvisor_instruction(role, sub_role, display, lens, sub_display),
                 tools=tools,
-                output_key=state_key,
+                output_key=sub_key,
             )
         )
-    return agents
+    panel = ParallelAgent(
+        name=f"mantri_{role}_ensemble",
+        description=f"The {display} mantri — three disjoint sub-advisors on the {lens} lens.",
+        sub_agents=subs,
+    )
+    reducer = MantriReducer(
+        name=f"mantri_{role}_reducer",
+        role=role,
+        display=display,
+        lens=lens,
+        state_key=state_key,
+        sub_keys=sub_keys,
+        primary_sub=config.ensemble_primary(role),
+    )
+    return SequentialAgent(
+        name=f"mantri_{role}",
+        description=f"The {display} mantri — {lens} lens (3-advisor ensemble).",
+        sub_agents=[panel, reducer],
+    )
+
+
+def build_mantris() -> list[BaseAgent]:
+    return [
+        build_mantri_ensemble(role, display, state_key, lens)
+        for role, display, state_key, lens in config.MANTRIS
+    ]
 
 
 # ─── Debate moderator ────────────────────────────────────────────────────────

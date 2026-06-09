@@ -171,6 +171,55 @@ MANTRIS = [
     ("ops", "Ops-feasibility", StateKeys.POS_OPS, "can-we-ship-this"),
 ]
 
+# ─── Mantri ensembles (2b.1) ─────────────────────────────────────────────────
+# Each mantri is no longer a lone advisor: it fans into a 3-advisor ParallelAgent
+# of disjoint sub-lenses (anti-groupthink WITHIN the lens), then a deterministic
+# reducer folds the three disjoint sub-claims into the SAME consolidated POS_*
+# position the chamber already consumes — now carrying an `evidence` list.
+#
+# Per role: three (sub_lens_key, display) sub-advisors. The FIRST entry is the
+# PRIMARY sub-lens — the reducer lifts the consolidated claim/confidence/stance
+# verbatim from it, so the rolled-up position stays byte-identical to today's
+# _POSITIONS[role]; the other two attach as cited supporting evidence.
+MANTRI_ENSEMBLES = {
+    "economist": [
+        ("margin", "Contribution-margin"),
+        ("retention", "Retention-yield"),
+        ("competitor_bench", "Competitor-benchmark"),
+    ],
+    "growth": [
+        ("acquisition", "Top-of-funnel acquisition"),
+        ("conversion", "Trial→paid conversion"),
+        ("positioning", "Positioning signal"),
+    ],
+    "brand": [
+        ("promise", "Stated-promise canon"),
+        ("voice", "Voice & positioning"),
+        ("trust", "Customer-trust ledger"),
+    ],
+    "risk": [
+        ("churn_cliff", "Churn-cliff downside"),
+        ("competitor_undercut", "Competitor-undercut"),
+        ("execution_blast", "Execution blast-radius"),
+    ],
+    "ops": [
+        ("deploy_health", "Deploy health"),
+        ("config_risk", "Config-change risk"),
+        ("billing_safety", "Billing blast-radius"),
+    ],
+}
+
+
+def ensemble_subroles(role: str) -> list[str]:
+    """The three sub-advisor role keys for a mantri (namespaced `role__sublens`)."""
+    return [f"{role}__{sub}" for sub, _display in MANTRI_ENSEMBLES.get(role, [])]
+
+
+def ensemble_primary(role: str) -> str:
+    """The primary sub-lens key for a mantri (the reducer lifts its claim/conf)."""
+    subs = MANTRI_ENSEMBLES.get(role, [])
+    return subs[0][0] if subs else ""
+
 # ─── Offline fallback org (NEVER the product — the orchestrator passes the REAL
 # connected company in; this only stands in for arivu's standalone self-test). No
 # brand: a generic small subscription product, kept only so the elasticity math has
