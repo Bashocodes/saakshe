@@ -20,6 +20,7 @@ gates). Owners + the file-store demo are always free.
 
 from __future__ import annotations
 
+import base64
 import json
 import os
 import traceback
@@ -196,6 +197,14 @@ class ManasEditRequest(BaseModel):
     idem_key: Optional[str] = None
 
 
+class VaultAddRequest(BaseModel):
+    kind: str
+    filename: str
+    content_type: str = "image/png"
+    data_b64: str
+    tags: list[str] = []
+
+
 _DECISION_HINTS = ("should we", "should i", "should the", "run the day", "start the day",
                    "raise pro", "raise our", "raise the price", "decide whether", "decide if")
 
@@ -297,6 +306,26 @@ def connect_reset(sess: Session = Depends(_session_dep)) -> dict[str, Any]:
     _require_auth_if_live(sess.user)
     sess.store.reset()
     return {"ok": True, "status": sess.store.status_dict()}
+
+
+# ─── the brand-asset vault (manas owns the index; this is the founder's surface) ─
+@app.get("/api/vault/list")
+def vault_list(sess: Session = Depends(_session_dep)) -> dict[str, Any]:
+    """The vault's metadata index — empty in demo (the byte-identical guarantee)."""
+    _require_auth_if_live(sess.user)
+    return {"assets": project.current_store().assets_for()}
+
+
+@app.post("/api/vault/add")
+def vault_add(req: VaultAddRequest, sess: Session = Depends(_session_dep)) -> dict[str, Any]:
+    """The manual add path: stores bytes via the blob backend + records the index
+    (through manas's vault face — kalai consumes, never owns the index)."""
+    _require_auth_if_live(sess.user)
+    from manas import vault
+    data = base64.b64decode(req.data_b64)
+    rec = vault.add_asset(kind=req.kind, filename=req.filename, data=data,
+                          content_type=req.content_type, tags=req.tags)
+    return {"asset": rec}
 
 
 # ─── the witness chat ─────────────────────────────────────────────────────────
