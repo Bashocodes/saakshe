@@ -62,14 +62,14 @@ def _relevant(topic: str, facts: list[dict]) -> list[dict]:
 # ─── read API (delegates to the store) ───────────────────────────────────────
 def topics() -> list[str]:
     """The topics the company actually has memory for (derived, not canned)."""
-    facts = project.STORE.all_facts()
+    facts = project.current_store().all_facts()
     return ["company"] if facts else []
 
 
 def context_pack(topic: str = "company") -> a2a.ContextPack:
     """The versioned, source-cited Context Pack for a topic — empty/ungrounded when
     nothing relevant is imbibed yet. Never fabricated."""
-    pack = project.STORE.pack(project.TOPIC)
+    pack = project.current_store().pack(project.TOPIC)
     if not pack.facts:
         return a2a.ContextPack(version=pack.version, topic=topic, facts=[],
                                voice_rules=[], brand_rules=[], grounded=False)
@@ -98,7 +98,7 @@ def _match_facts(question: str) -> list[dict]:
     if not keys:
         return []
     out = []
-    for f in project.STORE.all_facts():
+    for f in project.current_store().all_facts():
         if any(k in _claim_text(f) for k in keys):
             out.append(dict(f))
     return out

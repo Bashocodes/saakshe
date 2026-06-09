@@ -19,6 +19,7 @@ connection survives a server restart (the demo connects once, then just runs).
 
 from __future__ import annotations
 
+import contextvars
 import json
 import os
 import threading
@@ -331,4 +332,37 @@ def store(user: str = "founder") -> ProjectStore:
         return s
 
 
+def store_for(user: str = "founder"):
+    """The backing store for a user — Supabase when opted in (SAAKSHE_STORE=supabase
+    + keys), else the file store. Cached per user; this is the multi-tenant factory
+    the service calls once it has resolved the founder from the verified JWT."""
+    return store(user)
+
+
 STORE = store("founder")
+
+
+# ── request-scoped store (the multi-tenant seam, made real) ───────────────────
+# Library code — corpus, manas, kalai, kural, witness, the orchestrator — reads
+# ``current_store()`` instead of the module global so a per-user store bound by the
+# request flows through the WHOLE call graph (incl. the deep reads in corpus.py and
+# manas.learn) without threading a ``store=`` param through a dozen functions.
+# Unset (the default, and every one of the 135 demo tests) → the global file STORE,
+# so demo behaviour is byte-identical. contextvars propagate across ``await``,
+# ``asyncio.gather`` and ``asyncio.to_thread``, so the manas ingest threads inherit it.
+_CURRENT_STORE: contextvars.ContextVar = contextvars.ContextVar("saakshe_current_store", default=None)
+
+
+def current_store():
+    """The store bound to the current request/context, else the global default."""
+    return _CURRENT_STORE.get() or STORE
+
+
+def set_current_store(s):
+    """Bind ``s`` as the current store; returns a token to pass to
+    :func:`reset_current_store` (use try/finally so a request never leaks its store)."""
+    return _CURRENT_STORE.set(s)
+
+
+def reset_current_store(token) -> None:
+    _CURRENT_STORE.reset(token)

@@ -84,5 +84,5 @@ def what_learned(run_id: Optional[str] = None, stream: EventStream = STREAM) -> 
             version = e.meta["context_pack_to"]
     # Fall back to the real store version (v0 when nothing is connected yet) —
     # never a canned pack number.
-    return {"context_pack": version or project.STORE.version,
+    return {"context_pack": version or project.current_store().version,
             "learned": version is not None}

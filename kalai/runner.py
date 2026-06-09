@@ -57,7 +57,7 @@ async def _run_pipeline(brief: str, context_pack: dict) -> dict[str, Any]:
     init_state: dict[str, Any] = {
         SK.BRIEF: brief,
         SK.CONTEXT_PACK: context_pack if isinstance(context_pack, dict) else {},
-        "org": dict(project.STORE.org_for_flywheel()),
+        "org": dict(project.current_store().org_for_flywheel()),
     }
     session = await runner.session_service.create_session(
         app_name=_APP, user_id=_USER, state=init_state

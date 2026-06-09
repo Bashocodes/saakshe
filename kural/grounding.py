@@ -56,7 +56,7 @@ def ground_callback(callback_context):
     grounding = fetch_grounding(pack if isinstance(pack, dict) else None)
     state["grounding"] = grounding
     state["grounding_text"] = grounding_text(grounding)
-    state.setdefault(StateKeys.ORG, dict(project.STORE.org_for_flywheel()))
+    state.setdefault(StateKeys.ORG, dict(project.current_store().org_for_flywheel()))
     # Deterministic loop counter — start every engagement clean.
     state[StateKeys.CLAIM_ROUND] = 0
     state[StateKeys.TRANSCRIPT] = []

@@ -54,6 +54,7 @@ class FlywheelState:
     kural_state: dict = field(default_factory=dict)
     verdict: dict = field(default_factory=dict)
     actions: list[dict] = field(default_factory=list)
+    store: Any = None                # the per-user store this run is bound to
 
 
 _RUNS: dict[str, FlywheelState] = {}
@@ -74,14 +75,27 @@ async def start(
     question: Optional[str] = None,
     org: Optional[dict] = None,
     stream: EventStream = STREAM,
+    store: Any = None,
 ) -> dict:
     config.sync_runtime_mode()
+    # Resolve + bind the per-user store for the whole run so every deep read
+    # (manas.ground→corpus, kalai/kural org, manas.learn) sees THIS founder's
+    # memory — never another tenant's, never the global default by accident.
+    store = store or project.current_store()
+    token = project.set_current_store(store)
+    try:
+        return await _start(question, org, stream, store)
+    finally:
+        project.reset_current_store(token)
+
+
+async def _start(question, org, stream, store) -> dict:
     run_id = "fw_" + uuid4().hex[:10]
     # The question is the founder's (from chat); the org is the REAL connected
     # company from the project store — never a canned default.
     q = question or "Should we make this change?"
-    org = org or dict(project.STORE.org_for_flywheel())
-    state = FlywheelState(run_id=run_id, question=q, org=org)
+    org = org or dict(store.org_for_flywheel())
+    state = FlywheelState(run_id=run_id, question=q, org=org, store=store)
     _RUNS[run_id] = state
 
     stream.emit(run_id, "saakshe", "founder", f'asks: "{q}"', span="invocation", kind="span_start")
@@ -128,10 +142,23 @@ async def start(
 
 
 # ─── approve: advance the flywheel one tap ───────────────────────────────────
-async def approve(run_id: str, gate_id: Optional[str] = None, stream: EventStream = STREAM) -> dict:
+async def approve(run_id: str, gate_id: Optional[str] = None, stream: EventStream = STREAM,
+                  store: Any = None) -> dict:
     state = _RUNS.get(run_id)
     if state is None:
         raise KeyError(f"unknown flywheel run_id {run_id!r}")
+    # Bind the SAME store the run started under so the closing manas.learn + the
+    # kalai/kural reads write to this founder's memory, not the global default.
+    store = store or state.store or project.current_store()
+    token = project.set_current_store(store)
+    try:
+        return await _approve(run_id, state, gate_id, stream)
+    finally:
+        project.reset_current_store(token)
+
+
+async def _approve(run_id: str, state: FlywheelState, gate_id: Optional[str],
+                   stream: EventStream) -> dict:
     if state.status != "awaiting_approval" or not state.open_gate:
         raise RuntimeError(f"run {run_id} is not awaiting approval (status={state.status!r})")
 

@@ -72,13 +72,14 @@ _CHANNEL_SOURCE_KEY = {
 
 
 async def ingest_connected(
-    stream: EventStream, run_id: str, store: project.ProjectStore = project.STORE,
+    stream: EventStream, run_id: str, store=None,
 ) -> dict[str, Any]:
     """Read the founder's CONNECTED sources for real, run the imbibers over the real
     text (live Gemini), verify deterministically, raise any honest doubts, and commit
     a real, cited, versioned Context Pack. This is what fills the empty store — there
     is no canned company; everything here comes from what the sources actually say.
     """
+    store = store or project.current_store()
     store.set_status(project.INGESTING)
     stream.emit(run_id, NS, "Mind Keeper",
                 f"read connected sources · {', '.join(c.kind for c in store.connections) or 'none'}",
@@ -222,12 +223,13 @@ async def _run_ingest_pipeline(bundles: list[src.SourceBundle], org_hint: dict) 
 
 
 async def answer_question(stream: EventStream, run_id: str, qid: str, answer: str,
-                          store: project.ProjectStore = project.STORE) -> dict[str, Any]:
+                          store=None) -> dict[str, Any]:
     """Fold a founder's answer back into the corpus with real provenance and re-ground.
 
     The answer becomes a cited fact ("founder answer · day N"); the question is
     marked answered; the Context Pack ticks. NOT a flywheel gate — a manas-internal
     re-grounding step."""
+    store = store or project.current_store()
     q = store.answer_question(qid, answer)
     if q is None:
         return {"ok": False, "error": f"no open question {qid!r}"}
@@ -252,7 +254,7 @@ async def learn(stream: EventStream, run_id: str, outcome: dict) -> a2a.Quadrant
     commit) runs for real; the surfaced tick is pinned to the sealed canon so the
     flywheel stays green even if a live run hiccups mid-curation.
     """
-    store = project.STORE
+    store = project.current_store()
     frm = store.version
 
     # Drive the real memory pipeline (demo: full ADK orchestration, replayed LLM) for
@@ -330,7 +332,7 @@ async def _run_pipeline(outcome: dict) -> dict[str, Any]:
     init_state: dict[str, Any] = {
         st.StateKeys.OUTCOME: outcome or {},
         st.StateKeys.TOPIC: "pricing",
-        st.StateKeys.ORG: dict(project.STORE.org_for_flywheel()),
+        st.StateKeys.ORG: dict(project.current_store().org_for_flywheel()),
     }
     session = await runner.session_service.create_session(
         app_name=_APP, user_id=_USER, state=init_state

@@ -47,7 +47,7 @@ async def _run_engagement(master: dict, context_pack: dict, org: dict | None = N
         StateKeys.MASTER: master or {},
         StateKeys.CONTEXT_PACK: context_pack or {},
         StateKeys.BRIEF: (master or {}).get("brief", config.CANON["verdict_decision"]),
-        StateKeys.ORG: org or dict(project.STORE.org_for_flywheel()),
+        StateKeys.ORG: org or dict(project.current_store().org_for_flywheel()),
     }
     session = await runner.session_service.create_session(
         app_name=_APP, user_id=_USER, state=init_state
