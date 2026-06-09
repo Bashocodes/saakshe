@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>saakshe — deploy checklist</title>
+<style>
+  :root{
+    --bg:#F4EEE2; --ink:#241f1b; --ink2:#5b5147; --line:#241f1b;
+    --card:#fffdf8; --green:#2d7643; --amber:#9a6a14; --red:#b14a3c; --accent:#3a5a8c;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{ --bg:#14110e; --ink:#efe7da; --ink2:#b6aa9b; --line:#efe7da; --card:#1c1813; }
+  }
+  *{ box-sizing:border-box; }
+  html{ -webkit-text-size-adjust:100%; }
+  body{ margin:0; background:var(--bg); color:var(--ink);
+    font-family:"Space Grotesk",system-ui,-apple-system,sans-serif; font-size:18px; line-height:1.65; }
+  .wrap{ max-width:860px; margin:0 auto; padding:40px 22px 90px; }
+  h1{ font-size:34px; line-height:1.15; margin:0 0 6px; letter-spacing:-.01em; }
+  h2{ font-size:23px; margin:42px 0 10px; padding-bottom:7px; border-bottom:3px solid var(--line); }
+  .sub{ color:var(--ink2); font-size:16px; margin:0 0 8px; }
+  .mono{ font-family:"IBM Plex Mono",ui-monospace,monospace; }
+  .done{ background:var(--card); border:2px solid var(--line); box-shadow:5px 5px 0 var(--line);
+    border-radius:4px; padding:18px 20px; margin:22px 0 8px; }
+  .done h3{ margin:0 0 8px; font-size:18px; color:var(--green); }
+  .done ul{ margin:0; padding-left:20px; } .done li{ margin:3px 0; font-size:16px; }
+  ol.steps{ counter-reset:s; list-style:none; padding:0; margin:14px 0; }
+  ol.steps > li{ counter-increment:s; position:relative; background:var(--card);
+    border:2px solid var(--line); border-radius:4px; padding:16px 18px 16px 56px; margin:14px 0;
+    box-shadow:4px 4px 0 var(--line); }
+  ol.steps > li::before{ content:counter(s); position:absolute; left:-2px; top:-2px;
+    width:40px; height:40px; display:grid; place-items:center; background:var(--line); color:var(--bg);
+    font-weight:700; font-family:"IBM Plex Mono",monospace; border-radius:4px 0 16px 0; }
+  .tag{ display:inline-block; font-size:12px; font-weight:700; letter-spacing:.04em; text-transform:uppercase;
+    padding:2px 8px; border-radius:3px; margin-left:8px; vertical-align:2px; }
+  .t-supabase{ background:#3ecf8e22; color:var(--green); border:1px solid var(--green); }
+  .t-google{ background:#4285f422; color:var(--accent); border:1px solid var(--accent); }
+  .t-gcloud{ background:#9a6a1422; color:var(--amber); border:1px solid var(--amber); }
+  .t-dns{ background:#b14a3c22; color:var(--red); border:1px solid var(--red); }
+  code{ font-family:"IBM Plex Mono",monospace; font-size:14.5px; background:#241f1b0d; padding:1px 5px; border-radius:3px; }
+  @media (prefers-color-scheme: dark){ code{ background:#ffffff14; } }
+  pre{ background:#1b1813; color:#e9e1d3; border:2px solid var(--line); border-radius:4px;
+    padding:14px 16px; overflow-x:auto; font-family:"IBM Plex Mono",monospace; font-size:14px; line-height:1.5; }
+  pre .c{ color:#8a9a7a; } pre .k{ color:#d9a86b; }
+  .note{ font-size:15px; color:var(--ink2); margin:6px 0 0; }
+  .why{ font-size:14.5px; color:var(--ink2); border-left:3px solid var(--ink2); padding-left:12px; margin:8px 0 0; }
+  b.k{ font-family:"IBM Plex Mono",monospace; }
+  .foot{ margin-top:40px; font-size:15px; color:var(--ink2); }
+  a{ color:var(--accent); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>saakshe — credit + auth + multi-tenancy</h1>
+  <p class="sub">Built, tested live, and pushed 2026-06-09. This is the short list of things only <b>you</b> can do
+  (Supabase / Google / Cloudflare consoles), then one command to go live.</p>
+
+  <div class="done">
+    <h3>✓ Already done (code + database)</h3>
+    <ul>
+      <li><b>Migrations live</b> on Supabase <span class="mono">mttlgjztpkzcklbiqkxj</span> — accounts · transactions · pending_changes, RLS deny-default, atomic idempotent spend/refund/grant (verified end-to-end against the real DB).</li>
+      <li><b>213 tests green</b> (your 135 demo tests untouched + 78 new); the file-store demo path is byte-identical and free.</li>
+      <li><b>Hybrid acceptance passed</b> — a full flywheel ran through the real Supabase store + event stream + credit RPCs (51 events persisted, refund-releases-claim, 402, cross-tenant isolation).</li>
+      <li><b>Pushed</b> to <span class="mono">Bashocodes/saakshe</span> (private); <span class="mono">deploy_cloudrun.sh</span> is updated and ready.</li>
+      <li>JWKS confirmed: the project signs <b>ES256</b> (asymmetric) — the auth layer will verify real Google logins.</li>
+    </ul>
+  </div>
+
+  <h2>Your manual steps</h2>
+
+  <ol class="steps">
+
+    <li><b>Create the Google OAuth client</b> <span class="tag t-google">Google Cloud</span>
+      <p class="note">Google Cloud Console → <b>APIs &amp; Services → OAuth consent screen</b> (External, add your email as a test user or publish), then <b>Credentials → Create credentials → OAuth client ID → Web application</b>.</p>
+      <p class="note">Under <b>Authorized redirect URIs</b> add exactly:</p>
+      <pre>https://mttlgjztpkzcklbiqkxj.supabase.co/auth/v1/callback</pre>
+      <p class="note">Copy the <b>Client ID</b> and <b>Client secret</b> for the next step.</p>
+    </li>
+
+    <li><b>Enable Google in Supabase</b> <span class="tag t-supabase">Supabase</span>
+      <p class="note">Supabase → <b>Authentication → Providers → Google</b> → enable, paste the Client ID + Client secret from step 1, save.</p>
+    </li>
+
+    <li><b>Set Supabase URL configuration</b> <span class="tag t-supabase">Supabase</span>
+      <p class="note">Supabase → <b>Authentication → URL Configuration</b>:</p>
+      <p class="note">Site URL: <code>https://saakshe.com</code></p>
+      <p class="note">Redirect URLs (add all three — these are the app's callback page):</p>
+      <pre>https://saakshe.com/auth/callback
+https://&lt;your-cloud-run-url&gt;/auth/callback
+http://localhost:8000/auth/callback</pre>
+    </li>
+
+    <li><b>Put the keys in <span class="mono">.env.local</span></b> <span class="tag t-gcloud">local</span>
+      <p class="note">Edit <code>~/Desktop/Working/saakshe/.env.local</code> (gitignored) and add:</p>
+      <pre><span class="c"># Supabase → Settings → API → Project API keys (anon / publishable)</span>
+SUPABASE_ANON_KEY=sb_publishable_yA1H_BiKoRg8YbFWFrwavw_T5J3IVH0
+<span class="c"># comma-separated emails that get UNLIMITED credits (you):</span>
+OWNER_EMAILS=workzenyogi@gmail.com</pre>
+      <p class="why"><b>Why:</b> <span class="mono">SAAKSHE_SUPABASE_URL</span> is already there, the service-role key is read from <span class="mono">~/.saakshe_supabase_key</span>. The anon/publishable key is public-safe (it ships to the browser). If sign-in fails with the publishable key, use the legacy <b>anon</b> JWT instead (same screen).</p>
+    </li>
+
+    <li><b>Lift the org policy</b> (project-scoped, reversible) <span class="tag t-gcloud">gcloud</span>
+      <p class="note">The <span class="mono">aikizi.com</span> Workspace blocks <span class="mono">allUsers</span>, which is why the earlier deploy 403'd. Lift it just for this project so the gated app is reachable (the app's own Google login still protects credits):</p>
+      <pre>gcloud resource-manager org-policies disable-enforce \
+  iam.allowedPolicyMemberDomains \
+  --project gen-lang-client-0937789625</pre>
+      <p class="why">Reversible: re-enable later with <code>enable-enforce</code>. You're already authed as <span class="mono">hello@aikizi.com</span>; if the token expired, <code>gcloud auth login</code> first.</p>
+    </li>
+
+    <li><b>Deploy</b> <span class="tag t-gcloud">gcloud</span>
+      <pre>cd ~/Desktop/Working/saakshe
+./deploy_cloudrun.sh</pre>
+      <p class="note">Then verify (health = live, /api/me = 401 when anonymous):</p>
+      <pre>URL=$(gcloud run services describe saakshe --region us-central1 \
+  --project gen-lang-client-0937789625 --format='value(status.url)')
+curl -s $URL/api/saakshe/health
+curl -s -o /dev/null -w '%{http_code}\n' $URL/api/me   <span class="c"># expect 401</span></pre>
+      <p class="why">After it deploys, copy the <span class="mono">run.app</span> URL back into step 3's Redirect URLs (Supabase) if you used a placeholder.</p>
+    </li>
+
+    <li><b>Map saakshe.com → hand DNS to Cloudflare</b> <span class="tag t-dns">Cloudflare</span>
+      <pre>gcloud run domain-mappings create --service saakshe \
+  --domain saakshe.com --region us-central1 \
+  --project gen-lang-client-0937789625
+gcloud run domain-mappings describe --domain saakshe.com \
+  --region us-central1 --project gen-lang-client-0937789625</pre>
+      <p class="note">The <span class="mono">describe</span> output gives the DNS records — add them in Cloudflare (DNS, proxy OFF / grey-cloud for the validation records).</p>
+    </li>
+
+  </ol>
+
+  <h2>Non-blocking follow-ups</h2>
+  <p class="note">• <b>Scale-out:</b> the flywheel keeps run state in-process, so the deploy pins one warm instance
+  (<span class="mono">--max/min-instances=1</span>). To scale past one instance, persist <span class="mono">orchestrator._RUNS</span> to Supabase.</p>
+  <p class="note">• <b>Secret hardening:</b> move the service-role key into Google Secret Manager (<span class="mono">--set-secrets</span>) instead of an env var.</p>
+  <p class="note">• <b>Cost tuning:</b> all costs are env vars (run 20 · ingest 20 · edit 10 · make 15 · engage 15 · signup grant 100) — change them on the Cloud Run service anytime, no redeploy of code.</p>
+
+  <p class="foot">Preview locally right now: the dev server is running at <a href="http://localhost:8000/cockpit.html">http://localhost:8000/cockpit.html</a>
+  (Supabase mode — the “Sign in” control + balance pill render; full Google sign-in works once steps 1–4 are done).</p>
+
+</div>
+</body>
+</html>
