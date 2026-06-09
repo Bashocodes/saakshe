@@ -94,14 +94,17 @@ class CreativeMaster:
 
     asset_id: str
     brief: str
+    caption: str = ""                                  # the ONE caption kalai authored
     formats: dict = field(default_factory=dict)        # {"x":..., "ig":..., "linkedin":...}
+    media: dict = field(default_factory=dict)          # {"image_ref","video_ref"} (step 3)
     fidelity_score: float = 0.0
     compliance: str = "cleared"                        # fail-closed: must be "cleared"
     spend_usd: float = 0.0
 
     def as_dict(self) -> dict:
         return {
-            "asset_id": self.asset_id, "brief": self.brief, "formats": self.formats,
+            "asset_id": self.asset_id, "brief": self.brief, "caption": self.caption,
+            "formats": self.formats, "media": self.media,
             "fidelity_score": self.fidelity_score, "compliance": self.compliance,
             "spend_usd": self.spend_usd,
         }
