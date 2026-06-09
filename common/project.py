@@ -80,6 +80,7 @@ class ProjectStore:
             self.ingest_status = EMPTY
             self.connected_at: Optional[float] = None
             self.history: list[dict] = []            # [{version, at, note}]
+            self.assets: list[dict] = []             # brand-asset vault index (bytes live in common/vault.py)
         if persist:
             self._save()
 
@@ -101,6 +102,7 @@ class ProjectStore:
             self.ingest_status = raw.get("ingest_status", EMPTY)
             self.connected_at = raw.get("connected_at")
             self.history = raw.get("history", [])
+            self.assets = raw.get("assets", [])
 
     def _save(self) -> None:
         with self._lock:
@@ -111,6 +113,7 @@ class ProjectStore:
                 "questions": [q.as_dict() for q in self.questions],
                 "ingest_status": self.ingest_status,
                 "connected_at": self.connected_at, "history": self.history,
+                "assets": self.assets,
             }
         try:
             _DIR.mkdir(parents=True, exist_ok=True)
@@ -230,6 +233,40 @@ class ProjectStore:
             out.extend(dict(f) for f in blob.get("facts", []))
         return out
 
+    # ── brand-asset vault index (binary assets; bytes live in common/vault.py) ──
+    def add_asset(self, *, kind: str, filename: str, content_type: str, uri: str,
+                  sha256: str, tags=(), provenance: str = "") -> dict:
+        """Record one vault asset and tick the memory version. Dedup by sha256:
+        identical bytes are stored once (the blob is content-addressed too)."""
+        with self._lock:
+            for a in self.assets:
+                if a.get("sha256") == sha256:
+                    return a                       # already held — no duplicate
+            rec = {"id": f"asset-{len(self.assets) + 1}", "kind": kind,
+                   "filename": filename, "content_type": content_type, "uri": uri,
+                   "sha256": sha256, "tags": list(tags), "provenance": provenance,
+                   "version": self._next_version(), "day": self._day()}
+            self.assets.append(rec)
+            self.version = rec["version"]
+            self.history.append({"version": self.version, "at": time.time(),
+                                 "note": f"added {kind} asset {filename}"})
+        self._save()
+        return rec
+
+    def assets_for(self, kinds=None, tags=None) -> list[dict]:
+        """The serve selector — filter the index by kind and/or tag (in-memory)."""
+        out = self.assets
+        if kinds:
+            ks = set(kinds)
+            out = [a for a in out if a.get("kind") in ks]
+        if tags:
+            ts = set(tags)
+            out = [a for a in out if ts & set(a.get("tags", []))]
+        return [dict(a) for a in out]
+
+    def asset_count(self) -> int:
+        return len(self.assets)
+
     # ── clarifying questions ────────────────────────────────────────────────────
     def set_questions(self, questions: list[a2a.ClarifyingQuestion]) -> None:
         """Replace the open question set with a freshly-detected one (answered ones
@@ -283,6 +320,7 @@ class ProjectStore:
                 "open_questions": [q.as_dict() for q in self.open_questions()],
                 "questions": [q.as_dict() for q in self.questions],
                 "fact_count": len(self.all_facts()),
+                "asset_count": self.asset_count(),
                 "connected_day": self._day(),
             }
 

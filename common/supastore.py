@@ -267,6 +267,45 @@ class SupabaseStore:
         row = self.latest_pack()
         return [dict(f) for f in (row or {}).get("facts", [])]
 
+    # ── brand-asset vault index parity (bytes live in common/vault.py) ────────
+    # Live mirror of the file ProjectStore index so the populate hook never
+    # AttributeErrors on a Supabase store. The index rides on the project row's
+    # JSON ``assets`` column (same persistence shape as ``org``) and ticks the
+    # version exactly like ``commit_pack``. Live-only; not CI-tested (consistent
+    # with the rest of this class).
+    def _assets(self) -> list[dict]:
+        return list(self._project().get("assets") or [])
+
+    def add_asset(self, *, kind: str, filename: str, content_type: str, uri: str,
+                  sha256: str, tags=(), provenance: str = "") -> dict:
+        """Record one vault asset on the project row + tick the version. Dedup by
+        sha256 (identical bytes are held once) — mirrors the file store."""
+        assets = self._assets()
+        for a in assets:
+            if a.get("sha256") == sha256:
+                return a                           # already held — no duplicate
+        new_v = self._next_version()
+        rec = {"id": f"asset-{len(assets) + 1}", "kind": kind, "filename": filename,
+               "content_type": content_type, "uri": uri, "sha256": sha256,
+               "tags": list(tags), "provenance": provenance, "version": new_v, "day": 0}
+        assets.append(rec)
+        self._patch("projects", {"id": self.pid}, {"assets": assets, "version": new_v})
+        return rec
+
+    def assets_for(self, kinds=None, tags=None) -> list[dict]:
+        """The serve selector — filter the index by kind and/or tag (in-memory)."""
+        out = self._assets()
+        if kinds:
+            ks = set(kinds)
+            out = [a for a in out if a.get("kind") in ks]
+        if tags:
+            ts = set(tags)
+            out = [a for a in out if ts & set(a.get("tags", []))]
+        return [dict(a) for a in out]
+
+    def asset_count(self) -> int:
+        return len(self._assets())
+
     # ── clarifying questions (a2a.ClarifyingQuestion parity) ──────────────────
     def _to_question(self, row: dict) -> a2a.ClarifyingQuestion:
         return a2a.ClarifyingQuestion(
