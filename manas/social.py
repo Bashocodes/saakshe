@@ -29,6 +29,13 @@ from common import config
 from . import sources as src
 
 
+# A bare ``@handle`` carries no platform, so we need ONE documented default to read
+# it at — kept as a single named constant, not a value buried in the fetch sites. A
+# full profile URL is always honored verbatim (see ``_handle_url``), so a LinkedIn /
+# X / YouTube profile is read on its own platform, never rewritten to this default.
+_DEFAULT_PROFILE_URL = "https://www.instagram.com/{name}/"
+
+
 def _handle_name(ref: str) -> str:
     """The bare handle from a ``@name``, a profile url, or a plain name."""
     ref = (ref or "").strip()
@@ -37,6 +44,19 @@ def _handle_name(ref: str) -> str:
         tail = re.sub(r"[?#].*$", "", ref).rstrip("/").rsplit("/", 1)[-1]
         return tail.lstrip("@") or ref
     return ref.lstrip("@")
+
+
+def _handle_url(ref: str) -> str:
+    """The profile URL to read for a connected handle.
+
+    A full profile URL is honored VERBATIM — on ANY platform (the fix for the old
+    instagram-only rewrite): a LinkedIn / X / YouTube / TikTok profile is read where
+    it actually lives. Only a bare ``@name`` (no platform to infer) falls back to the
+    single documented ``_DEFAULT_PROFILE_URL``."""
+    raw = (ref or "").strip()
+    if raw.startswith(("http://", "https://")):
+        return re.sub(r"#.*$", "", raw)              # any platform, verbatim — no rewrite
+    return _DEFAULT_PROFILE_URL.format(name=_handle_name(raw))
 
 
 # ─── live read (the ONLY network/creds path — mock this in tests) ─────────────
@@ -52,7 +72,7 @@ def _fetch_handle(ref: str) -> src.SourceBundle:
                                 meta={"error": f"httpx not available: {e}"})
 
     name = _handle_name(ref)
-    url = f"https://www.instagram.com/{name}/"
+    url = _handle_url(ref)               # full URL verbatim (any platform); bare handle → default
     try:
         with httpx.Client(follow_redirects=True, timeout=15,
                           headers={"user-agent": "saakshe-setu/1.0 (+manas social read)"}) as cli:
@@ -78,7 +98,7 @@ def _demo_bundle(ref: str) -> src.SourceBundle:
     / tone summary. Same handle → same text. Obviously-synthetic (brand-free), so the
     offline net stays a net, never the product."""
     name = _handle_name(ref) or "the_company"
-    url = f"https://instagram.com/{name}"
+    url = _handle_url(ref) if ref else _DEFAULT_PROFILE_URL.format(name=name)
     text = (
         f"Social handle @{name} ({url}).\n"
         "Recent posts: product updates and behind-the-scenes notes on the main channel.\n"

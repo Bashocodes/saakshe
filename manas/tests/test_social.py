@@ -51,6 +51,25 @@ def test_demo_normalizes_a_url_handle():
     assert "example_co" in b.text                   # the handle is recovered from the url
 
 
+def test_demo_honors_a_non_instagram_url_verbatim():
+    """A full profile URL on ANY platform is read where it actually lives — NOT
+    rewritten to instagram (the old hardcode). The platform + handle both survive."""
+    b = social.read_handle("https://www.linkedin.com/company/example_co")
+    assert b.ok is True and b.text
+    assert any("linkedin.com" in p for p in b.provenance)
+    assert not any("instagram.com" in p for p in b.provenance)
+    assert "example_co" in b.text
+
+
+def test_handle_url_verbatim_for_any_platform_default_for_bare():
+    """The URL seam: any full profile URL passes through untouched; only a bare
+    handle (no platform to infer) falls back to the single documented default."""
+    assert social._handle_url("https://x.com/acme") == "https://x.com/acme"
+    assert social._handle_url("https://www.linkedin.com/company/acme") == "https://www.linkedin.com/company/acme"
+    bare = social._handle_url("@example_co")
+    assert "example_co" in bare and bare == social._DEFAULT_PROFILE_URL.format(name="example_co")
+
+
 # ─── live: a real handle read via the mockable fetch seam ────────────────────
 def test_live_dispatches_to_the_fetch_seam(monkeypatch):
     calls: dict = {}

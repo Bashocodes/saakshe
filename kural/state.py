@@ -47,15 +47,9 @@ class StateKeys:
     DELIVERY_PICK = "delivery_pick"           # planner's pick {variant, segment, window, rationale}
     DELIVERY_PLAN = "delivery_plan"           # assembled {..., text = kalai formats[variant], verbatim}
 
-    # Message.
-    DRAFT = "draft"                   # Outreach Writer's founder-voice draft
-    CLAIM_REPORT = "claim_report"     # Claim Judge (Claude) {claim_support, ...}
-
-    # Claim-Judge rewrite loop (deterministic).
-    CLAIM_ROUND = "claim_round"
-    CLAIM_SUPPORT = "claim_support"
-    CLAIM_VERIFIED = "claim_verified"
-    CLAIM_HISTORY = "claim_history"
+    # (The Outreach Writer's DRAFT + the Claim-Judge rewrite-loop keys were retired
+    #  in the separation: kalai owns all copy + its own fidelity loop; kural carries
+    #  the cleared master verbatim and authors nothing.)
 
     # Channel (eligibility + ledger; publish is the HITL, not in root_agent).
     SEND_ELIGIBLE = "send_eligible"

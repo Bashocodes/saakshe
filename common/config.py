@@ -209,9 +209,8 @@ CONVERGENCE_THRESHOLD = _num("SAAKSHE_CONVERGENCE_THRESHOLD", 0.75)
 # kalai brand-fidelity loop:
 FIDELITY_THRESHOLD = _num("SAAKSHE_FIDELITY_THRESHOLD", 8.5)
 MAX_FIDELITY_ROUNDS = _int("SAAKSHE_MAX_FIDELITY_ROUNDS", 3)
-# kural claim-judge gate:
-CLAIM_THRESHOLD = _num("SAAKSHE_CLAIM_THRESHOLD", 0.80)
-MAX_CLAIM_ROUNDS = _int("SAAKSHE_MAX_CLAIM_ROUNDS", 2)
+# (The kural claim-judge gate was retired in the separation — claim-verification
+#  lives in kalai's fidelity loop above; the mouth carries the cleared master verbatim.)
 # manas curator verify loop:
 GROUNDING_THRESHOLD = _num("SAAKSHE_GROUNDING_THRESHOLD", 0.80)
 MAX_CURATE_ROUNDS = _int("SAAKSHE_MAX_CURATE_ROUNDS", 3)

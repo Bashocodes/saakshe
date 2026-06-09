@@ -1,11 +1,11 @@
 """Deterministic engagement math + loop-termination + send-safety logic.
 
 These functions never depend on what a model says — they are kural's safety
-property. The mouth must never say something unverified, never send to an
-ineligible recipient, never blow a value cap, and never double-send. Every loop
-exits on a numeric threshold (claim_support >= CLAIM_THRESHOLD) or a
-max-iteration rollback — never on "the copy reads well." Pure functions live
-here so tests can pin them; the ADK check-agents in agent.py call them.
+property. The mouth must never send to an ineligible recipient, never blow a
+value cap, and never double-send — deterministic guards, never "the copy reads
+well." (Claim-verification moved to kalai's fidelity loop in the separation; the
+mouth carries kalai's cleared master verbatim.) Pure functions live here so
+tests can pin them; the ADK agents in agent.py call them.
 
 This mirrors arivu/tools/analyst.py: the numeric gates that protect the company
 are pure, importable, and pinned to exact literals in the tests.
@@ -13,56 +13,10 @@ are pure, importable, and pinned to exact literals in the tests.
 
 from __future__ import annotations
 
-from typing import Any
-
 from google.adk.tools import FunctionTool
 
-from common import config
-from ..state import StateKeys, SEND_VALUE_CAP_USD
-from ..util import parse_json, send_key
-
-
-# ─── Claim-Judge gate (the after-agent LLM-as-judge → deterministic pass) ─────
-def read_claim_report(state) -> dict[str, Any]:
-    """Parse the Claim-Judge's structured report out of state (output_key text)."""
-    raw = state.get(StateKeys.CLAIM_REPORT)
-    return raw if isinstance(raw, dict) else parse_json(raw)
-
-
-def claim_support_of(report: dict[str, Any]) -> float:
-    """The judge's self-assessed support score in [0, 1], read defensively.
-
-    A live Claude reply forced through the output_schema always yields a float
-    here; the defensive parse only matters if the schema is ever loosened, in
-    which case an unparseable reply reads 0.0 → the claim FAILS closed (back to
-    the writer), never silently passes.
-    """
-    try:
-        return max(0.0, min(1.0, float(report.get("claim_support", 0.0))))
-    except (TypeError, ValueError):
-        return 0.0
-
-
-def claim_should_stop(support: float, round_: int) -> tuple[bool, bool, str]:
-    """Return (stop, verified, reason) for the Claim-Judge rewrite loop.
-
-    Verified ONLY when support crosses the bar (canon 0.86 ≥ 0.80). If the bounded
-    rewrite loop hits MAX_CLAIM_ROUNDS without crossing, it stops UNVERIFIED — the
-    mouth refuses to say it ("no safe message"), the inverse of arivu's rollback.
-    Never stops on "they agreed" — only on this number or the cap.
-    """
-    if support >= config.CLAIM_THRESHOLD:
-        return True, True, (
-            f"claim support {support:.2f} ≥ {config.CLAIM_THRESHOLD} — every claim verified"
-        )
-    if round_ >= config.MAX_CLAIM_ROUNDS:
-        return True, False, (
-            f"max rewrite rounds ({config.MAX_CLAIM_ROUNDS}) reached at "
-            f"{support:.2f} — unverified, the mouth stays shut (no safe message)"
-        )
-    return False, False, (
-        f"claim support {support:.2f} < {config.CLAIM_THRESHOLD} — back to the writer to re-ground"
-    )
+from ..state import SEND_VALUE_CAP_USD
+from ..util import send_key
 
 
 # ─── Sender eligibility + value-cap gate (the before_tool guard) ──────────────

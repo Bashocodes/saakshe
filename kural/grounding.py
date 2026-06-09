@@ -121,14 +121,12 @@ def fetch_grounding(context_pack: dict | None = None) -> dict:
 
 def ground_callback(callback_context):
     """before_agent_callback for the Coordinator (spine entry): pull grounding
-    into state and initialise the claim-loop's deterministic counters."""
+    into state and reset the per-engagement transcript."""
     state = callback_context.state
     pack = state.get(StateKeys.CONTEXT_PACK) if hasattr(state, "get") else None
     grounding = fetch_grounding(pack if isinstance(pack, dict) else None)
     state["grounding"] = grounding
     state["grounding_text"] = grounding_text(grounding)
     state.setdefault(StateKeys.ORG, dict(project.current_store().org_for_flywheel()))
-    # Deterministic loop counter — start every engagement clean.
-    state[StateKeys.CLAIM_ROUND] = 0
     state[StateKeys.TRANSCRIPT] = []
     return None  # do not skip the agent
