@@ -24,32 +24,36 @@ _MASTER = {
 _PACK = {"version": config.CANON["context_pack_from"], "topic": "pricing", "grounded": True}
 
 
+# ─── separation fix #1: kural carries kalai's words untouched ─────────────────
+async def test_kural_publishes_kalai_words_untouched():
+    master = {"asset_id": "a1", "brief": "b", "caption": "KALAI CAPTION",
+              "formats": {"x": "KALAI X", "ig": "KALAI IG", "linkedin": "KALAI LI"},
+              "fidelity_score": 9.1, "compliance": "cleared", "spend_usd": 1.2}
+    res = await runner.engage(EventStream(), "fw", master, _PACK)
+    post = res.state["post"] if "post" in res.state else res.output
+    # kural carried kalai's EXACT words — authored nothing of its own.
+    assert post["drafts"] == master["formats"]
+    assert "claim_support" not in post            # the judge is gone
+    assert res.status == "awaiting_approval"       # still halts at tap-2
+
+
+async def test_no_writer_or_judge_in_transcript():
+    res = await runner.engage(EventStream(), "fw", _MASTER, _PACK)
+    actors = " ".join(l["actor"] for l in res.transcript)
+    assert "Outreach Writer" not in actors and "Claim Judge" not in actors
+    assert "Scout" in actors or "Delivery" in actors
+
+
 # ─── the ADK pipeline runs and halts at the publish gate ──────────────────────
-async def test_run_engagement_reaches_verified_publish_gate():
+async def test_run_engagement_reaches_send_eligible_publish_gate():
     state = await runner._run_engagement(_MASTER, _PACK)
-    # Halts at the gate awaiting a human — nothing published.
+    # Halts at the gate awaiting a human — nothing published. The gate opened on
+    # send-eligibility (qualified engagement + eligible send), not a claim score.
     assert state[StateKeys.GATE_STATUS] == "awaiting_approval"
-    # The claim verified at/above the bar — and at the sealed canon support.
-    assert state[StateKeys.CLAIM_VERIFIED] is True
-    assert float(state[StateKeys.CLAIM_SUPPORT]) >= config.CLAIM_THRESHOLD
-    assert float(state[StateKeys.CLAIM_SUPPORT]) == config.CANON["claim_support"]
     # The Claude coordinator qualified the engagement (spine entry).
     qualify = state[StateKeys.QUALIFY]
     qualify = qualify if isinstance(qualify, dict) else runner.parse_json(qualify)
     assert qualify.get("worth_engaging") is True
-
-
-async def test_claim_loop_re_grounds_before_it_verifies():
-    """The bounded rewrite loop genuinely iterates: round 1 falls short, round 2
-    verifies — never a one-shot 'looks good'. The midpoint is below the bar and is
-    NEVER a forbidden value."""
-    state = await runner._run_engagement(_MASTER, _PACK)
-    history = state[StateKeys.CLAIM_HISTORY]
-    assert len(history) == 2
-    assert history[0]["verified"] is False and history[0]["claim_support"] < config.CLAIM_THRESHOLD
-    assert history[1]["verified"] is True and history[1]["claim_support"] == config.CANON["claim_support"]
-    for h in history:
-        assert h["claim_support"] not in config.FORBIDDEN["numbers"]
 
 
 # ─── engage() returns the locked QuadrantResult and never auto-publishes ───────
@@ -62,7 +66,6 @@ async def test_engage_halts_at_g2_publish_gate_never_auto_publishes():
     assert res.gate.gate_id == "g2"
     assert res.gate.gate_kind == "publish"
     assert res.gate.reversible is False
-    assert res.output["claim_support"] == config.CANON["claim_support"]
     # A gate row was raised; NO action row published anything during engage.
     assert any(e.kind == "gate" and e.meta["gate_id"] == "g2" for e in s.all())
     assert not any(e.kind == "action" and "PUBLISH" in e.text.upper() for e in s.all())
@@ -74,8 +77,11 @@ async def test_engage_emits_the_seat_transcript():
     s = EventStream()
     res = await runner.engage(s, "run2", _MASTER, _PACK)
     actors = " ".join(t["actor"] for t in res.transcript)
-    for seat in ("Envoy Lead", "Outreach Writer", "Claim Judge", "Email Envoy", "Channel Mouth"):
+    # The post-separation seats: qualify, the two scouts, the channel desk. No
+    # Outreach Writer / Claim Judge — kural authors nothing.
+    for seat in ("Envoy Lead", "Prospect Scout", "Market Watcher", "Email Envoy", "Channel Mouth"):
         assert seat in actors
+    assert "Outreach Writer" not in actors and "Claim Judge" not in actors
     # The sealed price appears in the gate proposal (never a forbidden number).
     proposal = next(e for e in s.all() if e.kind == "gate").text
     assert str(config.CANON["verdict_price_to"]) in proposal
@@ -123,21 +129,15 @@ async def test_publish_ledger_prevents_double_publish(monkeypatch):
     assert second["ledger_fired"] is False                # no double-publish
 
 
-# ─── unverified path: the mouth stays shut, no gate ───────────────────────────
-async def test_unverified_message_yields_no_safe_decision(monkeypatch):
-    """If the Claim-Judge never verifies, engage returns no_safe_decision and
-    raises NO publish gate — the mouth refuses to say it."""
+# ─── not send-eligible: the mouth stays shut, no gate ─────────────────────────
+async def test_not_send_eligible_yields_no_safe_decision(monkeypatch):
+    """If the gate never opens (engagement not qualified / not send-eligible),
+    engage returns no_safe_decision and raises NO publish gate — the mouth
+    refuses to say it."""
     async def fake_run(master, context_pack, org=None):
         return {
             StateKeys.GATE_STATUS: "no_safe_message",
-            StateKeys.CLAIM_VERIFIED: False,
-            StateKeys.CLAIM_SUPPORT: 0.62,   # below the bar; never surfaced as canon
-            StateKeys.CLAIM_HISTORY: [
-                {"round": 1, "claim_support": 0.62, "verified": False, "reason": "below bar"},
-                {"round": 2, "claim_support": 0.62, "verified": False, "reason": "no safe message"},
-            ],
-            StateKeys.QUALIFY: {"worth_engaging": True},
-            StateKeys.DRAFT: {},
+            StateKeys.QUALIFY: {"worth_engaging": False},
         }
     monkeypatch.setattr(runner, "_run_engagement", fake_run)
     s = EventStream()

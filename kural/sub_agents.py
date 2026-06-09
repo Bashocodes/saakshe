@@ -1,19 +1,19 @@
 """kural — the mouth as ADK agents.
 
-Seven seats. Two are Claude via Vertex (the high-stakes judgment seats), the rest
-are Gemini routine intelligence:
+The seats (after the separation fix — kural authors nothing):
 
   * Envoy Lead / Coordinator      — CLAUDE · the qualify decision, the spine entry
   * Prospect Scout, Market Watcher — Gemini · disjoint research, in a ParallelAgent
-  * Outreach Writer               — Gemini · founder-voice, manas-grounded
-  * Claim Judge                   — CLAUDE · the after_agent LLM-as-judge gate @0.8
   * Email Envoy (Sender), Channel Mouth (Publisher) — Gemini · the channel desk
     (driven by the runner's gate, NOT inside root_agent — see agent.py)
 
-The two Claude seats are forced through an ADK ``output_schema`` (pydantic) so a
-live reply can never collapse to prose → the deterministic gate reading
-``claim_support=0.0`` → a permanent "no safe message". This is arivu's
-VerdictSchema discipline applied to the two highest-stakes outputs of the mouth.
+The old Outreach Writer + Claim Judge are retired: kalai owns all copy (caption +
+every channel variant, fact-checked in its own fidelity loop), and kural carries
+that cleared master untouched. One company, one author.
+
+The Claude qualify seat is forced through an ADK ``output_schema`` (pydantic) so a
+live reply can never collapse to prose. This is arivu's VerdictSchema discipline
+applied to the highest-stakes output of the mouth.
 
 Every dynamic instruction is an InstructionProvider callable so we build the
 prompt from live state ourselves — no ADK brace-templating, JSON schemas safe.
@@ -40,15 +40,6 @@ class QualifySchema(BaseModel):
     channel: str = Field(description="the channel(s) to engage on")
     as_voice: str = Field(description="whose voice — always the founder, plain and candid")
     rationale: str = Field(description="one sentence: why this is worth saying now")
-
-
-class ClaimReportSchema(BaseModel):
-    per_claim: list[dict] = Field(
-        description="one entry per load-bearing claim: {claim, verdict, evidence}"
-    )
-    claim_support: float = Field(description="0.0-1.0 — fraction of claims actually grounded")
-    verified: bool = Field(description="whether every load-bearing claim is supported")
-    fix: str = Field(description="if not verified, the minimal claim to cut/re-ground; else ''")
 
 
 # ─── small state readers ──────────────────────────────────────────────────────
@@ -131,53 +122,3 @@ def build_research_scouts() -> list[LlmAgent]:
             )
         )
     return agents
-
-
-# ─── Outreach Writer (Gemini, founder-voice, manas-grounded) ──────────────────
-def _writer_instruction(ctx: ReadonlyContext) -> str:
-    rnd = ctx.state.get(StateKeys.CLAIM_ROUND, 0)
-    prospect = ctx.state.get(StateKeys.RESEARCH_PROSPECT, "")
-    market = ctx.state.get(StateKeys.RESEARCH_MARKET, "")
-    report = ctx.state.get(StateKeys.CLAIM_REPORT, "")
-    rewrite = f"\n\nPRIOR CLAIM-JUDGE FEEDBACK (fix this):\n{report}\n" if rnd else ""
-    return (
-        prompts.WRITER.replace("{org}", _org_name(ctx))
-        + f"\n\n[CLAIM_ROUND::{rnd}]\n\n"
-        + f"THE APPROVED DECISION (brief):\n{_brief(ctx)}\n\n"
-        + f"RESEARCH — audience:\n{prospect}\n\nRESEARCH — timing:\n{market}\n\n"
-        + f"THE ORG'S OWN GROUNDING (manas Context Pack):\n{_grounding_block(ctx)}\n"
-        + rewrite
-    )
-
-
-def build_writer() -> LlmAgent:
-    return LlmAgent(
-        name="outreach_writer",
-        model=models.gemini_flash("kural", "writer"),
-        description="The Outreach Writer — founder-voice copy, every claim grounded in manas.",
-        instruction=_writer_instruction,
-        output_key=StateKeys.DRAFT,
-    )
-
-
-# ─── Claim Judge (Claude · Vertex) — after_agent LLM-as-judge gate ────────────
-def _claim_judge_instruction(ctx: ReadonlyContext) -> str:
-    draft = ctx.state.get(StateKeys.DRAFT, "")
-    rnd = ctx.state.get(StateKeys.CLAIM_ROUND, 0)
-    return (
-        prompts.CLAIM_JUDGE
-        + f"\n\n[CLAIM_ROUND::{rnd}]\n\n"
-        + f"THE DRAFT UNDER FACT-CHECK:\n{draft}\n\n"
-        + f"THE ORG'S OWN GROUNDING (the only admissible evidence):\n{_grounding_block(ctx)}\n"
-    )
-
-
-def build_claim_judge() -> LlmAgent:
-    return LlmAgent(
-        name="claim_judge",
-        model=models.claude("kural", "claim_judge"),
-        description="Claude via Vertex — fact-checks every claim and scores claim_support.",
-        instruction=_claim_judge_instruction,
-        output_schema=ClaimReportSchema,
-        output_key=StateKeys.CLAIM_REPORT,
-    )
