@@ -54,6 +54,23 @@ except Exception:  # noqa: BLE001
 
 config.sync_runtime_mode()
 
+# ─── the real outbound channel (opt-in, generic) ──────────────────────────────
+# With SAAKSHE_ALLOW_LIVE_SEND=1 + SAAKSHE_CHANNEL_WEBHOOK_URL set, kural gains a
+# real ChannelCall: every armed publish/outreach POSTs to the founder's own
+# delivery endpoint (an autopilot queue, a relay, a worker — pure configuration;
+# saakshe names no platform). Without BOTH, tap-2 stays dry-run, exactly as before.
+if os.environ.get("SAAKSHE_ALLOW_LIVE_SEND") == "1":
+    try:
+        from kural.tools import channels as _channels
+        from kural.tools.adapters import webhook as _webhook
+
+        _fn = _webhook.from_env()
+        if _fn is not None:
+            _channels.set_channel_client(_fn)
+            print("kural: live channel armed → webhook adapter registered")
+    except Exception:  # noqa: BLE001 — a bad adapter config must not sink the site
+        traceback.print_exc()
+
 _ROOT = Path(__file__).resolve().parents[1]          # the saakshe repo root
 _WORKING = _ROOT.parent                              # legacy parent dir (pre-repo layout)
 _WEB = _ROOT / "web"                                 # the site (landing, onboarding, cockpit, …)
@@ -213,6 +230,10 @@ class RunRequest(BaseModel):
 class ApproveRequest(BaseModel):
     run_id: str
     gate_id: Optional[str] = None
+    # The founder's explicit per-tap arm flag. It is one of THREE keys (with the
+    # SAAKSHE_ALLOW_LIVE_SEND env and a registered channel client) that must all
+    # turn before tap-2 fires a real publish; absent any one, the publish dry-runs.
+    arm_real_send: bool = False
 
 
 class ConnectRequest(BaseModel):
@@ -451,7 +472,8 @@ async def hero_approve(req: ApproveRequest, sess: Session = Depends(_session_dep
         raise HTTPException(status_code=404, detail=f"unknown flywheel run_id {req.run_id!r}")
     try:
         summary = await orchestrator.approve(req.run_id, req.gate_id,
-                                             stream=sess.stream, store=run.store or sess.store)
+                                             stream=sess.stream, store=run.store or sess.store,
+                                             arm_real_send=req.arm_real_send)
     except KeyError as exc:
         raise HTTPException(status_code=404, detail=str(exc))
     except RuntimeError as exc:

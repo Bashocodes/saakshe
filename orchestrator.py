@@ -149,8 +149,19 @@ async def _start(question, org, stream, store, user_id="", spend_idem_key="", ch
 
 
 # ─── approve: advance the flywheel one tap ───────────────────────────────────
+def _live_send_armed() -> bool:
+    """Whether a tap-2 may fire a REAL publish. Three independent keys must turn:
+    the founder's explicit per-tap arm flag (caller), the deploy-level
+    SAAKSHE_ALLOW_LIVE_SEND=1 env, and a registered channel client — so neither
+    a stray flag, a stray env, nor a stray client can put anything live alone."""
+    import os
+    from kural.tools import channels as _channels
+
+    return os.environ.get("SAAKSHE_ALLOW_LIVE_SEND") == "1" and _channels.has_channel_client()
+
+
 async def approve(run_id: str, gate_id: Optional[str] = None, stream: EventStream = STREAM,
-                  store: Any = None) -> dict:
+                  store: Any = None, *, arm_real_send: bool = False) -> dict:
     state = _RUNS.get(run_id)
     if state is None:
         raise KeyError(f"unknown flywheel run_id {run_id!r}")
@@ -159,13 +170,14 @@ async def approve(run_id: str, gate_id: Optional[str] = None, stream: EventStrea
     store = store or state.store or project.current_store()
     token = project.set_current_store(store)
     try:
-        return await _approve(run_id, state, gate_id, stream)
+        return await _approve(run_id, state, gate_id, stream,
+                              arm_real_send=bool(arm_real_send))
     finally:
         project.reset_current_store(token)
 
 
 async def _approve(run_id: str, state: FlywheelState, gate_id: Optional[str],
-                   stream: EventStream) -> dict:
+                   stream: EventStream, *, arm_real_send: bool = False) -> dict:
     if state.status != "awaiting_approval" or not state.open_gate:
         raise RuntimeError(f"run {run_id} is not awaiting approval (status={state.status!r})")
 
@@ -179,7 +191,10 @@ async def _approve(run_id: str, state: FlywheelState, gate_id: Optional[str],
     if open_id == "g1":
         await _after_decision(state, stream)
     elif open_id == "g2":
-        await _after_publish(state, stream)
+        # dry_run stays the hardcoded default; the ONLY way to a real side effect
+        # is the founder's tap WITH the arm flag AND the env AND a real client.
+        await _after_publish(state, stream,
+                             dry_run=not (arm_real_send and _live_send_armed()))
     return _summary(state, stream)
 
 
@@ -242,10 +257,11 @@ async def _after_decision(state: FlywheelState, stream: EventStream) -> None:
     state.step = "gate2"
 
 
-async def _after_publish(state: FlywheelState, stream: EventStream) -> None:
+async def _after_publish(state: FlywheelState, stream: EventStream, *, dry_run: bool = True) -> None:
     run_id = state.run_id
-    result = await kural.publish(stream, run_id, state.kural_state, dry_run=True)
-    state.actions.append({"quadrant": "kural", "text": "publish (dry-run) to x · ig · linkedin"})
+    result = await kural.publish(stream, run_id, state.kural_state, dry_run=dry_run)
+    label = "publish (dry-run)" if dry_run else "PUBLISH LIVE"
+    state.actions.append({"quadrant": "kural", "text": f"{label} to x · ig · linkedin"})
 
     # manas learns — the closing beat, Context Pack ticks.
     learn = await manas.learn(stream, run_id, {"decision": state.verdict.get("decision", "")})

@@ -35,6 +35,12 @@ def set_channel_client(fn: ChannelCall) -> None:
     _channel_call = fn
 
 
+def has_channel_client() -> bool:
+    """Whether a real channel caller is registered — the arm-real-send AND-gate
+    reads this so a tap can never arm a publish that would only raise."""
+    return _channel_call is not None
+
+
 def _call(action: str, args: dict) -> dict:
     if _channel_call is None:
         raise RuntimeError(
@@ -115,9 +121,18 @@ def publish_master(post: dict, *, dry_run: bool) -> dict:
     world-facing act stays gated behind the founder's publish sign-off (tap 2)."""
     channel = post.get("channel", "x+ig+linkedin")
     slug = config.CANON.get("resolution_slug", "launch")
+    # Preview URLs are keyed to the CONNECTED org, never a canned name — an
+    # AIKIZI-grounded run must not flash someone else's handle at the founder.
+    import re as _re
+    try:
+        from common import project as _project
+        org = (_project.current_store().org_for_flywheel().get("name") or "")
+    except Exception:  # noqa: BLE001 — a missing store never sinks a publish
+        org = ""
+    handle = _re.sub(r"[^a-z0-9]+", "", org.lower()) or "company"
     base = (
-        f"https://x.com/sundaracoffee/status/DRAFT-{slug}" if dry_run
-        else f"https://x.com/sundaracoffee/status/LIVE-{slug}"
+        f"https://x.com/{handle}/status/DRAFT-{slug}" if dry_run
+        else f"https://x.com/{handle}/status/LIVE-{slug}"
     )
     urls = {
         "x": base,
