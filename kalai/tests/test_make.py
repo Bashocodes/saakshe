@@ -51,6 +51,24 @@ async def test_master_carries_a_caption_and_all_variants():
     assert out["compliance"] == "cleared"
 
 
+async def test_master_carries_a_media_image_ref_in_demo():
+    """Task 3.3: the designer's spec yields a media asset ref on the master.
+
+    In demo mode the wrapper is pixel-free + creds-free, so the ref is the
+    deterministic Vertex placeholder (vertex://imagen/placeholder/<hash>) — no
+    network, no pixels. The caption + {x,ig,linkedin} formats + 9.1 fidelity pins
+    stay green; this only adds the media handle kural will carry untouched."""
+    stream = EventStream()
+    res = await runner.make(stream, "run-media", _BRIEF, _PACK)
+    out = res.output
+    assert out["media"]["image_ref"]                       # the designer produced media
+    assert out["media"]["image_ref"].startswith("vertex://")
+    # the other pins are unmoved by adding media.
+    assert out["caption"]
+    assert set(out["formats"]) == {"x", "ig", "linkedin"}
+    assert out["fidelity_score"] == config.CANON["fidelity_pass"]   # 9.1
+
+
 async def test_make_loop_actually_climbs_the_canon_sequence():
     """Pin that the LIVE pipeline produced the sealed climb 6.8 -> 8.4 -> 9.1.
 

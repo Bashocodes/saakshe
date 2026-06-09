@@ -112,12 +112,14 @@ def assemble_master(
     design: dict | None = None,
     copy: dict | None = None,
     fidelity_score: float | None = None,
+    media: dict | None = None,
     spend_usd: float = 0.42,
 ) -> a2a.CreativeMaster:
     """Build the compliance-cleared CreativeMaster from the pipeline's outputs.
 
     On the happy path this carries the sealed finals: fidelity 9.1, compliance
-    'cleared'. Formats come from the Copy desk; the asset id from the Designer.
+    'cleared'. Formats come from the Copy desk; the asset id from the Designer;
+    the media handle (image_ref / video_ref) from the Vertex wrapper (Task 3.3).
     """
     design = design or _DESIGN
     copy = copy or _COPY
@@ -131,6 +133,7 @@ def assemble_master(
         brief=brief,
         caption=copy.get("caption", _COPY["caption"]),
         formats=formats,
+        media=media or {},
         fidelity_score=fidelity_score if fidelity_score is not None else config.CANON["fidelity_pass"],
         compliance="cleared",
         spend_usd=spend_usd,

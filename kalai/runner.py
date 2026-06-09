@@ -101,10 +101,11 @@ async def make(stream: EventStream, run_id: str, brief: str, context_pack: dict)
                 usage={"input_tokens": 1100, "output_tokens": 220})
     transcript.append({"actor": "Creative Director [Claude·Vertex]", "text": f"frame: {concept}"})
 
-    # Designer + Copy ran in PARALLEL inside the pipeline.
+    # Designer + Copy ran in PARALLEL inside the pipeline. The Designer composes the
+    # media SPEC here (runs for every brief); the chargeable Vertex render fires only
+    # after compliance clears, below — no pixel spend on a brief that gets blocked.
     stream.emit(run_id, NS, "Designer · Producer",
-                "generate banner via example (Imagen) — on concept, on palette",
-                span="execute_tool")
+                "compose the banner spec — on concept, on palette", span="call_llm")
     stream.emit(run_id, NS, "Copy & SEO",
                 "draft on-brand copy for x · ig · linkedin", span="call_llm")
     transcript.append({"actor": "Designer · Producer»", "text": design.get("visual", "(design)")})
@@ -142,12 +143,30 @@ async def make(stream: EventStream, run_id: str, brief: str, context_pack: dict)
     # could mask a loop that never climbed. Fall back to CANON only if the loop
     # produced no score at all (e.g. an empty history), never to paper over a fail.
     from .tools import analyst
+    from . import media as media_mod
+
+    # The Designer's spec → a real media asset (Vertex Imagen in live; a deterministic
+    # pixel-free placeholder ref in demo). Rendered ONLY now, post-clearance, so a
+    # blocked brief never burns a Vertex render. This is the real media call that
+    # replaces the cosmetic "Imagen" stream label above.
+    media_out = media_mod.render_still(
+        prompt=design.get("visual", ""), palette=design.get("palette", "")
+    )
+    image_ref = media_out.get("image_ref", "")
+    media_block = {"image_ref": image_ref, "video_ref": ""}
+    stream.emit(run_id, NS, "Designer · Producer",
+                f"render banner via Vertex Imagen → {image_ref}",
+                span="execute_tool", image_ref=image_ref,
+                spend_usd=media_out.get("spend_usd", 0.0))
+    transcript.append({"actor": "Designer · Producer», media", "text": image_ref})
+
     spend = analyst.estimate_spend(len(frame.get("platforms", ["x", "ig", "linkedin"])),
                                    len(fidelity_history))["spend_usd"]
     score_for_master = final_score if final_score > 0.0 else config.CANON["fidelity_pass"]
     master = fx.assemble_master(
         brief, design=design, copy=copy,
         fidelity_score=score_for_master,
+        media=media_block,
         spend_usd=spend,
     )
 
@@ -183,9 +202,14 @@ def _render_asset(brief: str = "", context_pack: dict | None = None) -> dict:
         copy = _as_dict(state.get(SK.COPY))
         score = float(state.get(SK.FIDELITY_SCORE) or 0.0)
         passed = bool(state.get(SK.FIDELITY_PASSED, False))
+        from . import media as media_mod
+        media_out = media_mod.render_still(
+            prompt=design.get("visual", ""), palette=design.get("palette", "")
+        )
         master = fx.assemble_master(
             brief, design=design, copy=copy,
             fidelity_score=score if passed else config.CANON["fidelity_pass"],
+            media={"image_ref": media_out.get("image_ref", ""), "video_ref": ""},
         )
         out = master.as_dict()
         out["accepted"] = True
