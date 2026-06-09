@@ -58,6 +58,12 @@ MODEL_PRO = os.environ.get("SAAKSHE_MODEL_PRO", "gemini-3.1-pro-preview")
 MODEL_FLASH = os.environ.get("SAAKSHE_MODEL_FLASH", "gemini-3.5-flash")
 MODEL_CLAUDE = os.environ.get("SAAKSHE_MODEL_CLAUDE", "claude-sonnet-4-6@default")
 
+# kalai real media on Vertex (stills = Imagen, video = Veo). Wired live/hybrid only;
+# demo returns a deterministic placeholder ref (no network, no creds). Ids verified
+# against Vertex docs (June 2026) — env-overridable so a newer id needs no code change.
+MODEL_IMAGEN = os.environ.get("SAAKSHE_MODEL_IMAGEN", "imagen-4.0-generate-001")
+MODEL_VEO = os.environ.get("SAAKSHE_MODEL_VEO", "veo-3.1-generate-001")
+
 # ─── Vertex regions ──────────────────────────────────────────────────────────
 GOOGLE_CLOUD_PROJECT = os.environ.get("GOOGLE_CLOUD_PROJECT", "")
 GEMINI_LOCATION = os.environ.get("GOOGLE_CLOUD_LOCATION", "global")
