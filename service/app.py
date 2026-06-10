@@ -792,11 +792,29 @@ async def voice(websocket: WebSocket) -> None:
 
 
 # ─── serve the site ───────────────────────────────────────────────────────────
+# The cockpit links its css/js relatively (chat-panel.css/js) and og:image needs
+# a real /og.png — a safelist, not a static mount, so the .html catch-all (and
+# its branded 404) keeps owning every other path.
+_ASSET_TYPES = {
+    ".css": "text/css; charset=utf-8",
+    ".js": "text/javascript; charset=utf-8",
+    ".png": "image/png",
+    ".svg": "image/svg+xml",
+    ".ico": "image/x-icon",
+}
+
+
 def _serve_page(name: str) -> Any:
-    if not name.endswith(".html"):
-        name += ".html"
     if "/" in name or ".." in name:
         raise HTTPException(status_code=404, detail="not found")
+    ext = os.path.splitext(name)[1].lower()
+    if ext in _ASSET_TYPES:
+        asset = _WEB / name
+        if asset.exists():
+            return FileResponse(asset, media_type=_ASSET_TYPES[ext])
+        raise HTTPException(status_code=404, detail=f"no asset {name!r}")
+    if not name.endswith(".html"):
+        name += ".html"
     page = _WEB / name
     if page.exists():
         return FileResponse(page)
