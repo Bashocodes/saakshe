@@ -305,16 +305,21 @@ def public_config() -> dict[str, Any]:
 
 @app.get("/api/me")
 def me(sess: Session = Depends(_session_dep)) -> dict[str, Any]:
-    """The founder's identity + live credit balance (the cockpit's balance pill)."""
+    """The founder's identity + live credit balance (the cockpit's balance pill).
+    On the gated file-store demo a signed-in user still gets their identity —
+    the cockpit needs is_owner to decide whether to show sandbox controls."""
+    if sess.user is not None:
+        if _supabase_backend():
+            _ensure_account(sess.user)
+        return {
+            "user_id": sess.user.user_id, "email": sess.user.email,
+            "is_owner": sess.user.is_owner,
+            "balance": credits.balance(sess.user.user_id) if _supabase_backend() else None,
+            "demo": not _supabase_backend(),
+        }
     if not _supabase_backend():
         return {"demo": True, "balance": None, "auth_enabled": False}
-    if sess.user is None:
-        raise HTTPException(status_code=401, detail="auth_required")
-    _ensure_account(sess.user)
-    return {
-        "user_id": sess.user.user_id, "email": sess.user.email,
-        "is_owner": sess.user.is_owner, "balance": credits.balance(sess.user.user_id),
-    }
+    raise HTTPException(status_code=401, detail="auth_required")
 
 
 # ─── health ──────────────────────────────────────────────────────────────────

@@ -2683,7 +2683,9 @@ html[data-theme="dark"] .sdoss .sdfoot{ border-top-color:var(--line); box-shadow
         <div id="cgQuestions" class="cg-questions"><div class="cg-empty sm">none — you're grounded</div></div>
       </div>
       <div class="cg-actions">
-        <button type="button" class="cg-btn cg-primary" id="cgEnterBtn" disabled>Enter the cockpit</button>
+        <button type="button" class="cg-btn cg-primary" id="cgEnterBtn">Enter the cockpit</button>
+        <button type="button" class="cg-btn" id="cgReingestBtn">&#8635; re-run ingest</button>
+        <button type="button" class="cg-btn" id="cgAddBtn">&plusmn; add sources</button>
         <button type="button" class="cg-btn" id="cgResetBtn">start over</button>
         <span class="cg-status" id="cgResultStatus"></span>
       </div>
@@ -2893,16 +2895,21 @@ html[data-theme="dark"] .sdoss .sdfoot{ border-top-color:var(--line); box-shadow
     renderQuestions(d.questions||[], !!d.grounded);
     syncEnter(d);
   }
-  function syncEnter(d){
+  function syncEnter(d, openQ){
+    /* NEVER a locked door: ungrounded just changes the guidance. The empty-
+       sandbox dead end (connected · 0 facts · 0 questions · disabled Enter)
+       stranded the founder with no way forward or back. */
     var grounded = !!d.grounded;
-    $("cgEnterBtn").disabled = !grounded;
-    $("cgResultStatus").textContent = grounded ? "grounded ✓ — ready to enter" : "answer the questions below to ground";
+    $("cgEnterBtn").disabled = false;
+    $("cgResultStatus").textContent = grounded ? "grounded ✓ — ready to enter"
+      : (openQ ? "answer the questions below to ground — or enter and answer inside"
+               : "ingest found little to ground on — re-run it, add a source, or enter anyway");
   }
   function renderQuestions(qs, grounded){
     qs = qs.filter(function(q){ return (q.status||"open")!=="answered"; });
     $("cgQCt").textContent = qs.length ? (qs.length+" open") : "";
     var box=$("cgQuestions");
-    if(!qs.length){ box.innerHTML='<div class="cg-empty sm">none — you are grounded</div>'; return; }
+    if(!qs.length){ box.innerHTML='<div class="cg-empty sm">'+(grounded ? "none — you are grounded" : "none raised — ingest found too little to ask about")+'</div>'; return; }
     box.innerHTML="";
     qs.forEach(function(q){
       var qid=q.id, el=document.createElement("div"); el.className="cg-q";
@@ -2927,8 +2934,8 @@ html[data-theme="dark"] .sdoss .sdfoot{ border-top-color:var(--line); box-shadow
       el.querySelector(".cg-qrow").innerHTML='<span class="cg-qdone">✓ answered · committed with source: you</span>';
       if(d.version) $("cgOrgVer").textContent=d.version;
       /* refresh from status so remaining + grounded are authoritative */
-      var st=await getStatus(); if(st){ lastStatus=st; renderQuestions(st.open_questions||[], !!st.grounded); syncEnter({grounded:st.grounded}); $("cgOrgVer").textContent=st.version||$("cgOrgVer").textContent; }
-      else { syncEnter({grounded:(typeof d.remaining==="number" ? d.remaining===0 && d.grounded : d.grounded)}); }
+      var st=await getStatus(); if(st){ lastStatus=st; renderQuestions(st.open_questions||[], !!st.grounded); syncEnter({grounded:st.grounded}, (st.open_questions||[]).length); $("cgOrgVer").textContent=st.version||$("cgOrgVer").textContent; }
+      else { syncEnter({grounded:(typeof d.remaining==="number" ? d.remaining===0 && d.grounded : d.grounded)}, 0); }
     }catch(e){ btn.disabled=false; btn.textContent="answer"; $("cgResultStatus").textContent="answer error: "+e; }
   }
 
@@ -2973,6 +2980,12 @@ html[data-theme="dark"] .sdoss .sdfoot{ border-top-color:var(--line); box-shadow
   /* ---- BOOT: runs first ---- */
   async function boot(){
     await authReady();
+    /* the OWNER's sandbox is theirs to wipe — surface "start over" (hidden on
+       the public demo for everyone else, whose store is the shared seed) */
+    try{
+      var me=await fetch("/api/me",{headers:(window.SA_HEADERS||Object)(),cache:"no-store"}).then(function(r){return r.json();});
+      if(me && me.is_owner){ window.__SK_OWNER=true; $("cgResetBtn").hidden=false; }
+    }catch(e){}
     base = await detectBase();
     if(base===null){
       $("cgMode").textContent="backend not running";
@@ -3009,7 +3022,7 @@ html[data-theme="dark"] .sdoss .sdfoot{ border-top-color:var(--line); box-shadow
       $("cgFacts").innerHTML='<div class="cg-empty sm">'+(st.fact_count?(st.fact_count+" facts in memory"):"no facts yet")+'</div>';
       $("cgFactCt").textContent=st.fact_count?(st.fact_count+" in memory"):"";
       renderQuestions(st.open_questions||[], !!st.grounded);
-      syncEnter({grounded:st.grounded});
+      syncEnter({grounded:st.grounded}, (st.open_questions||[]).length);
       return;
     }
     show("cgStepConnect");
@@ -3018,10 +3031,15 @@ html[data-theme="dark"] .sdoss .sdfoot{ border-top-color:var(--line); box-shadow
   $("cgConnectBtn").addEventListener("click", doConnect);
   $("cgEnterBtn").addEventListener("click", function(){ if(!$("cgEnterBtn").disabled){ reveal(lastStatus||{grounded:true}); } });
   $("cgResetBtn").addEventListener("click", doReset);
+  $("cgReingestBtn").addEventListener("click", function(){ runIngest(); });
+  $("cgAddBtn").addEventListener("click", function(){
+    $("cgConnectBtn").disabled=false; $("cgConnectStatus").textContent=""; show("cgStepConnect");
+  });
 
-  /* sealed public demo: the shared company is read-only — hide the wipe button */
+  /* sealed public demo: the shared company is read-only — hide the wipe button
+     (unless boot() has already established the signed-in user is an OWNER) */
   fetch("/api/public-config",{cache:"no-store"}).then(function(r){return r.json();})
-    .then(function(c){ if(c && c.public_demo){ $("cgResetBtn").hidden=true; } }).catch(function(){});
+    .then(function(c){ if(c && c.public_demo && !window.__SK_OWNER){ $("cgResetBtn").hidden=true; } }).catch(function(){});
 
   boot();
 })();
