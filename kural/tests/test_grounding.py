@@ -73,16 +73,26 @@ def test_live_builds_from_real_pack_and_live_funnel_market(monkeypatch):
 
 
 def test_live_falls_back_to_seed_when_no_source(monkeypatch):
-    """In live but with no live funnel/market source resolved, fall back to the seed
-    bundle so the readers are never ungrounded."""
+    """In live but with no live funnel/market source resolved AND no pack, fall back
+    to the seed bundle so the readers are never ungrounded."""
     monkeypatch.setenv("SAAKSHE_MODE", "live")
     monkeypatch.setattr(grounding, "_live_funnel_market", lambda: None)
-    # No pack → the pure seed fixture.
+    # No pack → the pure seed fixture (nothing real to ground from).
     assert grounding.fetch_grounding() == DEMO_GROUNDING
-    # A pack → the seed fixture with only the version swapped (same as demo).
-    out = grounding.fetch_grounding({"version": "v99"})
-    assert out["manas_context_pack"]["version"] == "v99"
-    assert out["funnel"] == DEMO_GROUNDING["funnel"]
+
+
+def test_live_fallback_keeps_the_real_pack_as_memory(monkeypatch):
+    """Live + no funnel/market source: funnel/market fall back to the seed, but the
+    memory section is the REAL passed Context Pack — the fixture's canned memory
+    never replaces the corpus the founder actually approved."""
+    monkeypatch.setenv("SAAKSHE_MODE", "live")
+    monkeypatch.setattr(grounding, "_live_funnel_market", lambda: None)
+    real_pack = {"version": "v99", "voice": "LIVE FOUNDER VOICE",
+                 "facts": [{"claim": "c", "source": "s"}]}
+    out = grounding.fetch_grounding(real_pack)
+    assert out["manas_context_pack"] == real_pack                  # the real memory, whole
+    assert out["funnel"] == DEMO_GROUNDING["funnel"]               # seed baseline
+    assert out["market"] == DEMO_GROUNDING["market"]               # seed baseline
 
 
 def test_live_funnel_market_is_gated_off_by_default(monkeypatch):

@@ -106,16 +106,22 @@ def fetch_grounding(context_pack: dict | None = None) -> dict:
     the founder publishes is kalai's own `formats`, byte-for-byte.
     """
     if config.is_live():
+        pack = context_pack if isinstance(context_pack, dict) and context_pack else None
         fm = _live_funnel_market()
         if fm:
-            pack = context_pack if isinstance(context_pack, dict) and context_pack else None
             return {
                 # The REAL passed Context Pack is the memory section — not the fixture.
                 "manas_context_pack": dict(pack) if pack else dict(DEMO_GROUNDING["manas_context_pack"]),
                 "funnel": fm.get("funnel", {}),
                 "market": fm.get("market", {}),
             }
-        # No live funnel/market resolved → fall back to the seed (version-swapped).
+        if pack:
+            # No live funnel/market resolved → seed funnel/market as the baseline,
+            # but the memory section stays the REAL pack the founder approved — the
+            # fixture's canned memory never replaces a live corpus.
+            bundle = _demo_bundle(context_pack)
+            bundle["manas_context_pack"] = dict(pack)
+            return bundle
     return _demo_bundle(context_pack)
 
 

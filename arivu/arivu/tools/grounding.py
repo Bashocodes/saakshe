@@ -91,18 +91,47 @@ def _live_admin_bundle() -> dict | None:
     return bundle if isinstance(bundle, dict) and bundle else None
 
 
+def _real_memory_section() -> dict | None:
+    """The org's REAL brand/voice canon via manas's A2A skill, in the bundle's
+    ``manas_a2a`` shape. None when manas isn't reachable (standalone arivu) or the
+    corpus is ungrounded / has no rules — the seed section stays in that case."""
+    try:
+        from common import a2a
+
+        if not a2a.has_skill("manas", "get_founder_context"):
+            return None
+        pack = a2a.dispatch("manas", "get_founder_context", "company")
+    except Exception:  # noqa: BLE001 — an unreachable manas must never break grounding
+        return None
+    if not (isinstance(pack, dict) and pack.get("grounded")):
+        return None
+    voice = "; ".join(pack.get("voice_rules") or [])
+    brand = "; ".join(pack.get("brand_rules") or [])
+    if not (voice or brand):
+        return None
+    return {"brand_canon": brand, "voice": voice}
+
+
 def fetch_grounding() -> dict:
     """Frame-time grounding bundle.
 
     LIVE: pull the org's REAL numbers from the example MCP admin surface; if no
     live source resolves, fall back to the seed bundle so a position is never
-    ungrounded even if a model forgets to call a tool. DEMO: always the seed
-    fixtures, byte-identical (the four original chamber tests depend on this).
+    ungrounded even if a model forgets to call a tool — but the ``manas_a2a``
+    memory section is rebuilt from the REAL corpus (via manas's A2A skill) whenever
+    one is reachable and grounded, so the fixture's canned brand/voice never
+    replace what the founder actually imbibed. DEMO: always the seed fixtures,
+    byte-identical (the four original chamber tests depend on this).
     """
     if config.is_live():
         live = _live_admin_bundle()
         if live:
             return live
+        real_mem = _real_memory_section()
+        if real_mem:
+            bundle = dict(DEMO_GROUNDING)
+            bundle["manas_a2a"] = real_mem
+            return bundle
     return dict(DEMO_GROUNDING)
 
 
@@ -111,7 +140,9 @@ def ground_callback(callback_context):
     and initialise the chamber's deterministic counters."""
     state = callback_context.state
     live_bundle = _live_admin_bundle() if config.is_live() else None
-    state[config.StateKeys.GROUNDING] = live_bundle or dict(DEMO_GROUNDING)
+    # The fallback routes through fetch_grounding so the REAL corpus memory section
+    # (when reachable) reaches the chamber, not the fixture's canned brand/voice.
+    state[config.StateKeys.GROUNDING] = live_bundle or fetch_grounding()
     # Honest provenance: prompts label the block "live numbers" ONLY when a live
     # source actually resolved; the seed fallback is labeled as the baseline it is.
     state["grounding_live"] = bool(live_bundle)

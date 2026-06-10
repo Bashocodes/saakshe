@@ -46,6 +46,41 @@ def test_live_grounding_falls_back_to_seed_when_no_source(monkeypatch):
     assert grounding.fetch_grounding() == DEMO_GROUNDING
 
 
+def test_live_fallback_grounds_memory_from_real_corpus(monkeypatch):
+    """Live + no admin source: the numbers fall back to the seed baseline, but the
+    manas_a2a section is built from the REAL corpus via manas's A2A skill — the
+    fixture's canned brand/voice never replace what the founder actually imbibed."""
+    from common import a2a
+
+    monkeypatch.setenv("ARIVU_MODE", "live")
+    monkeypatch.setattr(grounding, "_live_admin_bundle", lambda: None)
+    monkeypatch.setitem(
+        a2a._HANDLERS, "manas.get_founder_context",
+        lambda topic="company": {
+            "version": "v9", "grounded": True,
+            "voice_rules": ["plain and warm"], "brand_rules": ["honor grandfathering"],
+        },
+    )
+    out = grounding.fetch_grounding()
+    assert out["manas_a2a"] == {"brand_canon": "honor grandfathering", "voice": "plain and warm"}
+    assert out["admin_stats"] == DEMO_GROUNDING["admin_stats"]     # seed baseline numbers
+
+
+def test_live_fallback_keeps_seed_memory_when_corpus_ungrounded(monkeypatch):
+    """An UNGROUNDED corpus (nothing imbibed) must not blank the memory section —
+    the seed fixture stays, exactly like an unreachable manas."""
+    from common import a2a
+
+    monkeypatch.setenv("ARIVU_MODE", "live")
+    monkeypatch.setattr(grounding, "_live_admin_bundle", lambda: None)
+    monkeypatch.setitem(
+        a2a._HANDLERS, "manas.get_founder_context",
+        lambda topic="company": {"version": "v0", "grounded": False,
+                                 "voice_rules": [], "brand_rules": []},
+    )
+    assert grounding.fetch_grounding() == DEMO_GROUNDING
+
+
 def test_live_admin_bundle_is_gated_off_by_default(monkeypatch):
     """Without EXAMPLE_MCP_ENABLE the live fetch is a no-op (None) — the opt-in
     transport pattern, identical to example_mcp_toolset."""
