@@ -41,3 +41,35 @@ def test_dockerfile_bakes_the_seed():
     dockerfile = (SEED.parents[2] / "Dockerfile").read_text()
     assert "deploy/seed/project_founder.json" in dockerfile
     assert "/root/.saakshe" in dockerfile
+
+
+def test_seed_carries_the_brand_logo_in_the_vault(tmp_path, monkeypatch):
+    """The demo vault boots with the demo company's logo: the seed index holds a
+    logo-kind asset, its content-addressed blob ships beside the seed, and the
+    pair round-trips through the real vault reader once copied into place — so
+    manas.get_assets serves a REAL logo to the kalai designer in prod."""
+    import hashlib
+
+    data = json.loads(SEED.read_text())
+    logos = [a for a in data.get("assets", []) if a.get("kind") == "logo"]
+    assert logos, "seed must carry a logo-kind vault asset"
+    rec = logos[0]
+    blob_file = SEED.parent / "vault" / rec["sha256"]
+    assert blob_file.exists(), "the logo blob must ship beside the seed"
+    raw = blob_file.read_bytes()
+    assert hashlib.sha256(raw).hexdigest() == rec["sha256"]
+    assert rec["uri"] == f"vault://{rec['sha256'][:16]}"
+    assert raw[:8] == b"\x89PNG\r\n\x1a\n" and rec["content_type"] == "image/png"
+    # round-trip through the real vault reader, exactly as the container lays it out
+    vdir = tmp_path / "vault" / "founder"
+    vdir.mkdir(parents=True)
+    shutil.copy(blob_file, vdir / rec["sha256"])
+    from common import vault as blob_mod
+    monkeypatch.setattr(blob_mod, "_DIR", tmp_path)
+    assert blob_mod.get(rec["uri"]) == raw
+
+
+def test_dockerfile_bakes_the_seed_vault():
+    dockerfile = (SEED.parents[2] / "Dockerfile").read_text()
+    assert "deploy/seed/vault" in dockerfile
+    assert "/root/.saakshe/vault/founder" in dockerfile

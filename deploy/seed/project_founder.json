@@ -1,5 +1,5 @@
 {
-  "version": "v5",
+  "version": "v6",
   "org": {
     "name": "AIKIZI",
     "kind": "software product",
@@ -184,6 +184,28 @@
       "at": 1781017548.793421,
       "note": "remembered the day's decision",
       "groundedness": 0.9
+    },
+    {
+      "version": "v6",
+      "at": 1781080612.2695522,
+      "note": "added logo asset logo.png"
+    }
+  ],
+  "assets": [
+    {
+      "id": "asset-1",
+      "kind": "logo",
+      "filename": "logo.png",
+      "content_type": "image/png",
+      "uri": "vault://2161471d70538f58",
+      "sha256": "2161471d70538f58d0960d3429f392a95fb675fbff9081e3b6a7b108e24aa488",
+      "tags": [
+        "brand",
+        "mark"
+      ],
+      "provenance": "the company's own site (brand mark, seeded at deploy)",
+      "version": "v6",
+      "day": 2
     }
   ]
 }

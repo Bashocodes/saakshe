@@ -17,9 +17,11 @@ COPY . .
 
 # Demo seed: the image boots GROUNDED on the demo company (file store at ~/.saakshe),
 # so a visitor lands on a working product, not an empty connect gate. Container
-# restarts reset back to this seed — the public demo self-heals.
-RUN mkdir -p /root/.saakshe \
-    && cp deploy/seed/project_founder.json /root/.saakshe/project_founder.json
+# restarts reset back to this seed — the public demo self-heals. The seed vault
+# (the brand logo blob) lands beside it so manas.get_assets serves a REAL logo.
+RUN mkdir -p /root/.saakshe/vault/founder \
+    && cp deploy/seed/project_founder.json /root/.saakshe/project_founder.json \
+    && cp deploy/seed/vault/* /root/.saakshe/vault/founder/
 
 # The quadrants are imported from the repo root; arivu is bootstrapped onto sys.path
 # by common/__init__.py. Cloud Run injects $PORT (8080).
