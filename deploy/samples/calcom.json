@@ -1,0 +1,125 @@
+{
+  "org": {
+    "name": "Cal.com",
+    "kind": "software product",
+    "memory_pack": "v1",
+    "one_liner": "A fully customizable scheduling software for individuals, businesses taking calls and developers building scheduling platforms where users meet users."
+  },
+  "version": "v1",
+  "grounded": true,
+  "ingest_status": "grounded",
+  "fact_count": 19,
+  "facts": [
+    {
+      "claim": "Cal.diy is the open source community edition and a fork of Cal.com with all enterprise/commercial code removed.",
+      "source": "README.md"
+    },
+    {
+      "claim": "Cal.diy is strictly recommended for personal, non-production use by self-hosters.",
+      "source": "README.md"
+    },
+    {
+      "claim": "For commercial and enterprise-ready scheduling infrastructure, Cal.com must be used instead of Cal.diy.",
+      "source": "README.md"
+    },
+    {
+      "claim": "Cal.diy is 100% MIT-licensed with no proprietary 'Enterprise Edition' features and no 'Open Core' split.",
+      "source": "README.md"
+    },
+    {
+      "claim": "Enterprise features like Teams, Organizations, Insights, Workflows, and SSO/SAML have been removed from Cal.diy.",
+      "source": "README.md"
+    },
+    {
+      "claim": "Cal.diy requires no license key, no Cal.com account, and no Cal.com license to work.",
+      "source": "README.md"
+    },
+    {
+      "claim": "Cal.diy is a self-hosted project with no hosted or managed version available.",
+      "source": "README.md"
+    },
+    {
+      "claim": "Cal.diy is built using Next.js, tRPC, React.js, Tailwind CSS, Prisma.io, and Daily.co.",
+      "source": "README.md"
+    },
+    {
+      "claim": "Prerequisites for running Cal.diy are Node.js (>=18.x), PostgreSQL (>=13.x), and Yarn.",
+      "source": "README.md"
+    },
+    {
+      "claim": "Default test credentials are seeded for free, pro, trial, admin, and onboarding users.",
+      "source": "README.md"
+    },
+    {
+      "claim": "Cal.com is a fully customizable scheduling software for individuals, businesses taking calls, and developers building scheduling platforms.",
+      "source": "https://cal.com"
+    },
+    {
+      "claim": "Cal.com is unlimited and free for individuals.",
+      "source": "https://cal.com"
+    },
+    {
+      "claim": "Cal Video is Cal.com's in-house video conferencing platform.",
+      "source": "https://cal.com"
+    },
+    {
+      "claim": "Cal.com supports over 65 languages for global booking capabilities.",
+      "source": "https://cal.com"
+    },
+    {
+      "claim": "Users can monetize bookings directly through a Stripe integration.",
+      "source": "https://cal.com"
+    },
+    {
+      "claim": "The Cal.com API features three authentication methods: OAuth, API key, and Platform (which is deprecated).",
+      "source": "https://cal.com/docs/enterprise-features/api"
+    },
+    {
+      "claim": "The default rate limit for Cal.com API keys is 120 requests per minute.",
+      "source": "https://cal.com/docs/enterprise-features/api"
+    },
+    {
+      "claim": "As of December 15, 2025, Cal.com is restructuring its 'Platform' offering and no longer accepts new signups for Platform plans, though existing enterprise customers continue to receive support.",
+      "source": "https://cal.com/docs/enterprise-features/api"
+    },
+    {
+      "claim": "Under Cal.com's Platform managed user authentication, access tokens are valid for 60 minutes and refresh tokens are valid for 1 year.",
+      "source": "https://cal.com/docs/enterprise-features/api"
+    }
+  ],
+  "questions": [
+    {
+      "id": "missing-479766f6",
+      "text": "Where do you reach people \u2014 your main channel(s) (Instagram, X, LinkedIn, email\u2026)?",
+      "why": "no connected source mentioned your main channel",
+      "trigger": "missing_field",
+      "blocks": "outreach (kural)",
+      "status": "open",
+      "answer": "",
+      "options": [],
+      "sources": []
+    },
+    {
+      "id": "missing_asset-5de4c51e",
+      "text": "I don't have your logo. Add one to the vault so kalai can put it on what it makes?",
+      "why": "the brand-asset vault holds no asset of kind 'logo'",
+      "trigger": "missing_asset",
+      "blocks": "logo placement on creative (kalai)",
+      "status": "open",
+      "answer": "",
+      "options": [],
+      "sources": []
+    }
+  ],
+  "captured_at": "2026-06-10",
+  "sources": [
+    [
+      "github \u00b7 calcom/cal.com",
+      "https://github.com/calcom/cal.com"
+    ],
+    [
+      "website \u00b7 cal.com",
+      "https://cal.com"
+    ]
+  ]
+}

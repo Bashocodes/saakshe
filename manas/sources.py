@@ -322,8 +322,16 @@ def _safe_read(p: Path, cap: int) -> str:
 
 
 def _first_paragraph(md: str) -> str:
+    """First real prose paragraph of a README. Famous-repo READMEs often open
+    with HTML banners / badge rows — strip tags, comments, and link/image
+    syntax so markup never leaks into the org one-liner."""
     for block in re.split(r"\n\s*\n", md or ""):
-        b = re.sub(r"[#*`>_\-]", "", block).strip()
+        if block.lstrip().startswith(">"):                        # blockquotes / GitHub alerts
+            continue                                              # ([!WARNING] etc.) aren't prose
+        b = re.sub(r"<!--.*?-->", " ", block, flags=re.S)        # html comments
+        b = re.sub(r"<[^>]+>", " ", b)                            # html tags
+        b = re.sub(r"!?\[([^\]]*)\]\([^)]*\)", r"\1", b)          # md links/images → text
+        b = re.sub(r"[#*`>_\-]", "", b).strip()
         if len(b) > 30:
             return _collapse(b)[:240]
     return ""

@@ -1,0 +1,108 @@
+{
+  "org": {
+    "name": "Excalidraw Whiteboard",
+    "kind": "software product",
+    "memory_pack": "v2",
+    "one_liner": "Excalidraw is a virtual collaborative whiteboard tool that lets you easily sketch diagrams that have a hand-drawn feel to them."
+  },
+  "version": "v2",
+  "grounded": true,
+  "ingest_status": "grounded",
+  "fact_count": 12,
+  "facts": [
+    {
+      "claim": "Excalidraw is an open source virtual hand-drawn style whiteboard that is collaborative and end-to-end encrypted.",
+      "source": "README.md"
+    },
+    {
+      "claim": "Excalidraw is released under the MIT license.",
+      "source": "README.md"
+    },
+    {
+      "claim": "The Excalidraw editor (npm package) supports an infinite canvas-based whiteboard, dark mode, customizability, image support, shape libraries, localization (i18n) support, exporting to PNG/SVG/clipboard, and an open format saving to `.excalidraw` json files.",
+      "source": "README.md"
+    },
+    {
+      "claim": "The editor provides built-in tools such as rectangle, circle, diamond, arrow, line, free-draw, eraser, arrow-binding, labeled arrows, undo/redo, and zoom/panning.",
+      "source": "README.md"
+    },
+    {
+      "claim": "The showcase app hosted at excalidraw.com features PWA support (offline mode), real-time collaboration, end-to-end encryption, local-first support with browser autosaving, and shareable read-only links.",
+      "source": "README.md"
+    },
+    {
+      "claim": "Excalidraw is integrated by organizations including Google Cloud, Meta, CodeSandbox, Obsidian Excalidraw, Replit, Slite, Notion, and HackerRank.",
+      "source": "README.md"
+    },
+    {
+      "claim": "Excalidraw offers funding and premium options via Open Collective sponsorship and Excalidraw+ (plus.excalidraw.com).",
+      "source": "README.md"
+    },
+    {
+      "claim": "Excalidraw is structured as a monorepo utilizing Yarn workspaces, containing core library packages (common, element, math, utils, fractional-indexing, and excalidraw) and a web application (excalidraw-app).",
+      "source": "CLAUDE.md"
+    },
+    {
+      "claim": "The monorepo build system uses esbuild for packages and Vite for the web application.",
+      "source": "CLAUDE.md"
+    },
+    {
+      "claim": "The project requires Node.js version '>=18.0.0'.",
+      "source": "package.json"
+    },
+    {
+      "claim": "Excalidraw is a virtual collaborative whiteboard tool.",
+      "source": "https://excalidraw.com"
+    },
+    {
+      "claim": "Excalidraw lets you easily sketch diagrams that have a hand-drawn feel to them.",
+      "source": "https://excalidraw.com"
+    }
+  ],
+  "questions": [
+    {
+      "id": "missing-894fede7",
+      "text": "How should the company sound \u2014 describe your brand voice in a line or two (e.g. 'plain and warm, never hypey').",
+      "why": "no connected source mentioned your brand voice",
+      "trigger": "missing_field",
+      "blocks": "on-brand creative (kalai)",
+      "status": "open",
+      "answer": "",
+      "options": [],
+      "sources": []
+    },
+    {
+      "id": "missing-479766f6",
+      "text": "Where do you reach people \u2014 your main channel(s) (Instagram, X, LinkedIn, email\u2026)?",
+      "why": "no connected source mentioned your main channel",
+      "trigger": "missing_field",
+      "blocks": "outreach (kural)",
+      "status": "open",
+      "answer": "",
+      "options": [],
+      "sources": []
+    },
+    {
+      "id": "missing_asset-5de4c51e",
+      "text": "I don't have your logo. Add one to the vault so kalai can put it on what it makes?",
+      "why": "the brand-asset vault holds no asset of kind 'logo'",
+      "trigger": "missing_asset",
+      "blocks": "logo placement on creative (kalai)",
+      "status": "open",
+      "answer": "",
+      "options": [],
+      "sources": []
+    }
+  ],
+  "captured_at": "2026-06-10",
+  "sources": [
+    [
+      "github \u00b7 excalidraw/excalidraw",
+      "https://github.com/excalidraw/excalidraw"
+    ],
+    [
+      "website \u00b7 excalidraw.com",
+      "https://excalidraw.com"
+    ]
+  ]
+}

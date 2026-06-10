@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<link rel="icon" href="data:,">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>samples — manas breakdowns of repos it had never seen</title>
+<meta name="description" content="Three famous open-source products connected through saakshe's real ingest pipeline — live Gemini extraction, source-cited facts, and the clarifying questions manas asked back. Captured verbatim, verifiable against the public repos.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700&family=Spline+Sans:wght@400;500;600;700&family=Spline+Sans+Mono:wght@400;500;600&display=swap">
+<style>
+:root{
+  --bg:#0B0B14; --well:#14132A; --panel:#13131F; --panel-2:#181826;
+  --ink:#E6E3F2; --ink-2:#BFBCD8; --muted:#8C88B8; --rule:#262538; --rule-2:#302F47;
+  --accent:#E8B84B; --accent-soft:rgba(232,184,75,.16);
+  --disp:'Fraunces',Georgia,serif; --body:'Spline Sans',system-ui,sans-serif;
+  --mono:'Spline Sans Mono',ui-monospace,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:radial-gradient(1200px 700px at 50% -120px,var(--well),var(--bg) 70%) var(--bg);
+  color:var(--ink);font:16px/1.65 var(--body);min-height:100vh;padding-bottom:90px}
+.wrap{max-width:1080px;margin:0 auto;padding:0 28px}
+.top{padding:54px 0 8px}
+.top .eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent)}
+h1{font-family:var(--disp);font-weight:600;font-size:clamp(30px,4.6vw,44px);letter-spacing:-.01em;margin:10px 0 14px}
+.lede{color:var(--ink-2);max-width:760px}
+.lede b{color:var(--ink)}
+.provenance{margin:18px 0 0;font-family:var(--mono);font-size:12px;color:var(--muted)}
+.sample{margin:46px 0 0;background:var(--panel);border:1px solid var(--rule);border-radius:14px;padding:30px 32px}
+.sample h2{font-family:var(--disp);font-weight:600;font-size:27px}
+.oneliner{color:var(--ink-2);margin:6px 0 12px;max-width:820px}
+.meta{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.pack{font-family:var(--mono);font-size:12px;color:var(--accent);background:var(--accent-soft);
+  border-radius:99px;padding:3px 11px}
+.chip{font-family:var(--mono);font-size:12px;color:var(--muted);border:1px solid var(--rule-2);
+  border-radius:99px;padding:3px 11px;text-decoration:none}
+.chip:hover{color:var(--ink)}
+.cols{display:grid;grid-template-columns:1.25fr 1fr;gap:30px;margin-top:24px;
+  border-top:1px solid var(--rule);padding-top:22px}
+@media(max-width:820px){.cols{grid-template-columns:1fr}}
+h3{font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--muted);margin-bottom:14px}
+ul{list-style:none}
+.facts li,.questions li{padding:10px 0;border-bottom:1px solid var(--rule);display:block}
+.facts li:last-child,.questions li:last-child{border-bottom:none}
+.claim{display:block;font-size:14.5px;color:var(--ink)}
+.cite{display:block;margin-top:4px;font-family:var(--mono);font-size:11.5px;color:var(--muted)}
+.cite::before{content:'cited · '}
+.qtext{display:block;font-size:14.5px;color:var(--ink);font-style:italic}
+.qwhy{display:block;margin-top:4px;font-family:var(--mono);font-size:11.5px;color:var(--muted)}
+.qnote{margin-top:16px;font-size:13px;color:var(--muted)}
+.foot{margin-top:54px;border-top:1px solid var(--rule);padding-top:24px;color:var(--muted);font-size:14px}
+.foot a{color:var(--accent);text-decoration:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <p class="eyebrow">samples · manas, the company's mind</p>
+    <h1>Repos it had never seen, broken down live.</h1>
+    <p class="lede">Each product below was connected through saakshe's own ingest pipeline —
+    a real shallow clone of the public repo, a real fetch of the public site, <b>live Gemini
+    imbibers</b> extracting claims, and the curation gate committing a versioned, source-cited
+    Context Pack. What you see is the captured output, <b>verbatim</b>: nothing here is
+    hand-written, and every fact carries the file or URL it came from — check it against the
+    public repo directly. The questions are what manas asked back when its sources fell short.</p>
+    <p class="provenance">captured 2026-06-10 · pipeline: manas.ingest_connected (live) ·
+    models: gemini-3.5-flash imbibers + gemini-3.1-pro curation seat</p>
+  </header>
+  
+<section class="sample">
+  <header>
+    <h2>Excalidraw Whiteboard</h2>
+    <p class="oneliner">Excalidraw is a virtual collaborative whiteboard tool that lets you easily sketch diagrams that have a hand-drawn feel to them.</p>
+    <div class="meta"><span class="pack">v2 · grounded</span><a class="chip" href="https://github.com/excalidraw/excalidraw" target="_blank" rel="noopener">github · excalidraw/excalidraw</a><a class="chip" href="https://excalidraw.com" target="_blank" rel="noopener">website · excalidraw.com</a></div>
+  </header>
+  <div class="cols">
+    <div>
+      <h3>12 cited facts manas extracted</h3>
+      <ul class="facts"><li><span class="claim">Excalidraw is an open source virtual hand-drawn style whiteboard that is collaborative and end-to-end encrypted.</span><span class="cite">README.md</span></li><li><span class="claim">Excalidraw is released under the MIT license.</span><span class="cite">README.md</span></li><li><span class="claim">The Excalidraw editor (npm package) supports an infinite canvas-based whiteboard, dark mode, customizability, image support, shape libraries, localization (i18n) support, exporting to PNG/SVG/clipboard, and an open format saving to `.excalidraw` json files.</span><span class="cite">README.md</span></li><li><span class="claim">The editor provides built-in tools such as rectangle, circle, diamond, arrow, line, free-draw, eraser, arrow-binding, labeled arrows, undo/redo, and zoom/panning.</span><span class="cite">README.md</span></li><li><span class="claim">The showcase app hosted at excalidraw.com features PWA support (offline mode), real-time collaboration, end-to-end encryption, local-first support with browser autosaving, and shareable read-only links.</span><span class="cite">README.md</span></li><li><span class="claim">Excalidraw is integrated by organizations including Google Cloud, Meta, CodeSandbox, Obsidian Excalidraw, Replit, Slite, Notion, and HackerRank.</span><span class="cite">README.md</span></li><li><span class="claim">Excalidraw offers funding and premium options via Open Collective sponsorship and Excalidraw+ (plus.excalidraw.com).</span><span class="cite">README.md</span></li><li><span class="claim">Excalidraw is structured as a monorepo utilizing Yarn workspaces, containing core library packages (common, element, math, utils, fractional-indexing, and excalidraw) and a web application (excalidraw-app).</span><span class="cite">CLAUDE.md</span></li><li><span class="claim">The monorepo build system uses esbuild for packages and Vite for the web application.</span><span class="cite">CLAUDE.md</span></li><li><span class="claim">The project requires Node.js version &#x27;&gt;=18.0.0&#x27;.</span><span class="cite">package.json</span></li><li><span class="claim">Excalidraw is a virtual collaborative whiteboard tool.</span><span class="cite">https://excalidraw.com</span></li><li><span class="claim">Excalidraw lets you easily sketch diagrams that have a hand-drawn feel to them.</span><span class="cite">https://excalidraw.com</span></li></ul>
+    </div>
+    <div>
+      <h3>3 questions manas asked back</h3>
+      <ul class="questions"><li><span class="qtext">How should the company sound — describe your brand voice in a line or two (e.g. &#x27;plain and warm, never hypey&#x27;).</span><span class="qwhy">why · no connected source mentioned your brand voice</span></li><li><span class="qtext">Where do you reach people — your main channel(s) (Instagram, X, LinkedIn, email…)?</span><span class="qwhy">why · no connected source mentioned your main channel</span></li><li><span class="qtext">I don&#x27;t have your logo. Add one to the vault so kalai can put it on what it makes?</span><span class="qwhy">why · the brand-asset vault holds no asset of kind &#x27;logo&#x27;</span></li></ul>
+      <p class="qnote">Answers fold back into the memory as cited facts and the
+      Context Pack version ticks — the same loop a founder gets.</p>
+    </div>
+  </div>
+</section>
+
+<section class="sample">
+  <header>
+    <h2>Cal.com</h2>
+    <p class="oneliner">A fully customizable scheduling software for individuals, businesses taking calls and developers building scheduling platforms where users meet users.</p>
+    <div class="meta"><span class="pack">v1 · grounded</span><a class="chip" href="https://github.com/calcom/cal.com" target="_blank" rel="noopener">github · calcom/cal.com</a><a class="chip" href="https://cal.com" target="_blank" rel="noopener">website · cal.com</a></div>
+  </header>
+  <div class="cols">
+    <div>
+      <h3>19 cited facts manas extracted</h3>
+      <ul class="facts"><li><span class="claim">Cal.diy is the open source community edition and a fork of Cal.com with all enterprise/commercial code removed.</span><span class="cite">README.md</span></li><li><span class="claim">Cal.diy is strictly recommended for personal, non-production use by self-hosters.</span><span class="cite">README.md</span></li><li><span class="claim">For commercial and enterprise-ready scheduling infrastructure, Cal.com must be used instead of Cal.diy.</span><span class="cite">README.md</span></li><li><span class="claim">Cal.diy is 100% MIT-licensed with no proprietary &#x27;Enterprise Edition&#x27; features and no &#x27;Open Core&#x27; split.</span><span class="cite">README.md</span></li><li><span class="claim">Enterprise features like Teams, Organizations, Insights, Workflows, and SSO/SAML have been removed from Cal.diy.</span><span class="cite">README.md</span></li><li><span class="claim">Cal.diy requires no license key, no Cal.com account, and no Cal.com license to work.</span><span class="cite">README.md</span></li><li><span class="claim">Cal.diy is a self-hosted project with no hosted or managed version available.</span><span class="cite">README.md</span></li><li><span class="claim">Cal.diy is built using Next.js, tRPC, React.js, Tailwind CSS, Prisma.io, and Daily.co.</span><span class="cite">README.md</span></li><li><span class="claim">Prerequisites for running Cal.diy are Node.js (&gt;=18.x), PostgreSQL (&gt;=13.x), and Yarn.</span><span class="cite">README.md</span></li><li><span class="claim">Default test credentials are seeded for free, pro, trial, admin, and onboarding users.</span><span class="cite">README.md</span></li><li><span class="claim">Cal.com is a fully customizable scheduling software for individuals, businesses taking calls, and developers building scheduling platforms.</span><span class="cite">https://cal.com</span></li><li><span class="claim">Cal.com is unlimited and free for individuals.</span><span class="cite">https://cal.com</span></li><li><span class="claim">Cal Video is Cal.com&#x27;s in-house video conferencing platform.</span><span class="cite">https://cal.com</span></li><li><span class="claim">Cal.com supports over 65 languages for global booking capabilities.</span><span class="cite">https://cal.com</span></li><li><span class="claim">Users can monetize bookings directly through a Stripe integration.</span><span class="cite">https://cal.com</span></li><li><span class="claim">The Cal.com API features three authentication methods: OAuth, API key, and Platform (which is deprecated).</span><span class="cite">https://cal.com/docs/enterprise-features/api</span></li><li><span class="claim">The default rate limit for Cal.com API keys is 120 requests per minute.</span><span class="cite">https://cal.com/docs/enterprise-features/api</span></li><li><span class="claim">As of December 15, 2025, Cal.com is restructuring its &#x27;Platform&#x27; offering and no longer accepts new signups for Platform plans, though existing enterprise customers continue to receive support.</span><span class="cite">https://cal.com/docs/enterprise-features/api</span></li><li><span class="claim">Under Cal.com&#x27;s Platform managed user authentication, access tokens are valid for 60 minutes and refresh tokens are valid for 1 year.</span><span class="cite">https://cal.com/docs/enterprise-features/api</span></li></ul>
+    </div>
+    <div>
+      <h3>2 questions manas asked back</h3>
+      <ul class="questions"><li><span class="qtext">Where do you reach people — your main channel(s) (Instagram, X, LinkedIn, email…)?</span><span class="qwhy">why · no connected source mentioned your main channel</span></li><li><span class="qtext">I don&#x27;t have your logo. Add one to the vault so kalai can put it on what it makes?</span><span class="qwhy">why · the brand-asset vault holds no asset of kind &#x27;logo&#x27;</span></li></ul>
+      <p class="qnote">Answers fold back into the memory as cited facts and the
+      Context Pack version ticks — the same loop a founder gets.</p>
+    </div>
+  </div>
+</section>
+
+<section class="sample">
+  <header>
+    <h2>Plausible Analytics</h2>
+    <p class="oneliner">Plausible is a lightweight and open-source Google Analytics alternative. Your website data is 100% yours and the privacy of your visitors is respected.</p>
+    <div class="meta"><span class="pack">v1 · grounded</span><a class="chip" href="https://github.com/plausible/analytics" target="_blank" rel="noopener">github · plausible/analytics</a><a class="chip" href="https://plausible.io" target="_blank" rel="noopener">website · plausible.io</a></div>
+  </header>
+  <div class="cols">
+    <div>
+      <h3>33 cited facts manas extracted</h3>
+      <ul class="facts"><li><span class="claim">Plausible Analytics is an open source, privacy-first, cookie-free web analytics tool and alternative to Google Analytics.</span><span class="cite">README.md</span></li><li><span class="claim">Plausible is available in a managed cloud version or a self-hosted community edition.</span><span class="cite">README.md</span></li><li><span class="claim">Plausible is GDPR, CCPA, and PECR compliant, storing no personal data or IP addresses, and utilizing no cookies or persistent identifiers.</span><span class="cite">README.md</span></li><li><span class="claim">Plausible is made and hosted in the EU, with all cloud visitor data processed on servers and cloud infrastructure owned and operated by European providers to comply with GDPR and Schrems II.</span><span class="cite">README.md</span></li><li><span class="claim">Plausible is trusted by thousands of paying subscribers and is funded entirely by its users, remaining completely independent from the AdTech world.</span><span class="cite">README.md</span></li><li><span class="claim">Plausible features a lightweight, tiny script to help websites load faster, and supports sending events directly to an events API.</span><span class="cite">README.md</span></li><li><span class="claim">Plausible supports modern frameworks and SPAs out of the box, including pushState and hash-based routing.</span><span class="cite">README.md</span></li><li><span class="claim">Plausible allows tracking goals, conversions, revenue attribution, and funnels, as well as codeless tracking for outbound link clicks, form completions, file downloads, and 404 error pages.</span><span class="cite">README.md</span></li><li><span class="claim">Plausible offers weekly or monthly reports via email or Slack, including traffic spike/drop notifications.</span><span class="cite">README.md</span></li><li><span class="claim">Plausible integrates with Google Search Console to display accurate keyword data directly in its dashboard, and supports importing historical Google Analytics stats.</span><span class="cite">README.md</span></li><li><span class="claim">Plausible Community Edition (CE) is a free, self-hosted solution that requires users to manage their own infrastructure, servers, maintenance, and backups.</span><span class="cite">README.md</span></li><li><span class="claim">Plausible Cloud is continuously updated multiple times per week, whereas Plausible Community Edition is published twice per year as a long-term release.</span><span class="cite">README.md</span></li><li><span class="claim">Premium features including marketing funnels, ecommerce revenue goals, SSO, and the sites API are excluded from the Plausible Community Edition to support the project&#x27;s long-term sustainability.</span><span class="cite">README.md</span></li><li><span class="claim">The community leaders of Plausible are Marko Saric (marko@plausible.io) and Uku Taht (uku@plausible.io).</span><span class="cite">CODE_OF_CONDUCT.md</span></li><li><span class="claim">Plausible version 3.2.0 was released on 2026-01-16.</span><span class="cite">CHANGELOG.md</span></li><li><span class="claim">Plausible is a lightweight and open-source Google Analytics alternative that respects visitor privacy.</span><span class="cite">https://plausible.io</span></li><li><span class="claim">Your website data is 100% yours, with no cross-site or cross-device tracking.</span><span class="cite">https://plausible.io</span></li><li><span class="claim">Plausible&#x27;s script loads fast, won&#x27;t affect page speed or Core Web Vitals, and is 54 times smaller than Google Analytics (every visitor downloads 135KB less JavaScript).</span><span class="cite">https://plausible.io</span></li><li><span class="claim">No cookie banners or GDPR consent are required because Plausible doesn&#x27;t process personal data, track individual users, or use cookies.</span><span class="cite">https://plausible.io</span></li><li><span class="claim">Plausible is built and hosted in the EU, and all visitor data is processed on servers owned and operated by European companies and never leaves the EU.</span><span class="cite">https://plausible.io</span></li><li><span class="claim">Plausible tracks scroll depth automatically from 1 to 100 percent on every page without setup or tag managers.</span><span class="cite">https://plausible.io</span></li><li><span class="claim">Plausible monitors traffic sent from AI tools like ChatGPT, Perplexity, or Claude, and identifies which pages attract AI visitors and the conversions they complete.</span><span class="cite">https://plausible.io</span></li><li><span class="claim">Plausible can connect to Google Search Console to show search queries and organic performance directly in the Plausible dashboard.</span><span class="cite">https://plausible.io</span></li><li><span class="claim">Plausible&#x27;s real-time dashboard updates every 30 seconds without requiring a page refresh.</span><span class="cite">https://plausible.io</span></li><li><span class="claim">Plausible offers codeless goals and revenue tracking, automatically tracking file downloads, form completions, and external link clicks.</span><span class="cite">https://plausible.io</span></li><li><span class="claim">Plausible features built-in bot filtering to exclude bots, referrer spam, and data center traffic out of the box.</span><span class="cite">https://plausible.io</span></li><li><span class="claim">Plausible has over 18,000 paying subscribers, tracks 260 billion pageviews, and has had a 99.99% uptime over the last 90 days.</span><span class="cite">https://plausible.io</span></li><li><span class="claim">A site with 100,000 monthly visitors saves around 4 kg of CO2 per year by switching to Plausible.</span><span class="cite">https://plausible.io</span></li><li><span class="claim">Plausible is run by a completely independent, self-funded, bootstrapped, and profitable team of 10, running since 2018 with no outside investors or acquisition targets.</span><span class="cite">https://plausible.io</span></li><li><span class="claim">Plausible offers a 30-day free trial with no credit card required.</span><span class="cite">https://plausible.io/#pricing</span></li><li><span class="claim">The Starter plan starts at $9/month (or custom based on pageviews) and includes 1 site, 3 years of data retention, Google Analytics import, and goals/custom events.</span><span class="cite">https://plausible.io/#pricing</span></li><li><span class="claim">The Growth plan starts at $14/month and includes up to 3 sites, 3 team members, team management, shared links, embedded dashboards, and shared segments.</span><span class="cite">https://plausible.io/#pricing</span></li><li><span class="claim">The Business plan starts at $19/month and includes up to 10 sites, 10 team members, 5 years of data retention, custom properties, Stats API (600 requests per hour), Looker Studio Connector, ecommerce revenue attribution, funnels, and user journeys.</span><span class="cite">https://plausible.io/#pricing</span></li></ul>
+    </div>
+    <div>
+      <h3>2 questions manas asked back</h3>
+      <ul class="questions"><li><span class="qtext">Where do you reach people — your main channel(s) (Instagram, X, LinkedIn, email…)?</span><span class="qwhy">why · no connected source mentioned your main channel</span></li><li><span class="qtext">I don&#x27;t have your logo. Add one to the vault so kalai can put it on what it makes?</span><span class="qwhy">why · the brand-asset vault holds no asset of kind &#x27;logo&#x27;</span></li></ul>
+      <p class="qnote">Answers fold back into the memory as cited facts and the
+      Context Pack version ticks — the same loop a founder gets.</p>
+    </div>
+  </div>
+</section>
+  <footer class="foot">
+    <p>This is the first minute of saakshe with any company: connect, imbibe, get asked the
+    questions your sources can't answer. <a href="/saakshe_landing.html">About saakshe</a> ·
+    <a href="/manas.html">how manas works</a></p>
+  </footer>
+</div>
+</body>
+</html>

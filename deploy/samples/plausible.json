@@ -1,0 +1,181 @@
+{
+  "org": {
+    "name": "Plausible Analytics",
+    "kind": "software product",
+    "memory_pack": "v1",
+    "one_liner": "Plausible is a lightweight and open-source Google Analytics alternative. Your website data is 100% yours and the privacy of your visitors is respected."
+  },
+  "version": "v1",
+  "grounded": true,
+  "ingest_status": "grounded",
+  "fact_count": 33,
+  "facts": [
+    {
+      "claim": "Plausible Analytics is an open source, privacy-first, cookie-free web analytics tool and alternative to Google Analytics.",
+      "source": "README.md"
+    },
+    {
+      "claim": "Plausible is available in a managed cloud version or a self-hosted community edition.",
+      "source": "README.md"
+    },
+    {
+      "claim": "Plausible is GDPR, CCPA, and PECR compliant, storing no personal data or IP addresses, and utilizing no cookies or persistent identifiers.",
+      "source": "README.md"
+    },
+    {
+      "claim": "Plausible is made and hosted in the EU, with all cloud visitor data processed on servers and cloud infrastructure owned and operated by European providers to comply with GDPR and Schrems II.",
+      "source": "README.md"
+    },
+    {
+      "claim": "Plausible is trusted by thousands of paying subscribers and is funded entirely by its users, remaining completely independent from the AdTech world.",
+      "source": "README.md"
+    },
+    {
+      "claim": "Plausible features a lightweight, tiny script to help websites load faster, and supports sending events directly to an events API.",
+      "source": "README.md"
+    },
+    {
+      "claim": "Plausible supports modern frameworks and SPAs out of the box, including pushState and hash-based routing.",
+      "source": "README.md"
+    },
+    {
+      "claim": "Plausible allows tracking goals, conversions, revenue attribution, and funnels, as well as codeless tracking for outbound link clicks, form completions, file downloads, and 404 error pages.",
+      "source": "README.md"
+    },
+    {
+      "claim": "Plausible offers weekly or monthly reports via email or Slack, including traffic spike/drop notifications.",
+      "source": "README.md"
+    },
+    {
+      "claim": "Plausible integrates with Google Search Console to display accurate keyword data directly in its dashboard, and supports importing historical Google Analytics stats.",
+      "source": "README.md"
+    },
+    {
+      "claim": "Plausible Community Edition (CE) is a free, self-hosted solution that requires users to manage their own infrastructure, servers, maintenance, and backups.",
+      "source": "README.md"
+    },
+    {
+      "claim": "Plausible Cloud is continuously updated multiple times per week, whereas Plausible Community Edition is published twice per year as a long-term release.",
+      "source": "README.md"
+    },
+    {
+      "claim": "Premium features including marketing funnels, ecommerce revenue goals, SSO, and the sites API are excluded from the Plausible Community Edition to support the project's long-term sustainability.",
+      "source": "README.md"
+    },
+    {
+      "claim": "The community leaders of Plausible are Marko Saric (marko@plausible.io) and Uku Taht (uku@plausible.io).",
+      "source": "CODE_OF_CONDUCT.md"
+    },
+    {
+      "claim": "Plausible version 3.2.0 was released on 2026-01-16.",
+      "source": "CHANGELOG.md"
+    },
+    {
+      "claim": "Plausible is a lightweight and open-source Google Analytics alternative that respects visitor privacy.",
+      "source": "https://plausible.io"
+    },
+    {
+      "claim": "Your website data is 100% yours, with no cross-site or cross-device tracking.",
+      "source": "https://plausible.io"
+    },
+    {
+      "claim": "Plausible's script loads fast, won't affect page speed or Core Web Vitals, and is 54 times smaller than Google Analytics (every visitor downloads 135KB less JavaScript).",
+      "source": "https://plausible.io"
+    },
+    {
+      "claim": "No cookie banners or GDPR consent are required because Plausible doesn't process personal data, track individual users, or use cookies.",
+      "source": "https://plausible.io"
+    },
+    {
+      "claim": "Plausible is built and hosted in the EU, and all visitor data is processed on servers owned and operated by European companies and never leaves the EU.",
+      "source": "https://plausible.io"
+    },
+    {
+      "claim": "Plausible tracks scroll depth automatically from 1 to 100 percent on every page without setup or tag managers.",
+      "source": "https://plausible.io"
+    },
+    {
+      "claim": "Plausible monitors traffic sent from AI tools like ChatGPT, Perplexity, or Claude, and identifies which pages attract AI visitors and the conversions they complete.",
+      "source": "https://plausible.io"
+    },
+    {
+      "claim": "Plausible can connect to Google Search Console to show search queries and organic performance directly in the Plausible dashboard.",
+      "source": "https://plausible.io"
+    },
+    {
+      "claim": "Plausible's real-time dashboard updates every 30 seconds without requiring a page refresh.",
+      "source": "https://plausible.io"
+    },
+    {
+      "claim": "Plausible offers codeless goals and revenue tracking, automatically tracking file downloads, form completions, and external link clicks.",
+      "source": "https://plausible.io"
+    },
+    {
+      "claim": "Plausible features built-in bot filtering to exclude bots, referrer spam, and data center traffic out of the box.",
+      "source": "https://plausible.io"
+    },
+    {
+      "claim": "Plausible has over 18,000 paying subscribers, tracks 260 billion pageviews, and has had a 99.99% uptime over the last 90 days.",
+      "source": "https://plausible.io"
+    },
+    {
+      "claim": "A site with 100,000 monthly visitors saves around 4 kg of CO2 per year by switching to Plausible.",
+      "source": "https://plausible.io"
+    },
+    {
+      "claim": "Plausible is run by a completely independent, self-funded, bootstrapped, and profitable team of 10, running since 2018 with no outside investors or acquisition targets.",
+      "source": "https://plausible.io"
+    },
+    {
+      "claim": "Plausible offers a 30-day free trial with no credit card required.",
+      "source": "https://plausible.io/#pricing"
+    },
+    {
+      "claim": "The Starter plan starts at $9/month (or custom based on pageviews) and includes 1 site, 3 years of data retention, Google Analytics import, and goals/custom events.",
+      "source": "https://plausible.io/#pricing"
+    },
+    {
+      "claim": "The Growth plan starts at $14/month and includes up to 3 sites, 3 team members, team management, shared links, embedded dashboards, and shared segments.",
+      "source": "https://plausible.io/#pricing"
+    },
+    {
+      "claim": "The Business plan starts at $19/month and includes up to 10 sites, 10 team members, 5 years of data retention, custom properties, Stats API (600 requests per hour), Looker Studio Connector, ecommerce revenue attribution, funnels, and user journeys.",
+      "source": "https://plausible.io/#pricing"
+    }
+  ],
+  "questions": [
+    {
+      "id": "missing-479766f6",
+      "text": "Where do you reach people \u2014 your main channel(s) (Instagram, X, LinkedIn, email\u2026)?",
+      "why": "no connected source mentioned your main channel",
+      "trigger": "missing_field",
+      "blocks": "outreach (kural)",
+      "status": "open",
+      "answer": "",
+      "options": [],
+      "sources": []
+    },
+    {
+      "id": "missing_asset-5de4c51e",
+      "text": "I don't have your logo. Add one to the vault so kalai can put it on what it makes?",
+      "why": "the brand-asset vault holds no asset of kind 'logo'",
+      "trigger": "missing_asset",
+      "blocks": "logo placement on creative (kalai)",
+      "status": "open",
+      "answer": "",
+      "options": [],
+      "sources": []
+    }
+  ],
+  "captured_at": "2026-06-10",
+  "sources": [
+    [
+      "github \u00b7 plausible/analytics",
+      "https://github.com/plausible/analytics"
+    ],
+    [
+      "website \u00b7 plausible.io",
+      "https://plausible.io"
+    ]
+  ]
+}

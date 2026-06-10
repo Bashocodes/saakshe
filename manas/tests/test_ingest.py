@@ -156,3 +156,29 @@ async def test_ingest_requires_a_connection():
     # No sources → nothing committed, store stays ungrounded (never fabricates).
     assert store.is_grounded() is False
     assert res["fact_count"] == 0
+
+
+# ─── org one-liner: HTML banners in famous-repo READMEs never leak markup ─────
+def test_first_paragraph_skips_html_banners():
+    md = (
+        '<a href="https://example.com" target="_blank">\n'
+        '<picture><source media="(prefers-color-scheme: dark)" '
+        'srcset="https://cdn.example.com/cover-dark.png" /><img src="cover.png" /></picture>\n'
+        "</a>\n\n"
+        "[![CI](https://badge.example/ci.svg)](https://ci.example)\n\n"
+        "An open source virtual whiteboard that is collaborative and end-to-end encrypted.\n"
+    )
+    line = src._first_paragraph(md)
+    assert "<" not in line and "srcset" not in line and "https://" not in line
+    assert line.startswith("An open source virtual whiteboard")
+
+
+def test_first_paragraph_skips_blockquote_alerts():
+    md = (
+        "> [!WARNING]\n"
+        "> Use at your own risk. The community edition is intended for self-hosters.\n\n"
+        "The open scheduling infrastructure for absolutely everyone.\n"
+    )
+    line = src._first_paragraph(md)
+    assert line.startswith("The open scheduling infrastructure")
+    assert "WARNING" not in line
