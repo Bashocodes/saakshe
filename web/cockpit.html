@@ -2626,6 +2626,9 @@ html[data-theme="dark"] .sdoss .sdfoot{ border-top-color:var(--line); box-shadow
     <header class="cg-top">
       <div class="cg-title"><b>saakshe</b><span class="cg-sub">setu — the bridge · sources are granted, never taken</span></div>
       <div class="cg-mode" id="cgMode">checking for the backend…</div>
+      <button id="cgClose" type="button" title="explore the cockpit without connecting (Esc)"
+              style="margin-left:14px;border:1.5px solid #141118;border-radius:999px;background:transparent;
+                     font:700 13px/1 ui-monospace,monospace;padding:7px 13px;cursor:pointer">✕</button>
     </header>
 
     <!-- STEP: CONNECT -->
@@ -2801,6 +2804,9 @@ html[data-theme="dark"] .sdoss .sdfoot{ border-top-color:var(--line); box-shadow
     ["cgStepConnect","cgStepIngest","cgStepResult"].forEach(function(id){ var el=$(id); if(el) el.hidden=(id!==step); });
   }
   function hideGate(){ var g=$("connectGate"); g.hidden=true; g.setAttribute("aria-hidden","true"); }
+  /* the gate must never trap the founder — ✕ and Esc dismiss it (reopens on reload until grounded) */
+  var cgX=$("cgClose"); if(cgX) cgX.onclick=hideGate;
+  document.addEventListener("keydown",function(e){ if(e.key==="Escape"&&!$("connectGate").hidden) hideGate(); });
 
   /* ---- CONNECT step ---- */
   function connectHint(html){ var h=$("cgConnectHint"); h.innerHTML=html; h.hidden=false; }

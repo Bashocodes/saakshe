@@ -114,7 +114,7 @@ async def _run_live(websocket: Any) -> None:
         tools=[types.Tool(function_declarations=declarations)],
     )
 
-    model = config.MODEL_FLASH  # a Live-capable Gemini in live mode
+    model = config.MODEL_LIVE  # GA native-audio Live model (config-overridable)
     async with client.aio.live.connect(model=model, config=live_config) as session:
         async def pump_client_to_gemini() -> None:
             try:
