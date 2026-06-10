@@ -164,6 +164,10 @@ def verify_token(token: str) -> dict:
     except KeyError as exc:
         raise AuthError(f"missing_claim: {exc}") from exc
 
+    # Evict on insert so the cache can't grow without bound across a long run.
+    expired = [t for t, (exp, _) in _TOKEN_CACHE.items() if exp <= now]
+    for t in expired:
+        _TOKEN_CACHE.pop(t, None)
     _TOKEN_CACHE[token] = (now + _TOKEN_TTL, claims)
     return claims
 

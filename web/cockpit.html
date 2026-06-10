@@ -221,7 +221,9 @@ html[data-bot="joy"] .skbot .skeye.R{ animation-delay:.07s; }
   grid-template-rows:var(--topbar) minmax(0,1fr);
   grid-template-columns:var(--sb) minmax(0,1fr) var(--rail);
   grid-template-areas:"top top top" "side stage rail";
-  height:100vh; width:100vw;
+  /* width:100% not 100vw — body carries margin-right:30vw for the chat pane,
+     and a 100vw shell under body's overflow:hidden clips the stage at 70vw */
+  height:100vh; width:100%;
   transition:grid-template-columns .28s var(--ease);
 }
 .app.sb-collapsed{ grid-template-columns:var(--sb-rail) minmax(0,1fr) var(--rail); }
@@ -997,16 +999,169 @@ html[data-theme="dark"] .sdoss .sdfoot{ border-top-color:var(--line); box-shadow
 .todaymeters .meterrow:hover .ml{ color:var(--ink); }
 .todaymeters .meterrow:hover .meterbar{ box-shadow:0 0 0 1.5px var(--accent); }
 .todaymeters .meterrow:focus-visible{ outline:none; box-shadow:0 0 0 2px var(--accent); border-radius:var(--r); }
-/* ── saakshe chat panel mount: fixed right 30%, content shifts left ── */
-@media(min-width:1100px){
-  body{ margin-right:30vw; }
-  #sa-chatpane{ position:fixed; top:0; right:0; width:30vw; height:100vh;
-    border-left:2px solid #141118; background:#fff; z-index:600; }
+/* ============================================================================
+   BRUT ALIGNMENT · cascade-last (2026-06-10) — the panes re-aligned to the
+   agreed Brut/Obsidian system (saakshe_landing.html is canon):
+   1) framed blocks wear the signature var(--line-w) ink edge (dark stays 1px)
+   2) interactive microcopy = IBM Plex Mono UPPERCASE tracked
+   3) hover = lift + deeper hard shadow (dark: border brighten, flat)
+   4) pills/chips = bordered ink-line chips, never rgba washes
+   5) per-faculty pane accent (--qc) + canonical Bauhaus fill hues (--c-*)
+   6) display headings = weight 700 in light (Obsidian keeps 500)
+   ============================================================================ */
+:root{
+  /* canonical FILL hues (landing) — fills/dots/marks; --manas… stay text-safe */
+  --c-manas:#E3A52B; --c-arivu:#3551C8; --c-kalai:#CC4632; --c-kural:#3E8F5E;
 }
-@media(max-width:1099px){ #sa-chatpane{ display:none; } }
+html[data-theme="dark"]{
+  --c-manas:#E0B25A; --c-arivu:#7C97F2; --c-kalai:#E0685C; --c-kural:#5EF08A;
+}
+
+/* 1 ── the Brut edge: framed blocks at full ink weight */
+.panel, .ovcard, .dcard, .constrip, .constrip.panel, .projhdr, .gate, .desk,
+.deskflow, .plan, .cg-shell, .cg-card, .lc-shell, .lc-card{
+  border-width:var(--line-w); border-style:solid; border-color:var(--line);
+}
+/* nested cards: a visible line instead of the borderless recessed well */
+.qcard, .seat, .metric, .choice, .bucket, .dissent, .reimbibe, .wkspace{
+  border:1.5px solid var(--line);
+}
+html[data-theme="dark"] .qcard, html[data-theme="dark"] .seat,
+html[data-theme="dark"] .metric, html[data-theme="dark"] .choice,
+html[data-theme="dark"] .bucket, html[data-theme="dark"] .dissent,
+html[data-theme="dark"] .reimbibe, html[data-theme="dark"] .wkspace{
+  border-width:1px;
+}
+/* Obsidian is FLAT — no skeuomorphic insets, no warm highlights (spec :89-90) */
+html[data-theme="dark"] :is(.panel,.ovcard,.dcard,.constrip,.gate,.projhdr,
+  .qcard,.seat,.metric,.choice,.bucket,.dissent,.reimbibe,.wkspace,.plan,.desk){
+  box-shadow:none;
+}
+
+/* 2 ── interactive microcopy: mono UPPERCASE tracked (landing control idiom) */
+.btn, .chip, .qbtn, .pill, .qp, .ovpill, .badge, .backchip, .railtab,
+.seg button, .chatin .send, .reimbibe .rbtn, .loop .step, .theme-toggle,
+.msg .achip{
+  font-family:var(--font-mono); font-weight:600;
+  letter-spacing:.07em; text-transform:uppercase;
+}
+.btn{ font-size:11.5px; } .chip, .qp, .msg .achip{ font-size:11px; }
+.pill, .ovpill, .badge, .reimbibe .rbtn, .loop .step{ font-size:10.5px; }
+.msg .fpill{ font-family:var(--font-mono); font-size:10.5px; font-weight:600;
+  background:var(--tint-green); border:1.2px solid color-mix(in srgb, var(--kural) 55%, var(--line)); }
+[data-tip]::after{ font-family:var(--font-mono); font-size:10px;
+  letter-spacing:.05em; text-transform:uppercase; }
+
+/* 3 ── hover = lift + deeper hard shadow (the agreed Brut motion) */
+.ovcard:hover, .dcard:hover, .constrip:hover, .projhdr:hover{
+  border-color:var(--line); transform:translate(-2px,-2px);
+  box-shadow:7px 7px 0 var(--line);
+}
+.desk:hover, .gate:hover{
+  border-color:var(--line); transform:translate(-1px,-1px);
+  box-shadow:4px 4px 0 var(--line);
+}
+.conchip:hover, .qbtn:hover{ border-color:var(--ink-3); box-shadow:none; }
+html[data-theme="dark"] :is(.ovcard,.dcard,.constrip,.projhdr,.desk,.gate):hover{
+  transform:none; box-shadow:none; border-color:var(--ink-3);
+}
+
+/* 4 ── pills/chips: bordered ink-line chips (never rgba washes) */
+.pill, .qp, .ovpill, .badge, .loop .step{
+  background:var(--surface-2); border:1.2px solid var(--line);
+  border-radius:var(--radius-pill);
+}
+.pill:hover, .qp:hover{ border-color:var(--ink-3); box-shadow:none; }
+
+/* 5 ── the active faculty owns its pane's accents */
+.stage{ --qc:var(--accent); }
+html[data-quad="manas"] .stage{ --qc:var(--manas); }
+html[data-quad="arivu"] .stage{ --qc:var(--arivu); }
+html[data-quad="kalai"] .stage{ --qc:var(--kalai); }
+html[data-quad="kural"] .stage{ --qc:var(--kural); }
+.stage .outs li::before{ background:var(--qc); }
+.stage .prov-line .ic{ color:var(--qc); }
+.stage .loop .arr, .stage .seam-foot .arr, .stage .constrip .csprov .arr,
+.stage .wkspace .wusage .arr{ color:var(--qc); }
+.stage .loop .step.cur{ border-color:var(--qc); }
+.stage .eyebrow .num{ color:var(--qc); }
+/* Bauhaus identity marks wear the canonical FILL hues */
+.ovmark.s-manas{ background:var(--c-manas); }
+.ovmark.s-kural{ background:var(--c-kural); }
+.ovmark.s-kalai{ border-bottom-color:var(--c-kalai); background:none; }
+
+/* 6 ── display headings: bold in light Brut; Obsidian keeps the lighter 500 */
+.vtitle, .vhead .vname, .ovname, .drillanchor, .docket-verdict,
+.metric .mv, .projhdr .pn, .plan .pt{ font-weight:700; }
+html[data-theme="dark"] :is(.vtitle, .vhead .vname, .ovname, .drillanchor,
+  .docket-verdict, .metric .mv, .projhdr .pn, .plan .pt){ font-weight:500; }
+
+/* 7 ── panel headers carry the Brut card-header voice (mono uppercase) */
+.panel .phead h3{ font-family:var(--font-mono); font-size:11px; font-weight:700;
+  letter-spacing:.12em; text-transform:uppercase; }
+/* brand-name headers (manas/kalai/kural) stay lowercase by product convention */
+.qgroups .phead h3{ text-transform:lowercase; }
+
+/* 8 ── nav active: the agreed red bar (dark: phosphor), no layout shift */
+.navlist button.nav.active{ box-shadow:inset 4px 0 0 var(--act); font-weight:700; }
+html[data-theme="dark"] .navlist button.nav.active{ box-shadow:inset 4px 0 0 var(--c-kural); }
+html[data-theme="dark"] .navlist button.nav.active .lbl::before{ content:"> "; }
+
+/* 9 ── witness-rail tabs: mono segments, selected = ink fill (dark: phosphor) */
+.railtabs{ gap:6px; padding:8px 12px; }
+.railtab{ font-family:var(--font-mono); font-size:10.5px; font-weight:700;
+  letter-spacing:.08em; text-transform:uppercase;
+  border:1.5px solid var(--line); border-radius:var(--radius-sm);
+  border-bottom:1.5px solid var(--line); padding:5px 10px; margin-bottom:8px; }
+.railtab[aria-selected="true"]{ background:var(--ink); color:var(--surface); border-color:var(--line); }
+html[data-theme="dark"] .railtab[aria-selected="true"]{ background:var(--act); color:var(--on-act); }
+
+/* 10 ── Obsidian text idioms: // labels · [ ] controls · > active nav */
+html[data-theme="dark"] .panel .phead h3::before{ content:"// "; color:var(--ink-3); }
+html[data-theme="dark"] .eyebrow::before{ content:"// "; color:var(--faint); }
+html[data-theme="dark"] .btn::before{ content:"[ "; color:var(--ink-3); }
+html[data-theme="dark"] .btn::after{ content:" ]"; color:var(--ink-3); }
+
+/* 11 ── the italic gloss register belongs to the serif art pages, not Brut */
+.vgloss, .dcard .dsub, .ovthree, .compaction, .quiet, .railhead .gloss,
+.allclear, .matrix .nc{ font-style:normal; }
+
+/* 12 ── segmented control: pressed = ink fill (landing .toggle idiom) */
+.seg button[aria-pressed="true"]{ background:var(--ink); color:var(--surface); }
+html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act); color:var(--on-act); }
+
+/* 13 ── bare 1fr tracks can refuse to shrink — give every pane grid a floor */
+.grid2{ grid-template-columns:repeat(2,minmax(0,1fr)); }
+.grid3{ grid-template-columns:repeat(3,minmax(0,1fr)); }
+.desks{ grid-template-columns:repeat(2,minmax(0,1fr)); }
+.feed{ grid-template-columns:repeat(2,minmax(0,1fr)); }
+.phbands{ grid-template-columns:repeat(2,minmax(0,1fr)); }
+
+/* ── saakshe chat panel mount: fixed right 30%, content shifts left.
+   Tokenized (it must theme-flip with the cockpit) + collapsible to a 64px
+   witness rail; under 1100px it becomes a FAB-opened floating panel. ── */
+@media(min-width:1100px){
+  body{ margin-right:30vw; transition:margin-right .28s var(--ease); }
+  #sa-chatpane{ position:fixed; top:0; right:0; width:30vw; height:100vh;
+    border-left:var(--line-w) solid var(--line); background:var(--surface); z-index:600;
+    transition:width .28s var(--ease); }
+  html.sk-chat-collapsed body{ margin-right:64px; }
+  html.sk-chat-collapsed #sa-chatpane{ width:64px; }
+  #sa-chatfab{ display:none; }
+}
+@media(max-width:1099px){
+  #sa-chatpane{ display:none; position:fixed; right:12px; bottom:12px; z-index:900;
+    width:min(420px, calc(100vw - 24px)); height:min(72vh, 640px);
+    border:var(--line-w) solid var(--line); border-radius:var(--radius);
+    overflow:hidden; box-shadow:var(--shadow); }
+  html.sk-chat-open #sa-chatpane{ display:flex; }
+  #sa-chatfab{ position:fixed; right:14px; bottom:14px; z-index:899; }
+  html.sk-chat-open #sa-chatfab{ display:none; }
+  /* the collapse affordance is a desktop concept */
+  #sa-chatpane .ch-collapse{ display:none; }
+}
 </style>
 <link rel="stylesheet" href="chat-panel.css">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syncopate:wght@700&display=swap">
 </head>
 
 <body>
@@ -1157,7 +1312,7 @@ html[data-theme="dark"] .sdoss .sdfoot{ border-top-color:var(--line); box-shadow
   <p style="font-size:16px;">This is the <b>saakshe cockpit</b>. With JavaScript on, it boots into a <strong>connect step</strong> first — nothing is canned. You grant a real project over <b>setu, the bridge</b> (a GitHub repo read with your own SSH, your website, optional docs and a social handle), and <b>manas</b> reads it live, extracting cited facts and a versioned Context Pack. Until you connect, there is no company name, no numbers, no day — the cockpit shows <strong>— connect a project —</strong> everywhere identity would go. <em>Sources are granted, never taken.</em></p>
   <p style="font-size:16px;">Once a project is grounded, you speak only to saakshe — the chat answers in short cards with live numbers and one-tap actions. The company runs as <b>three agents</b> you watch from the side rail — manas, kalai and kural — each calling <b>arivu</b> to decide. Every agent page reads <b>desks across</b>: a connections strip, the four desks as a band, then the day's work beside its open questions. Click a desk to drill into its seats.</p>
   <p style="font-size:16px;"><strong>manas (knows)</strong> — memory. It imbibes your granted sources, organizes them into buckets, and commits summaries before raw fragments so the window never blows up. <strong>arivu (decides)</strong> — judgment. Five lenses argue a real question; a Claude bench seals and stress-tests the verdict; nothing commits without your tap. <strong>kalai (makes)</strong> — creation, no channel keys; it produces masters and hands them to kural. <strong>kural (engages)</strong> — the only mouth; it holds the publish gate. <strong>saakshe</strong> witnesses all of it and is the only voice you talk to.</p>
-  <p style="font-size:16px;">Nothing has run yet in this empty state: no spend, no verdict, no banner, no outreach. Connect a project and ask saakshe a real decision (a question with a "?" that proposes a change) and the flywheel starts — manas grounds, arivu decides, a gate lands in your queue, kalai makes, kural publishes, manas learns. Cost lands on <b>your own keys</b>, under a daily cap. Models: Gemini runs the many seats; Claude via Vertex runs the high-stakes seats.</p>
+  <p style="font-size:16px;">Nothing has run yet in this empty state: no spend, no verdict, no banner, no outreach. Connect a project and ask saakshe a real decision (a question with a "?" that proposes a change) and the flywheel starts — manas grounds, arivu decides, a gate lands in your queue, kalai makes, kural publishes, manas learns. Cost lands on <b>your own keys</b> — every chargeable act is priced up front and refunded if the run fails. Models: Gemini runs the many seats; Claude via Vertex runs the high-stakes seats.</p>
   <p style="font-size:16px;">Drilling in goes deep once there is a real run. Click any desk for a <b>dossier spread</b>: a desk-flow strip, a card per seat with its standing role (or today's work once a run exists), its model and its reads-and-feeds, then a side panel of that desk in the day's story. Two work surfaces drill further — kalai's <b>studio</b> and kural's <b>outreach</b>. The activity view groups the day into phases. Every action shares the one state, so a tap in chat flips the gate everywhere. But all of that waits behind the connect step: <strong>connect a project first.</strong></p>
 </div></noscript>
 
@@ -2265,7 +2420,7 @@ html[data-theme="dark"] .sdoss .sdfoot{ border-top-color:var(--line); box-shadow
     chips:[ ac("→ arivu","nav:arivu","seal") ]
   };
   var R_COST = {
-    lead:"No spend yet — nothing has run. Once you ask a decision, the work runs on your own keys under a daily cap; cost lands in the today tab, split by agent.",
+    lead:"No spend yet — nothing has run. Once you ask a decision, the work runs on your own keys — priced up front, refunded on failure; watch it land line-by-line in the live console.",
     pills:[ fp("— no spend yet —","orange") ],
     chips:[ ac("→ today tab","tab:today","ledger") ]
   };
@@ -2393,7 +2548,25 @@ html[data-theme="dark"] .sdoss .sdfoot{ border-top-color:var(--line); box-shadow
   async function askBackend(v){
     var r=await fetch('/api/saakshe/ask',{method:'POST',headers:(window.SA_HEADERS||Object)({'content-type':'application/json'}),
       body:JSON.stringify({text:v, idem_key:'ask:'+Date.now()+':'+Math.random().toString(36).slice(2)})});
-    if(!r.ok) throw new Error('HTTP '+r.status);
+    if(!r.ok){
+      /* an HTTP answer is an ANSWER — only a dead network falls back to the
+         canned responder. 401/402/429 must never read as fake telemetry. */
+      var body=null; try{ body=await r.json(); }catch(e){}
+      if(r.status===401) return {
+        lead:'Your session has expired — sign in again to keep asking.',
+        pills:[ fp('signed out','red') ], prov:'live · POST /api/saakshe/ask · 401',
+        chips:[ ac('sign in','auth:signin','key',true) ] };
+      if(r.status===402) return {
+        lead:'Out of credits — this ask needs more'+((body&&body.balance!=null)?(' (balance '+body.balance+')'):'')+'.',
+        pills:[ fp('out of credits','red') ], prov:'live · POST /api/saakshe/ask · 402',
+        chips:[ ac('see pricing','open:pricing','tag',true) ] };
+      if(r.status===429) return {
+        lead:'Rate limited — give it a few seconds, then ask again.',
+        pills:[ fp('429 — slow down','red') ], prov:'live · POST /api/saakshe/ask · 429' };
+      return {
+        lead:'The backend refused that ask — '+(((body&&(body.detail||body.error))||('HTTP '+r.status))),
+        pills:[ fp('HTTP '+r.status,'red') ], prov:'live · POST /api/saakshe/ask' };
+    }
     var d=await r.json();
     if(d.kind==='flywheel_started'){
       var rid=(d.flywheel&&d.flywheel.run_id)||'run';
@@ -2440,6 +2613,8 @@ html[data-theme="dark"] .sdoss .sdfoot{ border-top-color:var(--line); box-shadow
     if(act==='approve:publish'){ approveGate('publish'); syncChatChips(); return; }
     if(act==='live:open'){ var lt=document.getElementById('liveToggle'); if(lt) lt.click(); return; }
     if(act==='goreply'){ go('kural', null); return; }
+    if(act==='auth:signin'){ if(window.SAAKSHE_AUTH) SAAKSHE_AUTH.signIn(); return; }
+    if(act==='open:pricing'){ window.open('/pricing.html','_blank','noopener'); return; }
   }
   log.addEventListener('click', function(e){
     var a=e.target.closest('.achip'); if(a && !a.classList.contains('done')){ chipAct(a.getAttribute('data-act')); }
@@ -2603,7 +2778,7 @@ html[data-theme="dark"] .sdoss .sdfoot{ border-top-color:var(--line); box-shadow
     ],
     triggers:[
      {keyword:"waiting",reply:"Nothing waiting on you yet — no flywheel has run. Connect a project and ask a real decision; if an agent proposes a change, a gate lands in your queue for your tap."},
-     {keyword:"cost",reply:"No spend yet — nothing has run. Once you ask a decision, the work runs on your own keys under a daily cap; cost lands in the today pane, split by agent."},
+     {keyword:"cost",reply:"No spend yet — nothing has run. Once you ask a decision, the work runs on your own keys — priced up front, refunded on failure; watch it land line-by-line in the live console."},
      {keyword:"memory",reply:"Memory grounds the moment you connect. manas imbibes your granted sources over setu and commits a versioned Context Pack of cited facts — nothing invented. No project connected yet, so memory is empty."},
      {keyword:"saakshe",reply:"I'm the witness — the only voice you talk to. Three agents do the work: manas knows, kalai makes, kural engages. I watch them, surface what needs you, and refuse anything not grounded in your memory."},
      {keyword:"status",reply:"Empty state — no project connected, no run. Connect a repo and your site over setu, let manas ground the company, then ask a real decision to start the flywheel."}
@@ -2620,15 +2795,16 @@ html[data-theme="dark"] .sdoss .sdfoot{ border-top-color:var(--line); box-shadow
      INGEST/RESULT step (connected, not yet grounded), or reveals the cockpit (grounded)
      by handing the REAL org name/version/day to window.cockpitSetOrg. Self-contained:
      scoped cg- namespace, own <style> + IIFE, mirrors the lc- detectBase + lcJson safe-parse.
-     Soft Clay theme · borderless big-radius cards · warm shadows · NO colored edge-bands. -->
+     Brut light / Obsidian dark — everything rides the cockpit tokens (line, radius,
+     shadow, signal hues); the BRUT ALIGNMENT layer gives the shell its ink edge. -->
 <div id="connectGate" aria-hidden="false">
   <div class="cg-shell">
     <header class="cg-top">
       <div class="cg-title"><b>saakshe</b><span class="cg-sub">setu — the bridge · sources are granted, never taken</span></div>
       <div class="cg-mode" id="cgMode">checking for the backend…</div>
       <button id="cgClose" type="button" title="explore the cockpit without connecting (Esc)"
-              style="margin-left:14px;border:1.5px solid #141118;border-radius:999px;background:transparent;
-                     font:700 13px/1 ui-monospace,monospace;padding:7px 13px;cursor:pointer">✕</button>
+              style="margin-left:14px;border:1.5px solid var(--line,#161410);border-radius:var(--radius-pill,999px);background:transparent;color:var(--ink,#161410);
+                     font:700 13px/1 var(--font-mono,monospace);padding:7px 13px;cursor:pointer">✕</button>
     </header>
 
     <!-- STEP: CONNECT -->
@@ -2777,7 +2953,7 @@ html[data-theme="dark"] .sdoss .sdfoot{ border-top-color:var(--line); box-shadow
 <script>
 (function(){
   "use strict";
-  var HUE={saakshe:"#70675d",manas:"#88602c",arivu:"#5166a7",kalai:"#b35a4e",kural:"#3e725f"};
+  var HUE={saakshe:"var(--saksi)",manas:"var(--manas)",arivu:"var(--arivu)",kalai:"var(--kalai)",kural:"var(--kural)"};
   var base=null, runId=null, cursor=0, lastStatus=null, ingesting=false, feedPoll=null;
   var $=function(id){return document.getElementById(id);};
   function esc(s){return String(s==null?"":s).replace(/[&<>]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;"}[c];});}
@@ -2813,6 +2989,13 @@ html[data-theme="dark"] .sdoss .sdfoot{ border-top-color:var(--line); box-shadow
   /* the gate must never trap the founder — ✕ and Esc dismiss it (reopens on reload until grounded) */
   var cgX=$("cgClose"); if(cgX) cgX.onclick=hideGate;
   document.addEventListener("keydown",function(e){ if(e.key==="Escape"&&!$("connectGate").hidden) hideGate(); });
+  /* a ✕'d gate stays closed from the FIRST paint — synchronous, before any await,
+     so a refresh never flashes the gate at a founder who already dismissed it */
+  if(gateDismissed()){ (function(){ var g=$("connectGate"); g.hidden=true; g.setAttribute("aria-hidden","true"); })(); }
+  /* ONE public-config round-trip shared by every consumer on the page (this IIFE,
+     the sealed-demo check, the auth IIFE) — three divergent fetches drifted apart */
+  window.SK_PUBCFG = window.SK_PUBCFG ||
+    fetch("/api/public-config",{cache:"no-store"}).then(function(r){return r.json();});
 
   /* ---- CONNECT step ---- */
   function connectHint(html){ var h=$("cgConnectHint"); h.innerHTML=html; h.hidden=false; }
@@ -2851,7 +3034,7 @@ html[data-theme="dark"] .sdoss .sdfoot{ border-top-color:var(--line); box-shadow
     var f=$("cgFeed"); var em=f.querySelector(".cg-empty"); if(em && row) em.remove();
     if(!row) return;
     var div=document.createElement("div"); div.className="cg-row";
-    var hue=HUE[row.source]||"#72665b";
+    var hue=HUE[row.source]||"var(--ink-3)";
     div.innerHTML='<span class="cg-dot" style="background:'+hue+'"></span>'
       +'<span class="cg-src">'+esc(row.source)+' · '+esc(row.agent)+'</span>'
       +'<span class="cg-txt">'+esc(row.text)+'</span>';
@@ -2877,9 +3060,19 @@ html[data-theme="dark"] .sdoss .sdfoot{ border-top-color:var(--line); box-shadow
       if(hj.ok && hj.data && typeof hj.data.cursor==="number"){ cursor=hj.data.cursor; } }catch(e){}
     startFeed();
     try{
-      var r=await fetch(base+"/api/connect/ingest",{method:"POST",headers:(window.SA_HEADERS||Object)({"content-type":"application/json"}),body:"{}"});
+      var ik=(window.SAAKSHE_AUTH&&SAAKSHE_AUTH.idemKey)? SAAKSHE_AUTH.idemKey() : String(Date.now())+Math.random().toString(16).slice(2);
+      var r=await fetch(base+"/api/connect/ingest",{method:"POST",headers:(window.SA_HEADERS||Object)({"content-type":"application/json"}),body:JSON.stringify({idem_key:ik})});
       var j=await cgJson(r);
       ingesting=false; await pumpFeed();
+      if(j.status===402){
+        /* out of credits is not a transient failure — never steer the founder
+           into a retry loop of repeat 402s */
+        var bal=(j.data && j.data.balance!=null)? (" · balance "+j.data.balance) : "";
+        feedRow({source:"saakshe",agent:"setu",text:"out of credits — ingest needs more"+bal});
+        setTimeout(function(){ show("cgStepConnect"); $("cgConnectBtn").disabled=false;
+          $("cgConnectStatus").innerHTML='out of credits'+bal+' — <a href="/pricing.html" target="_blank" rel="noopener">see pricing</a>'; }, 1200);
+        return;
+      }
       if(!j.ok){ feedRow({source:"saakshe",agent:"setu",text:"ingest failed — "+((j.data&&(j.data.detail||j.data.error))||j.error||("HTTP "+j.status))});
         setTimeout(function(){ show("cgStepConnect"); $("cgConnectBtn").disabled=false; $("cgConnectStatus").textContent="ingest failed — try again"; }, 1400); return; }
       var d=j.data; runId=d.run_id||null;
@@ -2914,7 +3107,7 @@ html[data-theme="dark"] .sdoss .sdfoot{ border-top-color:var(--line); box-shadow
       return '<div class="cg-rule"><b>'+x.k+'</b> · '+esc(typeof x.t==="string"?x.t:(x.t&&x.t.rule)||JSON.stringify(x.t))+'</div>';
     }).join("") : '<div class="cg-empty sm">none extracted</div>';
     renderQuestions(d.questions||[], !!d.grounded);
-    syncEnter(d);
+    syncEnter(d, (d.questions||[]).filter(function(q){ return (q.status||"open")!=="answered"; }).length);
   }
   function syncEnter(d, openQ){
     /* NEVER a locked door: ungrounded just changes the guidance. The empty-
@@ -2983,21 +3176,35 @@ html[data-theme="dark"] .sdoss .sdfoot{ border-top-color:var(--line); box-shadow
      "not connected" (the stuck connect-over-signin bug). */
   async function authReady(){
     var cfg=null;
-    try{ cfg=await fetch("/api/public-config",{cache:"no-store"}).then(function(r){return r.json();}); }
-    catch(e){ return; }
-    if(!cfg || !cfg.require_signin) return;
+    try{ cfg=await window.SK_PUBCFG; }
+    catch(e){ cfg=null; }
+    if(cfg && !cfg.auth_enabled) return;   // file-store demo — no auth layer at all
+    /* Auth backend (or config unreachable → auth state UNKNOWN): wait for the auth
+       IIFE's first getSession() round-trip. A RESTORING session must never fire
+       token-less probes and read its own 401 as "not connected" — that holds for
+       EVERY auth-enabled profile, not only require_signin. */
+    var requireSignin=!!(cfg && cfg.require_signin);
     var g=$("connectGate");
-    g.hidden=true; g.setAttribute("aria-hidden","true");
+    if(requireSignin){ g.hidden=true; g.setAttribute("aria-hidden","true"); }
     await new Promise(function(res){
+      var waited=0;
       (function poll(){
         var A=window.SAAKSHE_AUTH;
-        if(A && A.signedIn()){ return res(); }
+        if(A && A._ready){
+          if(!requireSignin) return res();            // signed-out is a valid state here
+          if(A.signedIn()) return res();              // the judging gate is satisfied
+          if(!A.enabled || A._fatal) return res();    // auth broke — the sign-in gate shows the error
+        }
+        waited+=350;
+        if(!cfg && waited>5000) return res();         // config unreachable — detectBase() explains
         setTimeout(poll, 350);
       })();
     });
     /* signed in — surface the connect step only if the founder hasn't ✕'d it
        this tab; the topbar/sidebar "— connect a project —" crumb reopens it */
-    if(!gateDismissed()){ g.hidden=false; g.setAttribute("aria-hidden","false"); }
+    if(requireSignin && window.SAAKSHE_AUTH && SAAKSHE_AUTH.signedIn() && !gateDismissed()){
+      g.hidden=false; g.setAttribute("aria-hidden","false");
+    }
   }
 
   /* ---- BOOT: runs first ---- */
@@ -3038,11 +3245,9 @@ html[data-theme="dark"] .sdoss .sdfoot{ border-top-color:var(--line); box-shadow
     if(!st){ show("cgStepConnect"); return; }
     if(st.grounded){ reveal(st); return; }
     if(st.connected){
-      /* sources granted but not yet grounded — resume by (re-)running the real ingest.
-         The ingest endpoint is synchronous, so "ingesting" is only ever transient; both
-         "connecting" (never ingested) and "ingesting" resolve by running it now. */
-      if(st.ingest_status==="connecting" || st.ingest_status==="ingesting"){ runIngest(); return; }
-      /* needs_answers / other not-grounded → show the result step with the open questions */
+      /* sources granted but not yet grounded. NEVER auto-fire the chargeable
+         ingest from boot — a stray refresh must not silently spend again. Land
+         on the result step; ↻ re-run ingest is the explicit way forward. */
       show("cgStepResult");
       $("cgOrgName").textContent=(st.org&&st.org.name)|| "your company";
       $("cgOrgKind").textContent=(st.org&&st.org.kind)||"the connected company";
@@ -3052,6 +3257,9 @@ html[data-theme="dark"] .sdoss .sdfoot{ border-top-color:var(--line); box-shadow
       $("cgFactCt").textContent=st.fact_count?(st.fact_count+" in memory"):"";
       renderQuestions(st.open_questions||[], !!st.grounded);
       syncEnter({grounded:st.grounded}, (st.open_questions||[]).length);
+      if(st.ingest_status==="connecting" || st.ingest_status==="ingesting"){
+        $("cgResultStatus").textContent="sources granted — press ↻ re-run ingest to ground them";
+      }
       return;
     }
     show("cgStepConnect");
@@ -3067,8 +3275,25 @@ html[data-theme="dark"] .sdoss .sdfoot{ border-top-color:var(--line); box-shadow
 
   /* sealed public demo: the shared company is read-only — hide the wipe button
      (unless boot() has already established the signed-in user is an OWNER) */
-  fetch("/api/public-config",{cache:"no-store"}).then(function(r){return r.json();})
+  window.SK_PUBCFG
     .then(function(c){ if(c && c.public_demo && !window.__SK_OWNER){ $("cgResetBtn").hidden=true; } }).catch(function(){});
+
+  /* sign-in state flips re-route the connect flow: a founder who signs in AFTER
+     boot gets their real status (with the token), a sign-out on a gated deploy
+     hands the screen back to the sign-in gate instead of a half-dead cockpit. */
+  (function hookAuth(){
+    var A=window.SAAKSHE_AUTH;
+    if(!A){ return void setTimeout(hookAuth, 250); }
+    var last=null;
+    A.onChange=function(){
+      var now=!!A.signedIn();
+      if(last===null){ last=now; return; }
+      if(now===last) return;
+      last=now;
+      if(now && base!==null){ route(); }
+      if(!now && A.requireSignin){ var g=$("connectGate"); g.hidden=true; g.setAttribute("aria-hidden","true"); }
+    };
+  })();
 
   boot();
 })();
@@ -3142,6 +3367,10 @@ html[data-theme="dark"] .sdoss .sdfoot{ border-top-color:var(--line); box-shadow
   .lc-btn:hover{border-color:var(--accent)}
   .lc-primary{background:var(--act);color:var(--on-act);border-color:var(--line)}
   .lc-approve{background:var(--ok);color:var(--on-act,#fff);border-color:var(--line);width:100%}
+  .lc-arm{display:flex;align-items:center;gap:7px;font-family:var(--font-mono);font-size:11px;
+    text-transform:uppercase;letter-spacing:.06em;margin:8px 0;cursor:pointer;color:var(--ink-2,#3a322b)}
+  .lc-arm input{accent-color:var(--act)}
+  .lc-armnote{text-transform:none;letter-spacing:0;color:var(--ink-3,#72665b)}
   .lc-chatcard{flex:1;display:flex;flex-direction:column;min-height:160px}
   .lc-chatlog{flex:1;overflow-y:auto;font-size:13px;margin-bottom:10px;min-height:60px}
   .lc-msg{margin:7px 0;line-height:1.45} .lc-msg .who{font-family:var(--font-mono);font-size:10.5px;color:var(--ink-3,#72665b);display:block}
@@ -3162,6 +3391,9 @@ html[data-theme="dark"] .sdoss .sdfoot{ border-top-color:var(--line); box-shadow
   var $=function(id){return document.getElementById(id);};
   var A = window.SAAKSHE_AUTH = {
     enabled:false, requireSignin:false, _token:null, _balance:null, _sb:null, refresh:null, onChange:null,
+    /* _fatal: auth is REQUIRED here but cannot work (CDN blocked, deploy
+       misconfigured). The gate shows this instead of lying "still loading". */
+    _fatal:null, _retry:null,
     /* _ready: the first getSession() round-trip finished — before that the auth
        state is UNKNOWN, not "signed out". _maybe: localStorage holds a persisted
        Supabase session, so a returning founder must never see the gate flash
@@ -3176,11 +3408,18 @@ html[data-theme="dark"] .sdoss .sdfoot{ border-top-color:var(--line); box-shadow
     signIn:async function(){
       if(this.requireSignin){ gate(true); return; }   // the gated demo signs in by email
       if(this._sb) await this._sb.auth.signInWithOAuth(
-      {provider:"google", options:{redirectTo: location.origin+"/auth/callback"}}); },
+      {provider:"google", options:{redirectTo: cbUrl()}}); },
     signOut:async function(){ if(this._sb){ await this._sb.auth.signOut(); this._token=null; this._balance=null; render(); } }
   };
   // Every fetch in the cockpit rides this (defined before any call fires).
   window.SA_HEADERS = function(extra){ return A.headers(extra); };
+
+  /* the OAuth round-trip drops the SPA hash — carry the deep link through as
+     ?next= so /auth/callback can restore the exact view the founder was on */
+  function cbUrl(){
+    return location.origin+"/auth/callback"
+      +(location.hash? ("?next="+encodeURIComponent(location.hash)) : "");
+  }
 
   /* ── the judging gate: a full-screen email/password sign-in (Supabase auth) ── */
   var GATE=null;
@@ -3189,29 +3428,32 @@ html[data-theme="dark"] .sdoss .sdfoot{ border-top-color:var(--line); box-shadow
       GATE=document.createElement("div");
       GATE.id="saGate";
       GATE.style.cssText="position:fixed;inset:0;z-index:9999;display:none;align-items:center;justify-content:center;background:var(--bg,#faf6f1)";
-      GATE.innerHTML='<form id="saGateF" style="width:min(380px,92vw);padding:30px;border:var(--line-w,1px) solid var(--hairline,#e3dad0);border-radius:14px;background:var(--plate,#fff);color:var(--ink,#1c1b1a);box-shadow:var(--shadow,none);font-family:inherit">'
+      GATE.innerHTML='<form id="saGateF" style="width:min(380px,92vw);padding:30px;border:var(--line-w,1px) solid var(--hairline,#e3dad0);border-radius:var(--radius,14px);background:var(--plate,#fff);color:var(--ink,#1c1b1a);box-shadow:var(--shadow,none);font-family:inherit">'
         +'<div style="font-family:\'Syncopate\',var(--word,sans-serif);font-weight:700;font-size:13px;letter-spacing:.26em" aria-label="saakshe">SΛΛKSHE</div>'
         +'<div style="font-size:13px;opacity:.72;margin:6px 0 18px;line-height:1.45">This demo is gated. Continue with Google, or sign in with the judging credentials from the submission’s testing instructions.</div>'
-        +'<button type="button" id="saGateG" style="width:100%;box-sizing:border-box;padding:11px;margin-bottom:14px;border:1px solid var(--line,#e3dad0);border-radius:9px;cursor:pointer;background:transparent;color:inherit;font:inherit;display:flex;align-items:center;justify-content:center;gap:9px">'
+        +'<button type="button" id="saGateG" style="width:100%;box-sizing:border-box;padding:11px;margin-bottom:14px;border:1px solid var(--line,#e3dad0);border-radius:var(--radius-sm,10px);cursor:pointer;background:transparent;color:inherit;font:inherit;display:flex;align-items:center;justify-content:center;gap:9px">'
         +'<svg width="17" height="17" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.9 6.1C12.4 13.4 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.8 7.2l7.7 6c4.5-4.2 6.9-10.3 6.9-17.7z"/><path fill="#FBBC05" d="M10.5 28.7a14.5 14.5 0 0 1 0-9.4l-7.9-6.1a24 24 0 0 0 0 21.6l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.3 0 11.6-2.1 15.6-5.8l-7.7-6c-2.1 1.4-4.8 2.3-7.9 2.3-6.3 0-11.6-3.9-13.5-9.4l-7.9 6.1C6.5 42.6 14.6 48 24 48z"/></svg>'
         +'Continue with Google</button>'
         +'<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;opacity:.55;font-size:11px"><span style="flex:1;height:1px;background:var(--line,#e3dad0)"></span>or with judge credentials<span style="flex:1;height:1px;background:var(--line,#e3dad0)"></span></div>'
-        +'<input id="saGateE" type="email" required placeholder="email" autocomplete="username" style="width:100%;box-sizing:border-box;margin-bottom:8px;padding:11px;border:1px solid var(--line,#e3dad0);border-radius:9px;font:inherit;background:transparent;color:inherit">'
-        +'<input id="saGateP" type="password" required placeholder="password" autocomplete="current-password" style="width:100%;box-sizing:border-box;margin-bottom:14px;padding:11px;border:1px solid var(--line,#e3dad0);border-radius:9px;font:inherit;background:transparent;color:inherit">'
-        +'<button type="submit" style="width:100%;padding:11px;border:0;border-radius:9px;cursor:pointer;background:var(--act,#1c1b1a);color:var(--on-act,#fff);font:inherit">Sign in</button>'
-        +'<div id="saGateErr" style="color:#b3261e;font-size:12.5px;margin-top:10px;display:none"></div></form>';
+        +'<input id="saGateE" type="email" required placeholder="email" autocomplete="username" style="width:100%;box-sizing:border-box;margin-bottom:8px;padding:11px;border:1px solid var(--line,#e3dad0);border-radius:var(--radius-sm,10px);font:inherit;background:transparent;color:inherit">'
+        +'<input id="saGateP" type="password" required placeholder="password" autocomplete="current-password" style="width:100%;box-sizing:border-box;margin-bottom:14px;padding:11px;border:1px solid var(--line,#e3dad0);border-radius:var(--radius-sm,10px);font:inherit;background:transparent;color:inherit">'
+        +'<button type="submit" style="width:100%;padding:11px;border:0;border-radius:var(--radius-sm,10px);cursor:pointer;background:var(--act,#1c1b1a);color:var(--on-act,#fff);font:inherit">Sign in</button>'
+        +'<div id="saGateErr" style="color:var(--sig-red,#A33321);font-size:12.5px;margin-top:10px;display:none"></div></form>';
       document.body.appendChild(GATE);
       GATE.querySelector("#saGateG").addEventListener("click", async function(){
-        var err=GATE.querySelector("#saGateErr"); err.style.display="none";
-        if(!A._sb){ err.textContent="auth is still loading — try again in a second"; err.style.display=""; return; }
+        var btn=this, err=GATE.querySelector("#saGateErr"); err.style.display="none";
+        if(!A._sb){ showGateErr(err); return; }
+        if(btn.disabled) return;                       // double-click guard
+        btn.disabled=true; btn.style.opacity=".6";
         try{ await A._sb.auth.signInWithOAuth({provider:"google",
-          options:{redirectTo: location.origin+"/auth/callback"}}); }
-        catch(e){ err.textContent=(e&&e.message)||"Google sign-in failed"; err.style.display=""; }
+          options:{redirectTo: cbUrl()}}); }
+        catch(e){ err.textContent=(e&&e.message)||"Google sign-in failed"; err.style.display="";
+          btn.disabled=false; btn.style.opacity=""; }
       });
       GATE.querySelector("#saGateF").addEventListener("submit", async function(ev){
         ev.preventDefault();
         var err=GATE.querySelector("#saGateErr"); err.style.display="none";
-        if(!A._sb){ err.textContent="auth is still loading — try again in a second"; err.style.display=""; return; }
+        if(!A._sb){ showGateErr(err); return; }
         try{
           var res=await A._sb.auth.signInWithPassword({
             email:GATE.querySelector("#saGateE").value.trim(),
@@ -3221,7 +3463,22 @@ html[data-theme="dark"] .sdoss .sdfoot{ border-top-color:var(--line); box-shadow
         if(A.refresh) await A.refresh();
       });
     }
+    /* a broken auth boot surfaces HERE, with a retry — never the lying
+       "still loading" while nothing is loading */
+    if(A._fatal){ showGateErr(GATE.querySelector("#saGateErr")); }
     GATE.style.display = show ? "flex" : "none";
+  }
+  function showGateErr(err){
+    if(!A._fatal){ err.textContent="auth is still loading — try again in a second"; err.style.display=""; return; }
+    err.textContent=A._fatal+" ";
+    if(A._retry){
+      var rb=document.createElement("button");
+      rb.type="button"; rb.textContent="retry";
+      rb.style.cssText="font:inherit;font-size:12px;padding:2px 10px;margin-left:6px;cursor:pointer;border:1px solid currentColor;border-radius:999px;background:transparent;color:inherit";
+      rb.addEventListener("click", function(){ err.style.display="none"; A._fatal=null; A._retry(); });
+      err.appendChild(rb);
+    }
+    err.style.display="";
   }
 
   function injectControl(){
@@ -3243,26 +3500,28 @@ html[data-theme="dark"] .sdoss .sdfoot{ border-top-color:var(--line); box-shadow
     var inB=$("saIn"), outB=$("saOut"), balB=$("saBal"); if(!inB) return;
     if(!A.enabled){ inB.style.display="none"; outB.style.display="none"; balB.style.display="none"; return; }
     if(A.signedIn()){
-      inB.style.display="none"; outB.style.display=""; balB.style.display="";
-      $("saBalV").textContent = (A.balance()==null? "—" : A.balance());
+      inB.style.display="none"; outB.style.display="";
+      /* the pill exists only when a real balance exists — the gated file-store
+         demo has no billing backend and must not wear a permanent dead "◈ —" */
+      if(A.balance()==null){ balB.style.display="none"; }
+      else { balB.style.display=""; $("saBalV").textContent=A.balance(); }
     } else { inB.style.display=""; outB.style.display="none"; balB.style.display="none"; }
   }
 
-  (async function(){
-    var cfg;
-    try{ cfg = await fetch("/api/public-config",{cache:"no-store"}).then(function(r){return r.json();}); }
-    catch(e){ return; }
-    injectControl();
-    if(!cfg || !cfg.auth_enabled || !cfg.supabase_url || !cfg.anon_key){ A.enabled=false; render(); return; }
-    A.enabled=true; A.requireSignin=!!cfg.require_signin;
-    try{ var ref=new URL(cfg.supabase_url).hostname.split(".")[0];
-      for(var i=0;i<localStorage.length;i++){ var k=localStorage.key(i);
-        if(k && k.indexOf("sb-"+ref)===0){ A._maybe=true; break; } } }catch(e){}
-    render();
+  var CFG=null;
+  async function connectSupabase(){
     var mod;
     try{ mod = await import("https://esm.sh/@supabase/supabase-js@2"); }
-    catch(e){ A._ready=true; A.enabled=false; render(); return; }
-    var sb = mod.createClient(cfg.supabase_url, cfg.anon_key,
+    catch(e){
+      /* CDN down/blocked. _ready so nothing waits forever; the gate carries
+         an honest message and a retry instead of "still loading". */
+      A._ready=true;
+      A._fatal="the sign-in library failed to load (network blocked?)";
+      if(!A.requireSignin){ A.enabled=false; }   // non-gated: hide the dead control
+      render(); return;
+    }
+    A._fatal=null;
+    var sb = mod.createClient(CFG.supabase_url, CFG.anon_key,
       {auth:{persistSession:true, autoRefreshToken:true, detectSessionInUrl:true}});
     A._sb = sb;
     async function refresh(){
@@ -3278,6 +3537,30 @@ html[data-theme="dark"] .sdoss .sdfoot{ border-top-color:var(--line); box-shadow
     A.refresh = refresh;
     sb.auth.onAuthStateChange(function(){ refresh(); });
     await refresh();
+  }
+  A._retry = connectSupabase;
+
+  (async function(){
+    var cfg;
+    try{ cfg = await (window.SK_PUBCFG ||
+      fetch("/api/public-config",{cache:"no-store"}).then(function(r){return r.json();})); }
+    catch(e){ return; }
+    CFG=cfg;
+    injectControl();
+    /* requireSignin FIRST — the gate must rise (with an honest error) even when
+       the rest of the config is broken, never a permanent blank screen */
+    A.requireSignin = !!(cfg && cfg.require_signin);
+    if(!cfg || !cfg.auth_enabled || !cfg.supabase_url || !cfg.anon_key){
+      A.enabled=false; A._ready=true; A._retry=null;
+      if(A.requireSignin){ A._fatal="sign-in is required here but the deploy is missing its Supabase settings — tell the founder"; }
+      render(); return;
+    }
+    A.enabled=true;
+    try{ var ref=new URL(cfg.supabase_url).hostname.split(".")[0];
+      for(var i=0;i<localStorage.length;i++){ var k=localStorage.key(i);
+        if(k && k.indexOf("sb-"+ref)===0){ A._maybe=true; break; } } }catch(e){}
+    render();
+    await connectSupabase();
   })();
 })();
 </script>
@@ -3311,8 +3594,8 @@ html[data-theme="dark"] .sdoss .sdfoot{ border-top-color:var(--line); box-shadow
   function feedErr(msg){
     var f=$("lcFeed"); var em=f.querySelector(".lc-empty"); if(em) em.remove();
     var d=document.createElement("div"); d.className="lc-row";
-    d.innerHTML='<span class="lc-dot" style="background:#b14a3c"></span><span class="lc-src">error</span>'
-      +'<span class="lc-txt" style="color:#b14a3c">'+esc(msg)+'</span>';
+    d.innerHTML='<span class="lc-dot" style="background:var(--sig-red)"></span><span class="lc-src">error</span>'
+      +'<span class="lc-txt" style="color:var(--sig-red)">'+esc(msg)+'</span>';
     f.appendChild(d); f.scrollTop=f.scrollHeight;
   }
 
@@ -3320,7 +3603,7 @@ html[data-theme="dark"] .sdoss .sdfoot{ border-top-color:var(--line); box-shadow
     var f=$("lcFeed"); var em=f.querySelector(".lc-empty"); if(em) em.remove();
     var div=document.createElement("div");
     div.className="lc-row"+(r.kind==="gate"?" lc-k-gate":"")+(r.kind==="action"?" lc-k-action":"")+(r.kind==="a2a"?" lc-k-a2a":"");
-    var hue=HUE[r.source]||"#72665b";
+    var hue=HUE[r.source]||"var(--ink-3)";
     div.innerHTML='<span class="lc-dot" style="background:'+hue+'"></span>'
       +'<span class="lc-src">'+esc(r.source)+' · '+esc(r.agent)+'</span>'
       +'<span class="lc-txt">'+esc(r.text)+'</span>';
@@ -3330,7 +3613,7 @@ html[data-theme="dark"] .sdoss .sdfoot{ border-top-color:var(--line); box-shadow
     if(!h){ $("lcMode").textContent="backend not running — cd saakshe && uvicorn service.app:app --port 8000"; $("liveDot").style.background="var(--ink-3,#9c8f83)"; return; }
     var m=h.models||{};
     $("lcMode").textContent="mode "+(h.mode||"?")+" · "+m.seats+" seats · "+m.claude_seats+" Claude·Vertex · "+(m.high_stakes||"");
-    $("liveDot").style.background="#2d7643"; $("liveDot").style.boxShadow="0 0 8px #2d7643";
+    $("liveDot").style.background="var(--ok)"; $("liveDot").style.boxShadow="none";
   }
   function renderGates(gates){
     var g=$("lcGates");
@@ -3338,13 +3621,27 @@ html[data-theme="dark"] .sdoss .sdfoot{ border-top-color:var(--line); box-shadow
     g.innerHTML="";
     gates.forEach(function(gt){
       var c=document.createElement("div"); c.className="lc-gatecard";
-      var img = (gt.image_uri && /^vault:\/\/[0-9a-f]+$/.test(gt.image_uri))
-        ? '<img class="gimg" src="'+base+'/api/vault/asset?uri='+encodeURIComponent(gt.image_uri)+'" alt="the rendered creative" loading="lazy">'
-        : '';
       c.innerHTML='<div class="gk">'+esc(gt.gate_id)+' · '+esc(gt.gate_kind)+' · '+(gt.reversible?"reversible":"irreversible")+'</div>'
-        +'<div class="gp">'+esc(gt.proposal)+'</div>'+img;
+        +'<div class="gp">'+esc(gt.proposal)+'</div>';
+      if(gt.image_uri && /^vault:\/\/[0-9a-f]{8,64}$/.test(gt.image_uri)){
+        /* the gated prod 401s a browser-navigated <img> GET (no Bearer header) —
+           fetch the creative WITH the token and show the blob */
+        var im=document.createElement("img"); im.className="gimg"; im.alt="the rendered creative";
+        fetch(base+'/api/vault/asset?uri='+encodeURIComponent(gt.image_uri),{headers:AH()})
+          .then(function(r){ return r.ok ? r.blob() : null; })
+          .then(function(bl){ if(bl){ im.src=URL.createObjectURL(bl); c.appendChild(im); } })
+          .catch(function(){});
+      }
+      var armed=false;
+      if(gt.gate_kind==="publish"){
+        /* tap-2 real publish needs an EXPLICIT arm — dry-run stays the default */
+        var armRow=document.createElement("label"); armRow.className="lc-arm";
+        armRow.innerHTML='<input type="checkbox"> arm real send <span class="lc-armnote">— unchecked = dry-run</span>';
+        armRow.querySelector("input").addEventListener("change",function(){ armed=this.checked; });
+        c.appendChild(armRow);
+      }
       var b=document.createElement("button"); b.className="lc-btn lc-approve"; b.textContent="✋ approve — your tap";
-      b.onclick=function(){ approve(gt.gate_id); };
+      b.onclick=function(){ approve(gt.gate_id, armed); };
       c.appendChild(b); g.appendChild(c);
     });
   }
@@ -3378,12 +3675,12 @@ html[data-theme="dark"] .sdoss .sdfoot{ border-top-color:var(--line); box-shadow
     }catch(e){ feedErr(String(e)); $("lcStatus").textContent="run failed"; }
     $("lcRun").disabled=false;
   }
-  async function approve(gid){
+  async function approve(gid, armed){
     if(!runId) return;
     $("lcStatus").textContent="tapping "+gid+"…";
     try{
       var r=await fetch(base+"/api/hero/approve",{method:"POST",headers:AH({"content-type":"application/json"}),
-        body:JSON.stringify({run_id:runId,gate_id:gid})});
+        body:JSON.stringify({run_id:runId,gate_id:gid,arm_real_send:!!armed})});
       var j=await lcJson(r);
       if(!j.ok){ feedErr((j.data&&(j.data.detail||j.data.error||j.data.text)) || j.error || ("HTTP "+j.status)); $("lcStatus").textContent="approve failed"; refreshBal(); return; }
       status=j.data.status; if(j.data.refunded) refreshBal();

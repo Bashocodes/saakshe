@@ -25,6 +25,15 @@ def media_intent(text: str) -> dict:
 def to_blocks(reply: dict) -> list[dict]:
     blocks: list[dict] = [{"t": "text", "who": "saakshe/witness",
                            "md": reply.get("text", "")}]
+    # The witness's gate context must reach the panel — "something is waiting"
+    # without WHAT is a dead end for the founder.
+    gates = reply.get("gates") or []
+    if gates:
+        blocks.append({"t": "data", "rows": [
+            [f"gate {g.get('gate_id', '')}".strip(),
+             (g.get("proposal", "") or "")[:90]
+             + (" · reversible" if g.get("reversible") else "")]
+            for g in gates]})
     pills = reply.get("pills") or []
     if pills:
         blocks.append({"t": "data", "rows": [[p, ""] for p in pills]})

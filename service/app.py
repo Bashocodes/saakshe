@@ -119,12 +119,15 @@ def _supabase_backend() -> bool:
 
 
 def _require_signin() -> bool:
-    """The gated-demo switch: SAAKSHE_REQUIRE_SIGNIN=1 (with Supabase auth
-    configured) puts the WHOLE API surface behind sign-in — judge credentials go
-    in the Devpost testing instructions — while the store stays the seeded,
-    sealed file-store demo. The sign-in surfaces themselves (HTML pages,
-    /api/public-config, the health probe) stay open."""
-    return os.environ.get("SAAKSHE_REQUIRE_SIGNIN", "") == "1" and auth.auth_enabled()
+    """The gated-demo switch: SAAKSHE_REQUIRE_SIGNIN=1 puts the WHOLE API surface
+    behind sign-in — judge credentials go in the Devpost testing instructions —
+    while the store stays the seeded, sealed file-store demo. The sign-in surfaces
+    themselves (HTML pages, /api/public-config, the health probe) stay open.
+
+    Fails CLOSED: if the flag is set while Supabase auth is misconfigured
+    (SAAKSHE_SUPABASE_URL dropped), every session-bound route 401s and the
+    cockpit shows its misconfig gate — never a gated deploy silently wide open."""
+    return os.environ.get("SAAKSHE_REQUIRE_SIGNIN", "") == "1"
 
 
 _GRANTED: set[str] = set()  # process cache: signup-grant a user once per process
@@ -173,6 +176,17 @@ async def _session_dep(request: Request):
         yield Session(user=user, store=store, stream=stream)
     finally:
         project.reset_current_store(token)
+
+
+def _redact_secrets(obj: Any) -> Any:
+    """Connection meta may carry a GitHub PAT — credentials ride IN over setu
+    but must never ride back OUT in any response body."""
+    if isinstance(obj, dict):
+        return {k: ("•••" if k == "token" and isinstance(v, str) and v else _redact_secrets(v))
+                for k, v in obj.items()}
+    if isinstance(obj, list):
+        return [_redact_secrets(x) for x in obj]
+    return obj
 
 
 def _require_auth_if_live(user) -> None:
@@ -229,14 +243,19 @@ def _rate_limit(request, route: str, capacity: float, per_seconds: float) -> Non
 
 def _refund_run(run, user, reason: str) -> bool:
     """Refund a charged flywheel run once (idempotent on the spend key; releases the
-    claim so a genuine retry re-charges). Returns whether a refund was issued."""
+    claim so a genuine retry re-charges). Returns whether a refund was REALLY issued
+    — a failed refund RPC must never be reported to the founder as "refunded"."""
     if run is None or not getattr(run, "charged", False) or not run.spend_idem_key or user is None:
         return False
     try:
         credits.refund(user.user_id, credits.cost("flywheel_run"), reason,
                        run.spend_idem_key, run.spend_idem_key + ":refund")
     except Exception:  # noqa: BLE001
-        pass
+        # Keep run.charged so a later path can re-attempt; the refund key is
+        # idempotent, so a replay is always safe.
+        print("REFUND FAILED — replay refund for spend key", run.spend_idem_key,
+              "\n", traceback.format_exc())
+        return False
     run.charged = False
     return True
 
@@ -343,7 +362,7 @@ def health() -> dict[str, Any]:
 @app.get("/api/connect/status")
 def connect_status(sess: Session = Depends(_session_dep)) -> dict[str, Any]:
     _require_auth_if_live(sess.user)
-    return sess.store.status_dict()
+    return _redact_secrets(sess.store.status_dict())
 
 
 @app.post("/api/connect/source")
@@ -363,11 +382,16 @@ def connect_source(req: ConnectRequest, sess: Session = Depends(_session_dep)) -
         if req.token:
             meta["token"] = req.token
     conn = sess.store.add_connection(kind, req.ref.strip(), meta)
-    return {"ok": True, "connection": conn.as_dict(), "status": sess.store.status_dict()}
+    return _redact_secrets({"ok": True, "connection": conn.as_dict(), "status": sess.store.status_dict()})
+
+
+class IngestRequest(BaseModel):
+    # Stable client key → a replayed/retried POST can never double-charge.
+    idem_key: Optional[str] = None
 
 
 @app.post("/api/connect/ingest")
-async def connect_ingest(sess: Session = Depends(_session_dep)) -> Any:
+async def connect_ingest(req: Optional[IngestRequest] = None, sess: Session = Depends(_session_dep)) -> Any:
     """Run the REAL manas ingestion over the connected sources (chargeable)."""
     _require_not_public_demo(sess.user)
     _require_auth_if_live(sess.user)
@@ -375,8 +399,9 @@ async def connect_ingest(sess: Session = Depends(_session_dep)) -> Any:
     if not store.is_connected():
         raise HTTPException(status_code=409, detail="nothing connected yet — add a source first")
     run_id = "ingest_" + os.urandom(4).hex()
+    spend_key = "ingest:" + ((req.idem_key or run_id)[:120] if req and req.idem_key else run_id)
     try:
-        with credits.charge(user, "connect_ingest", idem_key="ingest:" + run_id, reason="connect ingest"):
+        with credits.charge(user, "connect_ingest", idem_key=spend_key, reason="connect ingest"):
             result = await manas_runner.ingest_connected(stream, run_id, store)
     except credits.OutOfCredits as exc:
         return JSONResponse(status_code=402, content=credits.out_of_credits_payload(exc.balance))
@@ -389,6 +414,7 @@ async def connect_ingest(sess: Session = Depends(_session_dep)) -> Any:
 
 @app.post("/api/connect/answer")
 async def connect_answer(req: AnswerRequest, sess: Session = Depends(_session_dep)) -> dict[str, Any]:
+    _require_not_public_demo(sess.user)   # commits to memory — sealed like its siblings
     _require_auth_if_live(sess.user)
     run_id = "answer_" + os.urandom(4).hex()
     result = await manas_runner.answer_question(sess.stream, run_id, req.qid, req.answer, sess.store)
@@ -402,7 +428,7 @@ def connect_reset(sess: Session = Depends(_session_dep)) -> dict[str, Any]:
     _require_not_public_demo(sess.user)
     _require_auth_if_live(sess.user)
     sess.store.reset()
-    return {"ok": True, "status": sess.store.status_dict()}
+    return _redact_secrets({"ok": True, "status": sess.store.status_dict()})
 
 
 # ─── the brand-asset vault (manas owns the index; this is the founder's surface) ─
@@ -475,7 +501,7 @@ async def ask(req: AskRequest, request: Request, sess: Session = Depends(_sessio
             return {"kind": "connect_first",
                     "text": "I can't run a decision on a blank memory — connect your project first "
                             "(a repo + your site), and I'll ground the company before deciding.",
-                    "status": sess.store.status_dict()}
+                    "status": _redact_secrets(sess.store.status_dict())}
         return await _start_flywheel(sess, question=text, idem_key=req.idem_key,
                                      ok_text="That's a real decision — routing it to arivu. A gate will land in your queue.",
                                      wrap_key="flywheel")
@@ -525,7 +551,7 @@ async def hero_run(req: RunRequest, request: Request, sess: Session = Depends(_s
     if not sess.store.is_grounded():
         return {"status": "not_connected", "connected": sess.store.is_connected(),
                 "text": "Connect your project first — saakshe runs on YOUR company, never a canned example.",
-                "connect": sess.store.status_dict()}
+                "connect": _redact_secrets(sess.store.status_dict())}
     return await _start_flywheel(sess, question=req.question, idem_key=req.idem_key)
 
 
@@ -536,7 +562,8 @@ async def hero_approve(req: ApproveRequest, sess: Session = Depends(_session_dep
     if run is None:
         raise HTTPException(status_code=404, detail=f"unknown flywheel run_id {req.run_id!r}")
     # Run ownership: a tenant may only advance its OWN run (don't reveal existence).
-    if _supabase_backend() and run.user_id and (sess.user is None or run.user_id != sess.user.user_id):
+    # Holds on EVERY auth-enabled profile — gated file-store judges included.
+    if auth.auth_enabled() and run.user_id and (sess.user is None or run.user_id != sess.user.user_id):
         raise HTTPException(status_code=404, detail=f"unknown flywheel run_id {req.run_id!r}")
     try:
         summary = await orchestrator.approve(req.run_id, req.gate_id,
@@ -547,10 +574,13 @@ async def hero_approve(req: ApproveRequest, sess: Session = Depends(_session_dep
     except RuntimeError as exc:
         raise HTTPException(status_code=409, detail=str(exc))   # bad gate / not awaiting → no refund
     except Exception as exc:  # noqa: BLE001 — internal failure mid-flywheel: refund the run
-        _refund_run(run, sess.user, credits.TEMPORARY_FAILURE_MSG)
+        refunded = _refund_run(run, sess.user, credits.TEMPORARY_FAILURE_MSG)
         print("flywheel approve failed:\n", traceback.format_exc())
         return JSONResponse(status_code=200, content={
-            "status": "error", "refunded": True, "text": credits.TEMPORARY_FAILURE_MSG,
+            "status": "error", "refunded": refunded,
+            "text": credits.TEMPORARY_FAILURE_MSG if refunded or not getattr(run, "charged", False)
+                    else "Something failed on our side — the charge is being reversed; "
+                         "if it doesn't appear shortly, it will be replayed.",
             "detail": str(exc)[:300]})
     if summary.get("status") == "no_safe_decision":
         if _refund_run(run, sess.user, "no safe decision — not charged"):

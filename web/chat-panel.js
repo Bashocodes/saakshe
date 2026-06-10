@@ -1,53 +1,129 @@
 /* saakshe chat panel — always-on right pane. Renders presenter blocks.
    Block kinds (contract in service/presenter.py): text · data · actions ·
-   slider · progress · receipt. The panel formats; it never authors. */
+   slider · progress · receipt. The panel formats; it never authors.
+   Brut skin rides the cockpit tokens (chat-panel.css); the skbot mascot,
+   honest error states, voice auth and the collapse rail live here. */
 (function () {
+  'use strict';
   var pane = document.getElementById('sa-chatpane');
   if (!pane) return;
+
+  var BOT = '<span class="skbot sm" aria-hidden="true"><span class="skface">' +
+            '<span class="skeye L"></span><span class="skeye R"></span>' +
+            '<span class="skmouth"></span></span></span>';
   pane.innerHTML =
-    '<div class="ch-head"><span class="brand">SΛΛKSHE</span>' +
-    '<span class="t">· COMPANY CHAT</span><span class="live"></span></div>' +
-    '<div class="ch-tabs">' +
-    '<span class="ch-tab on" data-q="saakshe">saakshe</span>' +
-    '<span class="ch-tab" data-q="manas" style="color:#e3a200">● manas</span>' +
-    '<span class="ch-tab" data-q="arivu" style="color:#0a39ff">◆ arivu</span>' +
-    '<span class="ch-tab" data-q="kalai" style="color:#ff2d2d">▲ kalai</span>' +
-    '<span class="ch-tab" data-q="kural" style="color:#00a86b">■ kural</span></div>' +
-    '<div class="ch-feed" id="sa-ch-feed"></div>' +
-    '<div class="ch-input"><input id="sa-ch-inp" placeholder="ask saakshe…">' +
-    '<button id="sa-ch-mic" title="voice — Gemini Live">🎙</button>' +
-    '<button id="sa-ch-send">→</button></div>';
+    '<div class="ch-head">' + BOT + '<span class="brand">SΛΛKSHE</span>' +
+    '<span class="t">· COMPANY CHAT</span><span class="live" id="sa-ch-live"></span>' +
+    '<button class="ch-collapse" id="sa-ch-clps" type="button" title="collapse the chat pane" aria-label="collapse chat">⇥</button></div>' +
+    '<div class="ch-tabs" role="tablist" aria-label="filter by faculty">' +
+    '<button class="ch-tab on" type="button" data-q="saakshe" role="tab" aria-selected="true">saakshe</button>' +
+    '<button class="ch-tab" type="button" data-q="manas" role="tab" aria-selected="false"><span class="fdot"></span>manas</button>' +
+    '<button class="ch-tab" type="button" data-q="arivu" role="tab" aria-selected="false"><span class="fdot"></span>arivu</button>' +
+    '<button class="ch-tab" type="button" data-q="kalai" role="tab" aria-selected="false"><span class="fdot"></span>kalai</button>' +
+    '<button class="ch-tab" type="button" data-q="kural" role="tab" aria-selected="false"><span class="fdot"></span>kural</button></div>' +
+    '<div class="ch-feed" id="sa-ch-feed" aria-live="polite"></div>' +
+    '<div class="ch-input"><input id="sa-ch-inp" placeholder="ask saakshe…" aria-label="ask saakshe">' +
+    '<button id="sa-ch-mic" type="button" title="voice — Gemini Live" aria-label="voice">' +
+    '<svg class="ic" aria-hidden="true"><use href="#i-mic"/></svg><span class="recdot"></span></button>' +
+    '<button id="sa-ch-send" type="button">SEND</button></div>' +
+    '<button class="ch-rail" id="sa-ch-rail" type="button" title="open the chat pane" aria-label="open chat">' +
+    BOT + '<span class="rlbl">company chat</span></button>';
 
   var feed = document.getElementById('sa-ch-feed');
-  var state = { budget: 1.0, seconds: 4, fx: 'sat_sort', image: null, job: null };
+  var input = document.getElementById('sa-ch-inp');
+  var sendBtn = document.getElementById('sa-ch-send');
+  var micBtn = document.getElementById('sa-ch-mic');
+  var liveDot = document.getElementById('sa-ch-live');
+  var state = { budget: 1.0, seconds: 4, fx: 'sat_sort', image: null, job: null,
+                poller: null, inflight: false, fac: 'saakshe' };
   var FX = ['sat_sort', 'dark_sort', 'vert_sort', 'hue_sort', 'ripple', 'wave',
             'light_sweep', 'charcoal', 'lith', 'sabattier', 'cinestill', 'ca_pulse'];
+  var MEDIA_WORDS = ['hdr', 'video', 'reel', 'animate', 'motion'];   // mirrors presenter.media_intent
 
   function el(h) { var d = document.createElement('div'); d.innerHTML = h; return d.firstElementChild; }
-  function down() { feed.scrollTop = feed.scrollHeight; }
   function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c]; }); }
   function hdrs(extra) { return (window.SA_HEADERS || Object)(extra || {}); }
+  function bot(fn) { if (window.SK_BOT && SK_BOT[fn]) SK_BOT[fn](); }
+  function dot(cls) { liveDot.className = 'live' + (cls ? ' ' + cls : ''); }
 
-  function msg(who, text, user) {
-    var m = el('<div class="msg' + (user ? ' user' : '') + '"><div class="who">' +
-               esc(who) + '</div><p>' + text + '</p></div>');
-    feed.appendChild(m); down(); return m;
+  /* escape FIRST, then a tiny safe formatter: **bold**, `code`, bare links */
+  function fmt(s) {
+    return esc(s)
+      .replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>')
+      .replace(/`([^`]+)`/g, '<code>$1</code>')
+      .replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>');
+  }
+  function ts() {
+    var d = new Date();
+    return ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2);
+  }
+  function facOf(who) {
+    var w = String(who).toLowerCase();
+    var f = ['manas', 'arivu', 'kalai', 'kural'].filter(function (q) { return w.indexOf(q) !== -1; });
+    return f[0] || 'saakshe';
   }
 
-  function typing(cb, ms) {
-    var t = el('<div class="typing"><span></span><span></span><span></span></div>');
-    feed.appendChild(t); down();
-    setTimeout(function () { t.remove(); cb(); down(); }, ms || 600);
+  /* ── stick-to-bottom only when the founder IS at the bottom ── */
+  var newBtn = null;
+  function nearBottom() { return feed.scrollHeight - feed.scrollTop - feed.clientHeight < 60; }
+  function down(force) {
+    if (force || nearBottom()) {
+      feed.scrollTop = feed.scrollHeight;
+      if (newBtn) { newBtn.remove(); newBtn = null; }
+    } else if (!newBtn) {
+      newBtn = el('<button class="newmsgs" type="button">new messages ↓</button>');
+      newBtn.onclick = function () { down(true); };
+      feed.appendChild(newBtn);
+    }
+  }
+  feed.addEventListener('scroll', function () { if (nearBottom() && newBtn) { newBtn.remove(); newBtn = null; } });
+
+  /* ── feed persistence: a refresh must not amnesia the conversation ── */
+  function persist() {
+    try {
+      var keep = feed.innerHTML;
+      if (keep.length < 200000) sessionStorage.setItem('sk-chat-feed', keep);
+    } catch (e) {}
+  }
+  function msg(who, html, user) {
+    var m = el('<div class="msg' + (user ? ' user' : '') + '" data-fac="' + esc(facOf(who)) + '"><div class="who">' +
+               esc(who) + '<span class="ts">' + ts() + '</span></div><p>' + html + '</p></div>');
+    applyFacFilter(m);
+    feed.appendChild(m); down(); persist(); return m;
+  }
+
+  var typingEl = null;
+  function showTyping() {
+    if (typingEl) return;
+    typingEl = el('<div class="typing" aria-label="saakshe is thinking"><span></span><span></span><span></span></div>');
+    feed.appendChild(typingEl); down(); bot('think'); dot('busy');
+  }
+  function hideTyping(ok) {
+    if (typingEl) { typingEl.remove(); typingEl = null; }
+    bot(ok ? 'joy' : 'idle'); dot(ok ? '' : 'err');
   }
 
   function lockActs(scope) {
+    if (!scope) return;
     scope.querySelectorAll('.act').forEach(function (b) { b.classList.add('done'); });
+  }
+
+  /* actions render via DOM + dataset — never string-built attributes (an args
+     value with a quote must not become an attribute-injection sink) */
+  function actBtn(i) {
+    var b = document.createElement('button');
+    b.className = 'act ' + (i.kind || 'plain');
+    b.type = 'button';
+    b.dataset.action = i.action || '';
+    b.dataset.args = JSON.stringify(i.args || {});
+    b.textContent = i.label;
+    return b;
   }
 
   function renderBlocks(blocks) {
     var last = null;
     blocks.forEach(function (b) {
-      if (b.t === 'text') last = msg(b.who.toUpperCase(), esc(b.md));
+      if (b.t === 'text') last = msg(b.who.toUpperCase(), fmt(b.md));
       else if ((b.t === 'data' || b.t === 'receipt') && last) {
         var rows = b.rows.map(function (r) {
           return '<div class="row"><span>' + esc(r[0]) + '</span><b>' + esc(r[1]) + '</b></div>';
@@ -59,101 +135,178 @@
           '</b></div></div>'));
       }
       else if (b.t === 'actions' && last) {
-        var btns = b.items.map(function (i) {
-          return '<button class="act ' + (i.kind || 'plain') + '" data-action="' + i.action +
-                 "\" data-args='" + JSON.stringify(i.args || {}) + "'>" + esc(i.label) + '</button>';
-        }).join('');
-        last.appendChild(el('<div class="acts">' + btns + '</div>'));
+        var acts = el('<div class="acts"></div>');
+        b.items.forEach(function (i) { acts.appendChild(actBtn(i)); });
+        last.appendChild(acts);
       }
       else if (b.t === 'slider' && last) {
         var s = el('<div class="sld"><div class="lab"><span>DURATION</span>' +
           '<span class="dv">' + b.value + 's</span></div>' +
-          '<input type="range" min="' + b.min + '" max="' + b.max + '" value="' + b.value + '">' +
+          '<input type="range" min="' + (+b.min || 1) + '" max="' + (+b.max || 8) + '" value="' + (+b.value || 4) + '" aria-label="duration seconds">' +
           '<div class="quote"><span>est. cost</span><b class="qc">$' + b.quote.total_usd.toFixed(3) + '</b></div>' +
           '<div class="quote"><span>est. render</span><b class="qt">~' + b.quote.est_wall_sec + 's</b></div></div>');
         s.querySelector('input').oninput = function (e) {
           state.seconds = +e.target.value;
           s.querySelector('.dv').textContent = state.seconds + 's';
           api('/api/kalai/media/quote', { seconds: state.seconds, budget_usd: state.budget,
-                                          has_source_image: true }).then(function (q) {
-            s.querySelector('.qc').textContent = '$' + q.total_usd.toFixed(3);
-            s.querySelector('.qt').textContent = '~' + q.est_wall_sec + 's';
+                                          has_source_image: true }).then(function (res) {
+            if (!res.ok) return;
+            s.querySelector('.qc').textContent = '$' + res.data.total_usd.toFixed(3);
+            s.querySelector('.qt').textContent = '~' + res.data.est_wall_sec + 's';
           });
         };
         last.appendChild(s);
       }
       else if (b.t === 'progress') pollJob(b.job_id);
     });
-    down();
+    down(); persist();
   }
 
+  /* api() reports status honestly — a 401/402 is an ANSWER, never '…' */
   function api(url, body) {
+    dot('busy');
     return fetch(url, { method: 'POST', headers: hdrs({ 'content-type': 'application/json' }),
-                        body: JSON.stringify(body) }).then(function (r) { return r.json(); });
+                        body: JSON.stringify(body) })
+      .then(function (r) {
+        return r.json().catch(function () { return null; }).then(function (d) {
+          dot(r.ok ? '' : 'err');
+          return { ok: r.ok, status: r.status, data: d };
+        });
+      })
+      .catch(function (e) { dot('err'); return { ok: false, status: 0, data: null, error: String(e) }; });
+  }
+  function httpBubble(res, what) {
+    if (res.status === 401) {
+      var m = msg('SΛΛKSHE', 'You are signed out — sign in to ' + esc(what) + '.');
+      var acts = el('<div class="acts"></div>');
+      acts.appendChild(actBtn({ label: 'SIGN IN', kind: 'primary', action: 'auth.signin', args: {} }));
+      m.appendChild(acts); down(); persist(); return;
+    }
+    if (res.status === 402) {
+      var bal = (res.data && res.data.balance != null) ? ' Balance: ' + res.data.balance + '.' : '';
+      var m2 = msg('SΛΛKSHE', 'Out of credits — this needs more.' + esc(bal));
+      var a2 = el('<div class="acts"></div>');
+      a2.appendChild(actBtn({ label: 'SEE PRICING', kind: 'primary', action: 'open.pricing', args: {} }));
+      m2.appendChild(a2); down(); persist(); return;
+    }
+    if (res.status === 429) { msg('SΛΛKSHE', 'Rate limited — give it a few seconds, then try again.'); return; }
+    if (res.status === 0) { msg('SΛΛKSHE', 'The backend is not answering — is it running?'); return; }
+    msg('SΛΛKSHE', 'That failed — ' + fmt((res.data && (res.data.detail || res.data.error)) || ('HTTP ' + res.status)));
   }
 
   feed.addEventListener('click', function (e) {
+    var sg = e.target.closest('.sug');
+    if (sg) { input.value = sg.dataset.ask || sg.textContent; send(); return; }
     var b = e.target.closest('.act');
     if (!b || b.classList.contains('done')) return;
+    var action = b.dataset.action, args = {};
+    try { args = JSON.parse(b.dataset.args || '{}'); } catch (er) {}
+    if (action === 'noop') return;                    // a blocked chip must not kill its siblings
+    if (action === 'auth.signin') { if (window.SAAKSHE_AUTH) SAAKSHE_AUTH.signIn(); return; }
+    if (action === 'open.pricing') { window.open('/pricing.html', '_blank', 'noopener'); return; }
     lockActs(b.closest('.acts'));
-    var action = b.dataset.action, args = JSON.parse(b.dataset.args || '{}');
     if (action === 'media.render') startRender();
     else if (action === 'media.requote') { if (args.seconds) state.seconds = args.seconds; requote(); }
     else if (action === 'media.fxmenu') fxMenu();
     else if (action === 'media.fx') { state.fx = args.fx; startRender(); }
-    else if (action === 'media.view' && state.job) window.open('/api/kalai/media/file/' + state.job);
+    else if (action === 'media.retrypoll' && args.job) pollJob(args.job);
+    else if (action === 'media.view' && state.job) viewHdr();
   });
 
+  function viewHdr() {
+    /* the gated prod 401s a bare window.open (no Bearer on navigation) —
+       fetch WITH the token and open the blob */
+    dot('busy');
+    fetch('/api/kalai/media/file/' + state.job, { headers: hdrs({}) })
+      .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.blob(); })
+      .then(function (bl) { dot(''); window.open(URL.createObjectURL(bl), '_blank', 'noopener'); })
+      .catch(function () { dot('err'); msg('▲ KALAI', 'could not fetch the file — are you signed in?'); });
+  }
+
   function fxMenu() {
-    typing(function () {
-      var m = msg('▲ KALAI · FX-PICKER', 'pick the effect:');
-      m.appendChild(el('<div class="acts">' + FX.map(function (f) {
-        return '<button class="act ' + (f === state.fx ? 'ok' : 'plain') +
-               '" data-action="media.fx" data-args=\'{"fx":"' + f + '"}\'>' +
-               f.replace(/_/g, ' ').toUpperCase() + '</button>';
-      }).join('') + '</div>'));
+    var m = msg('▲ KALAI · FX-PICKER', 'pick the effect:');
+    var acts = el('<div class="acts"></div>');
+    FX.forEach(function (f) {
+      acts.appendChild(actBtn({ label: f.replace(/_/g, ' ').toUpperCase(),
+                                kind: (f === state.fx ? 'ok' : 'plain'),
+                                action: 'media.fx', args: { fx: f } }));
     });
+    m.appendChild(acts); down(); persist();
+  }
+
+  function dropPlate(m) {
+    var d = el('<label class="drop">drop / choose image<input type="file" accept="image/*"></label>');
+    var inp = d.querySelector('input');
+    function take(file) {
+      if (!file || file.type.indexOf('image/') !== 0) return;
+      state.image = file;
+      var chip = el('<span class="filechip">' + esc(file.name) +
+                    '<button type="button" aria-label="remove">✕</button></span>');
+      chip.querySelector('button').onclick = function () { state.image = null; chip.remove(); m.appendChild(dropPlate(m)); };
+      d.replaceWith(chip);
+      startRender();
+    }
+    inp.onchange = function () { take(inp.files[0]); };
+    d.addEventListener('dragover', function (e) { e.preventDefault(); d.classList.add('over'); });
+    d.addEventListener('dragleave', function () { d.classList.remove('over'); });
+    d.addEventListener('drop', function (e) {
+      e.preventDefault(); d.classList.remove('over');
+      take(e.dataTransfer.files && e.dataTransfer.files[0]);
+    });
+    return d;
   }
 
   function startRender() {
     if (!state.image) {
-      var m = msg('▲ KALAI · PRODUCER', 'drop the source image:');
-      var inp = el('<input type="file" accept="image/*" style="margin-top:8px;font-size:11px">');
-      inp.onchange = function () { state.image = inp.files[0]; startRender(); };
-      m.appendChild(inp); down(); return;
+      var m = msg('▲ KALAI · PRODUCER', 'drop the source image — or click to choose:');
+      m.appendChild(dropPlate(m)); down(); persist(); return;
     }
     var fd = new FormData();
     fd.append('image', state.image);
     fd.append('fx', state.fx);
     fd.append('seconds', state.seconds);
     fd.append('budget_usd', state.budget);
+    dot('busy');
     fetch('/api/kalai/media/render', { method: 'POST', headers: hdrs({}), body: fd })
-      .then(function (r) { return r.json(); })
-      .then(function (d) {
-        if (d.job_id) { state.job = d.job_id; pollJob(d.job_id); }
-        else msg('▲ KALAI · ROUTER', esc(d.error || 'refused'));
-      });
+      .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, status: r.status, data: d }; }); })
+      .then(function (res) {
+        dot(res.ok ? '' : 'err');
+        if (res.data && res.data.job_id) { state.job = res.data.job_id; pollJob(res.data.job_id); }
+        else if (!res.ok) httpBubble(res, 'render');
+        else msg('▲ KALAI · ROUTER', fmt((res.data && res.data.error) || 'refused'));
+      })
+      .catch(function () { dot('err'); msg('▲ KALAI · ROUTER', 'render request failed — network?'); });
   }
 
   function pollJob(jid) {
+    if (state.poller) { clearInterval(state.poller); state.poller = null; }
     var m = msg('▲ KALAI · RENDERER', 'starting…');
     var p = m.querySelector('p');
-    var iv = setInterval(function () {
+    var fails = 0, every = 1500;
+    state.poller = setInterval(function () {
       fetch('/api/kalai/media/job/' + jid, { headers: hdrs({}) })
         .then(function (r) { return r.json(); })
         .then(function (s) {
+          fails = 0;
           if (s.status === 'rendering') {
             p.textContent = 'frame ' + s.frame + '/' + s.frames + ' · rendering…';
           } else {
-            clearInterval(iv);
-            if (s.status === 'done') {
-              p.innerHTML = '<b>done.</b>';
-              renderBlocks(receiptBlocks(s));
-            } else p.textContent = 'error: ' + (s.error || 'unknown');
+            clearInterval(state.poller); state.poller = null;
+            if (s.status === 'done') { p.innerHTML = '<b>done.</b>'; renderBlocks(receiptBlocks(s)); bot('joy'); }
+            else p.textContent = 'error: ' + (s.error || 'unknown');
           }
-          down();
+          down(); persist();
+        })
+        .catch(function () {
+          if (++fails >= 4) {
+            clearInterval(state.poller); state.poller = null;
+            p.textContent = 'lost the render — the backend stopped answering.';
+            var acts = el('<div class="acts"></div>');
+            acts.appendChild(actBtn({ label: 'RETRY', kind: 'primary', action: 'media.retrypoll', args: { job: jid } }));
+            m.appendChild(acts); down(); persist();
+          }
         });
-    }, 1500);
+    }, every);
   }
 
   function receiptBlocks(s) {
@@ -174,48 +327,59 @@
 
   function requote() {
     api('/api/kalai/media/quote', { seconds: state.seconds, budget_usd: state.budget,
-                                    has_source_image: true }).then(function (q) {
-      typing(function () {
-        renderBlocks([
-          { t: 'text', who: 'kalai/pricer', md: 'requoted.' },
-          { t: 'slider', action: 'media.requote', min: 1, max: 8, value: q.seconds,
-            quote: { total_usd: q.total_usd, est_wall_sec: q.est_wall_sec } },
-          { t: 'actions', items: [
-            { label: 'RENDER', kind: 'primary', action: 'media.render', args: {} },
-            { label: 'PICK FX (12)', kind: 'plain', action: 'media.fxmenu', args: {} }] }]);
-      });
+                                    has_source_image: true }).then(function (res) {
+      if (!res.ok) return httpBubble(res, 'quote');
+      var q = res.data;
+      renderBlocks([
+        { t: 'text', who: 'kalai/pricer', md: 'requoted.' },
+        { t: 'slider', action: 'media.requote', min: 1, max: 8, value: q.seconds,
+          quote: { total_usd: q.total_usd, est_wall_sec: q.est_wall_sec } },
+        { t: 'actions', items: [
+          { label: 'RENDER', kind: 'primary', action: 'media.render', args: {} },
+          { label: 'PICK FX (12)', kind: 'plain', action: 'media.fxmenu', args: {} }] }]);
     });
   }
+
+  function syncSend() { sendBtn.disabled = state.inflight || !input.value.trim(); }
+  input.addEventListener('input', syncSend);
 
   function send() {
-    var i = document.getElementById('sa-ch-inp');
-    var text = i.value.trim();
-    if (!text) return;
+    var text = input.value.trim();
+    if (!text || state.inflight) return;
     msg('YOU', esc(text), true);
-    i.value = '';
-    var m = text.match(/\$\s*(\d+(?:\.\d+)?)/);
-    if (m) state.budget = +m[1];
-    typing(function () {
-      api('/api/saakshe/ask', { text: text }).then(function (d) {
-        renderBlocks(d.blocks && d.blocks.length ? d.blocks :
-          [{ t: 'text', who: 'saakshe', md: d.text || '…' }]);
-      });
+    input.value = ''; syncSend();
+    var low = text.toLowerCase();
+    var m = low.match(/\$\s*(\d+(?:\.\d+)?)/);
+    if (m && MEDIA_WORDS.some(function (w) { return low.indexOf(w) !== -1; })) {
+      state.budget = +m[1];                       // only a media-shaped ask moves the budget
+    }
+    state.inflight = true; syncSend(); showTyping();
+    var ik = 'ask:' + Date.now() + ':' + Math.random().toString(36).slice(2);
+    api('/api/saakshe/ask', { text: text, idem_key: ik }).then(function (res) {
+      state.inflight = false; syncSend();
+      hideTyping(res.ok);
+      if (!res.ok) return httpBubble(res, 'keep asking');
+      var d = res.data || {};
+      renderBlocks(d.blocks && d.blocks.length ? d.blocks :
+        [{ t: 'text', who: 'saakshe', md: d.text || '…' }]);
     });
   }
+
   /* ── voice: /ws/voice — Gemini Live native-audio bridge ──
      demo mode: text frames through the same witness tools.
-     live mode: mic PCM16@16k up (hex), PCM16@24k down, replies as messages. */
-  var voice = { ws: null, on: false, ctx: null, src: null, proc: null,
-                playCtx: null, playAt: 0 };
+     live mode: mic PCM16@16k up (hex), PCM16@24k down, replies as messages.
+     The gated prod REQUIRES ?token=<jwt> — and answers 4401 when it's missing. */
+  var voice = { ws: null, on: false, mode: null, ctx: null, src: null, proc: null,
+                stream: null, playCtx: null, playAt: 0, sawHello: false };
 
   function voiceStop() {
-    voice.on = false;
+    voice.on = false; voice.mode = null;
     if (voice.proc) { voice.proc.disconnect(); voice.proc = null; }
     if (voice.src) { voice.src.disconnect(); voice.src = null; }
+    if (voice.stream) { voice.stream.getTracks().forEach(function (t) { t.stop(); }); voice.stream = null; }
     if (voice.ctx) { voice.ctx.close(); voice.ctx = null; }
     if (voice.ws) { try { voice.ws.close(); } catch (e) {} voice.ws = null; }
-    micBtn.style.background = '';
-    micBtn.textContent = '🎙';
+    micBtn.classList.remove('rec', 'kbd', 'loading');
   }
 
   function playPcm(hex) {
@@ -236,29 +400,46 @@
 
   function voiceStart() {
     var proto = location.protocol === 'https:' ? 'wss://' : 'ws://';
-    var ws = new WebSocket(proto + location.host + '/ws/voice');
-    voice.ws = ws; voice.on = true;
-    micBtn.textContent = '…';
+    var A = window.SAAKSHE_AUTH;
+    var tok = (A && A.token && A.token()) || '';
+    var ws = new WebSocket(proto + location.host + '/ws/voice' +
+                           (tok ? '?token=' + encodeURIComponent(tok) : ''));
+    voice.ws = ws; voice.on = true; voice.sawHello = false;
+    micBtn.classList.add('loading');
     ws.onmessage = function (ev) {
       var m = JSON.parse(ev.data);
       if (m.type === 'hello') {
+        voice.sawHello = true;
+        micBtn.classList.remove('loading');
         msg('SΛΛKSHE · VOICE', esc(m.mode === 'live'
           ? 'voice live — Gemini native audio. speak.'
           : 'voice in demo mode — type below, same tools answer.'));
-        if (m.mode === 'live') micUp(ws); else micBtn.textContent = '⌨';
-        micBtn.style.background = '#d8f7e8';
+        if (m.mode === 'live') { voice.mode = 'live'; micUp(ws); }
+        else { voice.mode = 'kbd'; micBtn.classList.add('kbd'); }
       }
       else if (m.type === 'audio') playPcm(m.data);
-      else if (m.type === 'reply') msg('SΛΛKSHE · VOICE', esc(m.text || ''));
-      else if (m.type === 'notice') msg('SΛΛKSHE · VOICE', esc(m.text || ''));
+      else if (m.type === 'reply') msg('SΛΛKSHE · VOICE', fmt(m.text || ''));
+      else if (m.type === 'notice') msg('SΛΛKSHE · VOICE', fmt(m.text || ''));
     };
-    ws.onclose = voiceStop;
-    ws.onerror = voiceStop;
+    ws.onclose = function (ev) {
+      var auth401 = (ev && ev.code === 4401) || (!voice.sawHello && voice.on);
+      voiceStop();
+      if (ev && ev.code === 4401) {
+        var mm = msg('SΛΛKSHE · VOICE', 'voice needs you signed in.');
+        var acts = el('<div class="acts"></div>');
+        acts.appendChild(actBtn({ label: 'SIGN IN', kind: 'primary', action: 'auth.signin', args: {} }));
+        mm.appendChild(acts); down(); persist();
+      } else if (auth401) {
+        msg('SΛΛKSHE · VOICE', 'voice could not connect — signed in? backend up?');
+      }
+    };
+    ws.onerror = function () { /* onclose follows and reports */ };
   }
 
   function micUp(ws) {
     navigator.mediaDevices.getUserMedia({ audio: { sampleRate: 16000, channelCount: 1 } })
       .then(function (stream) {
+        voice.stream = stream;                       // hold it so stop() can RELEASE the mic
         voice.ctx = new AudioContext({ sampleRate: 16000 });
         voice.src = voice.ctx.createMediaStreamSource(stream);
         voice.proc = voice.ctx.createScriptProcessor(4096, 1, 1);
@@ -276,32 +457,90 @@
         };
         voice.src.connect(voice.proc);
         voice.proc.connect(voice.ctx.destination);
-        micBtn.textContent = '⏺';
+        micBtn.classList.add('rec');
       })
       .catch(function () { msg('SΛΛKSHE · VOICE', 'mic permission denied — voice off.'); voiceStop(); });
   }
 
-  var micBtn = document.getElementById('sa-ch-mic');
   micBtn.onclick = function () { voice.on ? voiceStop() : voiceStart(); };
   // demo-mode keyboard frames also go over the voice socket when it's open in ⌨ mode
-  document.getElementById('sa-ch-inp').addEventListener('keydown', function (e) {
+  input.addEventListener('keydown', function (e) {
+    if (e.isComposing || e.keyCode === 229) return;       // never swallow IME composition
     if (e.key === 'Enter' && voice.on && voice.ws && voice.ws.readyState === 1 &&
-        micBtn.textContent === '⌨') {
-      var i = document.getElementById('sa-ch-inp');
-      var t = i.value.trim();
-      if (t) { msg('YOU', esc(t), true); voice.ws.send(JSON.stringify({ type: 'text', text: t })); i.value = ''; }
+        voice.mode === 'kbd') {
+      var t = input.value.trim();
+      if (t) { msg('YOU', esc(t), true); voice.ws.send(JSON.stringify({ type: 'text', text: t })); input.value = ''; syncSend(); }
       e.stopImmediatePropagation(); e.preventDefault();
     }
   }, true);
 
-  document.getElementById('sa-ch-send').onclick = send;
-  document.getElementById('sa-ch-inp').addEventListener('keydown', function (e) {
+  sendBtn.onclick = send;
+  input.addEventListener('keydown', function (e) {
+    if (e.isComposing || e.keyCode === 229) return;
     if (e.key === 'Enter') send();
   });
+
+  /* ── faculty tabs FILTER the feed (your bubbles always stay) ── */
+  function applyFacFilter(m) {
+    var f = state.fac;
+    var show = f === 'saakshe' || m.classList.contains('user') || m.dataset.fac === f;
+    m.classList.toggle('hidden-fac', !show);
+  }
   pane.querySelectorAll('.ch-tab').forEach(function (t) {
     t.onclick = function () {
-      pane.querySelectorAll('.ch-tab').forEach(function (x) { x.classList.remove('on'); });
-      t.classList.add('on');
+      pane.querySelectorAll('.ch-tab').forEach(function (x) {
+        x.classList.remove('on'); x.setAttribute('aria-selected', 'false');
+      });
+      t.classList.add('on'); t.setAttribute('aria-selected', 'true');
+      state.fac = t.dataset.q;
+      feed.querySelectorAll('.msg').forEach(applyFacFilter);
+      down(true);
     };
   });
+
+  /* ── collapse rail (desktop) + FAB (narrow) ── */
+  var H = document.documentElement;
+  function setCollapsed(c) {
+    H.classList.toggle('sk-chat-collapsed', c);
+    try { localStorage.setItem('sk-chat-collapsed', c ? '1' : ''); } catch (e) {}
+  }
+  document.getElementById('sa-ch-clps').onclick = function () { setCollapsed(true); };
+  document.getElementById('sa-ch-rail').onclick = function () { setCollapsed(false); };
+  try {
+    var stored = localStorage.getItem('sk-chat-collapsed');
+    if (stored === '1') setCollapsed(true);
+    /* no stored choice: on tighter desktops the stage needs the room more —
+       start collapsed; the witness rail stays one click away */
+    else if (stored === null && window.innerWidth >= 1100 && window.innerWidth < 1500) {
+      H.classList.add('sk-chat-collapsed');
+    }
+  } catch (e) {}
+  var fab = el('<button id="sa-chatfab" type="button" title="company chat" aria-label="open chat">' + BOT + '</button>');
+  fab.onclick = function () { H.classList.add('sk-chat-open'); down(true); };
+  document.body.appendChild(fab);
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && H.classList.contains('sk-chat-open')) H.classList.remove('sk-chat-open');
+  });
+
+  /* ── first paint: restore the session's feed, or seed the witness greeting ── */
+  var restored = '';
+  try { restored = sessionStorage.getItem('sk-chat-feed') || ''; } catch (e) {}
+  if (restored) {
+    feed.innerHTML = restored;
+    feed.querySelectorAll('.msg').forEach(applyFacFilter);
+    down(true);
+  } else {
+    var g = msg('SΛΛKSHE · WITNESS',
+      'I see everything the four agents do — and answer only from it. Ask me anything about your company.');
+    var sugs = el('<div class="sugs"></div>');
+    [['what is waiting on me?', "what's waiting on me?"],
+     ['status', 'status'],
+     ['render an HDR reel under $1', 'render an HDR reel under $1']].forEach(function (s) {
+      var b = el('<button class="sug" type="button">' + esc(s[0]) + '</button>');
+      b.dataset.ask = s[1];
+      sugs.appendChild(b);
+    });
+    g.appendChild(sugs); down(true);
+  }
+  syncSend();
 })();

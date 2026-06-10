@@ -26,8 +26,26 @@
   </div>
   <script type="module">
     // Completes the Supabase OAuth round-trip: supabase-js parses the URL fragment
-    // (detectSessionInUrl), persists the session, then we bounce to the cockpit.
+    // (detectSessionInUrl), persists the session, then we bounce to the cockpit —
+    // restoring the deep link the cockpit passed through as ?next=#….
+    function dest(){
+      try{
+        const next = new URLSearchParams(location.search).get("next");
+        if(next && next.charAt(0)==="#"){ return "/cockpit.html"+next; }
+      }catch(e){}
+      return "/cockpit.html";
+    }
+    function oauthError(){
+      // Providers report failure in either the query or the fragment — read both.
+      const q = new URLSearchParams(location.search);
+      const h = new URLSearchParams(location.hash.replace(/^#/, ""));
+      const err = q.get("error") || h.get("error");
+      if(!err) return null;
+      return q.get("error_description") || h.get("error_description") || err;
+    }
     async function go(){
+      const denied = oauthError();
+      if(denied){ return fail(denied); }
       try{
         const cfg = await fetch("/api/public-config", {cache:"no-store"}).then(r=>r.json());
         if(!cfg.supabase_url || !cfg.anon_key){ return fail("auth is not configured"); }
@@ -39,17 +57,27 @@
         if(data && data.session){
           document.getElementById("msg").textContent = "signed in ✓";
           document.getElementById("sub").textContent = "taking you to the cockpit…";
-          location.replace("/cockpit.html");
+          location.replace(dest());
         } else {
-          // Some flows resolve slightly later — listen once, then redirect regardless.
-          sb.auth.onAuthStateChange((_e, s)=>{ if(s){ location.replace("/cockpit.html"); } });
-          setTimeout(()=>location.replace("/cockpit.html"), 1200);
+          // Some flows resolve slightly later — listen once, then decide explicitly.
+          let done = false;
+          sb.auth.onAuthStateChange((_e, s)=>{ if(s && !done){ done = true; location.replace(dest()); } });
+          setTimeout(()=>{
+            if(done) return;
+            done = true;
+            // No session materialized: an auto-redirect here would silently loop
+            // the founder back to the gate — say what happened instead.
+            fail("no session arrived from the provider");
+          }, 4000);
         }
       }catch(e){ fail(String(e)); }
     }
     function fail(m){
+      document.querySelector(".dot").style.background = "#b14a3c";
+      document.querySelector(".dot").style.animation = "none";
       document.getElementById("msg").textContent = "sign-in could not complete";
-      document.getElementById("sub").innerHTML = m + ' — <a href="/cockpit.html">back to the cockpit</a>';
+      document.getElementById("sub").innerHTML = String(m).replace(/[&<>]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]))
+        + ' — <a href="/cockpit.html">try signing in again</a>';
     }
     go();
   </script>

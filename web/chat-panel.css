@@ -1,93 +1,200 @@
-/* saakshe chat panel — rounded near-black Brut, light-first.
+/* saakshe chat panel — BRUT, on the cockpit's own tokens (light + Obsidian dark).
    All selectors scoped under #sa-chatpane; cockpit styles untouched.
-   Tokens validated in the 2026-06-10 atlas demo (founder-approved). */
+   No private palette: every color/radius/shadow/font is a cockpit var, so the
+   panel theme-flips with the cockpit for free. */
 #sa-chatpane{
-  --ck-ink:#141118; --ck-ink2:#2a2530; --ck-ink3:#5f5868;
-  --ck-surf:#ffffff; --ck-surf2:#e7e6e0;
-  --ck-grad:linear-gradient(135deg,#141118 0%,#241c2e 70%,#3a2a4a 100%);
-  --ck-manas:#e3a200; --ck-arivu:#0a39ff; --ck-kalai:#ff2d2d; --ck-kural:#00a86b;
-  --ck-q2:#e2e8ff; --ck-q3:#ffe0e0; --ck-q4:#d8f7e8;
-  --ck-mono:'JetBrains Mono',ui-monospace,monospace;
-  font:13px/1.5 var(--ck-mono); color:var(--ck-ink);
-  display:flex; flex-direction:column; position:relative;
+  font:13.5px/1.55 var(--font-body,'Space Grotesk',sans-serif); color:var(--ink,#161410);
+  /* no position here — the cockpit mount sets position:fixed and this sheet
+     loads after it; a position:relative would drop the pane into flow */
+  display:flex; flex-direction:column; background:var(--surface,#FBF7EE);
 }
-/* grain */
+/* grain — paper tooth, light only (Obsidian is a clean terminal field) */
 #sa-chatpane::after{content:'';position:absolute;inset:0;pointer-events:none;opacity:.05;
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)'/%3E%3C/svg%3E")}
+html[data-theme="dark"] #sa-chatpane::after{display:none}
 
-#sa-chatpane .ch-head{padding:13px 16px;border-bottom:2px solid var(--ck-ink);
-  background:var(--ck-grad);color:#fff;display:flex;align-items:center;gap:10px}
-#sa-chatpane .ch-head .brand{font-family:'Syncopate',sans-serif;font-weight:700;
-  font-size:11px;letter-spacing:.26em;text-indent:.26em}
-#sa-chatpane .ch-head .t{font-size:10px;letter-spacing:.1em}
+/* ── header: ink plate, paper text, the witness mark lives here ── */
+#sa-chatpane .ch-head{padding:12px 14px;border-bottom:var(--line-w,2.5px) solid var(--line,#161410);
+  background:var(--ink,#161410);color:var(--bg,#F4EEE2);display:flex;align-items:center;gap:10px}
+html[data-theme="dark"] #sa-chatpane .ch-head{background:var(--surface,#0F140F);color:var(--witness,#5EF08A)}
+/* the locked wordmark — Syncopate Bold, matching the topbar's .tb-word */
+#sa-chatpane .ch-head .brand{font-family:'Syncopate',var(--word,sans-serif);font-weight:700;
+  font-size:11px;letter-spacing:.24em;text-indent:.24em}
+#sa-chatpane .ch-head .t{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.14em;opacity:.75}
+#sa-chatpane .ch-head .skbot{border-color:var(--bg,#F4EEE2)}
+html[data-theme="dark"] #sa-chatpane .ch-head .skbot{border-color:var(--witness,#5EF08A)}
 #sa-chatpane .ch-head .live{margin-left:auto;width:9px;height:9px;border-radius:50%;
-  background:#3ce791;animation:sa-pulse 1.6s infinite}
-@keyframes sa-pulse{0%,100%{opacity:1}50%{opacity:.35}}
+  background:var(--ok,#2C6B45)}
+#sa-chatpane .ch-head .live.busy{background:var(--sig-amber,#795309)}
+#sa-chatpane .ch-head .live.err{background:var(--sig-red,#A33321)}
+#sa-chatpane .ch-collapse{margin-left:6px;border:1.5px solid currentColor;border-radius:var(--radius-sm,10px);
+  background:transparent;color:inherit;font-family:var(--font-mono);font-size:10px;
+  padding:3px 8px;cursor:pointer;letter-spacing:.08em}
+#sa-chatpane .ch-collapse:hover{background:rgba(255,255,255,.12)}
+#sa-chatpane .ch-collapse:focus-visible{outline:none;box-shadow:0 0 0 2px var(--accent,#2A41A0)}
 
-#sa-chatpane .ch-tabs{display:flex;gap:6px;padding:10px 12px;
-  border-bottom:1.5px solid var(--ck-surf2);flex-wrap:wrap;background:var(--ck-surf)}
-#sa-chatpane .ch-tab{border:1.5px solid var(--ck-ink);border-radius:999px;
-  padding:2px 11px;font-size:10.5px;font-weight:700;cursor:pointer;
-  background:var(--ck-surf2);transition:all .15s}
-#sa-chatpane .ch-tab.on{background:var(--ck-ink);color:#fff}
-#sa-chatpane .ch-tab:hover{transform:translateY(-1px)}
+/* ── collapsed desktop rail: just the witness, standing by ── */
+#sa-chatpane .ch-rail{display:none}
+html.sk-chat-collapsed #sa-chatpane > *{display:none}
+html.sk-chat-collapsed #sa-chatpane::after{display:none}
+html.sk-chat-collapsed #sa-chatpane .ch-rail{display:flex;flex-direction:column;align-items:center;
+  gap:14px;padding:14px 0;width:100%;height:100%;cursor:pointer;background:transparent;border:0}
+#sa-chatpane .ch-rail .rlbl{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.22em;
+  color:var(--ink-3);writing-mode:vertical-rl;text-transform:uppercase}
+html.sk-chat-collapsed #sa-chatpane .ch-rail:hover .rlbl{color:var(--ink)}
 
+/* ── faculty tabs: bordered mono chips; active = ink fill (dark: phosphor) ── */
+#sa-chatpane .ch-tabs{display:flex;gap:6px;padding:9px 12px;
+  border-bottom:var(--line-w,2.5px) solid var(--line,#161410);flex-wrap:wrap;background:var(--surface,#FBF7EE)}
+#sa-chatpane .ch-tab{border:1.5px solid var(--line,#161410);border-radius:var(--radius-pill,999px);
+  padding:3px 11px;font:600 10px var(--font-mono);letter-spacing:.1em;text-transform:uppercase;
+  cursor:pointer;background:var(--surface-2,#ECE4D3);color:var(--ink,#161410);
+  transition:transform .12s, box-shadow .12s}
+#sa-chatpane .ch-tab .fdot{display:inline-block;width:8px;height:8px;margin-right:5px;
+  vertical-align:0;border:1px solid var(--line)}
+#sa-chatpane .ch-tab[data-q="manas"] .fdot{background:var(--manas);border-radius:50%}
+#sa-chatpane .ch-tab[data-q="arivu"] .fdot{background:var(--arivu)}
+#sa-chatpane .ch-tab[data-q="kalai"] .fdot{background:var(--kalai);clip-path:polygon(50% 0,100% 100%,0 100%);border:0}
+#sa-chatpane .ch-tab[data-q="kural"] .fdot{background:var(--kural)}
+#sa-chatpane .ch-tab:hover{transform:translate(-1px,-1px);box-shadow:var(--shadow-sm,2px 2px 0 var(--ink))}
+html[data-theme="dark"] #sa-chatpane .ch-tab:hover{transform:none;box-shadow:none;border-color:var(--ink-2)}
+#sa-chatpane .ch-tab.on{background:var(--ink,#161410);color:var(--bg,#F4EEE2)}
+html[data-theme="dark"] #sa-chatpane .ch-tab.on{background:var(--act);color:var(--on-act)}
+#sa-chatpane .ch-tab:focus-visible{outline:none;box-shadow:0 0 0 2px var(--accent,#2A41A0)}
+
+/* ── feed ── */
 #sa-chatpane .ch-feed{flex:1;overflow-y:auto;padding:14px;display:flex;
-  flex-direction:column;gap:10px;background:#eceae4}
+  flex-direction:column;gap:11px;background:var(--bg,#F4EEE2)}
+#sa-chatpane .msg{max-width:94%;border:var(--line-w,2.5px) solid var(--line,#161410);
+  border-radius:var(--radius,14px);padding:10px 13px;font-size:12.5px;
+  background:var(--surface,#FBF7EE);box-shadow:var(--shadow-sm,2px 2px 0 var(--ink))}
+#sa-chatpane .msg.hidden-fac{display:none}
+@media (prefers-reduced-motion: no-preference){
+  #sa-chatpane .msg{animation:sa-slidein .28s cubic-bezier(.2,.9,.3,1.2)}
+  @keyframes sa-slidein{from{opacity:0;transform:translateY(10px) scale(.97)}to{opacity:1;transform:none}}
+}
+#sa-chatpane .msg.user{align-self:flex-end;background:var(--ink,#161410);color:var(--bg,#F4EEE2);box-shadow:none}
+html[data-theme="dark"] #sa-chatpane .msg.user{background:var(--surface-2);color:var(--ink);border-color:var(--ink-2)}
+#sa-chatpane .msg .who{display:flex;align-items:baseline;gap:8px;font:700 9.5px var(--font-mono);
+  text-transform:uppercase;letter-spacing:.12em;margin-bottom:5px;color:var(--ink-3,#6B6557)}
+#sa-chatpane .msg.user .who{color:var(--faint,#B7AE9C)}
+#sa-chatpane .msg .who .ts{font-weight:400;letter-spacing:.04em;opacity:.7;margin-left:auto}
+#sa-chatpane .msg p{margin:0;white-space:pre-wrap;overflow-wrap:break-word}
+#sa-chatpane .msg p code{font-family:var(--font-mono);font-size:11px;background:var(--surface-2);
+  border:1px solid var(--line);border-radius:4px;padding:0 4px}
+#sa-chatpane .msg.user p code{background:transparent;border-color:var(--faint)}
+#sa-chatpane .msg p a{color:var(--accent);text-decoration:underline}
+#sa-chatpane .msg .data{margin-top:8px;background:var(--surface-2,#ECE4D3);
+  border:1.5px solid var(--line,#161410);border-radius:var(--radius-sm,10px);
+  padding:7px 10px;font:11px var(--font-mono)}
+#sa-chatpane .msg .data .row{display:flex;justify-content:space-between;gap:10px;padding:1.5px 0}
 
-#sa-chatpane .msg{max-width:94%;border:2px solid var(--ck-ink);border-radius:14px;
-  padding:10px 13px;font-size:12px;background:var(--ck-surf);
-  box-shadow:3px 3px 0 var(--ck-ink);
-  animation:sa-slidein .28s cubic-bezier(.2,.9,.3,1.2)}
-@keyframes sa-slidein{from{opacity:0;transform:translateY(10px) scale(.97)}to{opacity:1;transform:none}}
-#sa-chatpane .msg.user{align-self:flex-end;background:var(--ck-grad);color:#fff}
-#sa-chatpane .msg .who{display:flex;align-items:center;gap:6px;font-size:10px;
-  font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px;
-  color:var(--ck-ink3)}
-#sa-chatpane .msg.user .who{color:#b9b3c2}
-#sa-chatpane .msg p{margin:0}
-#sa-chatpane .msg .data{margin-top:8px;background:var(--ck-surf2);
-  border:1.5px solid var(--ck-ink);border-radius:10px;padding:7px 10px;font-size:11px}
-#sa-chatpane .msg .data .row{display:flex;justify-content:space-between;
-  gap:10px;padding:1.5px 0}
+/* suggestion chips (empty state) */
+#sa-chatpane .sugs{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}
+#sa-chatpane .sug{border:1.5px solid var(--line);border-radius:var(--radius-pill,999px);
+  background:var(--surface);padding:5px 13px;font:600 10.5px var(--font-mono);
+  letter-spacing:.06em;text-transform:uppercase;cursor:pointer;color:var(--ink);
+  box-shadow:var(--shadow-sm);transition:transform .1s, box-shadow .1s}
+#sa-chatpane .sug:hover{transform:translate(-1px,-1px);box-shadow:3px 3px 0 var(--line)}
+html[data-theme="dark"] #sa-chatpane .sug:hover{transform:none;box-shadow:none;border-color:var(--ink-2)}
+#sa-chatpane .sug:focus-visible{outline:none;box-shadow:0 0 0 2px var(--accent)}
 
+/* action buttons (presenter blocks) */
 #sa-chatpane .acts{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}
-#sa-chatpane .act{border:1.5px solid var(--ck-ink);border-radius:999px;
-  background:var(--ck-surf);padding:5px 14px;font:700 11px var(--ck-mono);
-  cursor:pointer;box-shadow:2px 2px 0 var(--ck-ink);
+#sa-chatpane .act{border:1.5px solid var(--line,#161410);border-radius:var(--radius-pill,999px);
+  background:var(--surface,#FBF7EE);padding:5px 14px;font:700 10.5px var(--font-mono);
+  letter-spacing:.08em;text-transform:uppercase;cursor:pointer;color:var(--ink,#161410);
+  box-shadow:var(--shadow-sm,2px 2px 0 var(--ink));
   transition:transform .1s, box-shadow .1s, background .15s}
-#sa-chatpane .act:hover{transform:translate(-1px,-1px);
-  box-shadow:3px 3px 0 var(--ck-ink);background:var(--ck-q2)}
-#sa-chatpane .act:active{transform:translate(1px,1px);box-shadow:0 0 0 var(--ck-ink)}
-#sa-chatpane .act.primary{background:var(--ck-grad);color:#fff}
-#sa-chatpane .act.primary:hover{filter:brightness(1.25)}
-#sa-chatpane .act.ok{background:var(--ck-q4)}
-#sa-chatpane .act.no,#sa-chatpane .act.blocked{background:var(--ck-q3)}
-#sa-chatpane .act.done{background:var(--ck-q4);pointer-events:none;opacity:.6}
+#sa-chatpane .act:hover{transform:translate(-1px,-1px);box-shadow:3px 3px 0 var(--line,#161410)}
+html[data-theme="dark"] #sa-chatpane .act:hover{transform:none;box-shadow:none;border-color:var(--ink-2)}
+#sa-chatpane .act:active{transform:translate(1px,1px);box-shadow:none}
+#sa-chatpane .act:focus-visible{outline:none;box-shadow:0 0 0 2px var(--accent,#2A41A0)}
+#sa-chatpane .act.primary{background:var(--act,#CC4632);color:var(--on-act,#fff)}
+#sa-chatpane .act.ok{background:var(--tint-green,#D6EDDB)}
+#sa-chatpane .act.no,#sa-chatpane .act.blocked{background:var(--tint-rose,#F3D3C9)}
+html[data-theme="dark"] #sa-chatpane .act.ok,
+html[data-theme="dark"] #sa-chatpane .act.no,
+html[data-theme="dark"] #sa-chatpane .act.blocked{color:var(--ink)}
+#sa-chatpane .act.done{background:var(--tint-green,#D6EDDB);pointer-events:none;opacity:.6}
 
-#sa-chatpane .sld{margin-top:9px;background:var(--ck-surf2);
-  border:1.5px solid var(--ck-ink);border-radius:10px;padding:9px 12px}
-#sa-chatpane .sld .lab{display:flex;justify-content:space-between;font-size:10px;
-  font-weight:700;text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px}
-#sa-chatpane .sld input{width:100%;accent-color:#241c2e}
-#sa-chatpane .sld .quote{margin-top:6px;font-size:11px;display:flex;
-  justify-content:space-between}
-#sa-chatpane .sld .quote b{font-size:13px}
+/* slider (kalai quote) — Brut chip thumb on a hairline track */
+#sa-chatpane .sld{margin-top:9px;background:var(--surface-2,#ECE4D3);
+  border:1.5px solid var(--line,#161410);border-radius:var(--radius-sm,10px);padding:9px 12px}
+#sa-chatpane .sld .lab{display:flex;justify-content:space-between;font:700 9.5px var(--font-mono);
+  text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px;color:var(--ink-2)}
+#sa-chatpane .sld input{width:100%;-webkit-appearance:none;appearance:none;height:18px;background:transparent}
+#sa-chatpane .sld input::-webkit-slider-runnable-track{height:2px;background:var(--line)}
+#sa-chatpane .sld input::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;margin-top:-6px;
+  background:var(--act);border:2px solid var(--line);border-radius:3px;cursor:pointer}
+#sa-chatpane .sld input::-moz-range-track{height:2px;background:var(--line)}
+#sa-chatpane .sld input::-moz-range-thumb{width:12px;height:12px;background:var(--act);
+  border:2px solid var(--line);border-radius:3px;cursor:pointer}
+#sa-chatpane .sld input:focus-visible{outline:none;box-shadow:0 0 0 2px var(--accent)}
+#sa-chatpane .sld .quote{margin-top:6px;font:11px var(--font-mono);display:flex;justify-content:space-between}
+#sa-chatpane .sld .quote b{font-size:12.5px}
 
+/* attachment drop-plate */
+#sa-chatpane .drop{margin-top:9px;border:1.5px dashed var(--ink-3);border-radius:var(--radius-sm);
+  padding:14px;text-align:center;font:600 10.5px var(--font-mono);letter-spacing:.1em;
+  text-transform:uppercase;color:var(--ink-3);cursor:pointer;background:var(--surface)}
+#sa-chatpane .drop:hover,#sa-chatpane .drop.over{border-color:var(--accent);color:var(--ink)}
+#sa-chatpane .drop input{display:none}
+#sa-chatpane .filechip{display:inline-flex;align-items:center;gap:8px;margin-top:9px;
+  border:1.5px solid var(--line);border-radius:var(--radius-pill);padding:4px 7px 4px 12px;
+  font:600 10.5px var(--font-mono);background:var(--tint-green)}
+html[data-theme="dark"] #sa-chatpane .filechip{color:var(--ink)}
+#sa-chatpane .filechip button{border:0;background:transparent;cursor:pointer;font:inherit;color:inherit;padding:0 3px}
+
+/* typing — the witness thinking */
 #sa-chatpane .typing{display:flex;gap:4px;padding:8px 12px;align-self:flex-start}
-#sa-chatpane .typing span{width:7px;height:7px;border-radius:50%;
-  background:var(--ck-ink3);animation:sa-bnc 1s infinite}
-#sa-chatpane .typing span:nth-child(2){animation-delay:.15s}
-#sa-chatpane .typing span:nth-child(3){animation-delay:.3s}
-@keyframes sa-bnc{0%,100%{transform:none;opacity:.4}50%{transform:translateY(-5px);opacity:1}}
+#sa-chatpane .typing span{width:7px;height:7px;border-radius:50%;background:var(--ink-3,#6B6557)}
+@media (prefers-reduced-motion: no-preference){
+  #sa-chatpane .typing span{animation:sa-bnc 1s infinite}
+  #sa-chatpane .typing span:nth-child(2){animation-delay:.15s}
+  #sa-chatpane .typing span:nth-child(3){animation-delay:.3s}
+  @keyframes sa-bnc{0%,100%{transform:none;opacity:.4}50%{transform:translateY(-5px);opacity:1}}
+}
 
-#sa-chatpane .ch-input{border-top:2px solid var(--ck-ink);padding:12px 14px;
-  display:flex;gap:8px;background:var(--ck-surf)}
-#sa-chatpane .ch-input input{flex:1;border:2px solid var(--ck-ink);
-  border-radius:999px;padding:8px 14px;font:12px var(--ck-mono);
-  background:var(--ck-surf2);color:var(--ck-ink);outline:none}
-#sa-chatpane .ch-input button{border:2px solid var(--ck-ink);border-radius:999px;
-  background:var(--ck-grad);color:#fff;font:700 12px var(--ck-mono);
-  padding:8px 18px;cursor:pointer;box-shadow:2px 2px 0 var(--ck-ink);
-  transition:transform .1s}
+/* "new messages" catcher when scrolled up */
+#sa-chatpane .newmsgs{position:sticky;bottom:6px;align-self:center;border:1.5px solid var(--line);
+  border-radius:var(--radius-pill);background:var(--ink);color:var(--bg);
+  font:700 10px var(--font-mono);letter-spacing:.1em;text-transform:uppercase;
+  padding:4px 13px;cursor:pointer;box-shadow:var(--shadow-sm)}
+html[data-theme="dark"] #sa-chatpane .newmsgs{background:var(--act);color:var(--on-act)}
+
+/* ── input bar ── */
+#sa-chatpane .ch-input{border-top:var(--line-w,2.5px) solid var(--line,#161410);padding:12px 14px;
+  display:flex;gap:8px;background:var(--surface,#FBF7EE);align-items:center}
+#sa-chatpane .ch-input input{flex:1;min-width:0;border:2px solid var(--line,#161410);
+  border-radius:var(--radius-pill,999px);padding:9px 15px;font:12.5px var(--font-body);
+  background:var(--surface-2,#ECE4D3);color:var(--ink,#161410)}
+#sa-chatpane .ch-input input::placeholder{color:var(--ink-3)}
+#sa-chatpane .ch-input input:focus-visible{outline:none;border-color:var(--accent,#2A41A0);
+  box-shadow:0 0 0 2px var(--accent,#2A41A0)}
+#sa-chatpane .ch-input button{border:2px solid var(--line,#161410);border-radius:var(--radius-pill,999px);
+  background:var(--surface,#FBF7EE);color:var(--ink,#161410);font:700 11px var(--font-mono);
+  letter-spacing:.08em;padding:8px 14px;cursor:pointer;box-shadow:var(--shadow-sm,2px 2px 0 var(--ink));
+  transition:transform .1s, box-shadow .1s;display:inline-flex;align-items:center;gap:6px}
+#sa-chatpane .ch-input button:hover{transform:translate(-1px,-1px);box-shadow:3px 3px 0 var(--line)}
+html[data-theme="dark"] #sa-chatpane .ch-input button:hover{transform:none;box-shadow:none;border-color:var(--ink-2)}
 #sa-chatpane .ch-input button:active{transform:translate(1px,1px);box-shadow:none}
+#sa-chatpane .ch-input button:focus-visible{outline:none;box-shadow:0 0 0 2px var(--accent,#2A41A0)}
+#sa-chatpane .ch-input button:disabled{opacity:.45;pointer-events:none;box-shadow:none}
+#sa-chatpane #sa-ch-send{background:var(--act,#CC4632);color:var(--on-act,#fff)}
+#sa-chatpane #sa-ch-mic .ic{width:14px;height:14px;fill:none;stroke:currentColor;
+  stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;display:block}
+#sa-chatpane #sa-ch-mic .recdot{display:none;width:8px;height:8px;border-radius:50%;background:var(--sig-red,#A33321)}
+#sa-chatpane #sa-ch-mic.rec .recdot{display:inline-block}
+@media (prefers-reduced-motion: no-preference){
+  #sa-chatpane #sa-ch-mic.rec .recdot{animation:sa-rec 1.1s infinite}
+  @keyframes sa-rec{0%,100%{opacity:1}50%{opacity:.3}}
+}
+#sa-chatpane #sa-ch-mic.kbd .ic{display:none}
+#sa-chatpane #sa-ch-mic.kbd::after{content:'⌨';font-size:13px}
+#sa-chatpane #sa-ch-mic.loading{opacity:.6;pointer-events:none}
+
+/* the mobile FAB lives outside the pane */
+#sa-chatfab{border:var(--line-w,2.5px) solid var(--line,#161410);border-radius:12px;
+  background:var(--surface,#FBF7EE);padding:8px;cursor:pointer;box-shadow:var(--shadow,5px 5px 0 var(--ink))}
+#sa-chatfab:focus-visible{outline:none;box-shadow:0 0 0 2px var(--accent,#2A41A0)}

@@ -137,8 +137,9 @@ def _rpc(fn: str, params: dict) -> int:
     return int(r.json())
 
 
-def _get_balance(user_id: str) -> int:
-    """GET the current balance for a user (0 when no account row exists)."""
+def _get_balance(user_id: str) -> int | None:
+    """GET the current balance for a user — 0 when no account row exists, None
+    when the lookup itself failed (an outage must never read as 'broke')."""
     url = f"{_supabase_url()}/rest/v1/accounts"
     params = {"user_id": f"eq.{user_id}", "select": "balance"}
     try:
@@ -146,7 +147,7 @@ def _get_balance(user_id: str) -> int:
         r.raise_for_status()
         rows = r.json()
     except (httpx.HTTPError, ValueError):
-        return 0
+        return None
     if rows and isinstance(rows, list):
         return int(rows[0].get("balance", 0) or 0)
     return 0
@@ -215,8 +216,9 @@ def grant_signup(user_id: str, email: str, is_owner: bool = False) -> int:
     )
 
 
-def balance(user_id: str) -> int:
-    """Current credit balance for a user (0 when no account row exists)."""
+def balance(user_id: str) -> int | None:
+    """Current credit balance for a user — 0 when no account row exists, None
+    when the balance can't be read right now (the pill renders '—' for None)."""
     return _get_balance(user_id)
 
 
@@ -248,11 +250,15 @@ def charge(user, cost_key: str, *, idem_key: str, reason: str) -> Iterator[dict]
     try:
         yield {"charged": True}
     except Exception:
-        refund(
-            user.user_id,
-            cost(cost_key),
-            "internal failure — not charged",
-            idem_key,
-            idem_key + ":refund",
-        )
+        try:
+            refund(
+                user.user_id,
+                cost(cost_key),
+                "internal failure — not charged",
+                idem_key,
+                idem_key + ":refund",
+            )
+        except Exception:  # noqa: BLE001 — the refund failing must not mask the
+            # original error; the refund key is idempotent, so ops can replay it.
+            print(f"REFUND FAILED — replay refund for spend key {idem_key!r}")
         raise
