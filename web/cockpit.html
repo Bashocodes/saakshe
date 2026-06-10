@@ -41,17 +41,17 @@
   --sb-rail: 56px;
   --rail: 380px;
 
-  /* ===== BRUT · LIGHT — poster-brutalist (tokens mirror saakshe_landing.html) =====
-     cream paper, hard black FULL borders, offset hard-shadow blocks, zero radius,
-     Space Grotesk + IBM Plex Mono + Michroma wordmark. Hues are kept legible-on-cream
-     (the cockpit conflates dot-hue and text-hue into one token, so these double-duty). */
+  /* ===== BRUT · LIGHT — poster-brutalist, ROUNDED (2026-06-10 evolution) =====
+     cream paper, hard black FULL borders, offset hard-shadow blocks — but rounded
+     containers (14px) and pill chips, matching the media-crew report style the
+     founder locked. Space Grotesk + IBM Plex Mono + Michroma wordmark. */
   --bg:#F4EEE2; --surface:#FBF7EE; --surface-2:#ECE4D3;
   --ink:#161410; --ink-2:#45413A; --ink-3:#6B6557; --faint:#B7AE9C;
   --line:#161410; --line-2:#161410;
   --line-w:2.5px;
   --accent:#2A41A0; --amber:#795309; --terracotta:#A33321; --green:#2C6B45; --ok:#2C6B45;
   --tint-amber:#F7EBBE; --tint-blue:#DCE2F8; --tint-rose:#F3D3C9; --tint-green:#D6EDDB;
-  --radius:0px; --radius-sm:0px; --radius-pill:0px;
+  --radius:14px; --radius-sm:10px; --radius-pill:999px;
   --offset:6px;
   --shadow:5px 5px 0 var(--ink);
   --shadow-sm:2px 2px 0 var(--ink);
@@ -85,7 +85,7 @@ html[data-theme="dark"]{
   --line-w:1px;
   --accent:#7C97F2; --amber:#E0B25A; --terracotta:#E0685C; --green:#5EF08A; --ok:#5EF08A;
   --tint-amber:#19170F; --tint-blue:#10131F; --tint-rose:#1A1310; --tint-green:#0E1A11;
-  --radius:5px; --radius-sm:4px;
+  --radius:10px; --radius-sm:8px; --radius-pill:999px;
   --shadow:none; --shadow-sm:none;
   --glow:none; --glow-soft:none;  /* OBSIDIAN v2 — glow removed; phosphor TEXT + crisp 1px borders carry it */
   --font-display:'JetBrains Mono','IBM Plex Mono',monospace; --font-body:'IBM Plex Mono',ui-monospace,monospace;
@@ -2803,7 +2803,13 @@ html[data-theme="dark"] .sdoss .sdfoot{ border-top-color:var(--line); box-shadow
   function show(step){
     ["cgStepConnect","cgStepIngest","cgStepResult"].forEach(function(id){ var el=$(id); if(el) el.hidden=(id!==step); });
   }
-  function hideGate(){ var g=$("connectGate"); g.hidden=true; g.setAttribute("aria-hidden","true"); }
+  function hideGate(){ var g=$("connectGate"); g.hidden=true; g.setAttribute("aria-hidden","true");
+    /* remember the ✕/Esc for this tab — a refresh must not re-trap the founder */
+    try{ sessionStorage.setItem("sk-cg-dismissed","1"); }catch(e){} }
+  function gateDismissed(){ try{ return sessionStorage.getItem("sk-cg-dismissed")==="1"; }catch(e){ return false; } }
+  function openGate(){ try{ sessionStorage.removeItem("sk-cg-dismissed"); }catch(e){}
+    var g=$("connectGate"); g.hidden=false; g.setAttribute("aria-hidden","false"); }
+  window.cockpitOpenGate = openGate;
   /* the gate must never trap the founder — ✕ and Esc dismiss it (reopens on reload until grounded) */
   var cgX=$("cgClose"); if(cgX) cgX.onclick=hideGate;
   document.addEventListener("keydown",function(e){ if(e.key==="Escape"&&!$("connectGate").hidden) hideGate(); });
@@ -2989,12 +2995,20 @@ html[data-theme="dark"] .sdoss .sdfoot{ border-top-color:var(--line); box-shadow
         setTimeout(poll, 350);
       })();
     });
-    g.hidden=false; g.setAttribute("aria-hidden","false");
+    /* signed in — surface the connect step only if the founder hasn't ✕'d it
+       this tab; the topbar/sidebar "— connect a project —" crumb reopens it */
+    if(!gateDismissed()){ g.hidden=false; g.setAttribute("aria-hidden","false"); }
   }
 
   /* ---- BOOT: runs first ---- */
   async function boot(){
     await authReady();
+    /* a ✕'d gate stays closed across refreshes (demo profile included) */
+    if(gateDismissed()){ var g0=$("connectGate"); g0.hidden=true; g0.setAttribute("aria-hidden","true"); }
+    /* the crumbs are the way back in */
+    ["tbOrgName","sbOrgName"].forEach(function(id){ var el=$(id);
+      if(el){ el.style.cursor="pointer"; el.title="open the connect step";
+        el.addEventListener("click", openGate); } });
     /* the OWNER's sandbox is theirs to wipe — surface "start over" (hidden on
        the public demo for everyone else, whose store is the shared seed) */
     try{
@@ -3148,6 +3162,11 @@ html[data-theme="dark"] .sdoss .sdfoot{ border-top-color:var(--line); box-shadow
   var $=function(id){return document.getElementById(id);};
   var A = window.SAAKSHE_AUTH = {
     enabled:false, requireSignin:false, _token:null, _balance:null, _sb:null, refresh:null, onChange:null,
+    /* _ready: the first getSession() round-trip finished — before that the auth
+       state is UNKNOWN, not "signed out". _maybe: localStorage holds a persisted
+       Supabase session, so a returning founder must never see the gate flash
+       while the session restores (the it-doesnt-know-im-in refresh bug). */
+    _ready:false, _maybe:false,
     token:function(){ return this._token; },
     signedIn:function(){ return !!this._token; },
     balance:function(){ return this._balance; },
@@ -3218,7 +3237,9 @@ html[data-theme="dark"] .sdoss .sdfoot{ border-top-color:var(--line); box-shadow
     out.addEventListener("click", function(){ A.signOut(); });
   }
   function render(){
-    if(A.requireSignin){ gate(!A.signedIn()); }
+    /* Unknown state (restoring a stored session) shows NO gate; a visitor with
+       no stored session sees it instantly; an expired session sees it on _ready. */
+    if(A.requireSignin){ gate(!A.signedIn() && (A._ready || !A._maybe)); }
     var inB=$("saIn"), outB=$("saOut"), balB=$("saBal"); if(!inB) return;
     if(!A.enabled){ inB.style.display="none"; outB.style.display="none"; balB.style.display="none"; return; }
     if(A.signedIn()){
@@ -3233,16 +3254,21 @@ html[data-theme="dark"] .sdoss .sdfoot{ border-top-color:var(--line); box-shadow
     catch(e){ return; }
     injectControl();
     if(!cfg || !cfg.auth_enabled || !cfg.supabase_url || !cfg.anon_key){ A.enabled=false; render(); return; }
-    A.enabled=true; A.requireSignin=!!cfg.require_signin; render();
+    A.enabled=true; A.requireSignin=!!cfg.require_signin;
+    try{ var ref=new URL(cfg.supabase_url).hostname.split(".")[0];
+      for(var i=0;i<localStorage.length;i++){ var k=localStorage.key(i);
+        if(k && k.indexOf("sb-"+ref)===0){ A._maybe=true; break; } } }catch(e){}
+    render();
     var mod;
     try{ mod = await import("https://esm.sh/@supabase/supabase-js@2"); }
-    catch(e){ A.enabled=false; render(); return; }
+    catch(e){ A._ready=true; A.enabled=false; render(); return; }
     var sb = mod.createClient(cfg.supabase_url, cfg.anon_key,
       {auth:{persistSession:true, autoRefreshToken:true, detectSessionInUrl:true}});
     A._sb = sb;
     async function refresh(){
       var s=null; try{ s=(await sb.auth.getSession()).data.session; }catch(e){}
       A._token = s ? s.access_token : null;
+      A._ready = true;
       if(A._token){
         try{ var me = await fetch("/api/me",{headers:{Authorization:"Bearer "+A._token},cache:"no-store"}).then(function(r){return r.json();});
           A._balance = (me && typeof me.balance==="number")? me.balance : null; }catch(e){ A._balance=null; }
