@@ -180,6 +180,11 @@ async def make(stream: EventStream, run_id: str, brief: str, context_pack: dict,
                      "bytes": None, "spend_usd": 0.0}
     image_ref = media_out.get("image_ref", "")
     media_block = {"image_ref": image_ref, "video_ref": ""}
+    image_uri = _persist_render_bytes(media_out)
+    if image_uri:
+        # The rendered pixels live in the vault; the master carries the handle so
+        # the founder SEES the creative on the g2 card (demo is pixel-free → no key).
+        media_block["image_uri"] = image_uri
     stream.emit(run_id, NS, "Designer · Producer",
                 f"render banner via Vertex Imagen → {image_ref}",
                 span="execute_tool", image_ref=image_ref,
@@ -212,6 +217,24 @@ async def make(stream: EventStream, run_id: str, brief: str, context_pack: dict,
     )
 
 
+def _persist_render_bytes(media_out: dict) -> str:
+    """Persist a live render's pixels via the vault; return the vault URI ('' when
+    there are no bytes — the demo placeholder — or on any blob error: a failed
+    write must never strand a compliance-cleared master)."""
+    img_bytes = media_out.get("bytes") if isinstance(media_out, dict) else None
+    if not img_bytes:
+        return ""
+    try:
+        import hashlib
+
+        from common import vault as blob
+
+        asset_id = f"render-{hashlib.sha256(img_bytes).hexdigest()[:16]}.png"
+        return blob.put(asset_id, img_bytes, "image/png")
+    except Exception:  # noqa: BLE001 — fail-soft: ship the ref-only master
+        return ""
+
+
 # ─── A2A skill: render a master and hand its dict back (no channel keys ever) ─
 def _render_asset(brief: str = "", context_pack: dict | None = None, assets=None) -> dict:
     """kalai.render_asset — synchronous A2A entrypoint. Drives the pipeline and
@@ -240,10 +263,14 @@ def _render_asset(brief: str = "", context_pack: dict | None = None, assets=None
         except Exception:  # fail-soft: ship pixel-less rather than strand the caller
             media_out = {"image_ref": media_mod._placeholder_ref("imagen", design.get("visual", "")),
                          "bytes": None, "spend_usd": 0.0}
+        media_block = {"image_ref": media_out.get("image_ref", ""), "video_ref": ""}
+        image_uri = _persist_render_bytes(media_out)
+        if image_uri:
+            media_block["image_uri"] = image_uri
         master = fx.assemble_master(
             brief, design=design, copy=copy,
             fidelity_score=score if score > 0.0 else config.CANON["fidelity_pass"],
-            media={"image_ref": media_out.get("image_ref", ""), "video_ref": ""},
+            media=media_block,
         )
         out = master.as_dict()
         out["accepted"] = True

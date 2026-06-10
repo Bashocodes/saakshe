@@ -26,3 +26,25 @@ def test_vault_add_then_list(monkeypatch, tmp_path):
     r = client.post("/api/vault/add", json=payload)
     assert r.status_code == 200 and r.json()["asset"]["kind"] == "logo"
     assert len(client.get("/api/vault/list").json()["assets"]) == 1
+
+
+# ─── the byte-serving route (the gate-2 card's <img> source) ──────────────────
+def test_vault_asset_serves_bytes_with_sniffed_type():
+    from common import vault as blob
+    png = b"\x89PNG\r\n\x1a\n" + b"fake-render"
+    uri = blob.put("render-test.png", png, "image/png")
+    r = client.get("/api/vault/asset", params={"uri": uri})
+    assert r.status_code == 200
+    assert r.content == png
+    assert r.headers["content-type"].startswith("image/png")
+
+
+def test_vault_asset_rejects_non_vault_uri():
+    """Only vault://<hex> URIs are servable — never a path, never a live storage key."""
+    for bad in ("../../etc/passwd", "founder/secret.png", "vault://../x", "vault://UPPER"):
+        assert client.get("/api/vault/asset", params={"uri": bad}).status_code == 400
+
+
+def test_vault_asset_404_when_missing():
+    assert client.get("/api/vault/asset",
+                      params={"uri": "vault://deadbeefdeadbeef"}).status_code == 404

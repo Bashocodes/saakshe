@@ -151,14 +151,20 @@ async def engage(stream: EventStream, run_id: str, master: dict, context_pack: d
 
     # HALT at the publish gate (tap 2) — never auto-publish.
     post = _build_post(state, master, context_pack)
+    # The rendered creative's vault handle (when kalai persisted pixels) rides the
+    # gate so the cockpit card shows WHAT the founder is approving; demo masters
+    # are pixel-free → no key, and the gate payload stays byte-identical.
+    media = master.get("media") if isinstance(master, dict) else None
+    image_uri = media.get("image_uri", "") if isinstance(media, dict) else ""
+    img_meta = {"image_uri": image_uri} if image_uri else {}
     gate = a2a.GateRequest(
         gate_id="g2", quadrant=NS, agent="Channel Mouth", gate_kind="publish",
         proposal=f"Publish the Pro → ${config.CANON['verdict_price_to']} launch to x · ig · linkedin",
         reversible=False,
-        detail={"grounded_in": pack_v, "as_buyer": True},
+        detail={"grounded_in": pack_v, "as_buyer": True, **img_meta},
     )
     stream.gate(run_id, NS, "Channel Mouth", gate.gate_id, gate.proposal,
-                gate_kind="publish", reversible=False)
+                gate_kind="publish", reversible=False, **img_meta)
     transcript.append({"actor": "Channel Mouth», gate", "text": "HALT — awaiting founder publish sign-off (tap 2)"})
 
     return a2a.QuadrantResult(

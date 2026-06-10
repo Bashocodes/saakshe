@@ -2979,6 +2979,7 @@ html[data-theme="dark"] .sdoss .sdfoot{ border-top-color:var(--line); box-shadow
   .lc-gatecard{border:var(--hair) solid var(--line,#e3dad0);border-radius:var(--radius);padding:12px;margin-bottom:10px}
   .lc-gatecard .gk{font-family:var(--font-mono);font-size:10.5px;color:var(--ink-3,#72665b);text-transform:uppercase;letter-spacing:.08em}
   .lc-gatecard .gp{font-size:13.5px;margin:6px 0 10px}
+  .lc-gatecard .gimg{display:block;max-width:100%;border-radius:8px;margin:0 0 10px;border:var(--hair) solid var(--line,#e3dad0)}
   .lc-btn{font:inherit;font-size:13px;border:var(--hair) solid var(--line,#d9cfc3);background:var(--surface,#fbf7f3);
     color:var(--ink,#241f1b);border-radius:var(--radius-pill);padding:7px 14px;cursor:pointer}
   .lc-btn:hover{border-color:var(--accent)}
@@ -3120,8 +3121,11 @@ html[data-theme="dark"] .sdoss .sdfoot{ border-top-color:var(--line); box-shadow
     g.innerHTML="";
     gates.forEach(function(gt){
       var c=document.createElement("div"); c.className="lc-gatecard";
+      var img = (gt.image_uri && /^vault:\/\/[0-9a-f]+$/.test(gt.image_uri))
+        ? '<img class="gimg" src="'+base+'/api/vault/asset?uri='+encodeURIComponent(gt.image_uri)+'" alt="the rendered creative" loading="lazy">'
+        : '';
       c.innerHTML='<div class="gk">'+esc(gt.gate_id)+' · '+esc(gt.gate_kind)+' · '+(gt.reversible?"reversible":"irreversible")+'</div>'
-        +'<div class="gp">'+esc(gt.proposal)+'</div>';
+        +'<div class="gp">'+esc(gt.proposal)+'</div>'+img;
       var b=document.createElement("button"); b.className="lc-btn lc-approve"; b.textContent="✋ approve — your tap";
       b.onclick=function(){ approve(gt.gate_id); };
       c.appendChild(b); g.appendChild(c);

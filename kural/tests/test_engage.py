@@ -56,6 +56,29 @@ async def test_run_engagement_reaches_send_eligible_publish_gate():
     assert qualify.get("worth_engaging") is True
 
 
+# ─── the g2 card carries the rendered creative (when one exists) ──────────────
+async def test_gate_carries_image_uri_when_master_has_one():
+    """Render-display pipeline: a master whose media carries a vault image_uri
+    surfaces it on the raised g2 row + the open-gates queue, so the cockpit card
+    can show the actual creative the founder is approving."""
+    s = EventStream()
+    master = dict(_MASTER)
+    master["media"] = {"image_ref": "vertex://imagen/m", "image_uri": "vault://abc123def4567890",
+                       "video_ref": ""}
+    res = await runner.engage(s, "run-img", master, _PACK)
+    gates = s.open_gates("run-img")
+    assert gates and gates[0]["image_uri"] == "vault://abc123def4567890"
+    assert res.gate.detail.get("image_uri") == "vault://abc123def4567890"
+
+
+async def test_gate_has_no_image_uri_without_pixels():
+    """No persisted pixels (demo placeholder) → no image_uri key on the gate —
+    the demo gate payload stays byte-identical."""
+    s = EventStream()
+    await runner.engage(s, "run-noimg", _MASTER, _PACK)
+    assert "image_uri" not in s.open_gates("run-noimg")[0]
+
+
 # ─── engage() returns the locked QuadrantResult and never auto-publishes ───────
 async def test_engage_halts_at_g2_publish_gate_never_auto_publishes():
     s = EventStream()

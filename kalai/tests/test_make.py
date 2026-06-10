@@ -69,6 +69,31 @@ async def test_master_carries_a_media_image_ref_in_demo():
     assert out["fidelity_score"] == config.CANON["fidelity_pass"]   # 9.1
 
 
+async def test_make_persists_live_render_bytes_to_vault_and_carries_uri(monkeypatch):
+    """Render-display pipeline: a LIVE render's bytes are persisted via the vault
+    and the master carries the vault URI, so the gate-2 card can show the actual
+    pixels instead of dropping them on the floor."""
+    from common import vault as blob
+    from kalai import media
+
+    monkeypatch.setattr(
+        media, "render_still",
+        lambda **kw: {"image_ref": "vertex://imagen/imagen-4.0-generate-001",
+                      "bytes": b"PNG-RENDER-BYTES", "spend_usd": 0.02},
+    )
+    res = await runner.make(EventStream(), "run-vault", _BRIEF, _PACK)
+    uri = res.output["media"].get("image_uri")
+    assert uri and uri.startswith("vault://")
+    assert blob.get(uri) == b"PNG-RENDER-BYTES"     # round-trips from the vault
+
+
+async def test_make_demo_media_has_no_image_uri_key():
+    """Demo renders are pixel-free (bytes=None) — no vault write, no image_uri key
+    (the demo byte-identical contract is untouched)."""
+    res = await runner.make(EventStream(), "run-media-demo", _BRIEF, _PACK)
+    assert "image_uri" not in res.output["media"]
+
+
 async def test_make_loop_actually_climbs_the_canon_sequence():
     """Pin that the LIVE pipeline produced the sealed climb 6.8 -> 8.4 -> 9.1.
 

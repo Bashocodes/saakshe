@@ -23,6 +23,7 @@ from __future__ import annotations
 import base64
 import json
 import os
+import re
 import traceback
 from dataclasses import dataclass
 from pathlib import Path
@@ -31,7 +32,7 @@ from uuid import uuid4
 
 from fastapi import Depends, FastAPI, HTTPException, Request, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, Response
 from pydantic import BaseModel
 
 import common  # noqa: F401 — bootstraps arivu onto sys.path
@@ -392,6 +393,36 @@ def vault_add(req: VaultAddRequest, sess: Session = Depends(_session_dep)) -> di
     rec = vault.add_asset(kind=req.kind, filename=req.filename, data=data,
                           content_type=req.content_type, tags=req.tags)
     return {"asset": rec}
+
+
+_VAULT_URI_RE = re.compile(r"vault://[0-9a-f]{8,64}")
+
+
+def _sniff_image_type(data: bytes) -> str:
+    if data[:8] == b"\x89PNG\r\n\x1a\n":
+        return "image/png"
+    if data[:2] == b"\xff\xd8":
+        return "image/jpeg"
+    if data[:6] in (b"GIF87a", b"GIF89a"):
+        return "image/gif"
+    if data[:4] == b"RIFF" and data[8:12] == b"WEBP":
+        return "image/webp"
+    return "application/octet-stream"
+
+
+@app.get("/api/vault/asset")
+def vault_asset(uri: str, sess: Session = Depends(_session_dep)) -> Response:
+    """Serve a vault blob's bytes (read-only) — the gate-2 card's <img> source.
+    Only content-addressed vault://<hex> URIs are servable: never a path, never a
+    raw live-storage key."""
+    _require_auth_if_live(sess.user)
+    if not _VAULT_URI_RE.fullmatch(uri or ""):
+        raise HTTPException(status_code=400, detail="expected a vault://<sha> uri")
+    from common import vault as blob
+    data = blob.get(uri)
+    if data is None:
+        raise HTTPException(status_code=404, detail="no such asset")
+    return Response(content=data, media_type=_sniff_image_type(data))
 
 
 # ─── the witness chat ─────────────────────────────────────────────────────────
