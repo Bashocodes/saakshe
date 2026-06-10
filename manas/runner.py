@@ -30,6 +30,7 @@ from common.stream import EventStream
 
 from . import demo_fixtures as fx
 from . import doubts
+from . import questions
 from . import sources as src
 from . import state as st
 from .tools import corpus, curator
@@ -137,6 +138,10 @@ async def ingest_connected(
     has_logo = bool(store.assets_for(kinds=["logo"]))
     qs = doubts.detect(cited, voice_rules, brand_rules,
                        has_social_connection=has_social, has_logo_asset=has_logo)
+    # Live: Gemini rephrases each code-triggered ask against the just-committed
+    # corpus (demo/CI: identity — the deterministic templates ARE the demo).
+    qs = await questions.personalize(qs, cited, voice_rules, brand_rules, org_hint,
+                                     stream=stream, run_id=run_id)
     store.set_org(**org_hint)
     store.set_questions(qs)
 
