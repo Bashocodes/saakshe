@@ -15,6 +15,7 @@
     '<span class="ch-tab" data-q="kural" style="color:#00a86b">■ kural</span></div>' +
     '<div class="ch-feed" id="sa-ch-feed"></div>' +
     '<div class="ch-input"><input id="sa-ch-inp" placeholder="ask saakshe…">' +
+    '<button id="sa-ch-mic" title="voice — Gemini Live">🎙</button>' +
     '<button id="sa-ch-send">→</button></div>';
 
   var feed = document.getElementById('sa-ch-feed');
@@ -201,6 +202,98 @@
       });
     });
   }
+  /* ── voice: /ws/voice — Gemini Live native-audio bridge ──
+     demo mode: text frames through the same witness tools.
+     live mode: mic PCM16@16k up (hex), PCM16@24k down, replies as messages. */
+  var voice = { ws: null, on: false, ctx: null, src: null, proc: null,
+                playCtx: null, playAt: 0 };
+
+  function voiceStop() {
+    voice.on = false;
+    if (voice.proc) { voice.proc.disconnect(); voice.proc = null; }
+    if (voice.src) { voice.src.disconnect(); voice.src = null; }
+    if (voice.ctx) { voice.ctx.close(); voice.ctx = null; }
+    if (voice.ws) { try { voice.ws.close(); } catch (e) {} voice.ws = null; }
+    micBtn.style.background = '';
+    micBtn.textContent = '🎙';
+  }
+
+  function playPcm(hex) {
+    if (!voice.playCtx) { voice.playCtx = new AudioContext({ sampleRate: 24000 }); voice.playAt = 0; }
+    var bytes = new Uint8Array(hex.length / 2);
+    for (var i = 0; i < bytes.length; i++) bytes[i] = parseInt(hex.substr(i * 2, 2), 16);
+    var i16 = new Int16Array(bytes.buffer);
+    var f32 = new Float32Array(i16.length);
+    for (var j = 0; j < i16.length; j++) f32[j] = i16[j] / 32768;
+    var buf = voice.playCtx.createBuffer(1, f32.length, 24000);
+    buf.getChannelData(0).set(f32);
+    var s = voice.playCtx.createBufferSource();
+    s.buffer = buf; s.connect(voice.playCtx.destination);
+    voice.playAt = Math.max(voice.playAt, voice.playCtx.currentTime);
+    s.start(voice.playAt);
+    voice.playAt += buf.duration;
+  }
+
+  function voiceStart() {
+    var proto = location.protocol === 'https:' ? 'wss://' : 'ws://';
+    var ws = new WebSocket(proto + location.host + '/ws/voice');
+    voice.ws = ws; voice.on = true;
+    micBtn.textContent = '…';
+    ws.onmessage = function (ev) {
+      var m = JSON.parse(ev.data);
+      if (m.type === 'hello') {
+        msg('SΛΛKSHE · VOICE', esc(m.mode === 'live'
+          ? 'voice live — Gemini native audio. speak.'
+          : 'voice in demo mode — type below, same tools answer.'));
+        if (m.mode === 'live') micUp(ws); else micBtn.textContent = '⌨';
+        micBtn.style.background = '#d8f7e8';
+      }
+      else if (m.type === 'audio') playPcm(m.data);
+      else if (m.type === 'reply') msg('SΛΛKSHE · VOICE', esc(m.text || ''));
+      else if (m.type === 'notice') msg('SΛΛKSHE · VOICE', esc(m.text || ''));
+    };
+    ws.onclose = voiceStop;
+    ws.onerror = voiceStop;
+  }
+
+  function micUp(ws) {
+    navigator.mediaDevices.getUserMedia({ audio: { sampleRate: 16000, channelCount: 1 } })
+      .then(function (stream) {
+        voice.ctx = new AudioContext({ sampleRate: 16000 });
+        voice.src = voice.ctx.createMediaStreamSource(stream);
+        voice.proc = voice.ctx.createScriptProcessor(4096, 1, 1);
+        voice.proc.onaudioprocess = function (e) {
+          if (!voice.on || ws.readyState !== 1) return;
+          var f32 = e.inputBuffer.getChannelData(0);
+          var i16 = new Int16Array(f32.length);
+          for (var i = 0; i < f32.length; i++) {
+            var v = Math.max(-1, Math.min(1, f32[i]));
+            i16[i] = v < 0 ? v * 32768 : v * 32767;
+          }
+          var bytes = new Uint8Array(i16.buffer), hex = '';
+          for (var j = 0; j < bytes.length; j++) hex += bytes[j].toString(16).padStart(2, '0');
+          ws.send(JSON.stringify({ type: 'audio', data: hex }));
+        };
+        voice.src.connect(voice.proc);
+        voice.proc.connect(voice.ctx.destination);
+        micBtn.textContent = '⏺';
+      })
+      .catch(function () { msg('SΛΛKSHE · VOICE', 'mic permission denied — voice off.'); voiceStop(); });
+  }
+
+  var micBtn = document.getElementById('sa-ch-mic');
+  micBtn.onclick = function () { voice.on ? voiceStop() : voiceStart(); };
+  // demo-mode keyboard frames also go over the voice socket when it's open in ⌨ mode
+  document.getElementById('sa-ch-inp').addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' && voice.on && voice.ws && voice.ws.readyState === 1 &&
+        micBtn.textContent === '⌨') {
+      var i = document.getElementById('sa-ch-inp');
+      var t = i.value.trim();
+      if (t) { msg('YOU', esc(t), true); voice.ws.send(JSON.stringify({ type: 'text', text: t })); i.value = ''; }
+      e.stopImmediatePropagation(); e.preventDefault();
+    }
+  }, true);
+
   document.getElementById('sa-ch-send').onclick = send;
   document.getElementById('sa-ch-inp').addEventListener('keydown', function (e) {
     if (e.key === 'Enter') send();

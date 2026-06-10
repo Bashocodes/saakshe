@@ -57,6 +57,9 @@ def _int(name: str, default: int) -> int:
 MODEL_PRO = os.environ.get("SAAKSHE_MODEL_PRO", "gemini-3.1-pro-preview")
 MODEL_FLASH = os.environ.get("SAAKSHE_MODEL_FLASH", "gemini-3.5-flash")
 MODEL_CLAUDE = os.environ.get("SAAKSHE_MODEL_CLAUDE", "claude-sonnet-4-6@default")
+# Gemini Live (voice) — GA native-audio id (verified 2026-06-10). The Live API
+# needs a Live-capable model, NOT the text MODEL_FLASH.
+MODEL_LIVE = os.environ.get("SAAKSHE_MODEL_LIVE", "gemini-live-2.5-flash-native-audio")
 
 # kalai real media on Vertex (stills = Imagen, video = Veo). Wired live/hybrid only;
 # demo returns a deterministic placeholder ref (no network, no creds). Ids verified
