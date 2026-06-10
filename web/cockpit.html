@@ -1608,7 +1608,8 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
       +'<div class="col"><div class="panel flex"><div class="phead"><h3>'+icon('database','sm')+' Memory management</h3>'
         +'<span class="ct"><span class="info" data-tip="cited · versioned — every fact keeps its source">'+icon('seal','sm')+'</span> cited · versioned</span></div>'
         +'<div class="pbody tight" style="display:flex;flex-direction:column;">'
-          +'<div class="packline"><span class="pack">Context Pack <b>'+esc(orgPack())+'</b></span><span class="pack cap">'+(ORG.grounded?'cited · versioned':'empty — connect a project to ground memory')+'</span></div>'
+          +'<div class="packline"><span class="pack">Context Pack <b>'+esc(orgPack())+'</b></span><span class="pack cap">'+(ORG.grounded?'cited · versioned':'empty — connect a project to ground memory')+'</span>'
+            +(ORG.grounded?'<button class="qbtn" type="button" onclick="window.cockpitOpenGate&&cockpitOpenGate()" data-tip="the extraction readout — org, cited facts, rules, questions">what manas grasped →</button>':'')+'</div>'
           +'<div class="sub">organized buckets</div>'+bucketsHTML()
           +'<div class="compaction">summaries committed first; raw fragments folded after.</div>'
           +'<div class="sub" style="margin-top:13px;">imbibing now</div>'
@@ -2983,7 +2984,25 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
   function gateDismissed(){ try{ return sessionStorage.getItem("sk-cg-dismissed")==="1"; }catch(e){ return false; } }
   function openGate(){ try{ sessionStorage.removeItem("sk-cg-dismissed"); }catch(e){}
     var g=$("connectGate"); g.hidden=false; g.setAttribute("aria-hidden","false"); }
-  window.cockpitOpenGate = openGate;
+  /* the CONNECT pill / crumbs: an already-connected project opens straight onto
+     what manas GRASPED (org · cited facts · rules · questions) — the extraction
+     readout; only an unconnected store lands on the connect form */
+  async function openGrasped(){
+    openGate();
+    if(base===null) return;            // boot's backend-down path owns the gate copy
+    try{
+      var r=await fetch(base+"/api/connect/grasped",{cache:"no-store",headers:(window.SA_HEADERS||Object)()});
+      var j=await cgJson(r);
+      if(!j.ok || !j.data || !j.data.connected){ show("cgStepConnect"); return; }
+      var d=j.data;
+      renderResult({ org:d.org, version:d.version, facts:d.facts||[],
+                     voice_rules:d.voice_rules||[], brand_rules:d.brand_rules||[],
+                     questions:d.questions||[], grounded:d.grounded });
+      show("cgStepResult");
+      if(d.grounded){ $("cgResultStatus").textContent="grounded ✓ — this is what manas grasped"; }
+    }catch(e){ show("cgStepConnect"); }
+  }
+  window.cockpitOpenGate = openGrasped;
   /* the gate must never trap the founder — ✕ and Esc dismiss it (reopens on reload until grounded) */
   var cgX=$("cgClose"); if(cgX) cgX.onclick=hideGate;
   document.addEventListener("keydown",function(e){ if(e.key==="Escape"&&!$("connectGate").hidden) hideGate(); });
@@ -3215,8 +3234,8 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
     await authReady();
     /* the crumbs + the topbar connect pill are the way in */
     ["tbOrgName","sbOrgName"].forEach(function(id){ var el=$(id);
-      if(el){ el.style.cursor="pointer"; el.title="open the connect step";
-        el.addEventListener("click", openGate); } });
+      if(el){ el.style.cursor="pointer"; el.title="setu — what manas grasped";
+        el.addEventListener("click", openGrasped); } });
     /* the OWNER's sandbox is theirs to wipe — surface "start over" (hidden on
        the public demo for everyone else, whose store is the shared seed) */
     try{

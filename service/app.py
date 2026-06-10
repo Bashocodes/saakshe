@@ -370,6 +370,22 @@ def connect_status(sess: Session = Depends(_session_dep)) -> dict[str, Any]:
     return _redact_secrets(sess.store.status_dict())
 
 
+@app.get("/api/connect/grasped")
+def connect_grasped(sess: Session = Depends(_session_dep)) -> dict[str, Any]:
+    """What manas GRASPED from the connected sources — the extraction readout
+    (org · cited facts · voice/brand rules · open questions). Re-openable any
+    time from the cockpit's CONNECT pill; status_dict alone carries only counts."""
+    _require_auth_if_live(sess.user)
+    pack = sess.store.pack()
+    st = sess.store.status_dict()
+    return _redact_secrets({
+        "connected": st["connected"], "grounded": st["grounded"],
+        "version": st["version"], "org": st["org"],
+        "facts": pack.facts, "voice_rules": pack.voice_rules,
+        "brand_rules": pack.brand_rules, "questions": st["questions"],
+    })
+
+
 @app.post("/api/connect/source")
 def connect_source(req: ConnectRequest, sess: Session = Depends(_session_dep)) -> dict[str, Any]:
     _require_not_public_demo(sess.user)

@@ -82,3 +82,17 @@ def test_connect_answer_sealed_on_public_demo(demo_client, monkeypatch):
     r = demo_client.post("/api/connect/answer", json={"qid": "q1", "answer": "x"})
     assert r.status_code == 403
     assert "sealed" in r.json()["detail"]
+
+
+def test_grasped_readout_serves_the_extraction(demo_client):
+    """The CONNECT pill's landing: org + facts + rules + questions, PAT-redacted."""
+    demo_client.post("/api/connect/source",
+                     json={"kind": "github", "ref": "https://github.com/x/app",
+                           "token": "ghp_SECRET_grasped"})
+    r = demo_client.get("/api/connect/grasped")
+    assert r.status_code == 200
+    d = r.json()
+    assert d["connected"] is True
+    assert set(d) >= {"grounded", "version", "org", "facts",
+                      "voice_rules", "brand_rules", "questions"}
+    assert "ghp_SECRET_grasped" not in r.text
