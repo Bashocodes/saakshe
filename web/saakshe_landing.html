@@ -133,6 +133,12 @@ html[data-theme="dark"] .logo .wd{color:var(--ink)}
 
 /* ───────────────────────────── TOPBAR (logo + toggle) ───────────────────────────── */
 .bar{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.bar-right{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.signin{display:inline-flex;align-items:center;border:var(--line-w) solid var(--line);border-radius:var(--radius);
+  background:var(--ink);color:var(--paper);font-family:var(--mono);font-size:11px;font-weight:600;
+  letter-spacing:.1em;text-transform:uppercase;padding:9px 16px;text-decoration:none;box-shadow:var(--shadow)}
+.signin:hover{text-decoration:none}
+html[data-theme="dark"] .signin{background:var(--c-kural);color:#06140A;box-shadow:none}
 .toggle{display:inline-flex;align-items:center;gap:0;border:var(--line-w) solid var(--line);border-radius:var(--radius);
   background:var(--card);font-family:var(--mono);font-size:11px;font-weight:600;overflow:hidden;cursor:pointer;
   box-shadow:var(--shadow)}
@@ -559,9 +565,12 @@ html[data-theme="dark"] .vmap .a-kural,html[data-theme="dark"] .vmap .a-saakshe{
     <a class="logo" href="#top" aria-label="saakshe home">
       <span class="skbot" aria-hidden="true"><span class="skeye L"></span><span class="skeye R"></span><span class="skmouth"></span></span><span class="dv"></span><span class="wd">SΛΛKSHE</span>
     </a>
-    <div class="toggle" role="group" aria-label="Theme">
-      <button id="tg-light" type="button" aria-pressed="true"><span class="dot"></span>Brut</button>
-      <button id="tg-dark" type="button" aria-pressed="false"><span class="dot"></span>Obsidian</button>
+    <div class="bar-right">
+      <a class="signin" href="cockpit.html" data-cta="signin">Sign in</a>
+      <div class="toggle" role="group" aria-label="Theme">
+        <button id="tg-light" type="button" aria-pressed="true"><span class="dot"></span>Brut</button>
+        <button id="tg-dark" type="button" aria-pressed="false"><span class="dot"></span>Obsidian</button>
+      </div>
     </div>
   </div>
 
