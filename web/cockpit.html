@@ -1254,6 +1254,7 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
     </nav>
     <div class="sb-foot">
       <div class="proj"><b id="sbOrgName">— connect a project —</b><br><span id="sbOrgLine">bridged via setu · granted, never taken</span></div>
+      <div class="proj" id="sbDeploy" style="margin-top:7px;font-family:var(--font-mono);font-size:10px;letter-spacing:.04em;" hidden></div>
     </div>
   </aside>
 
@@ -2993,6 +2994,16 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
      the sealed-demo check, the auth IIFE) — three divergent fetches drifted apart */
   window.SK_PUBCFG = window.SK_PUBCFG ||
     fetch("/api/public-config",{cache:"no-store"}).then(function(r){return r.json();});
+  /* deploy provenance in the sidebar foot — which build is this, deployed when */
+  window.SK_PUBCFG.then(function(c){
+    var el=$("sbDeploy"); if(!el || !c) return;
+    var bits=[];
+    if(c.revision && c.revision!=="local") bits.push(c.revision.replace(/^saakshe-/,"rev "));
+    if(c.git_sha) bits.push(c.git_sha);
+    if(c.deployed_at) bits.push(c.deployed_at.replace("T"," ").replace(/:\d\dZ$/,"Z"));
+    if(c.revision==="local") bits=["local dev"+(c.git_sha?" · "+c.git_sha:"")];
+    if(bits.length){ el.textContent=bits.join(" · "); el.hidden=false; }
+  }).catch(function(){});
 
   /* ---- CONNECT step ---- */
   function connectHint(html){ var h=$("cgConnectHint"); h.innerHTML=html; h.hidden=false; }

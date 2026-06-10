@@ -179,6 +179,11 @@ async def _run_live(websocket: Any) -> None:
                             result = tool_fns.get(fc.name, lambda: {"error": "unknown tool"})()
                             answers.append(types.FunctionResponse(id=fc.id, name=fc.name, response=result))
                         await session.send_tool_response(function_responses=answers)
+                    sc = getattr(response, "server_content", None)
+                    if sc is not None and getattr(sc, "interrupted", False):
+                        # barge-in: the founder spoke over the bot — tell the client
+                        # to drop its queued speech instantly
+                        await websocket.send_text(json.dumps({"type": "interrupted"}))
                     data = getattr(response, "data", None)
                     if data:
                         await websocket.send_text(json.dumps({"type": "audio", "data": data.hex()}))

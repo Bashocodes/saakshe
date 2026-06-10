@@ -372,6 +372,12 @@
   var voice = { ws: null, on: false, mode: null, ctx: null, src: null, proc: null,
                 stream: null, playCtx: null, playAt: 0, sawHello: false };
 
+  function flushPlayback() {
+    /* kill EVERYTHING already scheduled — chunks are queued seconds ahead, so
+       without this the bot keeps talking long after stop */
+    if (voice.playCtx) { try { voice.playCtx.close(); } catch (e) {} }
+    voice.playCtx = null; voice.playAt = 0;
+  }
   function voiceStop() {
     voice.on = false; voice.mode = null;
     if (voice.proc) { voice.proc.disconnect(); voice.proc = null; }
@@ -379,6 +385,7 @@
     if (voice.stream) { voice.stream.getTracks().forEach(function (t) { t.stop(); }); voice.stream = null; }
     if (voice.ctx) { voice.ctx.close(); voice.ctx = null; }
     if (voice.ws) { try { voice.ws.close(); } catch (e) {} voice.ws = null; }
+    flushPlayback();
     micBtn.classList.remove('rec', 'kbd', 'loading');
   }
 
@@ -418,6 +425,7 @@
         else { voice.mode = 'kbd'; micBtn.classList.add('kbd'); }
       }
       else if (m.type === 'audio') playPcm(m.data);
+      else if (m.type === 'interrupted') flushPlayback();   // barge-in: drop queued speech NOW
       else if (m.type === 'reply') msg('SΛΛKSHE · VOICE', fmt(m.text || ''));
       else if (m.type === 'notice') msg('SΛΛKSHE · VOICE', fmt(m.text || ''));
     };
@@ -437,7 +445,11 @@
   }
 
   function micUp(ws) {
-    navigator.mediaDevices.getUserMedia({ audio: { sampleRate: 16000, channelCount: 1 } })
+    /* echo cancellation is load-bearing: without it the mic hears the bot's own
+       speech and the conversation feeds back into a self-talking loop */
+    navigator.mediaDevices.getUserMedia({ audio: {
+      sampleRate: 16000, channelCount: 1,
+      echoCancellation: true, noiseSuppression: true, autoGainControl: true } })
       .then(function (stream) {
         voice.stream = stream;                       // hold it so stop() can RELEASE the mic
         voice.ctx = new AudioContext({ sampleRate: 16000 });

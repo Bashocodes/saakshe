@@ -324,6 +324,11 @@ def public_config() -> dict[str, Any]:
         "require_signin": _require_signin(),
         "public_demo": _public_demo(),
         "mode": config.mode(),
+        # Deploy provenance: K_REVISION is set by Cloud Run itself; the sha/time
+        # are stamped by deploy_cloudrun.sh. Locally: revision "local".
+        "revision": os.environ.get("K_REVISION", "local"),
+        "git_sha": os.environ.get("SAAKSHE_GIT_SHA", ""),
+        "deployed_at": os.environ.get("SAAKSHE_DEPLOYED_AT", ""),
     }
 
 

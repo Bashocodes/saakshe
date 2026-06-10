@@ -32,6 +32,10 @@ COMMON_ENV+="|GOOGLE_CLOUD_PROJECT=${PROJECT}|GOOGLE_CLOUD_LOCATION=global"
 COMMON_ENV+="|SAAKSHE_CLAUDE_LOCATION=global|ARIVU_CLAUDE_LOCATION=global|GOOGLE_GENAI_USE_VERTEXAI=TRUE"
 COMMON_ENV+="|SAAKSHE_MODEL_PRO=gemini-3.1-pro-preview|SAAKSHE_MODEL_FLASH=gemini-3.5-flash"
 COMMON_ENV+="|ARIVU_MODEL_CHAIR=gemini-3.1-pro-preview|ARIVU_MODEL_MANTRI=gemini-3.5-flash"
+# Deploy provenance — surfaced by /api/public-config + the cockpit sidebar, so
+# "is the latest deployed?" is answerable at a glance (the Workers-dashboard itch).
+COMMON_ENV+="|SAAKSHE_GIT_SHA=$(git rev-parse --short HEAD 2>/dev/null || echo unknown)"
+COMMON_ENV+="|SAAKSHE_DEPLOYED_AT=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 
 case "$PROFILE" in
   demo)
