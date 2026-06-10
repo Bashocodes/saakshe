@@ -93,26 +93,36 @@ def gemini_flash(role: str):
 
 
 def claude_verdict():
-    """Claude via Vertex — verdict synthesis. Scripted in a hybrid run
-    (Gemini live, SAAKSHE_CLAUDE_MODE=demo) while the Anthropic quota is pending."""
+    """Claude via Vertex — verdict synthesis. In a live run without Anthropic quota
+    (SAAKSHE_CLAUDE_MODE=demo) the seat falls to a LIVE Gemini understudy — real
+    reasoning over the real question, never a canned verdict. Scripted replay
+    exists only in the creds-free demo/CI mode."""
     if config.claude_live():
         return VertexClaude(model=config.MODEL_VERDICT)
+    if config.is_live():
+        return config.MODEL_CHAIR
     return ScriptedLlm(model="scripted/verdict", role="verdict")
 
 
 def claude_prosecutor():
-    """Claude via Vertex — adversarial prosecution. Scripted in a hybrid run."""
+    """Claude via Vertex — adversarial prosecution. Live Gemini understudy in a
+    live run without Anthropic quota; scripted only in demo/CI."""
     if config.claude_live():
         return VertexClaude(model=config.MODEL_PROSECUTOR)
+    if config.is_live():
+        return config.MODEL_CHAIR
     return ScriptedLlm(model="scripted/prosecutor", role="prosecutor")
 
 
 def claude_reviser():
     """Claude via Vertex — the graduated reviser (2b.2). Strengthens ONLY the one
     reason the prosecutor faulted, between prosecution rounds. Same adversarial-
-    repair tier as the prosecutor; scripted in a hybrid run."""
+    repair tier as the prosecutor; live Gemini understudy without quota, scripted
+    only in demo/CI."""
     if config.claude_live():
         return VertexClaude(model=config.MODEL_PROSECUTOR)
+    if config.is_live():
+        return config.MODEL_CHAIR
     return ScriptedLlm(model="scripted/reviser", role="reviser")
 
 
@@ -120,12 +130,13 @@ def describe() -> dict:
     """Human-readable summary of what will actually run — surfaced in the UI."""
     live = config.is_live()
     claude_live = config.claude_live()
+    understudy = config.MODEL_CHAIR + " · Gemini understudy"
     return {
-        "mode": config.mode() + ("" if claude_live or not live else " (hybrid: Claude scripted)"),
+        "mode": config.mode() + ("" if claude_live or not live else " (hybrid: Claude seats on Gemini understudy)"),
         "chair": config.MODEL_CHAIR if live else "scripted-replay",
         "mantris": config.MODEL_MANTRI if live else "scripted-replay",
-        "verdict": (config.MODEL_VERDICT + " · Vertex") if claude_live else "scripted-replay",
-        "prosecutor": (config.MODEL_PROSECUTOR + " · Vertex") if claude_live else "scripted-replay",
+        "verdict": (config.MODEL_VERDICT + " · Vertex") if claude_live else (understudy if live else "scripted-replay"),
+        "prosecutor": (config.MODEL_PROSECUTOR + " · Vertex") if claude_live else (understudy if live else "scripted-replay"),
         "vertex_project": config.GOOGLE_CLOUD_PROJECT or "(unset)",
         "gemini_region": config.GEMINI_LOCATION,
         "claude_region": config.CLAUDE_LOCATION,

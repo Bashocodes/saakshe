@@ -95,12 +95,15 @@ def gemini_flash(namespace: str, role: str):
 def claude(namespace: str, role: str):
     """One of the two Claude-via-Vertex high-stakes seats in a quadrant.
 
-    Runs live only when config.claude_live() — so a hybrid run (Gemini live,
-    SAAKSHE_CLAUDE_MODE=demo) keeps this seat on scripted replay while the rest
-    of the company calls Vertex for real.
+    Claude when config.claude_live(); otherwise, in a live run, the seat falls to
+    a LIVE Gemini Pro understudy (real reasoning for arbitrary questions — never
+    canned tokens in a live product) while the Vertex Anthropic quota is pending.
+    Scripted replay exists ONLY in the creds-free demo/CI mode.
     """
     if config.claude_live():
         return VertexClaude(model=config.MODEL_CLAUDE)
+    if config.is_live():
+        return config.MODEL_PRO
     return ScriptedLlm(model=f"scripted/{namespace}/{role}", namespace=namespace, role=role)
 
 
@@ -109,9 +112,13 @@ def describe() -> dict:
     live = config.is_live()
     claude_live = config.claude_live()
     return {
-        "mode": config.mode() + ("" if claude_live or not live else " (hybrid: Claude scripted)"),
+        "mode": config.mode() + ("" if claude_live or not live else " (hybrid: Claude seats on Gemini understudy)"),
         "routine": config.MODEL_PRO + " / " + config.MODEL_FLASH if live else "scripted-replay",
-        "high_stakes": (config.MODEL_CLAUDE + " · Vertex") if claude_live else "scripted-replay",
+        "high_stakes": (
+            (config.MODEL_CLAUDE + " · Vertex") if claude_live
+            else (config.MODEL_PRO + " · Gemini understudy") if live
+            else "scripted-replay"
+        ),
         "vertex_project": config.GOOGLE_CLOUD_PROJECT or "(unset)",
         "gemini_region": config.GEMINI_LOCATION,
         "claude_region": config.CLAUDE_LOCATION,

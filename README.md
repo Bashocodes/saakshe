@@ -71,10 +71,10 @@ One primitive, one place to audit, and the same shape echoed in every faculty.
 | Mode | Gemini | Claude | Media |
 |---|---|---|---|
 | **demo** (default) | scripted | scripted | deterministic `vertex://` placeholder |
-| **hybrid** | **real** | scripted | real |
+| **hybrid** | **real** | **real** (live Gemini understudy in the Claude seats) | real |
 | **live** | **real** | **real** | real |
 
-Demo mode is creds-free and byte-identical run to run — the entire ADK orchestration executes for real; only model token-generation is replayed. The honest note: production today runs **hybrid** — real Gemini drives the flywheel on prod, while the Claude seats run scripted replay; our Vertex Model Garden quota resubmission is pending. We'd rather show you exactly where the line is than blur it. Credibility is a feature.
+Demo mode is creds-free and byte-identical run to run — the entire ADK orchestration executes for real; only model token-generation is replayed, and it exists ONLY for CI and offline runs. The honest note: production today runs **hybrid** — every seat is live; the 8 Claude seats run on a live Gemini Pro understudy (real reasoning over your real question, never a replayed transcript) while our Vertex Model Garden quota resubmission is pending. The moment quota clears, one env flip puts Claude in those seats. We'd rather show you exactly where the line is than blur it. Credibility is a feature.
 
 kalai's hands are already proven live: a real Vertex Imagen render (`imagen-4.0-generate-001`), generated from a brand-grounded prompt, is checked into the repo.
 
@@ -109,7 +109,7 @@ for d in common manas kalai kural arivu; do PYTHONPATH=. ./.venv/bin/python -m p
 PYTHONPATH=. ./.venv/bin/python -m pytest tests -q
 ```
 
-**Hybrid (real Gemini, scripted Claude):** needs a GCP project with Vertex AI enabled and ADC.
+**Hybrid (all seats live; Claude seats on a Gemini understudy):** needs a GCP project with Vertex AI enabled and ADC.
 
 ```bash
 gcloud auth application-default login

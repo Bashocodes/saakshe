@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>saakshe — Agentic Reality Audit · 2026-06-10</title>
+<style>
+  :root{
+    --bg:#0d0f12; --panel:#15181d; --panel2:#1b1f26; --line:#262b33;
+    --ink:#e8e6e0; --dim:#9aa3ad; --faint:#6b7480;
+    --green:#4ade80; --amber:#fbbf24; --red:#f87171; --blue:#7dd3fc; --violet:#c4b5fd;
+    --mono:"SF Mono",ui-monospace,Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--ink);font:16px/1.65 -apple-system,"Segoe UI",Inter,sans-serif;padding:0 0 80px}
+  .wrap{max-width:1060px;margin:0 auto;padding:0 28px}
+  header{border-bottom:1px solid var(--line);padding:48px 0 32px;margin-bottom:40px}
+  header h1{font-size:30px;font-weight:700;letter-spacing:-.02em}
+  header .sub{color:var(--dim);margin-top:8px;font-size:15px}
+  header .meta{margin-top:14px;font-family:var(--mono);font-size:12.5px;color:var(--faint)}
+  h2{font-size:21px;margin:52px 0 16px;padding-bottom:8px;border-bottom:1px solid var(--line);letter-spacing:-.01em}
+  h3{font-size:16.5px;margin:26px 0 10px;color:var(--blue)}
+  p{margin:10px 0;color:var(--ink)}
+  .dim{color:var(--dim)}
+  code{font-family:var(--mono);font-size:13px;background:var(--panel2);padding:2px 6px;border-radius:4px;color:var(--violet)}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:22px 24px;margin:16px 0}
+  .verdictbox{border-left:4px solid var(--amber);background:linear-gradient(90deg,rgba(251,191,36,.07),transparent 60%)}
+  .greenbox{border-left:4px solid var(--green);background:linear-gradient(90deg,rgba(74,222,128,.06),transparent 60%)}
+  .redbox{border-left:4px solid var(--red);background:linear-gradient(90deg,rgba(248,113,113,.07),transparent 60%)}
+  table{width:100%;border-collapse:collapse;margin:14px 0;font-size:14px}
+  th{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--faint);text-align:left;padding:8px 12px;border-bottom:1px solid var(--line)}
+  td{padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+  tr:last-child td{border-bottom:none}
+  .tag{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:600;padding:2px 9px;border-radius:99px;letter-spacing:.04em}
+  .t-live{background:rgba(74,222,128,.14);color:var(--green)}
+  .t-script{background:rgba(251,191,36,.14);color:var(--amber)}
+  .t-missing{background:rgba(248,113,113,.14);color:var(--red)}
+  .t-partial{background:rgba(125,211,252,.13);color:var(--blue)}
+  .bar{height:10px;border-radius:99px;background:var(--panel2);overflow:hidden;margin-top:6px}
+  .bar i{display:block;height:100%;border-radius:99px}
+  .agentgrid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:18px 0}
+  @media(max-width:760px){.agentgrid{grid-template-columns:1fr}}
+  .agent{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:20px 22px}
+  .agent h4{font-size:17px;display:flex;justify-content:space-between;align-items:baseline}
+  .agent h4 .pct{font-family:var(--mono);font-size:14px}
+  .agent .role{color:var(--faint);font-size:12.5px;text-transform:uppercase;letter-spacing:.07em;margin:2px 0 10px}
+  .agent ul{margin:10px 0 0 18px;font-size:13.5px;color:var(--dim)}
+  .agent ul li{margin:5px 0}
+  .agent ul li b{color:var(--ink);font-weight:600}
+  ol.steps{margin:12px 0 12px 22px}
+  ol.steps li{margin:9px 0;color:var(--dim)}
+  ol.steps li b{color:var(--ink)}
+  .qlist{margin:10px 0;display:grid;gap:8px}
+  .q{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:10px 14px;font-size:14px}
+  .q .trig{font-family:var(--mono);font-size:11px;color:var(--faint);display:block;margin-bottom:3px}
+  .foot{margin-top:60px;color:var(--faint);font-size:12.5px;border-top:1px solid var(--line);padding-top:20px;font-family:var(--mono)}
+  .ev{font-family:var(--mono);font-size:11.5px;color:var(--faint)}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <h1>saakshe · Agentic Reality Audit</h1>
+  <div class="sub">What the agentic system actually does today — live vs scripted vs missing — and whether we're ready to show judges a live run.</div>
+  <div class="meta">2026-06-10 · branch main @ d1c8e77 · prod = saakshe-00006 (gated profile) · 6 parallel code-audit agents + manual verification · supersedes docs/saakshe_deep_audit.html</div>
+</div></header>
+<div class="wrap">
+
+<!-- ============ TLDR ============ -->
+<div class="card verdictbox">
+  <h3 style="color:var(--amber);margin-top:0">The honest verdict</h3>
+  <p><b>The agentic skeleton is real. The agentic intelligence is half-real. The experience you want to show judges — "connect a repo and watch agents interview the founder" — exists at roughly 15–20%, and it is physically unreachable on the deployed site.</b></p>
+  <p class="dim">Your instinct was right, with one important correction: it's not that "we haven't even started" — the repo ingestion genuinely clones and reads real repos, and a clarifying-question mechanism genuinely exists and folds answers back into memory. But the questions are <b style="color:var(--ink)">six hardcoded English templates</b> (not LLM-generated, not varied, not conversational), there is <b style="color:var(--ink)">no cockpit UI to display or answer them</b>, and the gated prod demo <b style="color:var(--ink)">seals the entire connect surface</b> — a judge on saakshe.com today cannot connect anything.</p>
+</div>
+
+<div class="card">
+  <h3 style="margin-top:0">System completion vs vision</h3>
+  <table>
+    <tr><th style="width:190px">Dimension</th><th style="width:90px">Score</th><th>Progress</th><th>One-liner</th></tr>
+    <tr><td><b>manas</b> (memory)</td><td style="color:var(--green)">~75%</td><td style="width:180px"><div class="bar"><i style="width:75%;background:var(--green)"></i></div></td><td class="dim">The most real agent — real ingestion, versioned cited memory, honest refusal.</td></tr>
+    <tr><td><b>kalai</b> (studio)</td><td style="color:var(--blue)">~65%</td><td><div class="bar"><i style="width:65%;background:var(--blue)"></i></div></td><td class="dim">Pipeline + live Imagen real; Claude seats scripted; quality depends entirely on manas' feed.</td></tr>
+    <tr><td><b>kural</b> (engage)</td><td style="color:var(--amber)">~40%</td><td><div class="bar"><i style="width:40%;background:var(--amber)"></i></div></td><td class="dim">Gates and ledger real, but it has never delivered anything anywhere — no channel exists.</td></tr>
+    <tr><td><b>arivu</b> (decide)</td><td style="color:var(--amber)">~35%</td><td><div class="bar"><i style="width:35%;background:var(--amber)"></i></div></td><td class="dim">Orchestration real, Gemini debate live, but verdict/prosecutor scripted and ALL numbers are fixtures.</td></tr>
+    <tr><td><b>witness</b> (observe)</td><td style="color:var(--green)">~70%</td><td><div class="bar"><i style="width:70%;background:var(--green)"></i></div></td><td class="dim">Text telemetry is real and never hallucinates; live voice needs creds.</td></tr>
+    <tr><td><b>Founder interview loop</b></td><td style="color:var(--red)">~15%</td><td><div class="bar"><i style="width:15%;background:var(--red)"></i></div></td><td class="dim">Deterministic templates + API only. No LLM questions, no UI, sealed in prod. <b style="color:var(--red)">The vision gap.</b></td></tr>
+    <tr><td><b>Overall vs vision</b></td><td><b>~55%</b></td><td><div class="bar"><i style="width:55%;background:linear-gradient(90deg,var(--amber),var(--green))"></i></div></td><td class="dim">A real, well-engineered agentic scaffold running at half intelligence on seeded data.</td></tr>
+  </table>
+</div>
+
+<!-- ============ THE CORE QUESTION ============ -->
+<h2>1 · Your core question: "What happens when a repo is connected? What questions do the agents ask?"</h2>
+
+<h3>What actually exists (more than you thought)</h3>
+<ol class="steps">
+  <li><b>Connect is real storage, not ingestion.</b> <code>POST /api/connect/source</code> just stores the URL <span class="ev">service/app.py:330</span>. Nothing happens until <code>POST /api/connect/ingest</code> is called manually — there is no auto-trigger.</li>
+  <li><b>Ingestion is genuinely real.</b> manas shallow-clones the actual repo (<code>git clone --depth 1</code>), reads README, package.json, directory structure and docs/ <span class="ev">manas/sources.py:89–154</span>; fetches the website and key pages over httpx; extracts org name and one-liner; pulls brand images into the vault.</li>
+  <li><b>Real Gemini extracts the knowledge.</b> Four parallel "imbiber pods" (one per source channel, each with 4 sub-readers: claims / voice / brand / contradiction) run live <code>gemini-3.5-flash</code> over the real text and produce cited facts <span class="ev">manas/imbiber_pod.py:141, runner.py:77–166</span>. This part is live in prod's hybrid mode.</li>
+  <li><b>Questions ARE raised — but by code, not by agents.</b> <code>doubts.detect()</code> runs deterministic rules and surfaces <code>ClarifyingQuestion</code> objects in the ingest response <span class="ev">manas/doubts.py:75–136</span>.</li>
+  <li><b>Answers genuinely fold back.</b> <code>POST /api/connect/answer</code> turns the founder's answer into a cited fact ("founder answer · qid"), re-runs curation, and ticks the Context Pack version <span class="ev">manas/runner.py:243–264</span>. This loop is real and tested.</li>
+</ol>
+
+<h3>The complete inventory of questions the system can ask today</h3>
+<p class="dim">This is the entire repertoire. Every one is a hardcoded English template with a deterministic trigger — no LLM writes or adapts any question. <span class="ev">manas/doubts.py:29–134</span></p>
+<div class="qlist">
+  <div class="q"><span class="trig">trigger: missing_field · pricing</span>"How does your product make money — free, a subscription, usage-based…?"</div>
+  <div class="q"><span class="trig">trigger: missing_field · audience</span>"Who is this for — who are your customers…?"</div>
+  <div class="q"><span class="trig">trigger: missing_field · voice</span>(hardcoded voice/tone question)</div>
+  <div class="q"><span class="trig">trigger: missing_field · channel</span>(hardcoded channel question)</div>
+  <div class="q"><span class="trig">trigger: contradiction</span>"Source A says X, source B says Y — which is true?" (numeric clashes &amp; polarity flips, with options)</div>
+  <div class="q"><span class="trig">trigger: missing_asset</span>"No logo found in the vault — add one?"</div>
+</div>
+
+<div class="card redbox">
+  <h3 style="color:var(--red);margin-top:0">Three blockers between today and the demo you want</h3>
+  <ol class="steps" style="margin-bottom:0">
+    <li><b>No UI.</b> The cockpit fetches questions and even has the answer endpoint wired in JS <span class="ev">web/cockpit.html:2829–2843</span>, but there is no rendered question card / answer form. A judge would never see the questions unless they read the raw stream and curl the API.</li>
+    <li><b>Sealed in prod.</b> The gated profile sets <code>SAAKSHE_PUBLIC_DEMO=1</code>, which seals <code>/api/connect/source</code>, <code>/api/connect/ingest</code>, <code>/api/connect/reset</code> and <code>/api/vault/add</code> <span class="ev">service/app.py:332,353,383,401 · deploy_cloudrun.sh:46</span>. <b>The live "connect a repo" demo is impossible on saakshe.com as deployed.</b> It works only locally or with a profile that unseals connect.</li>
+    <li><b>Not an interview.</b> The vision — agents curiously probing the founder with varied, intelligent, context-derived questions — is not built. What exists is a clarification valve (6 templates) bolted to a real ingestion pipeline. The docstring itself admits questions "could be Gemini-written later" <span class="ev">manas/doubts.py:13</span>.</li>
+  </ol>
+</div>
+
+<!-- ============ THE FLYWHEEL ============ -->
+<h2>2 · The agentic system that IS genuinely functional</h2>
+<p>This is the part you can defend with a straight face. It's not theater — 334 tests exercise the real orchestration (only token generation is stubbed in CI), and these run identically with live models:</p>
+<div class="card greenbox">
+  <ul style="margin-left:18px">
+    <li style="margin:7px 0"><b>A real 2-gate flywheel state machine</b> — manas grounds → arivu deliberates → <b>Gate 1 (founder taps)</b> → arivu executes (dry) → kalai makes → kural engages → <b>Gate 2 (founder taps)</b> → publish (dry) → manas learns, memory version ticks. Fail-closed at every step: if kalai or kural blocks, the run ends in <code>no_safe_decision</code>, never forced through. <span class="ev">orchestrator.py:127–329</span></li>
+    <li style="margin:7px 0"><b>Restart-proof runs</b> — flywheel state persists to the store and rehydrates after a container restart. <span class="ev">orchestrator.py:66–113, tests/test_flywheel.py:83–96</span></li>
+    <li style="margin:7px 0"><b>Real versioned memory with a refusal contract</b> — manas commits only cited facts past a deterministic groundedness ≥ 0.80 check (rollback otherwise), and founder-voice refuses to answer anything out-of-corpus rather than inventing. <span class="ev">manas/agent.py:71–94, tools/corpus.py:111–123</span></li>
+    <li style="margin:7px 0"><b>Live Gemini at every routine seat in prod</b> — imbibers, arivu's 5-advisor panel + debate, kalai's designer/copy/4-scorer fidelity loop, kural's 4 delivery readers all hit real <code>gemini-3.1-pro / 3.5-flash</code> in the deployed hybrid. <span class="ev">deploy_cloudrun.sh:28, common/models.py:83–92</span></li>
+    <li style="margin:7px 0"><b>A real image pipeline</b> — Vertex Imagen fires only after fidelity + compliance clear, bytes persist to the vault, and the render displays on the gate-2 card. A real render is checked in as proof (<code>docs/first_creation.png</code>). <span class="ev">kalai/runner.py:172–235, media.py:116–125</span></li>
+    <li style="margin:7px 0"><b>An honest witness</b> — telemetry Q&amp;A reads only the event stream and refuses what it can't see ("I won't invent a number"). Deterministic, never hallucinates. <span class="ev">witness/agent.py:48–95</span></li>
+    <li style="margin:7px 0"><b>Real safety engineering</b> — publish requires a triple AND-gate (<code>SAAKSHE_ALLOW_LIVE_SEND=1</code> + per-tap <code>arm_real_send</code> + a registered channel client), a no-double-send ledger, and dry-run hardcoded as default. <span class="ev">orchestrator.py:204–252</span></li>
+  </ul>
+</div>
+<p class="dim">Caveat on "A2A": agent-to-agent calls are an in-process registry with the right call shape, not network message passing — the agent card itself admits the JSON-RPC endpoint "is NOT yet wired." <span class="ev">common/a2a.py:18,196–230</span></p>
+
+<!-- ============ PER AGENT ============ -->
+<h2>3 · Per-agent scorecards (claimed vs real)</h2>
+<div class="agentgrid">
+  <div class="agent">
+    <h4>manas <span class="pct" style="color:var(--green)">~75%</span></h4>
+    <div class="role">knows · memory faculty</div>
+    <div class="bar"><i style="width:75%;background:var(--green)"></i></div>
+    <ul>
+      <li><b>Real:</b> repo clone + web fetch with provenance; live Gemini imbibers; versioned Context Pack; groundedness-gated commit with rollback; answer-folding; vault asset extraction; out-of-corpus refusal.</li>
+      <li><b>Scripted in prod:</b> the two Claude seats — Memory Curator and Founder Voice — replay fixtures (quota pending).</li>
+      <li><b>Missing:</b> LLM-generated questions; multi-turn interview; any conversational curiosity. Questions are 6 deterministic templates.</li>
+    </ul>
+  </div>
+  <div class="agent">
+    <h4>kalai <span class="pct" style="color:var(--blue)">~65%</span></h4>
+    <div class="role">makes · creative studio</div>
+    <div class="bar"><i style="width:65%;background:var(--blue)"></i></div>
+    <ul>
+      <li><b>Real:</b> Parallel designer/copy lanes; 4-scorer fidelity loop with deterministic math exit (8.4 fails, 9.1 passes); fail-closed compliance (default-deny); guarded Imagen render → vault → card.</li>
+      <li><b>Scripted in prod:</b> Creative Director and Compliance gate (the 2 Claude seats).</li>
+      <li><b>Hollow without manas:</b> on a fresh startup with no brand assets, the fidelity loop "climbs" against an <i>empty brand bank</i> — structurally real, semantically theater. Veo video path exists but is never called.</li>
+    </ul>
+  </div>
+  <div class="agent">
+    <h4>kural <span class="pct" style="color:var(--amber)">~40%</span></h4>
+    <div class="role">engages · delivery</div>
+    <div class="bar"><i style="width:40%;background:var(--amber)"></i></div>
+    <ul>
+      <li><b>Real:</b> qualify → research fan-out → publish gate pipeline; carries kalai's copy byte-for-byte (schema-enforced, can't author); triple AND-gate + no-double-send ledger.</li>
+      <li><b>Theater:</b> "who to talk to / when" grounding is 100% Sundara Coffee fixtures — the live funnel/market fetch is a stub that returns <code>None</code> by design <span class="ev">grounding.py:38</span>. Post URLs are fake placeholders (<code>…/status/DRAFT-slug</code>).</li>
+      <li><b>Missing:</b> any real channel. The webhook adapter exists but has never fired at a real endpoint; no Telegram/X/LinkedIn integration. <b>Nothing has ever been delivered.</b></li>
+    </ul>
+  </div>
+  <div class="agent">
+    <h4>arivu <span class="pct" style="color:var(--amber)">~35%</span></h4>
+    <div class="role">decides · deliberation chamber</div>
+    <div class="bar"><i style="width:35%;background:var(--amber)"></i></div>
+    <ul>
+      <li><b>Real:</b> ADK Parallel/Loop chamber; deterministic debate-convergence and defensibility-threshold math; HITL gate; executor separation (dry-run).</li>
+      <li><b>Scripted in prod:</b> verdict, prosecutor, reviser (all Claude) — defensibility "climbs" 0.71→0.84 identically every run, and the verdict is always the canned "$34 Pro tier" text.</li>
+      <li><b>Theater:</b> "grounded or silent" is violated — admin stats / analytics the advisors cite are fixtures even in live mode (MCP fetch returns <code>None</code>); only voice/brand rules come from real manas memory.</li>
+    </ul>
+  </div>
+  <div class="agent">
+    <h4>witness <span class="pct" style="color:var(--green)">~70%</span></h4>
+    <div class="role">observes · telemetry + voice</div>
+    <div class="bar"><i style="width:70%;background:var(--green)"></i></div>
+    <ul>
+      <li><b>Real:</b> deterministic tool routing over the live event stream (anyone_waiting, cost_today, whats_reversible…); honest refusals; text-over-WebSocket works creds-free.</li>
+      <li><b>Conditional:</b> Gemini Live audio bridge is wired but only activates with live creds; degrades to text gracefully.</li>
+    </ul>
+  </div>
+  <div class="agent">
+    <h4>interview loop <span class="pct" style="color:var(--red)">~15%</span></h4>
+    <div class="role">the vision · "agents learn the startup"</div>
+    <div class="bar"><i style="width:15%;background:var(--red)"></i></div>
+    <ul>
+      <li><b>Exists:</b> deterministic question detection, persistence, answer-folding API, version ticking.</li>
+      <li><b>Missing:</b> LLM-generated questions from corpus gaps; cockpit UI to show/answer them; multi-turn follow-ups; prod access (sealed); any variety beyond 6 templates.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ============ LIVE VS SCRIPTED ============ -->
+<h2>4 · The live-vs-scripted map (prod hybrid, as deployed)</h2>
+<p class="dim">Prod = <code>SAAKSHE_MODE=live</code> + <code>SAAKSHE_CLAUDE_MODE=demo</code> <span class="ev">deploy_cloudrun.sh:28</span>. Every Gemini seat is real; every Claude seat replays a fixture.</p>
+<table>
+  <tr><th>Surface</th><th style="width:110px">Status</th><th>Reality</th></tr>
+  <tr><td>Repo/website ingestion (manas imbibers)</td><td><span class="tag t-live">LIVE</span></td><td class="dim">Real clone/fetch + real Gemini extraction — but route is <b style="color:var(--red)">sealed in prod</b>; prod boots on the seeded AIKIZI pack (real ingestion, frozen at snapshot v6; resets on every container restart).</td></tr>
+  <tr><td>arivu advisor panel + debate</td><td><span class="tag t-live">LIVE</span></td><td class="dim">5 Gemini lenses argue for real…</td></tr>
+  <tr><td>arivu verdict / prosecutor / reviser</td><td><span class="tag t-script">SCRIPTED</span></td><td class="dim">…then the canned "$34, grandfather, 30-day notice" verdict lands regardless. Same text every run.</td></tr>
+  <tr><td>Numbers the chamber cites (MRR, churn, funnel)</td><td><span class="tag t-script">FIXTURE</span></td><td class="dim">Sundara Coffee seed data (412 users, $11,948 MRR) even in live mode — the live MCP fetch is a stub returning None.</td></tr>
+  <tr><td>kalai designer / copy / fidelity scorers</td><td><span class="tag t-live">LIVE</span></td><td class="dim">Real Gemini; loop exit is deterministic math.</td></tr>
+  <tr><td>kalai Creative Director / Compliance</td><td><span class="tag t-script">SCRIPTED</span></td><td class="dim">Claude seats; compliance still default-denies on unsafe sentinels deterministically.</td></tr>
+  <tr><td>Imagen still render → vault → g2 card</td><td><span class="tag t-live">LIVE</span></td><td class="dim">Fires for real after clearance; bytes persist and display.</td></tr>
+  <tr><td>kural delivery readers</td><td><span class="tag t-live">LIVE</span></td><td class="dim">Real Gemini — reading fixture funnel numbers.</td></tr>
+  <tr><td>kural coordinator / delivery planner</td><td><span class="tag t-script">SCRIPTED</span></td><td class="dim">Claude seats.</td></tr>
+  <tr><td>Actual publish to any channel</td><td><span class="tag t-missing">NEVER FIRED</span></td><td class="dim">Dry-run hardcoded; webhook adapter never armed against a real endpoint; fake draft URLs.</td></tr>
+  <tr><td>Witness text Q&amp;A</td><td><span class="tag t-live">LIVE</span></td><td class="dim">Deterministic tools over the real stream; honest refusals.</td></tr>
+  <tr><td>Voice (/ws/voice)</td><td><span class="tag t-partial">PARTIAL</span></td><td class="dim">Gemini Live path wired; needs creds at runtime, else text fallback.</td></tr>
+  <tr><td>A2A protocol</td><td><span class="tag t-partial">IN-PROCESS</span></td><td class="dim">Registry dispatch with correct call shape; no network transport yet.</td></tr>
+  <tr><td>Founder question UI</td><td><span class="tag t-missing">MISSING</span></td><td class="dim">API complete, cockpit form not built.</td></tr>
+</table>
+
+<!-- ============ OVERCLAIMS ============ -->
+<h2>5 · Overclaims register (fix the words or fix the code)</h2>
+<table>
+  <tr><th>Claim</th><th style="width:90px">Where</th><th>Reality</th></tr>
+  <tr><td>"Every position cites a number pulled <b>live from the org's own data</b>"</td><td class="ev">arivu README:131</td><td class="dim">Numbers are Sundara fixtures in every mode; MCP transport is a stub.</td></tr>
+  <tr><td>"In demo mode <b>only LLM token generation is replayed</b>"</td><td class="ev">arivu README:162</td><td class="dim">Grounding data is replayed too.</td></tr>
+  <tr><td>"Verdict ships only after it beats its steelmanned null case at defensibility ≥ 0.80"</td><td class="ev">arivu README:135</td><td class="dim">The prosecution trajectory 0.71→0.84 is hardcoded; no real steelmanning happens in prod.</td></tr>
+  <tr><td>kural "discovers who to talk to, researches them" / "holds the channel keys"</td><td class="ev">kural README:1,54</td><td class="dim">Audience is seeded; zero channel keys or integrations exist (by design, but the wording oversells).</td></tr>
+  <tr><td>kural "Prospect Scout ∥ Market Watcher" architecture</td><td class="ev">kural README:40</td><td class="dim">Stale — replaced by the 4-reader design; README not updated.</td></tr>
+  <tr><td>kalai produces "<b>on-brand</b> … masters"</td><td class="ev">kalai README:1</td><td class="dim">Only as on-brand as manas' feed; with an empty brand bank the fidelity climb is meaningless.</td></tr>
+  <tr><td>SUBMISSION.md's hybrid disclosure</td><td class="ev">SUBMISSION.md:76</td><td class="dim" style="color:var(--green)">✓ Honest — explicitly states Claude seats replay transcripts pending quota. Keep this tone everywhere.</td></tr>
+</table>
+
+<!-- ============ DEMO READINESS ============ -->
+<h2>6 · Hackathon readiness: can you show this live?</h2>
+
+<div class="card greenbox">
+  <h3 style="color:var(--green);margin-top:0">The live demo you CAN run today (locally / unsealed profile)</h3>
+  <ol class="steps" style="margin-bottom:4px">
+    <li>Connect a real GitHub repo + website → watch the <b>real clone, real Gemini extraction, real cited facts</b> stream in, Context Pack commit v1.</li>
+    <li>Show the clarifying questions in the ingest response (via stream/API — be honest that the UI form is coming), answer one, watch the pack tick to v2.</li>
+    <li>Ask a <b>pricing-shaped</b> decision question → real Gemini advisor debate → Gate 1 tap → real Gemini studio + <b>real Imagen render appearing on the gate-2 card</b> → Gate 2 tap → dry-run publish → manas learns, version ticks.</li>
+    <li>Ask witness "who's acting now?" and "what did we spend on ads?" → live answer + an honest refusal. Judges love the refusal.</li>
+  </ol>
+</div>
+
+<div class="card redbox">
+  <h3 style="color:var(--red);margin-top:0">The traps that will burn you live</h3>
+  <ol class="steps" style="margin-bottom:4px">
+    <li><b>The verdict is always "$34 Pro tier."</b> Scripted Claude returns the same pricing verdict for ANY question. Ask "should we launch on Product Hunt?" on a fresh repo and the chamber will answer about grandfathering Pro subscribers — instantly exposing the script. <b>Until Claude quota lands, only demo decision questions that fit the pricing storyline</b>, or say out loud "the verdict seat is a replayed transcript while our Vertex quota clears" (your own SUBMISSION.md already says this).</li>
+    <li><b>Don't demo connect on prod</b> — it's sealed and will 403. Run the connect demo on a local/unsealed instance.</li>
+    <li><b>Don't claim delivery</b> — nothing has ever been published anywhere; the URLs are placeholders.</li>
+    <li><b>Fresh-repo kalai looks generic</b> — with no brand assets ingested the "brand fidelity" climb is judging an empty bank. Connect a repo that has a logo + real docs so the vault and brand block populate.</li>
+  </ol>
+</div>
+
+<h3>Are we ready?</h3>
+<p><b>For Track 1 as submitted (gated AIKIZI-seeded demo + honest hybrid disclosure): yes, defensible.</b> The orchestration, gates, memory, and Gemini seats are real, and the submission doc doesn't lie. <b>For the demo you actually want to give — live repo connect + agents interviewing the founder: no.</b> That needs roughly the four items below.</p>
+
+<!-- ============ ROADMAP ============ -->
+<h2>7 · Shortest path to the demo you described</h2>
+<table>
+  <tr><th style="width:36px">#</th><th>Work item</th><th style="width:110px">Effort</th><th>Why it's the lever</th></tr>
+  <tr><td>1</td><td><b>Cockpit question cards</b> — render <code>result.questions</code> after ingest as answerable cards posting to <code>/api/connect/answer</code>, with the pack-version tick animating on fold-in.</td><td>~half day</td><td class="dim">The API already works end-to-end; this is pure UI. Turns the invisible loop into THE demo moment.</td></tr>
+  <tr><td>2</td><td><b>Gemini-generated questions</b> — after deterministic doubts, one live Gemini pass over the fresh corpus: "what are the 3–5 most important things a co-founder would still ask?" → same ClarifyingQuestion shape, answers fold through the existing path.</td><td>~1 day</td><td class="dim">Converts 6 templates into a genuine, varied interview. The doubts.py docstring already anticipates exactly this.</td></tr>
+  <tr><td>3</td><td><b>A judge-connect profile</b> — either unseal connect for authenticated judge accounts (sign-in already required + credits already meter ingest) or a second Cloud Run service with connect open.</td><td>~half day</td><td class="dim">Without this, the live connect demo can only ever happen on your laptop.</td></tr>
+  <tr><td>4</td><td><b>Claude quota → flip live</b> — keep pushing the Model Garden card flow; the moment a Claude answers, set <code>SAAKSHE_CLAUDE_MODE=live</code> + redeploy and the canned-verdict trap disappears (real verdicts for arbitrary questions).</td><td>external</td><td class="dim">Single env change; everything is already wired. Re-probe: <code>arivu/scripts/probe_vertex.py</code>.</td></tr>
+  <tr><td>5</td><td><i>(Stretch)</i> point <code>SAAKSHE_CHANNEL_WEBHOOK_URL</code> at an AIKIZI autopilot intake and arm one real send</td><td>~half day</td><td class="dim">Makes kural's "engage" claim true for the first time — one real delivered artifact beats any slide.</td></tr>
+</table>
+
+<div class="foot">
+  Method: six parallel read-only audit agents (manas · kalai · kural · arivu · coordination/connect-flow · demo-vs-real sweep) over branch main @ d1c8e77, with sealing &amp; deploy-profile claims re-verified manually against service/app.py and deploy_cloudrun.sh. Test baseline: 334 green (per-directory), all creds-free with scripted token generation. This file: docs/saakshe_agentic_reality_audit_2026-06-10.html.
+</div>
+</div>
+</body>
+</html>

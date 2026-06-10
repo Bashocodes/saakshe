@@ -4,8 +4,8 @@ In demo, ``fetch_grounding`` returns the Sundara seed fixture, byte-identical (t
 pack's version overrides the fixture's so the message is bound to the live memory
 the founder approved — but nothing else changes). In live, the bundle is built
 FRESH from the REAL passed manas Context Pack + live funnel/market reads via a
-mockable seam; if no live source resolves it falls back to the seed fixture, so a
-claim is never ungrounded even if a model forgets to call a tool.
+mockable seam; whatever does not resolve live is simply ABSENT — the fixture's
+canned list/consent/market numbers never reach a live engagement.
 
 The live branch is exercised with a mocked funnel/market seam (the standard way to
 test a live integration without creds / network — never a real call in CI). One
@@ -72,27 +72,29 @@ def test_live_builds_from_real_pack_and_live_funnel_market(monkeypatch):
     assert out != DEMO_GROUNDING
 
 
-def test_live_falls_back_to_seed_when_no_source(monkeypatch):
-    """In live but with no live funnel/market source resolved AND no pack, fall back
-    to the seed bundle so the readers are never ungrounded."""
+def test_live_no_source_never_serves_fixture_numbers(monkeypatch):
+    """In live with no live funnel/market source AND no pack, the bundle is EMPTY —
+    the canned 1,840-person Sundara list never reaches a live engagement. A reader
+    with no real funnel to cite must say so, not quote a fixture."""
     monkeypatch.setenv("SAAKSHE_MODE", "live")
     monkeypatch.setattr(grounding, "_live_funnel_market", lambda: None)
-    # No pack → the pure seed fixture (nothing real to ground from).
-    assert grounding.fetch_grounding() == DEMO_GROUNDING
+    out = grounding.fetch_grounding()
+    assert out == {}
+    assert out != DEMO_GROUNDING
 
 
 def test_live_fallback_keeps_the_real_pack_as_memory(monkeypatch):
-    """Live + no funnel/market source: funnel/market fall back to the seed, but the
-    memory section is the REAL passed Context Pack — the fixture's canned memory
-    never replaces the corpus the founder actually approved."""
+    """Live + no funnel/market source: the memory section is the REAL passed
+    Context Pack and funnel/market are simply ABSENT — the fixture's canned
+    numbers never replace what the founder actually approved."""
     monkeypatch.setenv("SAAKSHE_MODE", "live")
     monkeypatch.setattr(grounding, "_live_funnel_market", lambda: None)
     real_pack = {"version": "v99", "voice": "LIVE FOUNDER VOICE",
                  "facts": [{"claim": "c", "source": "s"}]}
     out = grounding.fetch_grounding(real_pack)
     assert out["manas_context_pack"] == real_pack                  # the real memory, whole
-    assert out["funnel"] == DEMO_GROUNDING["funnel"]               # seed baseline
-    assert out["market"] == DEMO_GROUNDING["market"]               # seed baseline
+    assert "funnel" not in out                                     # fixture numbers never leak live
+    assert "market" not in out
 
 
 def test_live_funnel_market_is_gated_off_by_default(monkeypatch):

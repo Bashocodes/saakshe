@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
-# Deploy the saakshe site to Google Cloud Run — HYBRID mode (real Gemini, scripted
-# Claude while the Vertex Anthropic quota is pending). One command, idempotent.
+# Deploy the saakshe site to Google Cloud Run — HYBRID mode (every seat LIVE; the
+# Claude seats run on a live Gemini understudy while the Vertex Anthropic quota is
+# pending — never scripted replay in prod). One command, idempotent.
 #
 # Three profiles (SAAKSHE_DEPLOY_PROFILE, default "demo"):
 #   demo     — the open, no-sign-in demo. File store, no auth, no billing,
@@ -24,7 +25,8 @@ REGION="${REGION:-us-central1}"
 SERVICE="${SERVICE:-saakshe}"
 PROFILE="${SAAKSHE_DEPLOY_PROFILE:-demo}"
 
-# ── the model/mode env both profiles share (hybrid: real Gemini, scripted Claude) ─
+# ── the model/mode env both profiles share (hybrid: all live; CLAUDE_MODE=demo
+#    puts the Claude seats on a live Gemini understudy, NOT scripted replay) ─
 COMMON_ENV="SAAKSHE_MODE=live@ARIVU_MODE=live@SAAKSHE_CLAUDE_MODE=demo@ARIVU_CLAUDE_MODE=demo"
 COMMON_ENV+="@GOOGLE_CLOUD_PROJECT=${PROJECT}@GOOGLE_CLOUD_LOCATION=global"
 COMMON_ENV+="@SAAKSHE_CLAUDE_LOCATION=global@ARIVU_CLAUDE_LOCATION=global@GOOGLE_GENAI_USE_VERTEXAI=TRUE"

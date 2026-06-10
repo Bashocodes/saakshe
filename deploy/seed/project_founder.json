@@ -1,5 +1,5 @@
 {
-  "version": "v6",
+  "version": "v3",
   "org": {
     "name": "AIKIZI",
     "kind": "software product",
@@ -25,7 +25,7 @@
   ],
   "packs": {
     "company": {
-      "version": "v5",
+      "version": "v2",
       "topic": "company",
       "facts": [
         {
@@ -115,18 +115,6 @@
         {
           "claim": "AIKIZI is free to start.",
           "source": "https://aikizi.com"
-        },
-        {
-          "claim": "Decided: Raise Pro to $34 (not $39), grandfather all existing subscribers, give 30-day notice before the new price applies.",
-          "source": "founder decision \u00b7 today"
-        },
-        {
-          "claim": "Decided: Raise Pro to $34 (not $39), grandfather all existing subscribers, give 30-day notice before the new price applies.",
-          "source": "founder decision \u00b7 today"
-        },
-        {
-          "claim": "Decided: Raise Pro to $34 (not $39), grandfather all existing subscribers, give 30-day notice before the new price applies.",
-          "source": "founder decision \u00b7 today"
         }
       ],
       "voice_rules": [
@@ -169,24 +157,6 @@
     },
     {
       "version": "v3",
-      "at": 1780923944.7012491,
-      "note": "remembered the day's decision",
-      "groundedness": 0.9
-    },
-    {
-      "version": "v4",
-      "at": 1781017531.960459,
-      "note": "remembered the day's decision",
-      "groundedness": 0.9
-    },
-    {
-      "version": "v5",
-      "at": 1781017548.793421,
-      "note": "remembered the day's decision",
-      "groundedness": 0.9
-    },
-    {
-      "version": "v6",
       "at": 1781080612.2695522,
       "note": "added logo asset logo.png"
     }

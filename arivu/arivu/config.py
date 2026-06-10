@@ -110,12 +110,13 @@ def is_live() -> bool:
 
 
 def claude_live() -> bool:
-    """Whether the two Claude·Vertex seats (verdict + prosecutor) run live.
+    """Whether the two Claude·Vertex seats (verdict + prosecutor) run on Claude.
 
-    Live only when arivu is live AND Claude isn't forced off. Set
-    SAAKSHE_CLAUDE_MODE=demo (or ARIVU_CLAUDE_MODE=demo) to keep the verdict +
-    prosecutor on scripted replay while the five Gemini mantris run LIVE — the
-    hybrid used while the Vertex Anthropic quota is pending.
+    True only when arivu is live AND Claude isn't forced off. With
+    SAAKSHE_CLAUDE_MODE=demo (or ARIVU_CLAUDE_MODE=demo) in a LIVE run, the
+    verdict + prosecutor fall to a live Gemini understudy — real reasoning over
+    the real question, never scripted replay — the hybrid used while the Vertex
+    Anthropic quota is pending. Scripted replay only ever runs in demo/CI.
     """
     if not is_live():
         return False

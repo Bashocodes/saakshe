@@ -95,9 +95,9 @@ def fetch_grounding(context_pack: dict | None = None) -> dict:
     LIVE: build the bundle FRESH from the REAL passed manas Context Pack (the
     memory the founder approved) + the org's REAL funnel/market numbers, pulled
     from the example MCP surface via a mockable seam. No DEMO_GROUNDING base — the
-    fixture's canned list/voice never leak into a live message. If no live
-    funnel/market source resolves, fall back to the seed fixture so the readers are
-    never ungrounded even if a model forgets to call a tool.
+    fixture's canned list/consent/market numbers NEVER reach a live engagement: a
+    reader with no real funnel to cite must say so ("grounded or silent"), not
+    quote a canned 1,840-person list.
 
     DEMO: the Sundara fixtures, byte-identical — with only the passed pack's version
     swapped in so the message is bound to the live memory the founder approved. (The
@@ -108,20 +108,14 @@ def fetch_grounding(context_pack: dict | None = None) -> dict:
     if config.is_live():
         pack = context_pack if isinstance(context_pack, dict) and context_pack else None
         fm = _live_funnel_market()
-        if fm:
-            return {
-                # The REAL passed Context Pack is the memory section — not the fixture.
-                "manas_context_pack": dict(pack) if pack else dict(DEMO_GROUNDING["manas_context_pack"]),
-                "funnel": fm.get("funnel", {}),
-                "market": fm.get("market", {}),
-            }
+        bundle: dict = {}
         if pack:
-            # No live funnel/market resolved → seed funnel/market as the baseline,
-            # but the memory section stays the REAL pack the founder approved — the
-            # fixture's canned memory never replaces a live corpus.
-            bundle = _demo_bundle(context_pack)
+            # The REAL passed Context Pack is the memory section — not the fixture.
             bundle["manas_context_pack"] = dict(pack)
-            return bundle
+        if fm:
+            bundle["funnel"] = fm.get("funnel", {})
+            bundle["market"] = fm.get("market", {})
+        return bundle
     return _demo_bundle(context_pack)
 
 

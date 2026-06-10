@@ -55,7 +55,7 @@ Throughout, the witness answers the founder from tools, not vibes: `anyone_waiti
 
 **Gemini-many, Claude-few — all via Vertex.** The many routine and panel seats run Gemini on Vertex (gemini-3.1-pro-preview, gemini-3.5-flash). The 7 highest-stakes seats — verdict, prosecutor, founder voice, memory curator, creative director, compliance, envoy lead (the prosecutor's reviser and kural's delivery planner ride the same model) — run Claude (claude-sonnet-4-6) through Vertex Model Garden. Every third-party LLM call goes through Vertex.
 
-**Three modes, honestly separated.** `demo` runs the entire orchestration creds-free with scripted model output — deterministic and byte-identical, so judges and CI see the same day. `hybrid` runs real Gemini with Claude scripted. `live` is all real, including Imagen still renders and the witness's Gemini Live voice.
+**Three modes, honestly separated.** `demo` runs the entire orchestration creds-free with scripted model output — deterministic and byte-identical, so judges and CI see the same day. `hybrid` runs every seat live — the Claude seats on a live Gemini understudy until our Model Garden quota clears. `live` is all real, including Imagen still renders and the witness's Gemini Live voice.
 
 **Tested.** 316 tests pass (6 skipped), creds-free. Per-faculty ADK evalsets are checked in at the 0.8 bar — they require live credentials and have not yet been run live; we say so plainly. Supabase provides auth and an opt-in per-user store; OTel span callbacks trace every seat; each faculty serves an A2A agent card at `/api/{faculty}/agent-card`.
 
@@ -75,7 +75,7 @@ Throughout, the witness answers the founder from tools, not vibes: `anyone_waiti
 
 ## 6. Challenges we ran into
 
-**Vertex Claude quota on a fresh project.** Our new GCP project's Claude-on-Vertex quota hasn't cleared yet; a resubmission is pending. Instead of faking it, we built hybrid mode: real Gemini drives the flywheel on prod today, while the 7 Claude seats run scripted replay of their transcripts. The same orchestration code runs in all three modes — only the token source changes. Credibility is a feature.
+**Vertex Claude quota on a fresh project.** Our new GCP project's Claude-on-Vertex quota hasn't cleared yet; a resubmission is pending. Instead of faking it, we built hybrid mode: every seat on prod is live today — the Claude seats run on a live Gemini Pro understudy (real reasoning over the real question, never a replayed transcript) until the quota clears, at which point one env flip seats Claude. The same orchestration code runs in all three modes — only the model behind the seat changes. Credibility is a feature.
 
 **Determinism vs. reality.** A demo that drifts between runs is a demo you can't trust. Keeping demo mode byte-identical — same day, same verdicts, same renders as `vertex://` placeholders — while the identical code paths go fully real in live mode forced a clean seam between orchestration and token generation, which is also what made hybrid mode possible.
 
@@ -130,7 +130,7 @@ Three things to try:
 2. **Run the day.** Start the flywheel and watch the chamber work a real question: panel, debate, verdict, prosecutor.
 3. **Approve the two gates.** Tap the company-decision gate, watch kalai's creative and kural's verbatim delivery plan, then tap the publish gate. Nothing fires before your taps.
 
-Note on what's real today: prod runs in hybrid mode — Gemini seats are live; the 7 Claude seats replay scripted transcripts while our Vertex quota resubmission is pending. The UI doesn't hide this.
+Note on what's real today: prod runs in hybrid mode — every seat is live; the Claude seats run on a live Gemini understudy while our Vertex quota resubmission is pending. The UI doesn't hide this.
 
 **Local, creds-free:** clone the repo and follow the README quickstart — demo mode runs the entire orchestration deterministically with zero credentials on `:8000`.
 

@@ -92,9 +92,10 @@ def _live_admin_bundle() -> dict | None:
 
 
 def _real_memory_section() -> dict | None:
-    """The org's REAL brand/voice canon via manas's A2A skill, in the bundle's
-    ``manas_a2a`` shape. None when manas isn't reachable (standalone arivu) or the
-    corpus is ungrounded / has no rules — the seed section stays in that case."""
+    """The org's REAL canon via manas's A2A skill, in the bundle's ``manas_a2a``
+    shape — brand/voice rules plus the top cited facts from the live corpus, so
+    advisors have something REAL to cite when no admin surface resolves. None when
+    manas isn't reachable (standalone arivu) or the corpus is ungrounded/empty."""
     try:
         from common import a2a
 
@@ -107,31 +108,38 @@ def _real_memory_section() -> dict | None:
         return None
     voice = "; ".join(pack.get("voice_rules") or [])
     brand = "; ".join(pack.get("brand_rules") or [])
-    if not (voice or brand):
+    facts = "; ".join(
+        f.get("claim", "") for f in (pack.get("facts") or [])[:8]
+        if isinstance(f, dict) and f.get("claim")
+    )
+    if not (voice or brand or facts):
         return None
-    return {"brand_canon": brand, "voice": voice}
+    section = {"brand_canon": brand, "voice": voice}
+    if facts:
+        section["facts"] = facts
+    return section
 
 
 def fetch_grounding() -> dict:
     """Frame-time grounding bundle.
 
     LIVE: pull the org's REAL numbers from the example MCP admin surface; if no
-    live source resolves, fall back to the seed bundle so a position is never
-    ungrounded even if a model forgets to call a tool — but the ``manas_a2a``
-    memory section is rebuilt from the REAL corpus (via manas's A2A skill) whenever
-    one is reachable and grounded, so the fixture's canned brand/voice never
-    replace what the founder actually imbibed. DEMO: always the seed fixtures,
+    live source resolves, the bundle carries ONLY what is real — the ``manas_a2a``
+    section rebuilt from the live corpus (brand/voice rules + top cited facts via
+    manas's A2A skill). Fixture numbers NEVER reach a live chamber: an advisor
+    with nothing real to cite must qualify or stay silent ("grounded or silent"),
+    not argue from a canned 412-user company. DEMO: always the seed fixtures,
     byte-identical (the four original chamber tests depend on this).
     """
     if config.is_live():
         live = _live_admin_bundle()
         if live:
             return live
+        bundle: dict = {}
         real_mem = _real_memory_section()
         if real_mem:
-            bundle = dict(DEMO_GROUNDING)
             bundle["manas_a2a"] = real_mem
-            return bundle
+        return bundle
     return dict(DEMO_GROUNDING)
 
 

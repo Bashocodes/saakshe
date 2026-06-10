@@ -115,13 +115,14 @@ def is_live() -> bool:
 
 
 def claude_live() -> bool:
-    """Whether the Claude·Vertex seats run live.
+    """Whether the Claude·Vertex seats run on actual Claude.
 
-    Live only when the company is live AND Claude isn't explicitly forced off.
-    Set SAAKSHE_CLAUDE_MODE=demo (or ARIVU_CLAUDE_MODE=demo) to keep the Claude
-    seats on deterministic scripted replay while Gemini runs LIVE — the hybrid
-    used while the Vertex Anthropic quota is pending. The orchestration (Parallel/
-    Loop/escalate/gates/A2A) is identical; only the Claude token source differs.
+    True only when the company is live AND Claude isn't explicitly forced off.
+    With SAAKSHE_CLAUDE_MODE=demo (or ARIVU_CLAUDE_MODE=demo) in a LIVE run, the
+    Claude seats fall to a live Gemini Pro understudy — real reasoning, never
+    scripted replay — the hybrid used while the Vertex Anthropic quota is pending.
+    Scripted replay only ever runs in the creds-free demo/CI mode. The
+    orchestration (Parallel/Loop/escalate/gates/A2A) is identical throughout.
     """
     if not is_live():
         return False
