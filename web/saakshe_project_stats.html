@@ -4,6 +4,16 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>saakshe — project stats &amp; agent architecture</title>
+<meta name="description" content="A deep-dive into the saakshe codebase: ~30.6k lines of code, 27 LLM-backed agents across four ADK quadrants, the two-gate flywheel, the Gemini + Claude-via-Vertex model stack, the witness's telemetry tools, the shared substrate, the frontend surfaces, and honest caveats.">
+<meta property="og:title" content="saakshe — project stats &amp; agent architecture">
+<meta property="og:description" content="A deep-dive into the saakshe codebase: ~30.6k lines of code, 27 LLM-backed agents across four ADK quadrants, the two-gate flywheel, the Gemini + Claude-via-Vertex model stack, the witness's telemetry tools, the shared substrate, the frontend surfaces, and honest caveats.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://saakshe.com/saakshe_project_stats">
+<meta property="og:image" content="https://saakshe.com/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://saakshe.com/og.png">
 <style>
   :root{
     --bg:#0e1014; --panel:#171a21; --panel2:#1d212a; --ink:#eef1f6; --ink2:#aab3c2;
@@ -107,6 +117,7 @@
   .toc{display:flex; flex-wrap:wrap; gap:10px; margin:26px 0 2px}
   .toc a{font-size:15px; color:var(--ink2); text-decoration:none; border:1px solid var(--line2); padding:7px 13px; border-radius:999px}
   .toc a:hover{color:var(--ink); border-color:var(--accent)}
+  a:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
   footer{padding:44px 0 0; color:var(--ink3); font-size:15px}
   .big{font-size:21px; color:var(--ink)}
 </style>
@@ -129,7 +140,7 @@
     <div class="stat"><div class="n">139</div><div class="l">automated tests across 16 files (backend green)</div></div>
   </div>
 
-  <div class="toc">
+  <nav class="toc" aria-label="contents">
     <a href="#what">What it is</a>
     <a href="#numbers">By the numbers</a>
     <a href="#agents">The agent system</a>
@@ -139,7 +150,7 @@
     <a href="#substrate">Substrate</a>
     <a href="#surfaces">Frontend</a>
     <a href="#caveats">Caveats</a>
-  </div>
+  </nav>
 </header>
 
 <!-- ===================== WHAT ===================== -->
@@ -431,7 +442,7 @@
     <li><b>cockpit.html</b> (3,104 lines) — the live console: stream, gate queue, cost pills, witness chat + voice, wired to the FastAPI backend in live mode.</li>
     <li><b>saakshe.html / landing / onboarding</b> — the pitch and entry flow ("the agentic company you talk to").</li>
     <li><b>manas · arivu · kalai · kural · setu · darshana</b> — a deep page per quadrant + "connect anything" (setu) + "see the whole company" (darshana).</li>
-    <li><b>manas_company_profile.html</b> — a live-editable company profile wired to a Gemini-Flash backend (separate :8791 server).</li>
+    <li><b>samples.html</b> — three real open-source repos run through the live Gemini ingest pipeline, their versioned source-cited Context Packs captured verbatim.</li>
     <li><b>Tested:</b> 139 automated tests across 16 files (backend green) + a Puppeteer live harness + a cockpit perception harness checking contrast / clipping / empty states across 16 view×theme combinations.</li>
   </ul>
 </section>

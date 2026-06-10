@@ -5,7 +5,16 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <link rel="icon" href="data:,">
 <title>saakshe &mdash; privacy policy</title>
-<meta name="description" content="How saakshe handles your Google account, the read-only project you connect, the facts manas extracts, your chat, and your credit ledger. Draft, pre-launch.">
+<meta name="description" content="How saakshe handles your account (Supabase auth with Google sign-in), the read-only sources you connect, the facts manas extracts, your chat, and your credit ledger. Effective June 10, 2026.">
+<meta property="og:title" content="saakshe — privacy policy">
+<meta property="og:description" content="How saakshe handles your account (Supabase auth with Google sign-in), the read-only sources you connect, the facts manas extracts, your chat, and your credit ledger. Effective June 10, 2026.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://saakshe.com/privacy">
+<meta property="og:image" content="https://saakshe.com/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://saakshe.com/og.png">
 <!-- no-flash theme: set before first paint, before any CSS applies (same key as the landing) -->
 <script>
 (function(){
@@ -260,15 +269,6 @@ html[data-theme="dark"] .phero h1{font-size:clamp(26px,5vw,46px);letter-spacing:
 .lede b{color:var(--ink)}
 html[data-theme="dark"] .lede{font-size:clamp(14px,1.9vw,16.5px);max-width:74ch}
 
-/* draft banner (legal pages) — red in light, kalai-red in dark (never the green action colour) */
-.draft{margin-top:24px;border:var(--line-w) solid var(--act);border-radius:var(--radius);background:var(--card);
-  padding:13px 18px;font-family:var(--mono);font-size:12.5px;letter-spacing:.02em;color:var(--act-text);
-  display:flex;align-items:center;gap:11px;box-shadow:var(--shadow)}
-html[data-theme="dark"] .draft{border-color:var(--c-kalai);color:var(--c-kalai);box-shadow:none;background:var(--card)}
-.draft::before{content:'';width:11px;height:11px;background:var(--act);flex:none}
-html[data-theme="dark"] .draft::before{background:var(--c-kalai)}
-.draft b{color:var(--ink)}
-
 /* prose blocks */
 .prose{margin-top:22px;max-width:78ch}
 .prose h3{font-family:var(--head);font-weight:700;font-size:clamp(18px,2.6vw,22px);margin-top:30px;letter-spacing:-.01em}
@@ -353,7 +353,7 @@ html[data-theme="dark"] .fourkick{color:var(--act)}
     <div class="kick"><span class="num">Legal &middot; privacy</span></div>
     <div class="h1wrap"><h1>Privacy Policy</h1></div>
     <p class="lede">How saakshe handles your account, the project you connect, and what its faculties learn. We keep it short and concrete &mdash; saakshe is built so your sources are <b>granted, never taken.</b></p>
-    <div class="draft"><b>Draft</b>&nbsp;&mdash;&nbsp;review with counsel before launch. Placeholder contact and terms below.</div>
+    <p class="mono mute" style="margin-top:18px;font-size:13px;letter-spacing:.04em">Effective date: June 10, 2026 &middot; operated by saakshe, an independent project</p>
   </header>
 
   <section class="sec reveal">
@@ -361,8 +361,8 @@ html[data-theme="dark"] .fourkick{color:var(--act)}
     <h2 class="sec__t">Only what the company needs to run your project.</h2>
     <div class="prose">
       <ul>
-        <li><b>Your Google account.</b> Email, name, and avatar, received through Google sign-in when you authenticate.</li>
-        <li><b>The project you connect.</b> A repository and a site you grant us &mdash; accessed <b>read-only</b>. We read to ground; we don't write to your sources.</li>
+        <li><b>Your account.</b> Email, name, and avatar, received through <b>Supabase</b> authentication when you sign in with Google.</li>
+        <li><b>The sources you explicitly connect.</b> A repository, site, or socials you grant us &mdash; fetched and processed <b>read-only</b> to ground the agents. We read to ground; we don't write to your sources.</li>
         <li><b>The facts manas extracts.</b> The cited facts and versioned <b>Context Packs</b> that manas builds from your connected sources.</li>
         <li><b>Your chat with the witness.</b> The messages you exchange with saakshe in text and voice, so it can answer from your live telemetry.</li>
         <li><b>Your usage &amp; credit ledger.</b> Which actions ran, when, and the credits they spent or refunded.</li>
@@ -376,7 +376,7 @@ html[data-theme="dark"] .fourkick{color:var(--act)}
     <div class="prose">
       <ul>
         <li><b>To run the agentic company on <em>your</em> project.</b> The faculties ground, decide, make, and engage against the project you connected &mdash; that's the entire purpose of the data.</li>
-        <li><b>AI processing via Google Gemini on Vertex AI.</b> Routine seats run on Gemini; high-stakes seats run Claude via Vertex AI. Your content is processed to produce <em>your</em> outputs.</li>
+        <li><b>AI processing on Google Cloud.</b> The service runs on Google Cloud (Cloud Run). Routine seats run on Gemini; high-stakes seats run Claude via Vertex AI. Google Cloud and Supabase act as our processors. Your content is processed to produce <em>your</em> outputs.</li>
         <li><b>Authentication &amp; storage via Supabase (Postgres).</b> Sign-in sessions and your data are stored in a Supabase Postgres database with row-level access controls.</li>
         <li><b>We do <em>not</em> sell your data.</b> And we do <b>not</b> train public or shared models on it. Your corpus is used to serve you, not the market.</li>
         <li><b>Granted, never taken.</b> Your connected sources are <b>read-only</b>. saakshe holds no keys that move money or post on your behalf &mdash; you bring your own.</li>
@@ -389,15 +389,15 @@ html[data-theme="dark"] .fourkick{color:var(--act)}
     <h2 class="sec__t">You can see it, and you can have it deleted.</h2>
     <div class="prose">
       <h3>Storage &amp; retention</h3>
-      <p>Your account, Context Packs, chat history, and credit ledger are stored in Supabase (Postgres) for as long as your account is active, so the company can keep working from what it has learned. When you delete your account, we delete or irreversibly anonymise this data within a reasonable window, except where we must retain limited records to meet a legal obligation.</p>
+      <p>Your account, Context Packs, chat history, and credit ledger are stored in Supabase (Postgres) for as long as your account is active, so the company can keep working from what it has learned. saakshe is currently a gated demo, and <b>demo content may be reset</b> as the service develops. When you delete your account, we delete or irreversibly anonymise this data within a reasonable window, except where we must retain limited records to meet a legal obligation.</p>
       <h3>Cookies &amp; session</h3>
       <p>We use a <b>Supabase auth</b> session cookie/token to keep you signed in. It is essential to the service &mdash; without it you can't stay authenticated. We don't use third-party advertising or cross-site tracking cookies.</p>
       <h3>Data deletion on request</h3>
       <p>You can request export or deletion of your data at any time. Email us and we'll disconnect your sources, purge your Context Packs and chat history, and confirm when it's done.</p>
       <h3>Contact</h3>
-      <p>Questions, requests, or data concerns: <a href="mailto:hello@saakshe.com">hello@saakshe.com</a> <span class="mute">(placeholder &mdash; to be confirmed before launch).</span></p>
+      <p>Questions, requests, or data concerns: <a href="mailto:hello@saakshe.com">hello@saakshe.com</a>.</p>
     </div>
-    <p class="honest"><b>Draft &middot; review with counsel.</b> This policy describes intended behaviour and will be finalised with legal review before launch. It is not yet a binding agreement.</p>
+    <p class="honest"><b>Effective June 10, 2026.</b> saakshe is operated as an independent project. This policy is governed by the laws of India. We do not sell your personal data. Contact: <a href="mailto:hello@saakshe.com">hello@saakshe.com</a>.</p>
   </section>
 
   <!-- ═══ FOOTER ═══ -->
