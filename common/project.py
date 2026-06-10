@@ -22,6 +22,7 @@ from __future__ import annotations
 import contextvars
 import json
 import os
+import re
 import threading
 import time
 from dataclasses import dataclass, field
@@ -122,6 +123,36 @@ class ProjectStore:
             tmp.replace(self._path)
         except OSError:
             pass
+
+    # ── flywheel-run snapshots (restart-proofing; _RUNS is a cache, not the record) ─
+    _RUN_ID_RE = re.compile(r"[A-Za-z0-9_\-]{1,64}")
+
+    def _runs_dir(self) -> Path:
+        return _DIR / "runs" / self.user
+
+    def save_run(self, run_id: str, snapshot: dict) -> None:
+        """Persist one flywheel run's JSON snapshot (atomic write, fail-soft —
+        a blob error must never break the run it is backing up)."""
+        if not self._RUN_ID_RE.fullmatch(run_id or ""):
+            return
+        try:
+            d = self._runs_dir()
+            d.mkdir(parents=True, exist_ok=True)
+            tmp = d / f"{run_id}.json.tmp"
+            tmp.write_text(json.dumps(snapshot), encoding="utf-8")
+            tmp.replace(d / f"{run_id}.json")
+        except OSError:
+            pass
+
+    def load_run(self, run_id: str) -> Optional[dict]:
+        """The snapshot save_run persisted, or None. The run_id is validated so a
+        caller-supplied id can never become a file path."""
+        if not self._RUN_ID_RE.fullmatch(run_id or ""):
+            return None
+        try:
+            return json.loads((self._runs_dir() / f"{run_id}.json").read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            return None
 
     # ── state queries ─────────────────────────────────────────────────────────
     def is_connected(self) -> bool:

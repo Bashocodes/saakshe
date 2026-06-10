@@ -350,6 +350,30 @@ class SupabaseStore:
         row = dict(rows[0]); row["status"] = "answered"; row["answer"] = answer
         return self._to_question(row)
 
+    # ── flywheel-run snapshots (ProjectStore parity; restart-proofing) ────────
+    def save_run(self, run_id: str, snapshot: dict) -> None:
+        """Upsert one flywheel run's JSON snapshot into ``flywheel_runs`` (the
+        restart-proofing record; see 20260610_000004_flywheel_runs.sql)."""
+        payload = {
+            "user_id": self.user_id, "run_id": run_id,
+            "status": str(snapshot.get("status", "")),
+            "step": str(snapshot.get("step", "")),
+            "charged": bool(snapshot.get("charged")),
+            "spend_idem_key": str(snapshot.get("spend_idem_key", "")),
+            "snapshot": snapshot,
+        }
+        if self._get("flywheel_runs", user_id=f"eq.{self.user_id}",
+                     run_id=f"eq.{run_id}", select="run_id", limit=1):
+            self._patch("flywheel_runs",
+                        {"user_id": self.user_id, "run_id": run_id}, payload)
+        else:
+            self._insert("flywheel_runs", payload)
+
+    def load_run(self, run_id: str) -> Optional[dict]:
+        rows = self._get("flywheel_runs", user_id=f"eq.{self.user_id}",
+                         run_id=f"eq.{run_id}", select="snapshot", limit=1)
+        return rows[0].get("snapshot") if rows else None
+
     # ── witness chat ─────────────────────────────────────────────────────────
     def append_message(self, role: str, text: str, run_id: str = "", meta: Optional[dict] = None) -> dict:
         return self._insert("messages", {

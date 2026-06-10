@@ -63,6 +63,56 @@ class FlywheelState:
 _RUNS: dict[str, FlywheelState] = {}
 
 
+# ── restart-proofing: _RUNS is a cache; the bound store is the system of record ─
+def _snapshot(state: FlywheelState) -> dict:
+    import json
+
+    d = {
+        "run_id": state.run_id, "question": state.question, "org": state.org,
+        "status": state.status, "step": state.step, "open_gate": state.open_gate,
+        "context_pack": state.context_pack, "arivu_state": state.arivu_state,
+        "kural_state": state.kural_state, "master": state.master,
+        "verdict": state.verdict, "actions": state.actions,
+        "user_id": state.user_id, "spend_idem_key": state.spend_idem_key,
+        "charged": state.charged,
+    }
+    return json.loads(json.dumps(d, default=str))   # scrub non-JSON leaves
+
+
+def _persist_run(state: FlywheelState) -> None:
+    """Snapshot the run via the bound store (file or Supabase) so a restart never
+    orphans a charged run. Fail-soft: persistence is belt-and-braces — it must
+    never break the run it is backing up."""
+    store = state.store or project.current_store()
+    save = getattr(store, "save_run", None)
+    if not callable(save):
+        return
+    try:
+        save(state.run_id, _snapshot(state))
+    except Exception:  # noqa: BLE001
+        pass
+
+
+def _restore_run(run_id: str, store: Any) -> Optional[FlywheelState]:
+    """Rehydrate a persisted run into _RUNS (the read-through on a cache miss)."""
+    load = getattr(store, "load_run", None)
+    try:
+        snap = load(run_id) if callable(load) else None
+    except Exception:  # noqa: BLE001
+        snap = None
+    if not isinstance(snap, dict) or not snap:
+        return None
+    state = FlywheelState(run_id=run_id, question=snap.get("question", ""),
+                          org=snap.get("org") or {}, store=store)
+    for k in ("status", "step", "open_gate", "context_pack", "arivu_state",
+              "kural_state", "master", "verdict", "actions", "user_id",
+              "spend_idem_key", "charged"):
+        if k in snap:
+            setattr(state, k, snap[k])
+    _RUNS[run_id] = state
+    return state
+
+
 def _verdict_of(arivu_state: dict) -> dict:
     v = arivu_state.get(_ASK.VERDICT, {})
     return v if isinstance(v, dict) else _arivu_parse(v)
@@ -129,6 +179,7 @@ async def _start(question, org, stream, store, user_id="", spend_idem_key="", ch
         state.step = "rolled_back"
         stream.emit(run_id, "arivu", "gate", "no safe decision — verdict did not survive prosecution",
                     span="invocation", kind="note")
+        _persist_run(state)
         return _summary(state, stream)
 
     conf = state.verdict.get("confidence", "—")
@@ -145,6 +196,7 @@ async def _start(question, org, stream, store, user_id="", spend_idem_key="", ch
     state.open_gate = gate.as_dict()
     state.status = "awaiting_approval"
     state.step = "gate1"
+    _persist_run(state)
     return _summary(state, stream)
 
 
@@ -163,6 +215,9 @@ def _live_send_armed() -> bool:
 async def approve(run_id: str, gate_id: Optional[str] = None, stream: EventStream = STREAM,
                   store: Any = None, *, arm_real_send: bool = False) -> dict:
     state = _RUNS.get(run_id)
+    if state is None:
+        # The cache lost it (a restart) — rehydrate from the persisted snapshot.
+        state = _restore_run(run_id, store or project.current_store())
     if state is None:
         raise KeyError(f"unknown flywheel run_id {run_id!r}")
     # Bind the SAME store the run started under so the closing manas.learn + the
@@ -195,6 +250,7 @@ async def _approve(run_id: str, state: FlywheelState, gate_id: Optional[str],
         # is the founder's tap WITH the arm flag AND the env AND a real client.
         await _after_publish(state, stream,
                              dry_run=not (arm_real_send and _live_send_armed()))
+    _persist_run(state)
     return _summary(state, stream)
 
 
@@ -291,4 +347,4 @@ def _summary(state: FlywheelState, stream: EventStream) -> dict:
 
 
 def get_run(run_id: str) -> Optional[FlywheelState]:
-    return _RUNS.get(run_id)
+    return _RUNS.get(run_id) or _restore_run(run_id, project.current_store())

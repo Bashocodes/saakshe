@@ -79,6 +79,32 @@ async def test_cannot_skip_or_double_tap(stream):
         await orchestrator.approve(rid, "g2", stream=stream)   # already done
 
 
+# ─── restart-proofing: _RUNS is a cache, the store is the system of record ────
+async def test_charged_run_survives_a_restart(stream):
+    """A charged run must not be orphaned by a service restart: approve()
+    rehydrates the snapshot the store persisted at each transition, so the
+    founder's paid flywheel can still be tapped to completion."""
+    started = await orchestrator.start(stream=stream, charged=True)
+    rid = started["run_id"]
+    orchestrator._RUNS.clear()                       # the restart
+    g1 = await orchestrator.approve(rid, "g1", stream=stream)
+    assert g1["status"] == "awaiting_approval"
+    assert g1["open_gate"]["gate_id"] == "g2"
+    orchestrator._RUNS.clear()                       # restart again mid-flywheel
+    g2 = await orchestrator.approve(rid, "g2", stream=stream)
+    assert g2["status"] == "completed"
+
+
+def test_file_store_run_snapshot_roundtrip():
+    project.STORE.save_run("fw_snapshot1", {"status": "awaiting_approval",
+                                            "step": "gate1", "charged": True})
+    snap = project.STORE.load_run("fw_snapshot1")
+    assert snap["status"] == "awaiting_approval" and snap["charged"] is True
+    assert project.STORE.load_run("fw_missing") is None
+    # a hostile run_id is never a file path
+    assert project.STORE.load_run("../project_founder") is None
+
+
 # ─── the manas A2A hub ───────────────────────────────────────────────────────
 def test_manas_grounds_and_refuses_out_of_corpus(grounded_company):
     from common import a2a
