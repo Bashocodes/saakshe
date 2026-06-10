@@ -58,8 +58,18 @@ MODEL_PRO = os.environ.get("SAAKSHE_MODEL_PRO", "gemini-3.1-pro-preview")
 MODEL_FLASH = os.environ.get("SAAKSHE_MODEL_FLASH", "gemini-3.5-flash")
 MODEL_CLAUDE = os.environ.get("SAAKSHE_MODEL_CLAUDE", "claude-sonnet-4-6@default")
 # Gemini Live (voice) — GA native-audio id (verified 2026-06-10). The Live API
-# needs a Live-capable model, NOT the text MODEL_FLASH.
+# needs a Live-capable model, NOT the text MODEL_FLASH. Live models are REGIONAL:
+# probed 2026-06-10 against this project, the native-audio model resolves only at
+# us-central1 (at `global` only the half-cascade gemini-live-2.5-flash exists) —
+# so voice gets its own location instead of riding GOOGLE_CLOUD_LOCATION=global.
 MODEL_LIVE = os.environ.get("SAAKSHE_MODEL_LIVE", "gemini-live-2.5-flash-native-audio")
+VOICE_LOCATION = os.environ.get("SAAKSHE_VOICE_LOCATION", "us-central1")
+# (location, model) fallback chain — first successful connect wins, then sticks.
+# (GEMINI_LOCATION is defined further down; read the env directly here.)
+VOICE_CANDIDATES = [
+    (VOICE_LOCATION, MODEL_LIVE),                      # native audio, regional
+    (os.environ.get("GOOGLE_CLOUD_LOCATION", "global"), "gemini-live-2.5-flash"),
+]
 
 # kalai real media on Vertex (stills = Imagen, video = Veo). Wired live/hybrid only;
 # demo returns a deterministic placeholder ref (no network, no creds). Ids verified

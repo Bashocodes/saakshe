@@ -522,6 +522,21 @@
     if (e.key === 'Escape' && H.classList.contains('sk-chat-open')) H.classList.remove('sk-chat-open');
   });
 
+  /* ── the ONE chat: the cockpit (rail chips, taps, the reveal seed) routes
+     every ask here instead of keeping a second chat surface ── */
+  window.SK_CHAT = {
+    open: function () {
+      if (window.innerWidth < 1100) { H.classList.add('sk-chat-open'); }
+      else { setCollapsed(false); }
+      down(true); input.focus();
+    },
+    ask: function (text) {
+      if (!text) return;
+      input.value = String(text); syncSend(); send();
+    },
+    note: function (who, text) { msg(String(who || 'SΛΛKSHE').toUpperCase(), fmt(String(text || ''))); }
+  };
+
   /* ── first paint: restore the session's feed, or seed the witness greeting ── */
   var restored = '';
   try { restored = sessionStorage.getItem('sk-chat-feed') || ''; } catch (e) {}

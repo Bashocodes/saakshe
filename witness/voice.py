@@ -56,7 +56,12 @@ async def handle_ws(websocket: Any) -> None:
             await _run_live(websocket)
             return
         except Exception as exc:  # noqa: BLE001 — degrade to text rather than drop the socket
-            await websocket.send_text(json.dumps({"type": "notice", "text": f"live voice unavailable ({exc}); text mode"}))
+            import traceback
+            print("voice: live bridge failed —\n", traceback.format_exc())
+            try:
+                await websocket.send_text(json.dumps({"type": "notice", "text": f"live voice unavailable ({exc}); text mode"}))
+            except Exception:  # noqa: BLE001 — socket already gone
+                return
 
     await _run_text(websocket)
 
@@ -81,6 +86,30 @@ async def _run_text(websocket: Any) -> None:
         return
 
 
+_RESOLVED: tuple[str, str] | None = None  # (location, model) that actually connected
+
+
+async def _connect_live(client_factory, live_config):
+    """Walk config.VOICE_CANDIDATES until a Live session connects (models are
+    REGIONAL — the native-audio model lives at us-central1, not global). The
+    winner sticks for the process so later calls don't re-probe."""
+    global _RESOLVED
+    candidates = ([_RESOLVED] if _RESOLVED else []) + [
+        c for c in config.VOICE_CANDIDATES if c != _RESOLVED]
+    last_exc: Exception | None = None
+    for loc, model in candidates:
+        client = client_factory(loc)
+        try:
+            cm = client.aio.live.connect(model=model, config=live_config)
+            session = await cm.__aenter__()
+            _RESOLVED = (loc, model)
+            print(f"voice: Gemini Live connected — {model} @ {loc}")
+            return cm, session
+        except Exception as exc:  # noqa: BLE001 — try the next (location, model)
+            last_exc = exc
+    raise last_exc or RuntimeError("no Live model candidate connected")
+
+
 async def _run_live(websocket: Any) -> None:
     """Live path: bridge the WebSocket to a Gemini Live session whose only tools
     are the witness's telemetry readers. Audio in → Gemini → audio out; tool calls
@@ -89,11 +118,12 @@ async def _run_live(websocket: Any) -> None:
     from google.genai import types
     from starlette.websockets import WebSocketDisconnect
 
-    client = genai.Client(
-        vertexai=True,
-        project=config.GOOGLE_CLOUD_PROJECT or None,
-        location=config.GEMINI_LOCATION,
-    )
+    def client_factory(location: str):
+        return genai.Client(
+            vertexai=True,
+            project=config.GOOGLE_CLOUD_PROJECT or None,
+            location=location,
+        )
 
     # The five telemetry tools, declared so Gemini can call them mid-conversation.
     tool_fns = {
@@ -114,8 +144,8 @@ async def _run_live(websocket: Any) -> None:
         tools=[types.Tool(function_declarations=declarations)],
     )
 
-    model = config.MODEL_LIVE  # GA native-audio Live model (config-overridable)
-    async with client.aio.live.connect(model=model, config=live_config) as session:
+    cm, session = await _connect_live(client_factory, live_config)
+    try:
         async def pump_client_to_gemini() -> None:
             try:
                 while True:
@@ -135,19 +165,29 @@ async def _run_live(websocket: Any) -> None:
         import asyncio
         pump = asyncio.create_task(pump_client_to_gemini())
         try:
-            async for response in session.receive():
-                # Resolve any tool calls against the live telemetry, then reply.
-                if response.tool_call:
-                    answers = []
-                    for fc in response.tool_call.function_calls:
-                        result = tool_fns.get(fc.name, lambda: {"error": "unknown tool"})()
-                        answers.append(types.FunctionResponse(id=fc.id, name=fc.name, response=result))
-                    await session.send_tool_response(function_responses=answers)
-                data = getattr(response, "data", None)
-                if data:
-                    await websocket.send_text(json.dumps({"type": "audio", "data": data.hex()}))
-                text = getattr(response, "text", None)
-                if text:
-                    await websocket.send_text(json.dumps({"type": "reply", "text": text, "live": True}))
+            # session.receive() ENDS at every turn_complete (SDK semantics, verified
+            # 2026-06-10) — re-enter it per turn or the bridge dies after the first
+            # model turn (e.g. a tool call, whose spoken answer is the NEXT turn).
+            while True:
+                got_any = False
+                async for response in session.receive():
+                    got_any = True
+                    # Resolve any tool calls against the live telemetry, then reply.
+                    if response.tool_call:
+                        answers = []
+                        for fc in response.tool_call.function_calls:
+                            result = tool_fns.get(fc.name, lambda: {"error": "unknown tool"})()
+                            answers.append(types.FunctionResponse(id=fc.id, name=fc.name, response=result))
+                        await session.send_tool_response(function_responses=answers)
+                    data = getattr(response, "data", None)
+                    if data:
+                        await websocket.send_text(json.dumps({"type": "audio", "data": data.hex()}))
+                    text = getattr(response, "text", None)
+                    if text:
+                        await websocket.send_text(json.dumps({"type": "reply", "text": text, "live": True}))
+                if not got_any:   # an empty turn = the Gemini session itself closed
+                    break
         finally:
             pump.cancel()
+    finally:
+        await cm.__aexit__(None, None, None)

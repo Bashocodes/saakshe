@@ -1210,7 +1210,7 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
 <symbol id="i-handoff" viewBox="0 0 24 24"><path d="M3 12h14M13 6l6 6-6 6M3 7v10"/></symbol>
 </defs></svg>
 
-<div class="app" id="app">
+<div class="app rail-collapsed" id="app">
 
   <!-- ============================== TOPBAR ============================== -->
   <header class="topbar">
@@ -1218,7 +1218,8 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
     <div class="tb-crumb"><b id="tbOrgName">— connect a project —</b><span class="sep" aria-hidden="true">·</span><span id="tbOrgLine">connect over setu to begin</span></div>
     <div class="tb-spacer"></div>
     <div class="pills">
-      <button class="pill" id="pillCost" data-tip="cost today · $40/day cap" type="button"><svg class="ic"><use href="#i-dollar"/></svg><span id="pillCostV">0.00</span></button>
+      <button class="pill" id="pillConnect" data-tip="connect a project — sources are granted over setu" type="button" onclick="window.cockpitOpenGate&&cockpitOpenGate()"><svg class="ic"><use href="#i-database"/></svg><span>connect</span></button>
+      <button class="pill" id="pillCost" data-tip="cost today — every line lands in the live console" type="button"><svg class="ic"><use href="#i-dollar"/></svg><span id="pillCostV">0.00</span></button>
       <button class="pill" id="pillWork" data-tip="seats working now" type="button"><span class="pdot" style="background:var(--sig-green)"></span><span id="pillWorkV">0</span></button>
       <button class="pill red" id="pillQ" data-tip="questions needing you" type="button"><svg class="ic"><use href="#i-question"/></svg><span id="pillQV">0</span></button>
       <button class="pill amber" id="pillTap" data-tip="taps waiting — gates held" type="button"><svg class="ic"><use href="#i-hand"/></svg><span id="pillTapV">0</span></button>
@@ -1266,29 +1267,14 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
       <button class="cx" id="railClose" type="button" aria-label="Collapse rail" data-tip="collapse rail"><svg class="ic sm"><use href="#i-back"/></svg></button>
     </div>
     <div class="railtabs" role="tablist">
-      <button class="railtab" role="tab" data-tab="ask" aria-selected="true" type="button">ask</button>
-      <button class="railtab" role="tab" data-tab="taps" aria-selected="false" type="button">taps <span class="tcount" id="tapTabCt" style="display:none">(0)</span></button>
+      <!-- ONE chat only (founder, 2026-06-10): asking lives in the company chat
+           panel on the right — this rail keeps taps + today. -->
+      <button class="railtab" role="tab" data-tab="taps" aria-selected="true" type="button">taps <span class="tcount" id="tapTabCt" style="display:none">(0)</span></button>
       <button class="railtab" role="tab" data-tab="today" aria-selected="false" type="button">today</button>
     </div>
 
-    <!-- ASK -->
-    <div class="railpane on" id="pane-ask">
-      <div class="chatlog" id="chatlog"></div>
-      <div class="chips" id="chips">
-        <button class="chip" type="button" data-chip="anyone waiting on me?">anyone waiting on me?</button>
-        <button class="chip" type="button" data-chip="what did today cost?">what did today cost?</button>
-        <button class="chip" type="button" data-chip="what's in memory?">what's in memory?</button>
-        <button class="chip" type="button" data-chip="what is saakshe?">what is saakshe?</button>
-      </div>
-      <div class="chatin">
-        <button class="mic" id="micBtn" type="button" aria-label="Voice — Gemini Live coming" data-tip="voice coming via Gemini Live"><svg class="ic"><use href="#i-mic"/></svg></button>
-        <input id="chatInput" type="text" placeholder="ask saakshe…" autocomplete="off" aria-label="Message saakshe">
-        <button class="send" id="chatSend" type="button">Send</button>
-      </div>
-    </div>
-
     <!-- TAPS -->
-    <div class="railpane" id="pane-taps">
+    <div class="railpane on" id="pane-taps">
       <div class="panepad" id="tapsPane"></div>
     </div>
 
@@ -2501,6 +2487,7 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
 
 
   function userBubble(text){
+    if(!log) return;
     var w=document.createElement('div'); w.className='msg user';
     w.innerHTML='<div class="role">you</div><div class="bub"></div>';
     w.querySelector('.bub').textContent=text;
@@ -2509,6 +2496,7 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
   var PHUE={manas:'var(--manas)',arivu:'var(--arivu)',kalai:'var(--kalai)',kural:'var(--kural)',saksi:'var(--saksi)',
     amber:'var(--sig-amber)',green:'var(--sig-green)',red:'var(--sig-red)',orange:'var(--sig-orange)',faint:'var(--faint)'};
   function saksiBubble(r){
+    if(!log) return;
     var w=document.createElement('div'); w.className='msg saksi';
     var pills = (r.pills&&r.pills.length) ? '<div class="fpills">'+r.pills.map(function(p){
       var dot = p.c ? '<span class="pdot" style="background:'+(PHUE[p.c]||'var(--accent)')+'"></span>' : '';
@@ -2523,7 +2511,7 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
     log.appendChild(w); log.scrollTop=log.scrollHeight;
     syncChatChips();
   }
-  SEED.forEach(function(s){ if(s.who==='user') userBubble(s.text); else saksiBubble(s.r); });
+  if(log){ SEED.forEach(function(s){ if(s.who==='user') userBubble(s.text); else saksiBubble(s.r); }); }
 
   /* keyword respond — SPECIFIC before BROAD. Each ask: chip label carries its own trigger. */
   function respond(q){
@@ -2581,7 +2569,10 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
     return { lead:(d.text||'(no reply)'), pills:pills, prov:'live · POST /api/saakshe/ask' };
   }
   function submit(v){
-    v=(v!==undefined?v:input.value).trim(); if(!v) return;
+    v=(v!==undefined?v:(input?input.value:'')).trim(); if(!v) return;
+    /* ONE chat (founder, 2026-06-10): asking lives in the company chat panel */
+    if(window.SK_CHAT){ SK_CHAT.open(); SK_CHAT.ask(v); return; }
+    if(!log || !input) return;
     userBubble(v); input.value='';
     if(window.SK_BOT) SK_BOT.think();
     askBackend(v).then(function(r){ if(window.SK_BOT) SK_BOT.joy(); saksiBubble(r); })
@@ -2594,6 +2585,7 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
   /* reflect live state into already-rendered chat action chips (publish approved +
      held-reply answered). Checks STATE so NEW bubbles render already-resolved correctly. */
   function syncChatChips(){
+    if(!log) return;
     Array.prototype.forEach.call(log.querySelectorAll('.achip[data-act="approve:publish"]'), function(b){
       if(STATE.gates.publish && !b.classList.contains('done')){ b.classList.remove('go'); b.classList.add('done'); b.innerHTML=icon('check')+'published — live'; }
     });
@@ -2608,22 +2600,24 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
     if(!act) return;
     if(act.indexOf('qans:')===0){ var pp=act.slice(5).split('|'); answerQuestion(pp[0], pp[1]); syncChatChips(); return; }
     if(act.indexOf('nav:')===0){ var t=act.slice(4).split('/'); go(t[0], t[1]||null); return; }
-    if(act.indexOf('tab:')===0){ openRail(); switchTab(act.slice(4)); return; }
-    if(act.indexOf('ask:')===0){ switchTab('ask'); submit(act.slice(4)); return; }
+    if(act.indexOf('tab:')===0){ var tb=act.slice(4);
+      if(tb==='ask'){ if(window.SK_CHAT) SK_CHAT.open(); return; }
+      openRail(); switchTab(tb); return; }
+    if(act.indexOf('ask:')===0){ submit(act.slice(4)); return; }
     if(act==='approve:publish'){ approveGate('publish'); syncChatChips(); return; }
     if(act==='live:open'){ var lt=document.getElementById('liveToggle'); if(lt) lt.click(); return; }
     if(act==='goreply'){ go('kural', null); return; }
     if(act==='auth:signin'){ if(window.SAAKSHE_AUTH) SAAKSHE_AUTH.signIn(); return; }
     if(act==='open:pricing'){ window.open('/pricing.html','_blank','noopener'); return; }
   }
-  log.addEventListener('click', function(e){
+  if(log){ log.addEventListener('click', function(e){
     var a=e.target.closest('.achip'); if(a && !a.classList.contains('done')){ chipAct(a.getAttribute('data-act')); }
-  });
-  sendBtn.addEventListener('click', function(){ submit(); });
-  input.addEventListener('keydown', function(e){ if(e.key==='Enter'){ submit(); } });
-  micBtn.addEventListener('click', function(){ saksiBubble({lead:"Voice is coming via Gemini Live — for now, type here.",pills:[],chips:[]}); });
+  }); }
+  if(sendBtn) sendBtn.addEventListener('click', function(){ submit(); });
+  if(input) input.addEventListener('keydown', function(e){ if(e.key==='Enter'){ submit(); } });
+  if(micBtn) micBtn.addEventListener('click', function(){ submit(); });
   Array.prototype.forEach.call(document.querySelectorAll('.chips .chip'), function(c){
-    c.addEventListener('click', function(){ switchTab('ask'); submit(c.getAttribute('data-chip')); });
+    c.addEventListener('click', function(){ submit(c.getAttribute('data-chip')); });
   });
 
   /* ================= KEYBOARD ================= */
@@ -2668,12 +2662,15 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
     questions = questions || [];
     if(!questions.length) return;
     var n = questions.length;
-    var list = questions.map(function(q){ return '“'+(q.text||q.q||'')+'”'; }).join('  ·  ');
-    saksiBubble({
-      lead: 'manas has '+n+' question'+(n===1?'':'s')+' about your company: '+list+'  Answer in the connect panel — or tell me here.',
-      pills: [ fp(n+' open', 'red'), fp('source: you', 'saksi') ],
-      chips: [ ac('the questions view','nav:questions','question') ]
-    });
+    var list = questions.map(function(q){ return '\u201c'+(q.text||q.q||'')+'\u201d'; }).join('  \u00b7  ');
+    var lead = 'manas has '+n+' question'+(n===1?'':'s')+' about your company: '+list+'  Answer in the connect panel \u2014 or tell me here.';
+    /* ONE chat: the seed lands in the company chat panel (poll briefly — its
+       script loads after this one), falling back to the legacy bubble if absent */
+    (function toPanel(tries){
+      if(window.SK_CHAT){ SK_CHAT.note('WITNESS', lead); return; }
+      if(tries > 20){ saksiBubble({ lead:lead, pills:[], chips:[] }); return; }
+      setTimeout(function(){ toPanel(tries+1); }, 250);
+    })(0);
   };
 
   /* ================= DATA ================= */
@@ -2797,7 +2794,7 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
      scoped cg- namespace, own <style> + IIFE, mirrors the lc- detectBase + lcJson safe-parse.
      Brut light / Obsidian dark — everything rides the cockpit tokens (line, radius,
      shadow, signal hues); the BRUT ALIGNMENT layer gives the shell its ink edge. -->
-<div id="connectGate" aria-hidden="false">
+<div id="connectGate" hidden aria-hidden="true">
   <div class="cg-shell">
     <header class="cg-top">
       <div class="cg-title"><b>saakshe</b><span class="cg-sub">setu — the bridge · sources are granted, never taken</span></div>
@@ -3184,8 +3181,6 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
        token-less probes and read its own 401 as "not connected" — that holds for
        EVERY auth-enabled profile, not only require_signin. */
     var requireSignin=!!(cfg && cfg.require_signin);
-    var g=$("connectGate");
-    if(requireSignin){ g.hidden=true; g.setAttribute("aria-hidden","true"); }
     await new Promise(function(res){
       var waited=0;
       (function poll(){
@@ -3200,19 +3195,14 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
         setTimeout(poll, 350);
       })();
     });
-    /* signed in — surface the connect step only if the founder hasn't ✕'d it
-       this tab; the topbar/sidebar "— connect a project —" crumb reopens it */
-    if(requireSignin && window.SAAKSHE_AUTH && SAAKSHE_AUTH.signedIn() && !gateDismissed()){
-      g.hidden=false; g.setAttribute("aria-hidden","false");
-    }
+    /* the gate NEVER auto-opens — it ships hidden and is an on-demand surface:
+       the topbar connect pill / org crumbs are the way in (founder, 2026-06-10) */
   }
 
   /* ---- BOOT: runs first ---- */
   async function boot(){
     await authReady();
-    /* a ✕'d gate stays closed across refreshes (demo profile included) */
-    if(gateDismissed()){ var g0=$("connectGate"); g0.hidden=true; g0.setAttribute("aria-hidden","true"); }
-    /* the crumbs are the way back in */
+    /* the crumbs + the topbar connect pill are the way in */
     ["tbOrgName","sbOrgName"].forEach(function(id){ var el=$(id);
       if(el){ el.style.cursor="pointer"; el.title="open the connect step";
         el.addEventListener("click", openGate); } });
