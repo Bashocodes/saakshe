@@ -153,6 +153,13 @@ async def _session_dep(request: Request):
         _ensure_account(user)
         store = project.store_for(user.user_id)
         stream = _stream_factory(user.user_id)
+    elif user is not None and getattr(user, "is_owner", False):
+        # Gated file-store demo, signed-in OWNER: an isolated per-user sandbox
+        # store so the founder can run the real connect→ingest flywheel without
+        # touching the seeded company the judges see. Events ride the global
+        # stream (file mode has no per-user stream; the feed is cursor-seeded).
+        store = project.store_for(user.user_id)
+        stream = STREAM
     else:
         store = project.STORE
         stream = STREAM
@@ -185,8 +192,10 @@ def _public_demo() -> bool:
     return os.environ.get("SAAKSHE_PUBLIC_DEMO", "") == "1"
 
 
-def _require_not_public_demo() -> None:
-    if _public_demo():
+def _require_not_public_demo(user=None) -> None:
+    """Seal mutations on the shared demo — except for a signed-in OWNER, who
+    works in an isolated sandbox store (see _session_dep) and can't hurt it."""
+    if _public_demo() and not getattr(user, "is_owner", False):
         raise HTTPException(
             status_code=403,
             detail="the public demo is sealed — its grounded company is shared and read-only; "
@@ -329,7 +338,7 @@ def connect_status(sess: Session = Depends(_session_dep)) -> dict[str, Any]:
 
 @app.post("/api/connect/source")
 def connect_source(req: ConnectRequest, sess: Session = Depends(_session_dep)) -> dict[str, Any]:
-    _require_not_public_demo()
+    _require_not_public_demo(sess.user)
     _require_auth_if_live(sess.user)
     kind = (req.kind or "").strip().lower()
     if kind not in ("github", "repo", "website", "web", "docs", "social"):
@@ -350,7 +359,7 @@ def connect_source(req: ConnectRequest, sess: Session = Depends(_session_dep)) -
 @app.post("/api/connect/ingest")
 async def connect_ingest(sess: Session = Depends(_session_dep)) -> Any:
     """Run the REAL manas ingestion over the connected sources (chargeable)."""
-    _require_not_public_demo()
+    _require_not_public_demo(sess.user)
     _require_auth_if_live(sess.user)
     store, stream, user = sess.store, sess.stream, sess.user
     if not store.is_connected():
@@ -380,7 +389,7 @@ async def connect_answer(req: AnswerRequest, sess: Session = Depends(_session_de
 
 @app.post("/api/connect/reset")
 def connect_reset(sess: Session = Depends(_session_dep)) -> dict[str, Any]:
-    _require_not_public_demo()
+    _require_not_public_demo(sess.user)
     _require_auth_if_live(sess.user)
     sess.store.reset()
     return {"ok": True, "status": sess.store.status_dict()}
@@ -398,7 +407,7 @@ def vault_list(sess: Session = Depends(_session_dep)) -> dict[str, Any]:
 def vault_add(req: VaultAddRequest, sess: Session = Depends(_session_dep)) -> dict[str, Any]:
     """The manual add path: stores bytes via the blob backend + records the index
     (through manas's vault face — kalai consumes, never owns the index)."""
-    _require_not_public_demo()
+    _require_not_public_demo(sess.user)
     _require_auth_if_live(sess.user)
     from manas import vault
     data = base64.b64decode(req.data_b64)

@@ -2691,7 +2691,7 @@ html[data-theme="dark"] .sdoss .sdfoot{ border-top-color:var(--line); box-shadow
   </div>
 </div>
 <style>
-  #connectGate{position:fixed;inset:0;z-index:10000;background:var(--bg,#efe9e3);
+  #connectGate{position:fixed;inset:0;z-index:9998;background:var(--bg,#efe9e3);
     display:flex;align-items:stretch;justify-content:center;padding:4vh 4vw;overflow:auto;
     font-family:var(--font-body);color:var(--ink,#241f1b)}
   #connectGate[hidden]{display:none}
@@ -2808,6 +2808,12 @@ html[data-theme="dark"] .sdoss .sdfoot{ border-top-color:var(--line); box-shadow
         var s=sources[i];
         var r=await fetch(base+"/api/connect/source",{method:"POST",headers:(window.SA_HEADERS||Object)({"content-type":"application/json"}),body:JSON.stringify(s)});
         var j=await cgJson(r);
+        if(j.status===401){
+          $("cgConnectStatus").textContent="sign in first — raising the gate";
+          $("cgConnectBtn").disabled=false;
+          if(window.SAAKSHE_AUTH && SAAKSHE_AUTH.enabled){ SAAKSHE_AUTH.signIn(); }
+          return;
+        }
         if(!j.ok){ $("cgConnectStatus").textContent=(j.data&&(j.data.detail||j.data.error))||j.error||("HTTP "+j.status); $("cgConnectBtn").disabled=false; return; }
       }
     }catch(e){ $("cgConnectStatus").textContent="connect failed: "+e; $("cgConnectBtn").disabled=false; return; }
@@ -2943,8 +2949,30 @@ html[data-theme="dark"] .sdoss .sdfoot{ border-top-color:var(--line); box-shadow
     if(qs.length && window.cockpitSeedChat){ setTimeout(function(){ window.cockpitSeedChat(qs); }, 200); }
   }
 
+  /* On the gated deploy the sign-in gate (z 9999) owns the screen until the
+     Supabase session lands. Keep this overlay (z 9998) hidden and the status
+     probes un-fired until then — a pre-auth 401 must never masquerade as
+     "not connected" (the stuck connect-over-signin bug). */
+  async function authReady(){
+    var cfg=null;
+    try{ cfg=await fetch("/api/public-config",{cache:"no-store"}).then(function(r){return r.json();}); }
+    catch(e){ return; }
+    if(!cfg || !cfg.require_signin) return;
+    var g=$("connectGate");
+    g.hidden=true; g.setAttribute("aria-hidden","true");
+    await new Promise(function(res){
+      (function poll(){
+        var A=window.SAAKSHE_AUTH;
+        if(A && A.signedIn()){ return res(); }
+        setTimeout(poll, 350);
+      })();
+    });
+    g.hidden=false; g.setAttribute("aria-hidden","false");
+  }
+
   /* ---- BOOT: runs first ---- */
   async function boot(){
+    await authReady();
     base = await detectBase();
     if(base===null){
       $("cgMode").textContent="backend not running";

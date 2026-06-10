@@ -29,6 +29,30 @@ def test_sealed_demo_403s_every_mutating_connect_route(monkeypatch, tmp_path):
     assert client.post("/api/vault/add", json=payload).status_code == 403
 
 
+def test_owner_bypasses_the_seal_into_a_sandbox(monkeypatch, tmp_path):
+    """A signed-in OWNER gets the seal lifted AND an isolated per-user store —
+    the founder runs the real connect flow while the shared seeded demo stays
+    untouched. A signed-in non-owner (a judge) stays sealed."""
+    from common import auth
+
+    _sealed(monkeypatch, tmp_path)
+    monkeypatch.setenv("SAAKSHE_SUPABASE_URL", "https://example.supabase.co")
+    monkeypatch.setenv("SAAKSHE_REQUIRE_SIGNIN", "1")
+    monkeypatch.setenv("OWNER_EMAILS", "founder@example.com")
+    monkeypatch.setattr(auth, "verify_token",
+                        lambda tok: {"sub": "owner-sandbox-1", "email": "founder@example.com"})
+    r = client.post("/api/connect/source",
+                    json={"kind": "github", "ref": "octo/repo"},
+                    headers={"Authorization": "Bearer owner-token"})
+    assert r.status_code == 200
+    assert not project.STORE.is_connected(), "the founder's connect must land in a sandbox, not the shared demo"
+    monkeypatch.setattr(auth, "verify_token",
+                        lambda tok: {"sub": "judge-1", "email": "judge@saakshe.com"})
+    assert client.post("/api/connect/source",
+                       json={"kind": "github", "ref": "octo/repo"},
+                       headers={"Authorization": "Bearer judge-token"}).status_code == 403
+
+
 def test_sealed_demo_still_answers_the_witness(monkeypatch, tmp_path):
     _sealed(monkeypatch, tmp_path)
     _BUCKETS.clear()

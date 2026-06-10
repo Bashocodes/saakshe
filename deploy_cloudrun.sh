@@ -45,8 +45,13 @@ case "$PROFILE" in
     # instructions). Auth verification is JWKS-only — no service key at runtime.
     : "${SAAKSHE_SUPABASE_URL:?set SAAKSHE_SUPABASE_URL in .env.local}"
     : "${SUPABASE_ANON_KEY:?set SUPABASE_ANON_KEY in .env.local (Supabase → Settings → API → anon/public)}"
+    # OWNER_EMAILS: founder accounts get the seal lifted + an isolated sandbox
+    # store — the seeded judge demo stays pristine while the founder runs the
+    # real connect→ingest flywheel live.
+    : "${OWNER_EMAILS:=workzenyogi@gmail.com,hello@aikizi.com}"
     ENV_VARS="^@^${COMMON_ENV}@SAAKSHE_STORE=file@SAAKSHE_PUBLIC_DEMO=1@SAAKSHE_REQUIRE_SIGNIN=1"
     ENV_VARS+="@SAAKSHE_SUPABASE_URL=${SAAKSHE_SUPABASE_URL}@SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}"
+    ENV_VARS+="@OWNER_EMAILS=${OWNER_EMAILS}"
     ;;
   billing)
     # ── credit/auth (multi-tenant) config — secrets come from the gitignored .env.local
