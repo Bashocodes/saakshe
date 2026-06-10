@@ -1614,8 +1614,16 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
           +'<div class="compaction">summaries committed first; raw fragments folded after.</div>'
           +'<div class="sub" style="margin-top:13px;">imbibing now</div>'
           +'<div class="pipe">'
-            +'<div class="pstep"><span class="pn">·</span><span class="pt">No imbibe running — <span class="meta">connect sources over setu and manas reads them here</span></span></div>'
+            +'<div class="pstep"><span class="pn">·</span><span class="pt">'
+              +(ORG.grounded
+                ? 'Pack '+esc(orgPack())+' committed — <span class="meta">↻ imbibe re-reads the connected sources and refreshes what manas grasped</span>'
+                : 'No imbibe running — <span class="meta">connect sources over setu and manas reads them here</span>')
+              +'</span></div>'
           +'</div>'
+          +'<button class="qbtn" type="button" style="margin-top:9px;align-self:flex-start;" '
+            +'onclick="window.cockpitRunIngest&&window.cockpitRunIngest()" '
+            +'data-tip="run the real manas ingestion over the connected sources — the live feed shows every reader as it lands">'
+            +'↻ imbibe now — re-read the connected sources</button>'
           +'<button class="backchip" data-drill="memory" style="margin-top:auto;align-self:flex-start;">'+icon('arrowleft','sm')+' buckets detail + imbibe activity</button>'
         +'</div></div></div>'
       +rightStackHTML('manas')
@@ -3004,6 +3012,16 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
     }catch(e){ show("cgStepConnect"); }
   }
   window.cockpitOpenGate = openGrasped;
+  /* the manas desk's "↻ imbibe now": open the gate and run the REAL ingest over
+     whatever is connected — never silently; the click IS the explicit consent.
+     An unconnected store lands on the connect form instead of a 409. */
+  window.cockpitRunIngest = async function(){
+    openGate();
+    if(base===null) return;            // boot's backend-down path owns the gate copy
+    var st = await getStatus();
+    if(!st || !st.connected){ show("cgStepConnect"); return; }
+    runIngest();
+  };
   /* the gate must never trap the founder — ✕ and Esc dismiss it (reopens on reload until grounded) */
   var cgX=$("cgClose"); if(cgX) cgX.onclick=hideGate;
   document.addEventListener("keydown",function(e){ if(e.key==="Escape"&&!$("connectGate").hidden) hideGate(); });

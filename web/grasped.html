@@ -556,10 +556,16 @@ ul.b.tight li::before{top:15px;width:9px;height:9px}
     if(el.matches('.sec, ul.b li, .box, .sec__n')) el.setAttribute('data-haspseudo','1');
   }
 
-  SPECS.forEach(function(spec){
-    var nodes = ROOT.querySelectorAll(spec[0]);
-    for(var i=0;i<nodes.length;i++){ tag(nodes[i], spec[1], spec[2]); }
-  });
+  function tagAll(){
+    SPECS.forEach(function(spec){
+      var nodes = ROOT.querySelectorAll(spec[0]);
+      for(var i=0;i<nodes.length;i++){ tag(nodes[i], spec[1], spec[2]); }
+    });
+  }
+  tagAll();
+  // the live-pack renderer swaps main.wrap's content after its fetch lands —
+  // it re-tags through this hook so live facts stay point-and-editable
+  window.__meRetag = tagAll;
 
   /* the gated deploy needs the founder's JWT — reuse the cockpit's persisted
      Supabase session straight from localStorage (no SDK on this page) */
@@ -577,6 +583,7 @@ ul.b.tight li::before{top:15px;width:9px;height:9px}
     }catch(e){}
     return h;
   }
+  window.__meAuthHeaders = authHeaders;   // shared with the live-pack renderer
 
   /* ---------- helpers ---------- */
   function elementText(el){
@@ -1066,6 +1073,99 @@ ul.b.tight li::before{top:15px;width:9px;height:9px}
   }
   try{ detectBase(); }catch(e){ LIVE=false; baseUrl=null; }
 
+})();
+</script>
+
+<script>
+/* live-pack renderer — the page IS the readout. It fetches what manas actually
+   grasped (/api/connect/grasped) and re-renders main.wrap from the live Context
+   Pack in the same design language, so every fact on screen is real, cited, and
+   point-and-editable. The hand-built aikizi showcase below stays ONLY as the
+   fallback when nothing is grounded yet (or with ?showcase=1, which pins it). */
+(function(){
+  "use strict";
+  if(/[?&]showcase=1/.test(location.search)) return;
+  var ROOT = document.querySelector('main.wrap');
+  if(!ROOT) return;
+
+  function esc(s){
+    return String(s==null?'':s).replace(/[&<>"']/g, function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  }
+  function hdrs(){ return (window.__meAuthHeaders||function(h){return h||{};})({}); }
+
+  function factLi(f){
+    var claim = esc(f && f.claim);
+    var src = f && f.source ? ' <span class="src">'+esc(f.source)+'</span>' : '';
+    return '<li>'+claim+src+'</li>';
+  }
+  function ruleLi(r){ return '<li>'+esc(r)+'</li>'; }
+  function qLi(q){
+    var t = esc(q && (q.text||q));
+    var why = q && q.why ? ' <span class="src">'+esc(q.why)+'</span>' : '';
+    return '<li>'+t+why+'</li>';
+  }
+  function section(n, title, lead, lis){
+    if(!lis.length) return '';
+    return '<section class="sec"><div class="sec__n">'+n+'</div>'
+      +'<h2 class="sec__t">'+title+'</h2>'
+      +(lead?'<p class="sec__lead">'+lead+'</p>':'')
+      +'<ul class="b">'+lis.join('')+'</ul></section>';
+  }
+
+  function render(d){
+    var org = d.org||{};
+    var name = org.name || 'your company';
+    var facts = d.facts||[], voice = d.voice_rules||[], brand = d.brand_rules||[], qs = d.questions||[];
+    var i = 0; var num = function(){ i++; return '0'+i+' — '; };
+    ROOT.innerHTML =
+      '<a class="backck" href="/cockpit.html#manas">&larr; cockpit</a>'
+      +'<header class="mast">'
+        +'<span class="logo"><span class="pr">&gt;_</span><span class="dv"></span><span class="wd">'+esc(name)+'</span></span>'
+        +'<div class="grasp"><span class="gd"></span>Grasped by manas &middot; Context Pack '+esc(d.version||'v1')+' &middot; live extraction</div>'
+        +(org.kind?'<div class="kick">'+esc(org.kind)+'</div>':'')
+        +'<h1>'+esc(org.one_liner || ('What manas grasped about '+name+'.'))+'</h1>'
+        +'<p class="sub">This is the <b>live Context Pack</b> &mdash; what manas extracted from the connected sources, every fact cited to a real file or URL. Nothing here is invented; an out-of-corpus claim is refused, not written.</p>'
+        +'<div class="note"><b>Point at any text and chat to change it.</b> To refresh the extraction after the sources change, run <b>&#8635; imbibe</b> from the cockpit&rsquo;s manas desk (or the CONNECT pill).</div>'
+      +'</header>'
+      +'<div class="dates">'
+        +'<div class="dt"><div class="l">Cited facts</div><div class="v">'+facts.length+'</div><div class="x">every claim names its source</div></div>'
+        +'<div class="dt"><div class="l">Voice rules</div><div class="v">'+voice.length+'</div><div class="x">how the company speaks</div></div>'
+        +'<div class="dt"><div class="l">Brand rules</div><div class="v">'+brand.length+'</div><div class="x">how the company looks</div></div>'
+        +'<div class="dt"><div class="l">Open questions</div><div class="v">'+qs.length+'</div><div class="x">waiting on the founder</div></div>'
+      +'</div>'
+      +section(num(), 'The cited facts.', 'What the sources actually say &mdash; committed only after verification.', facts.map(factLi))
+      +section(num(), 'Voice rules.', 'How '+esc(name)+' speaks, as extracted.', voice.map(ruleLi))
+      +section(num(), 'Brand rules.', 'How '+esc(name)+' presents itself, as extracted.', brand.map(ruleLi))
+      +section(num(), 'Open questions.', 'What manas could not ground &mdash; answer these in the cockpit.', qs.map(qLi))
+      +'<footer class="foot">'
+        +'<div><b>'+esc(name)+'</b> &mdash; Context Pack '+esc(d.version||'')+' &middot; grounded, cited, un-fabricated. '
+        +'This page renders the live extraction; re-running an imbibe updates it.</div>'
+      +'</footer>';
+    if(window.__meRetag) window.__meRetag();
+  }
+
+  function tryFetch(base, cb){
+    var ctrl = new AbortController();
+    var to = setTimeout(function(){ ctrl.abort(); }, 4000);
+    fetch(base+'/api/connect/grasped', {cache:'no-store', headers:hdrs(), signal:ctrl.signal})
+      .then(function(r){ clearTimeout(to); return r.ok ? r.json() : null; })
+      .then(function(d){ cb(d); })
+      .catch(function(){ clearTimeout(to); cb(null); });
+  }
+
+  var bases = [];
+  if(location.protocol==='http:'||location.protocol==='https:') bases.push('');
+  bases.push('http://localhost:8000');
+  (function next(k){
+    if(k>=bases.length) return;                       // unreachable → showcase stays
+    tryFetch(bases[k], function(d){
+      if(d && d.grounded && (d.facts||[]).length){ render(d); }
+      else if(d===null){ next(k+1); }
+      // reachable but ungrounded/empty → the showcase stays as the worked example
+    });
+  })(0);
 })();
 </script>
 </body>
