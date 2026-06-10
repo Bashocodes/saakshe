@@ -7,7 +7,7 @@ FROM python:3.12-slim
 WORKDIR /app
 
 # git: manas clones a connected GitHub repo during the live connect flow.
-RUN apt-get update && apt-get install -y --no-install-recommends git \
+RUN apt-get update && apt-get install -y --no-install-recommends git ffmpeg \
     && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt .
