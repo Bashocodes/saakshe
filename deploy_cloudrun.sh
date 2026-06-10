@@ -2,12 +2,16 @@
 # Deploy the saakshe site to Google Cloud Run — HYBRID mode (real Gemini, scripted
 # Claude while the Vertex Anthropic quota is pending). One command, idempotent.
 #
-# Two profiles (SAAKSHE_DEPLOY_PROFILE, default "demo"):
-#   demo     — what saakshe.com runs today: the open, no-sign-in judged demo.
-#              File store, no auth, no billing, SEALED mutations + rate limits
-#              (SAAKSHE_PUBLIC_DEMO=1). Needs NO Supabase config.
+# Three profiles (SAAKSHE_DEPLOY_PROFILE, default "demo"):
+#   demo     — the open, no-sign-in demo. File store, no auth, no billing,
+#              SEALED mutations + rate limits (SAAKSHE_PUBLIC_DEMO=1).
+#              Needs NO Supabase config.
+#   gated    — the demo profile EXACTLY, plus SAAKSHE_REQUIRE_SIGNIN=1: every API
+#              route needs a Supabase sign-in (email judge credentials go in the
+#              Devpost testing instructions). Store stays the seeded file store;
+#              no billing. Requires SAAKSHE_SUPABASE_URL + SUPABASE_ANON_KEY only.
 #   billing  — the multi-tenant SaaS deploy: Supabase store, Google sign-in,
-#              credits. Requires the Supabase env below.
+#              credits. Requires the full Supabase env below.
 #
 # Prereqs:  gcloud auth login   ·   a GCP project with billing + Vertex AI
 #           GOOGLE_CLOUD_PROJECT comes from .env.local (gitignored) or the environment.
@@ -33,6 +37,15 @@ case "$PROFILE" in
     # model routes rate-limited. No Supabase needed; no sign-in shown.
     ENV_VARS="^@^${COMMON_ENV}@SAAKSHE_STORE=file@SAAKSHE_PUBLIC_DEMO=1"
     ;;
+  gated)
+    # The judged demo behind sign-in: same seeded file store + sealing, but every
+    # API route requires a Supabase JWT (judge email credentials in the testing
+    # instructions). Auth verification is JWKS-only — no service key at runtime.
+    : "${SAAKSHE_SUPABASE_URL:?set SAAKSHE_SUPABASE_URL in .env.local}"
+    : "${SUPABASE_ANON_KEY:?set SUPABASE_ANON_KEY in .env.local (Supabase → Settings → API → anon/public)}"
+    ENV_VARS="^@^${COMMON_ENV}@SAAKSHE_STORE=file@SAAKSHE_PUBLIC_DEMO=1@SAAKSHE_REQUIRE_SIGNIN=1"
+    ENV_VARS+="@SAAKSHE_SUPABASE_URL=${SAAKSHE_SUPABASE_URL}@SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}"
+    ;;
   billing)
     # ── credit/auth (multi-tenant) config — secrets come from the gitignored .env.local
     # (NEVER committed). The service_role key falls back to ~/.saakshe_supabase_key.
@@ -52,7 +65,7 @@ case "$PROFILE" in
     ENV_VARS+="@COST_MANAS_EDIT=${COST_MANAS_EDIT}@COST_KALAI_MAKE=${COST_KALAI_MAKE}@COST_KURAL_ENGAGE=${COST_KURAL_ENGAGE}"
     ;;
   *)
-    echo "unknown SAAKSHE_DEPLOY_PROFILE '$PROFILE' (use demo | billing)" >&2; exit 1
+    echo "unknown SAAKSHE_DEPLOY_PROFILE '$PROFILE' (use demo | gated | billing)" >&2; exit 1
     ;;
 esac
 echo "→ profile: $PROFILE"

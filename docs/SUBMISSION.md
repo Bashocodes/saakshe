@@ -117,7 +117,12 @@ Google ADK, Vertex AI, Gemini, Claude (via Vertex Model Garden), Imagen, Veo, Cl
 
 ## 10. Testing access for judges
 
-**Live:** https://saakshe.com — open access, no sign-in. It boots already grounded on AIKIZI, a real company connected through the product's own ingest flow (live Gemini read its repo and website and extracted cited facts).
+**Live:** https://saakshe.com — gated for judging. Sign in on the cockpit with the judge credentials (Supabase email auth; no Google account needed):
+
+- **email:** `judge@saakshe.com`
+- **password:** *(filled in on Devpost's private testing-instructions field — this repo is public, the password is not)*
+
+It boots already grounded on AIKIZI, a real company connected through the product's own ingest flow (live Gemini read its repo and website and extracted cited facts).
 
 Three things to try:
 

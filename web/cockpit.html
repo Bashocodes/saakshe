@@ -2304,7 +2304,7 @@ html[data-theme="dark"] .sdoss .sdfoot{ border-top-color:var(--line); box-shadow
      deterministic router in demo). The keyword respond() above survives only as
      the offline fallback for a file:// open or a dead backend. */
   async function askBackend(v){
-    var r=await fetch('/api/saakshe/ask',{method:'POST',headers:{'content-type':'application/json'},
+    var r=await fetch('/api/saakshe/ask',{method:'POST',headers:(window.SA_HEADERS||Object)({'content-type':'application/json'}),
       body:JSON.stringify({text:v, idem_key:'ask:'+Date.now()+':'+Math.random().toString(36).slice(2)})});
     if(!r.ok) throw new Error('HTTP '+r.status);
     var d=await r.json();
@@ -2702,7 +2702,7 @@ html[data-theme="dark"] .sdoss .sdfoot{ border-top-color:var(--line); box-shadow
     catch(e){ return {ok:false, status:r.status, data:null, error:(t||("HTTP "+r.status)).slice(0,240)}; }
   }
   async function getStatus(){
-    try{ var r=await fetch(base+"/api/connect/status",{cache:"no-store"}); var j=await cgJson(r); return j.ok?j.data:null; }
+    try{ var r=await fetch(base+"/api/connect/status",{cache:"no-store",headers:(window.SA_HEADERS||Object)()}); var j=await cgJson(r); return j.ok?j.data:null; }
     catch(e){ return null; }
   }
 
@@ -2726,7 +2726,7 @@ html[data-theme="dark"] .sdoss .sdfoot{ border-top-color:var(--line); box-shadow
     try{
       for(var i=0;i<sources.length;i++){
         var s=sources[i];
-        var r=await fetch(base+"/api/connect/source",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(s)});
+        var r=await fetch(base+"/api/connect/source",{method:"POST",headers:(window.SA_HEADERS||Object)({"content-type":"application/json"}),body:JSON.stringify(s)});
         var j=await cgJson(r);
         if(!j.ok){ $("cgConnectStatus").textContent=(j.data&&(j.data.detail||j.data.error))||j.error||("HTTP "+j.status); $("cgConnectBtn").disabled=false; return; }
       }
@@ -2749,7 +2749,7 @@ html[data-theme="dark"] .sdoss .sdfoot{ border-top-color:var(--line); box-shadow
     f.appendChild(div); f.scrollTop=f.scrollHeight;
   }
   async function pumpFeed(){
-    try{ var r=await fetch(base+"/api/stream?cursor="+cursor,{cache:"no-store"}); var j=await cgJson(r);
+    try{ var r=await fetch(base+"/api/stream?cursor="+cursor,{cache:"no-store",headers:(window.SA_HEADERS||Object)()}); var j=await cgJson(r);
       if(j.ok && j.data && j.data.rows){ j.data.rows.forEach(function(row){ feedRow(row); cursor=Math.max(cursor,row.seq+1); }); }
     }catch(e){}
   }
@@ -2762,11 +2762,11 @@ html[data-theme="dark"] .sdoss .sdfoot{ border-top-color:var(--line); box-shadow
        cursor past existing history (the stream head) so only THIS run's rows render,
        not a prior run's stale events. Fall back to 0 if the head can't be read. */
     cursor=0;
-    try{ var hr=await fetch(base+"/api/stream?cursor=0",{cache:"no-store"}); var hj=await cgJson(hr);
+    try{ var hr=await fetch(base+"/api/stream?cursor=0",{cache:"no-store",headers:(window.SA_HEADERS||Object)()}); var hj=await cgJson(hr);
       if(hj.ok && hj.data && typeof hj.data.cursor==="number"){ cursor=hj.data.cursor; } }catch(e){}
     startFeed();
     try{
-      var r=await fetch(base+"/api/connect/ingest",{method:"POST",headers:{"content-type":"application/json"},body:"{}"});
+      var r=await fetch(base+"/api/connect/ingest",{method:"POST",headers:(window.SA_HEADERS||Object)({"content-type":"application/json"}),body:"{}"});
       var j=await cgJson(r);
       ingesting=false; await pumpFeed();
       if(!j.ok){ feedRow({source:"saakshe",agent:"setu",text:"ingest failed — "+((j.data&&(j.data.detail||j.data.error))||j.error||("HTTP "+j.status))});
@@ -2831,7 +2831,7 @@ html[data-theme="dark"] .sdoss .sdfoot{ border-top-color:var(--line); box-shadow
     if(!answer) return;
     btn.disabled=true; btn.textContent="…";
     try{
-      var r=await fetch(base+"/api/connect/answer",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({qid:qid, answer:answer})});
+      var r=await fetch(base+"/api/connect/answer",{method:"POST",headers:(window.SA_HEADERS||Object)({"content-type":"application/json"}),body:JSON.stringify({qid:qid, answer:answer})});
       var j=await cgJson(r);
       if(!j.ok){ btn.disabled=false; btn.textContent="answer"; $("cgResultStatus").textContent=(j.data&&(j.data.detail||j.data.error))||j.error||"answer failed"; return; }
       var d=j.data;
@@ -2846,7 +2846,7 @@ html[data-theme="dark"] .sdoss .sdfoot{ border-top-color:var(--line); box-shadow
 
   async function doReset(){
     $("cgResultStatus").textContent="disconnecting…";
-    try{ await fetch(base+"/api/connect/reset",{method:"POST",headers:{"content-type":"application/json"},body:"{}"}); }catch(e){}
+    try{ await fetch(base+"/api/connect/reset",{method:"POST",headers:(window.SA_HEADERS||Object)({"content-type":"application/json"}),body:"{}"}); }catch(e){}
     runId=null; cursor=0;
     $("cgGithub").value=$("cgWebsite").value=$("cgDocs").value=$("cgSocial").value="";
     $("cgConnectBtn").disabled=false; $("cgConnectStatus").textContent=""; $("cgConnectHint").hidden=true;
@@ -3004,16 +3004,52 @@ html[data-theme="dark"] .sdoss .sdfoot{ border-top-color:var(--line); box-shadow
   "use strict";
   var $=function(id){return document.getElementById(id);};
   var A = window.SAAKSHE_AUTH = {
-    enabled:false, _token:null, _balance:null, _sb:null, refresh:null, onChange:null,
+    enabled:false, requireSignin:false, _token:null, _balance:null, _sb:null, refresh:null, onChange:null,
     token:function(){ return this._token; },
     signedIn:function(){ return !!this._token; },
     balance:function(){ return this._balance; },
+    headers:function(extra){ var h=extra||{}; if(this._token){ h["Authorization"]="Bearer "+this._token; } return h; },
     idemKey:function(){ return (window.crypto&&crypto.randomUUID)? crypto.randomUUID()
                               : (String(Date.now())+Math.random().toString(16).slice(2)); },
-    signIn:async function(){ if(this._sb) await this._sb.auth.signInWithOAuth(
+    signIn:async function(){
+      if(this.requireSignin){ gate(true); return; }   // the gated demo signs in by email
+      if(this._sb) await this._sb.auth.signInWithOAuth(
       {provider:"google", options:{redirectTo: location.origin+"/auth/callback"}}); },
     signOut:async function(){ if(this._sb){ await this._sb.auth.signOut(); this._token=null; this._balance=null; render(); } }
   };
+  // Every fetch in the cockpit rides this (defined before any call fires).
+  window.SA_HEADERS = function(extra){ return A.headers(extra); };
+
+  /* ── the judging gate: a full-screen email/password sign-in (Supabase auth) ── */
+  var GATE=null;
+  function gate(show){
+    if(!GATE){
+      GATE=document.createElement("div");
+      GATE.id="saGate";
+      GATE.style.cssText="position:fixed;inset:0;z-index:9999;display:none;align-items:center;justify-content:center;background:var(--bg,#faf6f1)";
+      GATE.innerHTML='<form id="saGateF" style="width:min(380px,92vw);padding:30px;border:1px solid var(--line,#e3dad0);border-radius:14px;background:var(--card,#fff);font-family:inherit">'
+        +'<div style="font-size:19px;font-weight:650;letter-spacing:.01em">saakshe</div>'
+        +'<div style="font-size:13px;opacity:.72;margin:6px 0 18px;line-height:1.45">This demo is gated for judging. Sign in with the credentials from the submission’s testing instructions.</div>'
+        +'<input id="saGateE" type="email" required placeholder="email" autocomplete="username" style="width:100%;box-sizing:border-box;margin-bottom:8px;padding:11px;border:1px solid var(--line,#e3dad0);border-radius:9px;font:inherit;background:transparent;color:inherit">'
+        +'<input id="saGateP" type="password" required placeholder="password" autocomplete="current-password" style="width:100%;box-sizing:border-box;margin-bottom:14px;padding:11px;border:1px solid var(--line,#e3dad0);border-radius:9px;font:inherit;background:transparent;color:inherit">'
+        +'<button type="submit" style="width:100%;padding:11px;border:0;border-radius:9px;cursor:pointer;background:#1c1b1a;color:#fff;font:inherit">Sign in</button>'
+        +'<div id="saGateErr" style="color:#b3261e;font-size:12.5px;margin-top:10px;display:none"></div></form>';
+      document.body.appendChild(GATE);
+      GATE.querySelector("#saGateF").addEventListener("submit", async function(ev){
+        ev.preventDefault();
+        var err=GATE.querySelector("#saGateErr"); err.style.display="none";
+        if(!A._sb){ err.textContent="auth is still loading — try again in a second"; err.style.display=""; return; }
+        try{
+          var res=await A._sb.auth.signInWithPassword({
+            email:GATE.querySelector("#saGateE").value.trim(),
+            password:GATE.querySelector("#saGateP").value});
+          if(res.error) throw res.error;
+        }catch(e){ err.textContent=(e&&e.message)||"sign-in failed"; err.style.display=""; return; }
+        if(A.refresh) await A.refresh();
+      });
+    }
+    GATE.style.display = show ? "flex" : "none";
+  }
 
   function injectControl(){
     var lt=$("liveToggle"); if(!lt||$("saIn")) return;
@@ -3028,6 +3064,7 @@ html[data-theme="dark"] .sdoss .sdfoot{ border-top-color:var(--line); box-shadow
     out.addEventListener("click", function(){ A.signOut(); });
   }
   function render(){
+    if(A.requireSignin){ gate(!A.signedIn()); }
     var inB=$("saIn"), outB=$("saOut"), balB=$("saBal"); if(!inB) return;
     if(!A.enabled){ inB.style.display="none"; outB.style.display="none"; balB.style.display="none"; return; }
     if(A.signedIn()){
@@ -3042,7 +3079,7 @@ html[data-theme="dark"] .sdoss .sdfoot{ border-top-color:var(--line); box-shadow
     catch(e){ return; }
     injectControl();
     if(!cfg || !cfg.auth_enabled || !cfg.supabase_url || !cfg.anon_key){ A.enabled=false; render(); return; }
-    A.enabled=true; render();
+    A.enabled=true; A.requireSignin=!!cfg.require_signin; render();
     var mod;
     try{ mod = await import("https://esm.sh/@supabase/supabase-js@2"); }
     catch(e){ A.enabled=false; render(); return; }

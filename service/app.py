@@ -113,6 +113,15 @@ def _supabase_backend() -> bool:
     return os.environ.get("SAAKSHE_STORE", "").lower() == "supabase"
 
 
+def _require_signin() -> bool:
+    """The gated-demo switch: SAAKSHE_REQUIRE_SIGNIN=1 (with Supabase auth
+    configured) puts the WHOLE API surface behind sign-in — judge credentials go
+    in the Devpost testing instructions — while the store stays the seeded,
+    sealed file-store demo. The sign-in surfaces themselves (HTML pages,
+    /api/public-config, the health probe) stay open."""
+    return os.environ.get("SAAKSHE_REQUIRE_SIGNIN", "") == "1" and auth.auth_enabled()
+
+
 _GRANTED: set[str] = set()  # process cache: signup-grant a user once per process
 
 
@@ -138,6 +147,8 @@ async def _session_dep(request: Request):
     for the whole request (so every deep read follows the right tenant), and reset
     on the way out. Demo/file-store (no Supabase backend) → no auth, the globals."""
     user = auth.optional_user(request) if auth.auth_enabled() else None
+    if _require_signin() and user is None:
+        raise HTTPException(status_code=401, detail="auth_required")
     if _supabase_backend() and user is not None:
         _ensure_account(user)
         store = project.store_for(user.user_id)
@@ -276,7 +287,8 @@ def public_config() -> dict[str, Any]:
         "supabase_url": os.environ.get("SAAKSHE_SUPABASE_URL", ""),
         "anon_key": os.environ.get("SUPABASE_ANON_KEY", ""),
         "store": os.environ.get("SAAKSHE_STORE", "file"),
-        "auth_enabled": auth.auth_enabled() and _supabase_backend(),
+        "auth_enabled": auth.auth_enabled() and (_supabase_backend() or _require_signin()),
+        "require_signin": _require_signin(),
         "public_demo": _public_demo(),
         "mode": config.mode(),
     }
@@ -665,6 +677,13 @@ def agent_card(quadrant: str) -> Any:
 # ─── voice (Gemini Live; text-over-WS in demo) ───────────────────────────────
 @app.websocket("/ws/voice")
 async def voice(websocket: WebSocket) -> None:
+    if _require_signin():
+        # Browsers can't set WS headers, so the gated demo passes ?token=<jwt>.
+        try:
+            auth.verify_token(websocket.query_params.get("token", ""))
+        except auth.AuthError:
+            await websocket.close(code=4401)
+            return
     await witness_voice.handle_ws(websocket)
 
 
