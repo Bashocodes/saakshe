@@ -18,7 +18,7 @@
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Archivo:wght@500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Michroma&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Archivo:wght@500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Michroma&family=Syncopate:wght@700&display=swap">
 <style>
 /* ════════════════════════════════════════════════════════════════════
    saakshe — dual theme · BRUT (light) / OBSIDIAN (dark). Tokens lifted
@@ -99,13 +99,25 @@ html[data-theme="dark"] ::selection{background:var(--c-kural);color:#06140A}
   text-decoration:none;color:var(--ink)}
 html[data-theme="dark"] .logo{border-color:var(--line);box-shadow:none;background:var(--card)}
 .logo:hover{text-decoration:none}
-.logo .pr{font-family:var(--mono);font-weight:700;font-size:22px;line-height:1;color:var(--ink);letter-spacing:-.06em}
 .logo .dv{width:2px;height:24px;background:var(--line);margin:0 16px 0 15px}
-html[data-theme="dark"] .logo .pr{color:var(--ink)}
 html[data-theme="dark"] .logo .dv{background:var(--line);opacity:.6}
-.logo .wd{font-family:var(--word);font-size:18px;line-height:1;color:var(--ink);letter-spacing:.40em;padding-left:.40em}
+/* the witness mark — Λ eyes standing like the wordmark's ΛΛ, calm blink */
+.skbot{position:relative;width:28px;height:28px;flex:0 0 auto;border:2.5px solid var(--line);
+  border-radius:8px;background:#161410}
+html[data-theme="dark"] .skbot{border-width:2px;background:#0C110D}
+.skbot .skeye{position:absolute;top:20%;width:30%;height:28%;background:#F4EEE2;
+  clip-path:polygon(50% 0,100% 100%,72% 100%,50% 41%,28% 100%,0 100%);animation:skblink 5.4s infinite}
+html[data-theme="dark"] .skbot .skeye{background:#D4F5DE}
+.skbot .skeye.L{left:11%}.skbot .skeye.R{right:11%;animation-delay:.09s}
+.skbot .skmouth{position:absolute;left:50%;bottom:16%;transform:translateX(-50%);
+  width:34%;height:9%;border-radius:1px;background:#F4EEE2}
+html[data-theme="dark"] .skbot .skmouth{background:#D4F5DE}
+@keyframes skblink{0%,93.5%,100%{transform:scaleY(1)}96%{transform:scaleY(.12)}}
+@media(prefers-reduced-motion:reduce){.skbot .skeye{animation:none}}
+/* the locked wordmark — Syncopate Bold · .26em tracking · SΛΛKSHE */
+.logo .wd{font-family:'Syncopate',var(--word);font-weight:700;font-size:16px;line-height:1;color:var(--ink);letter-spacing:.26em;padding-left:.26em}
 html[data-theme="dark"] .logo .wd{color:var(--ink)}
-@media(max-width:480px){.logo .wd{font-size:14px;letter-spacing:.26em}.logo .pr{font-size:18px}.logo{padding:9px 14px}}
+@media(max-width:480px){.logo .wd{font-size:12.5px;letter-spacing:.2em}.logo{padding:9px 14px}.logo .dv{margin:0 12px 0 11px}}
 
 /* topbar + toggle */
 .bar{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
@@ -328,7 +340,7 @@ html[data-theme="dark"] .fourkick{color:var(--act)}
   <!-- ═══ TOPBAR: logo → home + theme toggle ═══ -->
   <div class="bar">
     <a class="logo" href="/" aria-label="saakshe home">
-      <span class="pr">&gt;_</span><span class="dv"></span><span class="wd">SAAKSHE</span>
+      <span class="skbot" aria-hidden="true"><span class="skeye L"></span><span class="skeye R"></span><span class="skmouth"></span></span><span class="dv"></span><span class="wd">SΛΛKSHE</span>
     </a>
     <div class="toggle" role="group" aria-label="Theme">
       <button id="tg-light" type="button" aria-pressed="true"><span class="dot"></span>Brut</button>
@@ -404,7 +416,7 @@ html[data-theme="dark"] .fourkick{color:var(--act)}
   <!-- ═══ FOOTER ═══ -->
   <footer class="foot">
     <div class="flogo">
-      <a class="logo" href="/" aria-label="saakshe"><span class="pr">&gt;_</span><span class="dv"></span><span class="wd">SAAKSHE</span></a>
+      <a class="logo" href="/" aria-label="saakshe"><span class="skbot" aria-hidden="true"><span class="skeye L"></span><span class="skeye R"></span><span class="skmouth"></span></span><span class="dv"></span><span class="wd">SΛΛKSHE</span></a>
     </div>
     <nav class="foot-nav" aria-label="Pages"><a href="/">Home</a><a href="/cockpit.html">Cockpit</a><a href="/pricing.html">Pricing</a><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/faq.html" aria-current="page">FAQ</a></nav>
     <div class="vmap">
