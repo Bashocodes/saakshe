@@ -1095,54 +1095,127 @@ ul.b.tight li::before{top:15px;width:9px;height:9px}
   }
   function hdrs(){ return (window.__meAuthHeaders||function(h){return h||{};})({}); }
 
+  /* a claim like "Decode-first — upload anything and get its DNA" carries its own
+     editorial lead; bold it, exactly like the hand-set showcase bullets. */
   function factLi(f){
-    var claim = esc(f && f.claim);
+    var raw = String((f && f.claim)||'');
     var src = f && f.source ? ' <span class="src">'+esc(f.source)+'</span>' : '';
-    return '<li>'+claim+src+'</li>';
+    var cut = raw.indexOf(' — ');
+    if(cut > 0 && cut <= 48){
+      return '<li><b>'+esc(raw.slice(0,cut))+'</b> &mdash; '+esc(raw.slice(cut+3))+src+'</li>';
+    }
+    return '<li>'+esc(raw)+src+'</li>';
   }
-  function ruleLi(r){ return '<li>'+esc(r)+'</li>'; }
   function qLi(q){
     var t = esc(q && (q.text||q));
     var why = q && q.why ? ' <span class="src">'+esc(q.why)+'</span>' : '';
     return '<li>'+t+why+'</li>';
   }
-  function section(n, title, lead, lis){
-    if(!lis.length) return '';
-    return '<section class="sec"><div class="sec__n">'+n+'</div>'
-      +'<h2 class="sec__t">'+title+'</h2>'
-      +(lead?'<p class="sec__lead">'+lead+'</p>':'')
-      +'<ul class="b">'+lis.join('')+'</ul></section>';
+  function ruleTile(kind, idx, text){
+    return '<div class="tile"><div class="tl">'+kind+' &middot; '+(idx<9?'0':'')+(idx+1)
+      +'</div><div class="tx">'+esc(text)+'</div></div>';
+  }
+
+  /* which reader saw each fact — sections group by channel, like chapters */
+  var CHANNELS = {
+    repo:    {t:'What the code says.',     l:'Read from the repository &mdash; README, manifests, structure, in-repo docs.'},
+    web:     {t:'What the site says.',     l:'Crawled from the public website &mdash; homepage, pricing, product copy.'},
+    docs:    {t:'What the docs say.',      l:'Read from the linked docs &mdash; handbooks, knowledge base, PDFs.'},
+    social:  {t:'The world&rsquo;s pulse.',l:'Read from the socials &mdash; audience and market signal.'},
+    founder: {t:'What the founder said.',  l:'Answers folded back into the corpus, with provenance.'},
+    other:   {t:'From the sources.',       l:'Cited extractions whose reader predates channel tagging.'}
+  };
+  function channelOf(f){
+    var ch = (f && f.channel)||'';
+    if(CHANNELS[ch]) return ch;
+    if(/^founder answer/i.test(String((f&&f.source)||''))) return 'founder';
+    return 'other';
   }
 
   function render(d){
     var org = d.org||{};
     var name = org.name || 'your company';
+    var one = String(org.one_liner||'').trim();
     var facts = d.facts||[], voice = d.voice_rules||[], brand = d.brand_rules||[], qs = d.questions||[];
-    var i = 0; var num = function(){ i++; return '0'+i+' — '; };
-    ROOT.innerHTML =
+    var conns = d.connections||[];
+
+    /* h1 = the one-liner's first clause, showcase-short; the full line closes the page */
+    var h1 = 'What manas grasped.';
+    if(one){
+      var dash = one.indexOf(' — '), dot = one.indexOf('. ');
+      h1 = one.slice(0, dash > 0 ? dash : (dot > 0 ? dot + 1 : one.length));
+    }
+    if(h1.length > 72){ h1 = h1.slice(0, h1.lastIndexOf(' ', 70)) + '…'; }
+
+    var verbs = {github:'read', website:'crawl', docs:'read', social:'listen to'};
+    var readLine = conns.length
+      ? conns.map(function(c){ return (verbs[c.kind]||'read')+' '+esc(String(c.ref||'').replace(/^https?:\/\//,'')); }).join(' + ')
+      : 'read the connected sources';
+
+    var n = 0; var num = function(){ n++; return (n<10?'0':'')+n; };
+    var html =
       '<a class="backck" href="/cockpit.html#manas">&larr; cockpit</a>'
       +'<header class="mast">'
         +'<span class="logo"><span class="pr">&gt;_</span><span class="dv"></span><span class="wd">'+esc(name)+'</span></span>'
         +'<div class="grasp"><span class="gd"></span>Grasped by manas &middot; Context Pack '+esc(d.version||'v1')+' &middot; live extraction</div>'
-        +(org.kind?'<div class="kick">'+esc(org.kind)+'</div>':'')
-        +'<h1>'+esc(org.one_liner || ('What manas grasped about '+name+'.'))+'</h1>'
-        +'<p class="sub">This is the <b>live Context Pack</b> &mdash; what manas extracted from the connected sources, every fact cited to a real file or URL. Nothing here is invented; an out-of-corpus claim is refused, not written.</p>'
-        +'<div class="note"><b>Point at any text and chat to change it.</b> To refresh the extraction after the sources change, run <b>&#8635; imbibe</b> from the cockpit&rsquo;s manas desk (or the CONNECT pill).</div>'
+        +'<div class="kick">'+esc(org.kind||'the connected company')+' &middot; grounded &middot; cited</div>'
+        +'<h1>'+esc(h1)+'</h1>'
+        +'<p class="sub">'+(one?esc(one)+' ':'')+'manas committed <b>'+facts.length+' cited facts</b>, '
+          +'<b>'+(voice.length+brand.length)+' voice &amp; brand rules</b>'
+          +(qs.length?' and raised <b>'+qs.length+' open question'+(qs.length>1?'s':'')+'</b>':'')
+          +' from the connected sources. Every claim names where it came from.</p>'
+        +'<div class="prompt" aria-hidden="true"><span class="u">manas</span> <span class="c">@'+esc(name.toLowerCase())+'</span> &raquo; '+readLine+' &rarr; extract who this company is</div>'
+        +'<div class="note"><b>Point at any text and chat to change it.</b> When the sources move on, run <b>&#8635; imbibe now</b> from the cockpit&rsquo;s manas desk &mdash; this page re-renders from the fresh pack. manas never fabricates; an out-of-corpus claim is refused, not invented.</div>'
       +'</header>'
       +'<div class="dates">'
-        +'<div class="dt"><div class="l">Cited facts</div><div class="v">'+facts.length+'</div><div class="x">every claim names its source</div></div>'
-        +'<div class="dt"><div class="l">Voice rules</div><div class="v">'+voice.length+'</div><div class="x">how the company speaks</div></div>'
-        +'<div class="dt"><div class="l">Brand rules</div><div class="v">'+brand.length+'</div><div class="x">how the company looks</div></div>'
-        +'<div class="dt"><div class="l">Open questions</div><div class="v">'+qs.length+'</div><div class="x">waiting on the founder</div></div>'
-      +'</div>'
-      +section(num(), 'The cited facts.', 'What the sources actually say &mdash; committed only after verification.', facts.map(factLi))
-      +section(num(), 'Voice rules.', 'How '+esc(name)+' speaks, as extracted.', voice.map(ruleLi))
-      +section(num(), 'Brand rules.', 'How '+esc(name)+' presents itself, as extracted.', brand.map(ruleLi))
-      +section(num(), 'Open questions.', 'What manas could not ground &mdash; answer these in the cockpit.', qs.map(qLi))
-      +'<footer class="foot">'
-        +'<div><b>'+esc(name)+'</b> &mdash; Context Pack '+esc(d.version||'')+' &middot; grounded, cited, un-fabricated. '
-        +'This page renders the live extraction; re-running an imbibe updates it.</div>'
+        +'<div class="dt"><div class="l">Cited facts</div><div class="v">'+facts.length+'</div><div class="x">every claim names its source &mdash; nothing invented</div></div>'
+        +'<div class="dt"><div class="l">Sources read</div><div class="v">'+(conns.length||'&mdash;')+'</div><div class="x">'+(conns.length?conns.map(function(c){return esc(c.kind);}).join(' &middot; '):'connect over setu')+'</div></div>'
+        +'<div class="dt"><div class="l">Voice &amp; brand</div><div class="v">'+(voice.length+brand.length)+'</div><div class="x">how it speaks &middot; how it looks</div></div>'
+        +'<div class="dt"><div class="l">Open questions</div><div class="v">'+qs.length+'</div><div class="x">'+(qs.length?'waiting on the founder':'none &mdash; fully grounded')+'</div></div>'
+      +'</div>';
+
+    /* chapters: one section per channel that actually produced facts */
+    var byCh = {};
+    facts.forEach(function(f){ var c=channelOf(f); (byCh[c]=byCh[c]||[]).push(f); });
+    ['repo','web','docs','social','founder','other'].forEach(function(ch){
+      var fs = byCh[ch]; if(!fs || !fs.length) return;
+      var m = CHANNELS[ch];
+      html += '<section class="sec"><div class="sec__n">'+num()+' &mdash; '+(ch==='other'?'the corpus':'from the '+ch)+'</div>'
+        +'<h2 class="sec__t">'+m.t+'</h2><p class="sec__lead">'+m.l+'</p>'
+        +'<ul class="b">'+fs.map(factLi).join('')+'</ul></section>';
+    });
+
+    if(voice.length || brand.length){
+      html += '<section class="sec"><div class="sec__n">'+num()+' &mdash; the rules</div>'
+        +'<h2 class="sec__t">How it speaks. How it looks.</h2>'
+        +'<p class="sec__lead">Extracted, not invented &mdash; the voice '+esc(name)+' writes in and the brand it wears. kalai and kural inherit every one of these.</p>'
+        +'<div class="tiles">'
+          +voice.map(function(r,i){ return ruleTile('voice', i, r); }).join('')
+          +brand.map(function(r,i){ return ruleTile('brand', i, r); }).join('')
+        +'</div></section>';
+    }
+
+    if(qs.length){
+      html += '<section class="sec"><div class="sec__n">'+num()+' &mdash; the doubts</div>'
+        +'<h2 class="sec__t">What manas refused to guess.</h2>'
+        +'<div class="box soft"><div class="h">Open questions &mdash; answer them in the cockpit</div>'
+        +'<ul class="b">'+qs.map(qLi).join('')+'</ul></div></section>';
+    }
+
+    if(one){
+      html += '<section class="sec"><div class="sec__n">'+num()+' &mdash; manas&rsquo;s read</div>'
+        +'<h2 class="sec__t">Said plainly.</h2>'
+        +'<div class="credo"><p>'+esc(one)+'</p></div></section>';
+    }
+
+    html += '<footer class="foot">'
+      +'<div class="flogo"><span class="logo" style="box-shadow:3px 3px 0 var(--ink);padding:7px 12px"><span class="pr" style="font-size:16px">&gt;_</span><span class="dv" style="height:17px;margin:0 11px"></span><span class="wd" style="font-size:13px;letter-spacing:.28em;padding-left:.28em">'+esc(name)+'</span></span></div>'
+      +'<div><b>'+esc(name)+'</b> &mdash; this is the live extraction manas renders after an imbibe: read the sources, extract the company, cite every fact, refuse what isn&rsquo;t there.</div>'
+      +'<div><b>Sources:</b> '+(conns.length?conns.map(function(c){return '<span class="mono">'+esc(String(c.ref||'').replace(/^https?:\/\//,''))+'</span>';}).join(' + '):'the connected corpus')
+      +' &middot; Context Pack '+esc(d.version||'')+' &middot; grounded, cited, un-fabricated.</div>'
       +'</footer>';
+
+    ROOT.innerHTML = html;
     if(window.__meRetag) window.__meRetag();
   }
 

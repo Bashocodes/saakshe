@@ -458,6 +458,9 @@ def connect_grasped(sess: Session = Depends(_session_dep)) -> dict[str, Any]:
         "version": st["version"], "org": st["org"],
         "facts": pack.facts, "voice_rules": pack.voice_rules,
         "brand_rules": pack.brand_rules, "questions": st["questions"],
+        # kind+ref only (never meta — that's where a PAT rides): the grasped page
+        # names what manas actually read in its masthead prompt line + footer.
+        "connections": [{"kind": c.kind, "ref": c.ref} for c in sess.store.connections],
     })
 
 

@@ -184,6 +184,9 @@ def read_ingested(state) -> list[dict[str, Any]]:
         d = parse_json(state.get(ingest_key))
         for c in d.get("claims", []) if isinstance(d, dict) else []:
             if isinstance(c, dict) and str(c.get("claim", "")).strip():
+                # Tag which reader saw it — the grasped page groups its sections
+                # by channel ("from the code" vs "from the site"), honestly.
+                c.setdefault("channel", _role)
                 out.append(c)
     return out
 
