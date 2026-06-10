@@ -24,13 +24,16 @@ import base64
 import json
 import os
 import re
+import tempfile
+import threading
 import traceback
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Optional
 from uuid import uuid4
 
-from fastapi import Depends, FastAPI, HTTPException, Request, WebSocket
+from fastapi import (Depends, FastAPI, File, Form, HTTPException, Request,
+                     UploadFile, WebSocket)
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, Response
 from pydantic import BaseModel
@@ -41,6 +44,7 @@ from common.stream import STREAM
 from common.supastream import SupabaseEventStream
 import orchestrator
 import manas.runner as manas_runner
+from kalai import media_crew, media_pipeline
 from witness import agent as witness
 from witness import telemetry as tel
 from witness import voice as witness_voice
@@ -545,6 +549,85 @@ async def hero_approve(req: ApproveRequest, sess: Session = Depends(_session_dep
         if _refund_run(run, sess.user, "no safe decision — not charged"):
             summary["refunded"] = True
     return summary
+
+
+# ─── kalai media crew (router · pricer · renderer · verifier) ────────────────
+# In-process job table — single-instance Cloud Run, same assumption as the
+# rate limiter above. A job is the chargeable compute act; quote is free.
+_media_jobs: dict[str, dict] = {}
+
+
+class MediaQuoteRequest(BaseModel):
+    seconds: int = 4
+    budget_usd: float = 1.0
+    has_source_image: bool = True
+
+
+@app.post("/api/kalai/media/quote")
+def media_quote(req: MediaQuoteRequest, sess: Session = Depends(_session_dep)) -> dict[str, Any]:
+    return media_crew.quote(seconds=req.seconds, budget_usd=req.budget_usd,
+                            has_source_image=req.has_source_image, wants_hdr=True)
+
+
+@app.post("/api/kalai/media/render")
+async def media_render(request: Request,
+                       image: UploadFile = File(...),
+                       fx: str = Form("sat_sort"), seconds: int = Form(4),
+                       budget_usd: float = Form(1.0),
+                       width: int = Form(1080), height: int = Form(1920),
+                       fps: int = Form(24),
+                       sess: Session = Depends(_session_dep)) -> Any:
+    _rate_limit(request, "media_render", capacity=4, per_seconds=300)
+    _require_auth_if_live(sess.user)
+    from kalai.media_fx import EFFECTS
+    if fx not in EFFECTS:
+        return JSONResponse(status_code=422, content={"error": f"unknown fx '{fx}'"})
+    q = media_crew.quote(seconds=seconds, budget_usd=budget_usd,
+                         has_source_image=True, wants_hdr=True)
+    if not q["fits_budget"]:
+        return JSONResponse(status_code=409, content={"error": "over budget", "quote": q})
+    jid = uuid4().hex
+    src = tempfile.NamedTemporaryFile(suffix=".png", delete=False)
+    src.write(await image.read())
+    src.close()
+    out = src.name.replace(".png", "_hdr.mp4")
+    _media_jobs[jid] = {"status": "rendering", "frame": 0,
+                        "frames": q["seconds"] * fps, "quote": q}
+
+    def _run() -> None:
+        job = _media_jobs[jid]
+        try:
+            res = media_pipeline.render(
+                src_path=src.name, fx=fx, seconds=q["seconds"], out_path=out,
+                width=width, height=height, fps=fps,
+                progress=lambda i, n: job.update(frame=i, frames=n))
+            job.update(status="done", out_path=res["out_path"], verify=res["verify"],
+                       receipt=media_crew.receipt(
+                           q, measured_vcpu_sec=res["vcpu_sec_estimate"], vertex_usd=0.0))
+        except Exception as exc:  # noqa: BLE001 — job surface reports, never raises
+            job.update(status="error", error=str(exc)[:300])
+        finally:
+            os.unlink(src.name)
+
+    threading.Thread(target=_run, daemon=True).start()
+    return {"job_id": jid, "quote": q}
+
+
+@app.get("/api/kalai/media/job/{jid}")
+def media_job(jid: str, sess: Session = Depends(_session_dep)) -> Any:
+    job = _media_jobs.get(jid)
+    if not job:
+        return JSONResponse(status_code=404, content={"error": "unknown job"})
+    return job
+
+
+@app.get("/api/kalai/media/file/{jid}")
+def media_file(jid: str, sess: Session = Depends(_session_dep)) -> Any:
+    job = _media_jobs.get(jid)
+    if not job or job.get("status") != "done":
+        return JSONResponse(status_code=404, content={"error": "not ready"})
+    return FileResponse(job["out_path"], media_type="video/mp4",
+                        filename="saakshe_hdr.mp4")
 
 
 # ─── the one ordered stream + the derived gate queue ─────────────────────────
