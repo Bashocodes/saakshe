@@ -3137,8 +3137,8 @@ html[data-theme="dark"] .sdoss .sdfoot{ border-top-color:var(--line); box-shadow
       GATE=document.createElement("div");
       GATE.id="saGate";
       GATE.style.cssText="position:fixed;inset:0;z-index:9999;display:none;align-items:center;justify-content:center;background:var(--bg,#faf6f1)";
-      GATE.innerHTML='<form id="saGateF" style="width:min(380px,92vw);padding:30px;border:1px solid var(--line,#e3dad0);border-radius:14px;background:var(--card,#fff);font-family:inherit">'
-        +'<div style="font-size:19px;font-weight:650;letter-spacing:.01em">saakshe</div>'
+      GATE.innerHTML='<form id="saGateF" style="width:min(380px,92vw);padding:30px;border:var(--line-w,1px) solid var(--hairline,#e3dad0);border-radius:14px;background:var(--plate,#fff);color:var(--ink,#1c1b1a);box-shadow:var(--shadow,none);font-family:inherit">'
+        +'<div style="font-family:\'Syncopate\',var(--word,sans-serif);font-weight:700;font-size:13px;letter-spacing:.26em" aria-label="saakshe">SΛΛKSHE</div>'
         +'<div style="font-size:13px;opacity:.72;margin:6px 0 18px;line-height:1.45">This demo is gated. Continue with Google, or sign in with the judging credentials from the submission’s testing instructions.</div>'
         +'<button type="button" id="saGateG" style="width:100%;box-sizing:border-box;padding:11px;margin-bottom:14px;border:1px solid var(--line,#e3dad0);border-radius:9px;cursor:pointer;background:transparent;color:inherit;font:inherit;display:flex;align-items:center;justify-content:center;gap:9px">'
         +'<svg width="17" height="17" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.9 6.1C12.4 13.4 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.8 7.2l7.7 6c4.5-4.2 6.9-10.3 6.9-17.7z"/><path fill="#FBBC05" d="M10.5 28.7a14.5 14.5 0 0 1 0-9.4l-7.9-6.1a24 24 0 0 0 0 21.6l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.3 0 11.6-2.1 15.6-5.8l-7.7-6c-2.1 1.4-4.8 2.3-7.9 2.3-6.3 0-11.6-3.9-13.5-9.4l-7.9 6.1C6.5 42.6 14.6 48 24 48z"/></svg>'
@@ -3146,7 +3146,7 @@ html[data-theme="dark"] .sdoss .sdfoot{ border-top-color:var(--line); box-shadow
         +'<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;opacity:.55;font-size:11px"><span style="flex:1;height:1px;background:var(--line,#e3dad0)"></span>or with judge credentials<span style="flex:1;height:1px;background:var(--line,#e3dad0)"></span></div>'
         +'<input id="saGateE" type="email" required placeholder="email" autocomplete="username" style="width:100%;box-sizing:border-box;margin-bottom:8px;padding:11px;border:1px solid var(--line,#e3dad0);border-radius:9px;font:inherit;background:transparent;color:inherit">'
         +'<input id="saGateP" type="password" required placeholder="password" autocomplete="current-password" style="width:100%;box-sizing:border-box;margin-bottom:14px;padding:11px;border:1px solid var(--line,#e3dad0);border-radius:9px;font:inherit;background:transparent;color:inherit">'
-        +'<button type="submit" style="width:100%;padding:11px;border:0;border-radius:9px;cursor:pointer;background:#1c1b1a;color:#fff;font:inherit">Sign in</button>'
+        +'<button type="submit" style="width:100%;padding:11px;border:0;border-radius:9px;cursor:pointer;background:var(--act,#1c1b1a);color:var(--on-act,#fff);font:inherit">Sign in</button>'
         +'<div id="saGateErr" style="color:#b3261e;font-size:12.5px;margin-top:10px;display:none"></div></form>';
       document.body.appendChild(GATE);
       GATE.querySelector("#saGateG").addEventListener("click", async function(){
