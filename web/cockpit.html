@@ -997,7 +997,16 @@ html[data-theme="dark"] .sdoss .sdfoot{ border-top-color:var(--line); box-shadow
 .todaymeters .meterrow:hover .ml{ color:var(--ink); }
 .todaymeters .meterrow:hover .meterbar{ box-shadow:0 0 0 1.5px var(--accent); }
 .todaymeters .meterrow:focus-visible{ outline:none; box-shadow:0 0 0 2px var(--accent); border-radius:var(--r); }
+/* ── saakshe chat panel mount: fixed right 30%, content shifts left ── */
+@media(min-width:1100px){
+  body{ margin-right:30vw; }
+  #sa-chatpane{ position:fixed; top:0; right:0; width:30vw; height:100vh;
+    border-left:2px solid #141118; background:#fff; z-index:600; }
+}
+@media(max-width:1099px){ #sa-chatpane{ display:none; } }
 </style>
+<link rel="stylesheet" href="chat-panel.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syncopate:wght@700&display=swap">
 </head>
 
 <body>
@@ -3392,5 +3401,7 @@ html[data-theme="dark"] .sdoss .sdfoot{ border-top-color:var(--line); box-shadow
     var v=$("lcChatInput").value.trim(); if(v){ $("lcChatInput").value=""; ask(v); } });
 })();
 </script>
+<div id="sa-chatpane"></div>
+<script src="chat-panel.js"></script>
 </body>
 </html>

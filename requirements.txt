@@ -20,3 +20,7 @@ pyjwt[crypto]==2.13.0
 # --- dev / test ---
 pytest==9.0.3
 pytest-asyncio==1.4.0
+
+# kalai media crew (deterministic FX + HDR pipeline)
+numpy
+Pillow

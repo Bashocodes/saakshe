@@ -1,0 +1,93 @@
+/* saakshe chat panel — rounded near-black Brut, light-first.
+   All selectors scoped under #sa-chatpane; cockpit styles untouched.
+   Tokens validated in the 2026-06-10 atlas demo (founder-approved). */
+#sa-chatpane{
+  --ck-ink:#141118; --ck-ink2:#2a2530; --ck-ink3:#5f5868;
+  --ck-surf:#ffffff; --ck-surf2:#e7e6e0;
+  --ck-grad:linear-gradient(135deg,#141118 0%,#241c2e 70%,#3a2a4a 100%);
+  --ck-manas:#e3a200; --ck-arivu:#0a39ff; --ck-kalai:#ff2d2d; --ck-kural:#00a86b;
+  --ck-q2:#e2e8ff; --ck-q3:#ffe0e0; --ck-q4:#d8f7e8;
+  --ck-mono:'JetBrains Mono',ui-monospace,monospace;
+  font:13px/1.5 var(--ck-mono); color:var(--ck-ink);
+  display:flex; flex-direction:column; position:relative;
+}
+/* grain */
+#sa-chatpane::after{content:'';position:absolute;inset:0;pointer-events:none;opacity:.05;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)'/%3E%3C/svg%3E")}
+
+#sa-chatpane .ch-head{padding:13px 16px;border-bottom:2px solid var(--ck-ink);
+  background:var(--ck-grad);color:#fff;display:flex;align-items:center;gap:10px}
+#sa-chatpane .ch-head .brand{font-family:'Syncopate',sans-serif;font-weight:700;
+  font-size:11px;letter-spacing:.26em;text-indent:.26em}
+#sa-chatpane .ch-head .t{font-size:10px;letter-spacing:.1em}
+#sa-chatpane .ch-head .live{margin-left:auto;width:9px;height:9px;border-radius:50%;
+  background:#3ce791;animation:sa-pulse 1.6s infinite}
+@keyframes sa-pulse{0%,100%{opacity:1}50%{opacity:.35}}
+
+#sa-chatpane .ch-tabs{display:flex;gap:6px;padding:10px 12px;
+  border-bottom:1.5px solid var(--ck-surf2);flex-wrap:wrap;background:var(--ck-surf)}
+#sa-chatpane .ch-tab{border:1.5px solid var(--ck-ink);border-radius:999px;
+  padding:2px 11px;font-size:10.5px;font-weight:700;cursor:pointer;
+  background:var(--ck-surf2);transition:all .15s}
+#sa-chatpane .ch-tab.on{background:var(--ck-ink);color:#fff}
+#sa-chatpane .ch-tab:hover{transform:translateY(-1px)}
+
+#sa-chatpane .ch-feed{flex:1;overflow-y:auto;padding:14px;display:flex;
+  flex-direction:column;gap:10px;background:#eceae4}
+
+#sa-chatpane .msg{max-width:94%;border:2px solid var(--ck-ink);border-radius:14px;
+  padding:10px 13px;font-size:12px;background:var(--ck-surf);
+  box-shadow:3px 3px 0 var(--ck-ink);
+  animation:sa-slidein .28s cubic-bezier(.2,.9,.3,1.2)}
+@keyframes sa-slidein{from{opacity:0;transform:translateY(10px) scale(.97)}to{opacity:1;transform:none}}
+#sa-chatpane .msg.user{align-self:flex-end;background:var(--ck-grad);color:#fff}
+#sa-chatpane .msg .who{display:flex;align-items:center;gap:6px;font-size:10px;
+  font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px;
+  color:var(--ck-ink3)}
+#sa-chatpane .msg.user .who{color:#b9b3c2}
+#sa-chatpane .msg p{margin:0}
+#sa-chatpane .msg .data{margin-top:8px;background:var(--ck-surf2);
+  border:1.5px solid var(--ck-ink);border-radius:10px;padding:7px 10px;font-size:11px}
+#sa-chatpane .msg .data .row{display:flex;justify-content:space-between;
+  gap:10px;padding:1.5px 0}
+
+#sa-chatpane .acts{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}
+#sa-chatpane .act{border:1.5px solid var(--ck-ink);border-radius:999px;
+  background:var(--ck-surf);padding:5px 14px;font:700 11px var(--ck-mono);
+  cursor:pointer;box-shadow:2px 2px 0 var(--ck-ink);
+  transition:transform .1s, box-shadow .1s, background .15s}
+#sa-chatpane .act:hover{transform:translate(-1px,-1px);
+  box-shadow:3px 3px 0 var(--ck-ink);background:var(--ck-q2)}
+#sa-chatpane .act:active{transform:translate(1px,1px);box-shadow:0 0 0 var(--ck-ink)}
+#sa-chatpane .act.primary{background:var(--ck-grad);color:#fff}
+#sa-chatpane .act.primary:hover{filter:brightness(1.25)}
+#sa-chatpane .act.ok{background:var(--ck-q4)}
+#sa-chatpane .act.no,#sa-chatpane .act.blocked{background:var(--ck-q3)}
+#sa-chatpane .act.done{background:var(--ck-q4);pointer-events:none;opacity:.6}
+
+#sa-chatpane .sld{margin-top:9px;background:var(--ck-surf2);
+  border:1.5px solid var(--ck-ink);border-radius:10px;padding:9px 12px}
+#sa-chatpane .sld .lab{display:flex;justify-content:space-between;font-size:10px;
+  font-weight:700;text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px}
+#sa-chatpane .sld input{width:100%;accent-color:#241c2e}
+#sa-chatpane .sld .quote{margin-top:6px;font-size:11px;display:flex;
+  justify-content:space-between}
+#sa-chatpane .sld .quote b{font-size:13px}
+
+#sa-chatpane .typing{display:flex;gap:4px;padding:8px 12px;align-self:flex-start}
+#sa-chatpane .typing span{width:7px;height:7px;border-radius:50%;
+  background:var(--ck-ink3);animation:sa-bnc 1s infinite}
+#sa-chatpane .typing span:nth-child(2){animation-delay:.15s}
+#sa-chatpane .typing span:nth-child(3){animation-delay:.3s}
+@keyframes sa-bnc{0%,100%{transform:none;opacity:.4}50%{transform:translateY(-5px);opacity:1}}
+
+#sa-chatpane .ch-input{border-top:2px solid var(--ck-ink);padding:12px 14px;
+  display:flex;gap:8px;background:var(--ck-surf)}
+#sa-chatpane .ch-input input{flex:1;border:2px solid var(--ck-ink);
+  border-radius:999px;padding:8px 14px;font:12px var(--ck-mono);
+  background:var(--ck-surf2);color:var(--ck-ink);outline:none}
+#sa-chatpane .ch-input button{border:2px solid var(--ck-ink);border-radius:999px;
+  background:var(--ck-grad);color:#fff;font:700 12px var(--ck-mono);
+  padding:8px 18px;cursor:pointer;box-shadow:2px 2px 0 var(--ck-ink);
+  transition:transform .1s}
+#sa-chatpane .ch-input button:active{transform:translate(1px,1px);box-shadow:none}
