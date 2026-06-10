@@ -370,6 +370,81 @@ def connect_status(sess: Session = Depends(_session_dep)) -> dict[str, Any]:
     return _redact_secrets(sess.store.status_dict())
 
 
+class ProfileEditRequest(BaseModel):
+    label: str = ""
+    edit_id: str = ""
+    current_text: str = ""
+    provenance: str = ""
+    instruction: str
+
+
+_PROFILE_EDIT_SYSTEM = (
+    "You are manas, editing ONE element of a company-profile page. You are given the "
+    "element's role/label, its current text, and (optionally) its cited source. Apply the "
+    "user's instruction and return ONLY the new text for that element — no preamble, no "
+    "surrounding quotes, no markdown, no explanation. Preserve the element's voice (plain, "
+    "creator-first, never hype). Keep roughly the same length unless asked to shorten or expand. "
+    "If the instruction is a simple 'change X to Y', change only that. Never invent facts that "
+    "are not supported by the current text or the cited source."
+)
+
+
+def _profile_edit_sanitize(text: str) -> str:
+    t = (text or "").strip()
+    t = re.sub(r"^```[A-Za-z0-9]*\s*", "", t)
+    t = re.sub(r"\s*```$", "", t).strip()
+    if len(t) >= 2 and t[0] in "\"'“‘" and t[-1] in "\"'”’":
+        t = t[1:-1].strip()
+    return re.sub(r"\s+", " ", t).strip()
+
+
+@app.post("/api/profile/edit")
+async def profile_edit(req: ProfileEditRequest, request: Request,
+                       sess: Session = Depends(_session_dep)) -> dict[str, Any]:
+    """The grasped page's point-and-edit chat (web/grasped.html): rewrite ONE
+    element's text with Gemini Flash, grounded in its cited source. Demo mode
+    503s so the page falls back to its own deterministic local engine."""
+    _require_auth_if_live(sess.user)
+    _rate_limit(request, "profile_edit", capacity=10, per_seconds=60)
+    if not config.is_live():
+        raise HTTPException(status_code=503, detail="live edit runs in live mode — the page's local engine covers demo")
+    import asyncio as _asyncio
+
+    from google import genai
+    from google.genai import types as gtypes
+
+    prompt = (
+        f"ELEMENT ROLE: {req.label or 'Element'}\n"
+        f"CITED SOURCE: {req.provenance or '(none)'}\n"
+        f"CURRENT TEXT:\n{req.current_text}\n\n"
+        f"INSTRUCTION: {req.instruction}\n\n"
+        f"Return ONLY the new text for this element."
+    )
+
+    def _call() -> str:
+        client = genai.Client(vertexai=True, project=config.GOOGLE_CLOUD_PROJECT or None,
+                              location=config.GEMINI_LOCATION)
+        cfg = dict(system_instruction=_PROFILE_EDIT_SYSTEM, temperature=0.4,
+                   max_output_tokens=1200)
+        try:  # flash is a THINKING model — keep thoughts from eating the output budget
+            cfg["thinking_config"] = gtypes.ThinkingConfig(thinking_level="low")
+            gen = gtypes.GenerateContentConfig(**cfg)
+        except Exception:  # noqa: BLE001 — older SDK: drop the knob, not the call
+            cfg.pop("thinking_config", None)
+            gen = gtypes.GenerateContentConfig(**cfg)
+        out = client.models.generate_content(model=config.MODEL_FLASH, contents=prompt, config=gen)
+        return out.text or ""
+
+    try:
+        text = _profile_edit_sanitize(await _asyncio.to_thread(_call))
+        if not text:
+            raise RuntimeError("empty reply")
+    except Exception as exc:  # noqa: BLE001 — the page falls back to its local engine
+        raise HTTPException(status_code=502, detail=f"edit model unavailable: {str(exc)[:200]}")
+    return {"text": text, "message": "Applied your change (live manas).",
+            "engine": config.MODEL_FLASH}
+
+
 @app.get("/api/connect/grasped")
 def connect_grasped(sess: Session = Depends(_session_dep)) -> dict[str, Any]:
     """What manas GRASPED from the connected sources — the extraction readout

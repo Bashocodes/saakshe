@@ -1,0 +1,1072 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="icon" href="data:,">
+<title>manas · what we grasped — point &amp; edit</title>
+<meta name="description" content="aikizi, extracted: an AI visual-intelligence platform that reverse-engineers any image, video, or audio into its creative DNA — and a production-ready prompt. Grasped by manas from the code and the site, every fact cited.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&family=Michroma&display=swap">
+<style>
+:root{
+  --paper:#F4EEE2;--paper-2:#ECE4D3;--card:#FBF7EE;
+  --ink:#161410;--ink-2:#45413A;--ink-3:#7A7466;--line:#161410;
+  --c-amber:#E3A52B;--c-blue:#3551C8;--c-red:#CC4632;--c-black:#161410;
+  --t-amber:#F1DC95;--t-blue:#C6CFF2;--t-red:#EBBAAC;--t-black:#DAD3C3;
+  --disp:'Space Grotesk',system-ui,sans-serif;--body:'Inter',system-ui,sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,monospace;--word:'Michroma',var(--disp);
+  --maxw:1080px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.65;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.5;
+  background:linear-gradient(var(--paper-2) 1px,transparent 1px),linear-gradient(90deg,var(--paper-2) 1px,transparent 1px);
+  background-size:46px 46px;mask:linear-gradient(180deg,#000,transparent 70%)}
+.wrap{position:relative;z-index:1;max-width:var(--maxw);margin:0 auto;padding:clamp(22px,4vw,52px) clamp(16px,5vw,40px) 120px}
+h1,h2,h3,h4{margin:0;font-family:var(--disp);font-weight:700;letter-spacing:-.02em;color:var(--ink)}
+p{margin:0}
+b,strong{font-weight:600;color:var(--ink)}
+em{font-style:italic}
+.mono{font-family:var(--mono)}.mute{color:var(--ink-3)}
+::selection{background:var(--c-amber);color:var(--ink)}
+
+/* back to the cockpit */
+.backck{position:fixed;top:16px;right:18px;z-index:80;font-family:var(--mono);font-size:10.5px;
+  font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--ink);
+  border:1.5px solid var(--ink);border-radius:999px;background:var(--card);
+  padding:6px 14px;text-decoration:none;box-shadow:2px 2px 0 var(--ink)}
+.backck:hover{transform:translate(-1px,-1px);box-shadow:3px 3px 0 var(--ink)}
+
+/* logo + masthead */
+.logo{display:inline-flex;align-items:center;border:2px solid var(--ink);border-radius:11px;padding:11px 18px 11px 16px;background:var(--card);box-shadow:5px 5px 0 var(--ink);text-decoration:none;color:var(--ink)}
+.logo:link,.logo:visited,.logo:hover{color:var(--ink);text-decoration:none}
+.logo .pr{font-family:var(--mono);font-weight:600;font-size:22px;line-height:1;letter-spacing:-.06em}
+.logo .dv{width:2px;height:24px;background:var(--ink);margin:0 16px 0 15px}
+.logo .wd{font-family:var(--word);font-size:18px;line-height:1;letter-spacing:.30em;padding-left:.30em}
+@media(max-width:480px){.logo .wd{font-size:13px;letter-spacing:.22em}.logo .pr{font-size:18px}}
+.mast{padding-top:8px}
+.grasp{display:inline-flex;align-items:center;gap:8px;margin-top:22px;font-family:var(--mono);font-size:10.5px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;background:var(--ink);color:var(--paper);padding:6px 12px}
+.grasp .gd{width:9px;height:9px;border-radius:50%;background:var(--c-amber)}
+.kick{font-family:var(--mono);font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-2);margin-top:16px}
+.mast h1{font-size:clamp(34px,6.6vw,64px);line-height:1.0;margin:14px 0 0;letter-spacing:-.035em;max-width:18ch}
+.mast .sub{font-size:clamp(16px,2.2vw,20px);color:var(--ink-2);margin-top:20px;max-width:64ch;line-height:1.5}
+.mast .sub b{color:var(--ink)}
+.prompt{margin-top:24px;border:2.5px solid var(--ink);background:var(--ink);color:var(--paper);font-family:var(--mono);font-size:13.5px;line-height:1.7;padding:15px 18px;box-shadow:6px 6px 0 var(--c-blue)}
+.prompt .u{color:var(--c-amber)}.prompt .c{color:var(--t-blue)}
+.mast .note{margin-top:22px;font-family:var(--mono);font-size:12.5px;color:var(--ink-2);line-height:1.7;border-left:5px solid var(--ink);padding:4px 0 4px 16px;max-width:68ch;background:var(--paper-2)}
+
+/* numbers */
+.dates{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin-top:26px;border:2.5px solid var(--ink);background:var(--card)}
+@media(max-width:720px){.dates{grid-template-columns:1fr 1fr}}
+@media(max-width:420px){.dates{grid-template-columns:1fr}}
+.dt{padding:18px 16px;border-right:2px solid var(--ink);border-bottom:2px solid var(--ink)}
+.dt:nth-child(4n),.dt:last-child{border-right:none}
+.dt .l{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
+.dt .v{font-family:var(--disp);font-weight:700;font-size:27px;margin-top:8px;line-height:1.02}
+.dt:nth-child(1) .v{color:var(--c-red)}.dt:nth-child(2) .v{color:var(--c-blue)}.dt:nth-child(3) .v{color:var(--c-amber)}.dt:nth-child(4) .v{color:var(--ink)}
+.dt .x{color:var(--ink-3);font-size:12px;margin-top:7px;line-height:1.4}
+
+/* sections */
+.sec{margin-top:clamp(46px,7vw,76px);border-top:3px solid var(--ink);padding-top:20px}
+.sec__n{display:inline-flex;align-items:center;gap:10px;font-family:var(--mono);font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-2)}
+.sec__n::before{content:'';width:13px;height:13px;background:var(--ink);flex:none}
+.sec:nth-of-type(1) .sec__n::before{background:var(--c-amber)}
+.sec:nth-of-type(2) .sec__n::before{background:var(--c-blue);border-radius:50%}
+.sec:nth-of-type(3) .sec__n::before{background:var(--c-red)}
+.sec:nth-of-type(4) .sec__n::before{background:var(--c-blue)}
+.sec:nth-of-type(5) .sec__n::before{background:var(--c-amber);border-radius:50%}
+.sec:nth-of-type(6) .sec__n::before{background:var(--c-red)}
+.sec:nth-of-type(7) .sec__n::before{background:var(--c-black)}
+.sec__t{font-size:clamp(24px,3.6vw,36px);line-height:1.06;margin-top:12px;max-width:28ch}
+.sec__lead{color:var(--ink-2);font-size:clamp(15.5px,2vw,17.5px);margin-top:13px;max-width:74ch}
+
+/* bullets */
+ul.b{list-style:none;margin:16px 0 0;padding:0;display:grid;gap:0}
+ul.b li{position:relative;padding:12px 0 12px 28px;border-bottom:1.5px solid var(--ink);color:var(--ink-2)}
+ul.b li:last-child{border-bottom:none}
+ul.b li::before{content:'';position:absolute;left:0;top:18px;width:11px;height:11px;background:var(--ink)}
+ul.b li b{color:var(--ink)}
+ul.b.tight li{padding:8px 0 8px 28px;border-bottom:none}
+ul.b.tight li::before{top:15px;width:9px;height:9px}
+.src{font-family:var(--mono);font-size:11px;color:var(--ink-3)}
+
+/* boxes */
+.box{border:2.5px solid var(--ink);background:var(--card);padding:18px 20px;margin-top:20px;box-shadow:5px 5px 0 var(--ink)}
+.box.soft{box-shadow:none;background:var(--paper-2)}
+.box .h{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink);margin-bottom:12px;display:flex;align-items:center;gap:9px}
+.box .h::before{content:'';width:12px;height:12px;background:var(--c-red);flex:none}
+
+/* the 8-stream taxonomy (real product colours, as data) */
+.streams{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin-top:20px;border:2.5px solid var(--ink);background:var(--card)}
+@media(max-width:680px){.streams{grid-template-columns:1fr 1fr}}
+.st{padding:15px 14px;border-right:2px solid var(--ink);border-bottom:2px solid var(--ink)}
+.streams .st:nth-child(4n){border-right:none}
+@media(max-width:680px){.streams .st:nth-child(4n){border-right:2px solid var(--ink)}.streams .st:nth-child(2n){border-right:none}}
+.st .sw{width:100%;height:26px;border:2px solid var(--ink);margin-bottom:9px}
+.st .sn{font-family:var(--disp);font-weight:700;font-size:15px;letter-spacing:-.01em}
+.st .sx{color:var(--ink-3);font-size:11.5px;margin-top:3px;line-height:1.4}
+.st .sh{font-family:var(--mono);font-size:10px;color:var(--ink-3);margin-top:5px}
+
+/* media decode rows */
+.mdx{margin-top:18px;border:2.5px solid var(--ink);background:var(--card)}
+.md{display:grid;grid-template-columns:128px 1fr 86px;gap:14px;align-items:center;padding:14px 18px;border-bottom:2px solid var(--ink)}
+.md:last-child{border-bottom:none}
+.md .mn{font-family:var(--disp);font-weight:700;font-size:16px}
+.md .mn small{display:block;font-family:var(--mono);font-size:10px;color:var(--ink-3);font-weight:400;text-transform:uppercase;letter-spacing:.05em;margin-top:3px}
+.md .mc{color:var(--ink-2);font-size:13.5px;line-height:1.45}
+.md .mt{font-family:var(--mono);font-size:11.5px;color:var(--ink);text-align:right;white-space:nowrap}
+@media(max-width:560px){.md{grid-template-columns:1fr;gap:6px}.md .mt{text-align:left}}
+
+/* surface tiles */
+.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin-top:20px;border:2.5px solid var(--ink);background:var(--card)}
+@media(max-width:680px){.tiles{grid-template-columns:1fr 1fr}}
+@media(max-width:400px){.tiles{grid-template-columns:1fr}}
+.tile{padding:16px;border-right:2px solid var(--ink);border-bottom:2px solid var(--ink)}
+.tiles .tile:nth-child(3n){border-right:none}
+@media(max-width:680px){.tiles .tile:nth-child(3n){border-right:2px solid var(--ink)}.tiles .tile:nth-child(2n){border-right:none}}
+.tile .tl{font-family:var(--disp);font-weight:700;font-size:16px}
+.tile .tl small{display:inline-block;font-family:var(--mono);font-size:9.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--paper);background:var(--ink);padding:2px 6px;margin-left:7px;vertical-align:2px}
+.tile .tx{color:var(--ink-3);font-size:12.5px;margin-top:6px;line-height:1.45}
+
+/* pricing */
+.plans{margin-top:18px;border:2.5px solid var(--ink);background:var(--card)}
+.pl{display:grid;grid-template-columns:120px 110px 1fr;gap:16px;padding:15px 18px;border-bottom:2px solid var(--ink);align-items:baseline}
+.pl:last-child{border-bottom:none}
+.pl .pn{font-family:var(--disp);font-weight:700;font-size:17px}
+.pl:nth-child(1) .pn{color:var(--ink)}.pl:nth-child(2) .pn{color:var(--c-amber)}.pl:nth-child(3) .pn{color:var(--c-blue)}.pl:nth-child(4) .pn{color:var(--c-red)}
+.pl .pp{font-family:var(--mono);font-size:14px;color:var(--ink)}
+.pl .px{color:var(--ink-2);font-size:13.5px;line-height:1.45}
+@media(max-width:560px){.pl{grid-template-columns:1fr 1fr;gap:6px}.pl .px{grid-column:1/-1}}
+
+/* arch grid */
+.arch{display:grid;grid-template-columns:1fr 1fr;gap:0;margin-top:18px;border:2.5px solid var(--ink);background:var(--card)}
+@media(max-width:600px){.arch{grid-template-columns:1fr}}
+.ar{padding:15px 18px;border-right:2px solid var(--ink);border-bottom:2px solid var(--ink)}
+.arch .ar:nth-child(2n){border-right:none}
+.ar .al{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3)}
+.ar .av{font-family:var(--disp);font-weight:600;font-size:15px;margin-top:6px;line-height:1.4}
+
+/* credo */
+.credo{margin-top:22px;border:2.5px solid var(--ink);background:var(--t-blue);padding:20px 22px;box-shadow:6px 6px 0 var(--ink)}
+.credo p{font-family:var(--disp);font-weight:600;font-size:clamp(17px,2.4vw,21px);line-height:1.4;letter-spacing:-.01em;color:var(--ink);max-width:62ch}
+
+.foot{margin-top:64px;border-top:3px solid var(--ink);padding-top:24px;font-family:var(--mono);font-size:12px;line-height:1.8;color:var(--ink-3);display:flex;flex-direction:column;gap:16px}
+.foot .flogo{display:inline-flex;align-items:center;gap:11px;color:var(--ink);font-weight:600}
+.foot .flogo .fw{font-family:var(--word);letter-spacing:.30em;font-size:13px}
+.foot b{color:var(--ink-2)}
+@media(max-width:560px){body{font-size:16px}.dt .v{font-size:22px}}
+
+/* ============================================================= */
+/* POINT-AND-EDIT LAYER — additive only; layout-neutral.          */
+/* Hover/selection use outline + outline-offset ONLY (never       */
+/* border/padding/margin/box-shadow) so the approved hard-border  */
+/* Bauhaus look stays pixel-for-pixel. Tag uses ::after only      */
+/* (base stylesheet uses ::before heavily, never ::after).        */
+/* ============================================================= */
+.ed{cursor:pointer;position:relative}
+.ed:hover{outline:2px dashed var(--ink);outline-offset:3px}
+.ed:hover::after{
+  content:'\270E edit';position:absolute;top:-9px;right:-2px;z-index:30;
+  font-family:var(--mono);font-size:8.5px;font-weight:600;letter-spacing:.06em;
+  background:var(--ink);color:var(--paper);padding:1px 5px;line-height:1.5;
+  pointer-events:none;white-space:nowrap}
+/* innermost-only affordance: an UNSELECTED editable that contains a hovered    */
+/* editable suppresses its own hover outline + badge — so hovering a keyword    */
+/* inside a bullet inside a section paints ONE dashed box (the innermost),      */
+/* matching the innermost-wins click behaviour. Pure CSS; degrades to the prior */
+/* stacking where :has() is unsupported; never touches the .ed-sel ring.        */
+.ed:not(.ed-sel):has(.ed:hover){outline:none}
+.ed:not(.ed-sel):has(.ed:hover)::after{content:none}
+.ed:focus-visible{outline:2px dashed var(--c-blue);outline-offset:3px}
+.ed.ed-sel,.ed.ed-sel:hover{outline:3px solid var(--c-blue);outline-offset:2px}
+.ed.ed-sel:hover::after{display:none}
+/* constructivist corner brackets on the selected element (only when it owns no ::before) */
+.ed.ed-sel::before{
+  content:'';position:absolute;left:-6px;top:-6px;width:12px;height:12px;
+  border-left:3px solid var(--c-blue);border-top:3px solid var(--c-blue);
+  z-index:31;pointer-events:none}
+.ed.ed-sel[data-haspseudo="1"]::before{content:none}
+.ed[contenteditable="true"]{outline:3px solid var(--c-amber);outline-offset:2px;cursor:text}
+.ed[contenteditable="true"]::after{display:none}
+
+/* first-load hint — Bauhaus pill */
+.me-hint{
+  position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:60;
+  display:flex;align-items:center;gap:12px;max-width:calc(100vw - 32px);
+  border:2.5px solid var(--ink);background:var(--card);color:var(--ink);
+  font-family:var(--mono);font-size:12.5px;line-height:1.4;letter-spacing:.01em;
+  padding:11px 14px 11px 16px;box-shadow:6px 6px 0 var(--c-amber)}
+.me-hint .hd{width:10px;height:10px;background:var(--c-blue);flex:none}
+.me-hint b{color:var(--ink)}
+.me-hint button{
+  flex:none;border:2px solid var(--ink);background:var(--ink);color:var(--paper);
+  font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:.06em;
+  text-transform:uppercase;padding:4px 9px;cursor:pointer;line-height:1}
+.me-hint button:hover{background:var(--c-blue);border-color:var(--c-blue)}
+.me-hint[hidden]{display:none}
+
+/* edit panel — the CURRENT chat idiom (2026-06-10 company-chat panel):
+   rounded Brut, ink header with the witness voice, bubble thread, pill input. */
+.me-panel{
+  position:fixed;right:24px;bottom:24px;z-index:70;width:392px;max-width:calc(100vw - 32px);
+  display:flex;flex-direction:column;overflow:hidden;
+  border:2.5px solid var(--ink);border-radius:14px;background:var(--card);
+  box-shadow:5px 5px 0 var(--ink);
+  max-height:min(78vh,640px)}
+.me-panel[hidden]{display:none}
+.me-panel__bar{
+  display:flex;align-items:center;gap:10px;
+  background:var(--ink);color:var(--paper);
+  font-family:var(--mono);font-size:10.5px;font-weight:700;letter-spacing:.14em;
+  text-transform:uppercase;padding:10px 14px}
+.me-panel__bar .bd{width:9px;height:9px;border-radius:50%;background:var(--c-amber);flex:none}
+.me-panel__live{margin-left:auto;font-size:9px;letter-spacing:.08em;border:1.5px solid var(--paper);
+  border-radius:999px;padding:2px 8px;white-space:nowrap}
+.me-panel__live[data-live="1"]{background:var(--c-amber);border-color:var(--c-amber);color:var(--ink)}
+.me-panel__x{
+  flex:none;cursor:pointer;border:1.5px solid var(--paper);border-radius:999px;
+  background:transparent;color:var(--paper);
+  font-family:var(--mono);font-size:11px;line-height:1;padding:3px 9px}
+.me-panel__x:hover{background:var(--paper);color:var(--ink)}
+.me-panel__x:focus-visible{outline:none;box-shadow:0 0 0 2px var(--c-blue)}
+.me-head{padding:13px 15px 11px;border-bottom:2px solid var(--ink);background:var(--card)}
+.me-head .lbl{font-family:var(--disp);font-weight:700;font-size:15px;line-height:1.2;letter-spacing:-.01em;color:var(--ink)}
+.me-head .snip{font-family:var(--mono);font-size:11px;color:var(--ink-2);margin-top:7px;line-height:1.5;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.me-head .prov{display:inline-flex;align-items:center;gap:6px;margin-top:9px;
+  font-family:var(--mono);font-size:10px;letter-spacing:.04em;color:var(--ink);
+  border:1.5px solid var(--ink);border-radius:999px;background:var(--t-amber);
+  padding:3px 10px;line-height:1.3;max-width:100%}
+.me-head .prov[hidden]{display:none}
+.me-head .prov::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--ink);flex:none}
+.me-thread{flex:1 1 auto;overflow-y:auto;padding:13px 14px;display:flex;flex-direction:column;gap:9px;background:var(--paper);min-height:64px}
+.me-msg{font-size:12.5px;line-height:1.5;max-width:94%;padding:9px 12px;
+  border:2px solid var(--ink);border-radius:12px;background:var(--card);
+  box-shadow:2px 2px 0 var(--ink)}
+@media (prefers-reduced-motion: no-preference){
+  .me-msg{animation:me-in .26s cubic-bezier(.2,.9,.3,1.2)}
+  @keyframes me-in{from{opacity:0;transform:translateY(8px) scale(.97)}to{opacity:1;transform:none}}
+}
+.me-msg.u{background:var(--ink);color:var(--paper);align-self:flex-end;box-shadow:none;font-family:var(--body)}
+.me-msg.m{align-self:flex-start}
+.me-msg .who{font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);display:block;margin-bottom:4px}
+.me-msg.u .who{color:var(--t-black)}
+.me-msg.m .who{color:var(--c-amber)}
+.me-msg .undo{display:inline-block;margin-top:7px;font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.08em;
+  text-transform:uppercase;cursor:pointer;border:1.5px solid var(--ink);border-radius:999px;
+  background:var(--card);color:var(--ink);padding:3px 11px;box-shadow:2px 2px 0 var(--ink);
+  transition:transform .1s, box-shadow .1s}
+.me-msg .undo:hover{transform:translate(-1px,-1px);box-shadow:3px 3px 0 var(--ink)}
+.me-msg .undo[data-done="1"]{opacity:.45;pointer-events:none;text-decoration:line-through;box-shadow:none}
+.me-form{display:flex;gap:8px;padding:12px 13px;border-top:2.5px solid var(--ink);background:var(--card);align-items:center}
+.me-form input{
+  flex:1 1 auto;min-width:0;border:2px solid var(--ink);border-radius:999px;
+  background:var(--paper-2);color:var(--ink);
+  font-family:var(--body);font-size:13px;padding:9px 15px}
+.me-form input:focus{outline:none;border-color:var(--c-blue);box-shadow:0 0 0 2px var(--c-blue)}
+.me-form input::placeholder{color:var(--ink-3)}
+.me-form button{
+  flex:none;border:2px solid var(--ink);border-radius:999px;background:var(--c-red);color:var(--paper);
+  font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  padding:9px 16px;cursor:pointer;box-shadow:2px 2px 0 var(--ink);
+  transition:transform .1s, box-shadow .1s}
+.me-form button:hover{transform:translate(-1px,-1px);box-shadow:3px 3px 0 var(--ink)}
+.me-form button:active{transform:translate(1px,1px);box-shadow:none}
+.me-form button:focus-visible{outline:none;box-shadow:0 0 0 2px var(--c-blue)}
+@media(max-width:560px){
+  .me-panel{right:0;left:0;bottom:0;width:auto;max-width:none;border-radius:14px 14px 0 0;
+    box-shadow:0 -5px 0 var(--ink);max-height:80vh}
+  .me-hint{bottom:14px}
+}
+
+/* honour the OS "reduce motion" preference — drop the smooth scroll */
+@media(prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+}
+</style>
+</head>
+<body>
+<main class="wrap">
+
+  <a class="backck" href="/cockpit.html#manas">&larr; cockpit</a>
+  <header class="mast">
+    <a class="logo" href="https://aikizi.com"><span class="pr">&gt;_</span><span class="dv"></span><span class="wd">AIKIZI</span></a>
+    <div class="grasp"><span class="gd"></span>Grasped by manas · Context Pack v1 · from code + site</div>
+    <div class="kick">Style DNA Decoder · AI visual-intelligence platform</div>
+    <h1>Reverse-engineer any media into its creative DNA.</h1>
+    <p class="sub">aikizi takes an image, a video, or a track you <em>didn&rsquo;t</em> make and decodes it &mdash; <b>style lineage, mood signature, composition blueprint</b>, and a <b>production-ready AI prompt to rebuild it</b>. 120+ attributes across ten parallel AI classes, in seconds. Decode-first, not generation-first: it understands before it creates.</p>
+    <div class="prompt" aria-hidden="true"><span class="u">manas</span> <span class="c">@aikizi</span> &raquo; read 461k LOC + crawl aikizi.com &rarr; extract who this company is</div>
+    <div class="note">This page is what manas produces after a connect: it read the repository and the website &mdash; <b>not</b> docs or PDFs, those are a separate channel &mdash; and extracted the company. Every claim below cites a real file or URL. manas never fabricates; an out-of-corpus claim is refused, not invented.</div>
+  </header>
+
+  <!-- numbers -->
+  <div class="dates">
+    <div class="dt"><div class="l">Decodes</div><div class="v">3 media</div><div class="x">image · video · audio &mdash; plus multi-image style profiles</div></div>
+    <div class="dt"><div class="l">Per decode</div><div class="v">120+</div><div class="x">visual attributes · 10 parallel AI classes</div></div>
+    <div class="dt"><div class="l">API surface</div><div class="v">408</div><div class="x">routes · 35 cron jobs · 5 databases</div></div>
+    <div class="dt"><div class="l">Born</div><div class="v">Oct 2025</div><div class="x">Kalai Labs Pvt Ltd · India · solo-built</div></div>
+  </div>
+
+  <!-- 01 · WHAT IT IS -->
+  <section class="sec">
+    <div class="sec__n">01 — What it is, in one line</div>
+    <h2 class="sec__t">&ldquo;You&rsquo;re not a prompt engineer. You&rsquo;re a creator.&rdquo;</h2>
+    <p class="sec__lead">The wedge is inversion. Everyone else helps you <em>generate</em>; aikizi helps you <em>understand</em> first &mdash; it reverse-engineers media into the words and structure that made it, so the creator stays the author and the AI does the describing.</p>
+    <ul class="b">
+      <li><b>Decode-first</b> &mdash; upload anything (even work that isn&rsquo;t yours: a reference, a competitor, a screenshot) and get its creative DNA: style lineage, mood, composition, palette, cultural context. <span class="src">README.md · aikizi.com</span></li>
+      <li><b>The output is a prompt you can run</b> &mdash; every decode ends in a production-ready AI prompt, so understanding converts straight into making. <span class="src">aikizi.com hero</span></li>
+      <li><b>For creators with inspiration archives</b> &mdash; designers, photographers, artists, directors, concept artists who collect references and need to operationalize them. <span class="src">docs/AIKIZI-WHITEPAPER-2026.md</span></li>
+      <li><b>The moat is the decoder</b> &mdash; aikizi owns the understanding layer, not just a generation wrapper. Anyone can call a model to make an image; aikizi&rsquo;s asset is the taxonomy that takes one apart. <span class="src">brain &amp; decode engine</span></li>
+    </ul>
+  </section>
+
+  <!-- 02 · THE DECODE ENGINE -->
+  <section class="sec">
+    <div class="sec__n">02 — The decode engine · the heart</div>
+    <h2 class="sec__t">Eight streams. Ten parallel classes. One creative DNA.</h2>
+    <p class="sec__lead">Every decode fans out into parallel AI classes (10 for image, 9 each for video and audio), surfaced to the creator as the signature <b>8-Color Stream System</b> &mdash; the real brand taxonomy, in its real colours:</p>
+    <div class="streams">
+      <div class="st"><div class="sw" style="background:#FF7A7A"></div><div class="sn">Core</div><div class="sx">subject · identity · essence</div><div class="sh">#FF7A7A</div></div>
+      <div class="st"><div class="sw" style="background:#A78BFA"></div><div class="sn">Mood</div><div class="sx">emotion · psychology · resonance</div><div class="sh">#A78BFA</div></div>
+      <div class="st"><div class="sw" style="background:#00D4FF"></div><div class="sn">Visual</div><div class="sx">camera · composition · light</div><div class="sh">#00D4FF</div></div>
+      <div class="st"><div class="sw" style="background:#7DF9FF"></div><div class="sn">Form</div><div class="sx">pose · anatomy · structure</div><div class="sh">#7DF9FF</div></div>
+      <div class="st"><div class="sw" style="background:#FF8FE0"></div><div class="sn">Style</div><div class="sx">aesthetic lineage · DNA</div><div class="sh">#FF8FE0</div></div>
+      <div class="st"><div class="sw" style="background:#00E689"></div><div class="sn">World</div><div class="sx">setting · culture · context</div><div class="sh">#00E689</div></div>
+      <div class="st"><div class="sw" style="background:#F59E0B"></div><div class="sn">Matter</div><div class="sx">materials · textures · craft</div><div class="sh">#F59E0B</div></div>
+      <div class="st"><div class="sw" style="background:#C4F000"></div><div class="sn">Create</div><div class="sx">generation · prompts · output</div><div class="sh">#C4F000</div></div>
+    </div>
+    <div class="mdx">
+      <div class="md"><div class="mn">Image<small>all users</small></div><div class="mc">10 classes: Core, Mood, Visual, Form, Style, World, Matter, Compliance, Create, Lexicon</div><div class="mt">3&ndash;5 tokens</div></div>
+      <div class="md"><div class="mn">Video<small>pro+</small></div><div class="mc">9 classes: Core, Mood, Cinematic, Kinetic, Style, World, Physics, Create, Compliance</div><div class="mt">10&ndash;20 tokens</div></div>
+      <div class="md"><div class="mn">Audio<small>pro+</small></div><div class="mc">9 classes: Sonic, Harmonic, Texture, Mood, Style, World, Core, Create, Compliance</div><div class="mt">10&ndash;20 tokens</div></div>
+      <div class="md"><div class="mn">Style<small>multi-image</small></div><div class="mc">5 classes over 3&ndash;10 images: a reusable Style DNA profile across a body of work</div><div class="mt">profile</div></div>
+    </div>
+    <p class="sec__lead" style="margin-top:14px">Powered by <b>Google Gemini 2.5 / 3.0 running ~10 streams in parallel</b>. The same taxonomy renders identically on web and the iOS app &mdash; seven tabs, a typewriter reveal, per-stream colour. <span class="src">docs/claude-refs/feature-map.md · design-language.md</span></p>
+  </section>
+
+  <!-- 03 · THE FULL PRODUCT -->
+  <section class="sec">
+    <div class="sec__n">03 — The full product · the surfaces</div>
+    <h2 class="sec__t">Understand, then make &mdash; a whole creative loop.</h2>
+    <p class="sec__lead">Decode is the front door; the product closes the loop from understanding to creation to distribution.</p>
+    <div class="tiles">
+      <div class="tile"><div class="tl">Decode</div><div class="tx">image · video · audio &rarr; creative DNA + prompt</div></div>
+      <div class="tile"><div class="tl">Create</div><div class="tx">image, video &amp; audio generation: Nano Banana Pro/2, Seed Dream, Seedance, ElevenLabs</div></div>
+      <div class="tile"><div class="tl">Realms</div><div class="tx">template-driven, identity-preserving generation from a fixed character/style</div></div>
+      <div class="tile"><div class="tl">Weaves <small>beta</small></div><div class="tx">compose multiple references into one new image</div></div>
+      <div class="tile"><div class="tl">Blueprints</div><div class="tx">reusable composition templates, public-browse, gated create</div></div>
+      <div class="tile"><div class="tl">Explore</div><div class="tx">a public gallery of community decodes — learn from how others were taken apart</div></div>
+      <div class="tile"><div class="tl">Library</div><div class="tx">your private corpus of decodes &amp; creations, searchable</div></div>
+      <div class="tile"><div class="tl">Publishing</div><div class="tx">a publisher-approval workflow from private &rarr; public</div></div>
+      <div class="tile"><div class="tl">Apps &amp; API</div><div class="tx">web · native iOS · Chrome extension · MCP server · public <span class="mono">aikizi.com/v1</span></div></div>
+    </div>
+    <p class="sec__lead" style="margin-top:14px"><b>73 product pages, 447 React components</b>, a 60-screen SwiftUI iOS app on iOS-26 glass, a Chrome extension, and an MCP server that makes the whole thing agent-callable. <span class="src">git ls-files · CLAUDE.md · ios/</span></p>
+  </section>
+
+  <!-- 04 · THE BRAIN -->
+  <section class="sec">
+    <div class="sec__n">04 — The brain · IZI</div>
+    <h2 class="sec__t">A company that partly runs itself.</h2>
+    <p class="sec__lead">The most unusual thing in the repo isn&rsquo;t a feature &mdash; it&rsquo;s an autonomous agent that operates aikizi. <b>IZI</b> is a Cloudflare Durable Object (~40 modules, 17,500 lines) that remembers, decides, and acts on a schedule.</p>
+    <ul class="b">
+      <li><b>A real memory graph</b> &mdash; entities typed as thought / observation / perspective / connection / reference / decision / hypothesis / principle, across 14 domains, with supersedes-versioning and vector search. <span class="src">src/worker/brain/brain-memory-graph.ts · brain-calendar.md</span></li>
+      <li><b>It maintains itself</b> &mdash; a self-monitor, a self-repair workflow, an hourly discovery loop, and scheduled jobs the agent runs on its own. <span class="src">brain-self-monitor · brain-self-repair-workflow · brain-discovery</span></li>
+      <li><b>It runs growth</b> &mdash; an autopilot + content-calendar across <b>12 social accounts</b> (X, LinkedIn, Instagram, YouTube), with a daily Telegram briefing. <span class="src">cron-autopilot · content-calendar-role</span></li>
+      <li><b>35 cron triggers / 33 jobs</b> keep the platform alive &mdash; decode queues, enrichment, BYOK credits, SEO, duplicate detection, memory compaction. The lights stay on without a team. <span class="src">wrangler.toml · src/worker/index.ts</span></li>
+    </ul>
+  </section>
+
+  <!-- 05 · ARCHITECTURE -->
+  <section class="sec">
+    <div class="sec__n">05 — How it&rsquo;s built</div>
+    <h2 class="sec__t">One Cloudflare Worker, edge to app store.</h2>
+    <div class="arch">
+      <div class="ar"><div class="al">Frontend</div><div class="av">React 18 · TypeScript · Vite · Tailwind · TanStack Query</div></div>
+      <div class="ar"><div class="al">Backend</div><div class="av">One Cloudflare Worker (edge) · 408 routes · 16 route groups</div></div>
+      <div class="ar"><div class="al">Intelligence</div><div class="av">Gemini 2.5/3.0 (~10 parallel streams) · BytePlus · Leonardo · ElevenLabs</div></div>
+      <div class="ar"><div class="al">Data</div><div class="av">Supabase (Postgres) · 5 D1 databases · Vectorize · 274 migrations</div></div>
+      <div class="ar"><div class="al">Storage</div><div class="av">Cloudflare Images · R2 (audio/video)</div></div>
+      <div class="ar"><div class="al">Clients</div><div class="av">Web SPA · native iOS (SwiftUI) · Chrome extension · MCP server</div></div>
+    </div>
+    <div class="box soft">
+      <div class="h">A security scar worth noting</div>
+      <p style="color:var(--ink-2);font-size:15px">After a self-elevation incident, three tables (<span class="mono">profiles · users · entitlements</span>) got <b>BEFORE-trigger column-lock guards</b> &mdash; RLS is row-level, not column-level, so a row owner could otherwise flip <span class="mono">is_admin</span> or a billing field. A CI audit (<span class="mono">rls_audit.py</span>) now fails the build if a flagged write is reintroduced. The platform learned, and hardened. <span class="src">CLAUDE.md · scripts/security/rls_audit.py</span></p>
+    </div>
+  </section>
+
+  <!-- 06 · BUSINESS -->
+  <section class="sec">
+    <div class="sec__n">06 — How it makes money</div>
+    <h2 class="sec__t">A token economy, four rungs, BYOK at the top.</h2>
+    <div class="plans">
+      <div class="pl"><div class="pn">Free</div><div class="pp">$0</div><div class="px">5 one-time credits · browse 200 · image decode only</div></div>
+      <div class="pl"><div class="pn">Basic</div><div class="pp">$8 / mo</div><div class="px">180 credits/mo · full explore · image decode + gen · library · blueprints</div></div>
+      <div class="pl"><div class="pn">Pro</div><div class="pp">$20 / mo</div><div class="px">540 credits/mo · video + audio decode &amp; gen · 4K · bulk · priority queue</div></div>
+      <div class="pl"><div class="pn">BYOK</div><div class="pp">$30 / 3mo</div><div class="px">all Pro features on <b>your own</b> Gemini / OpenAI key &mdash; the prosumer / power tier</div></div>
+    </div>
+    <ul class="b">
+      <li><b>Usage is metered in tokens</b> &mdash; a decode costs 3&ndash;20, a generation 4&ndash;45, so cost tracks real model spend and BYOK lets heavy users bring their own. <span class="src">docs/claude-refs/feature-map.md</span></li>
+      <li><b>Payments are global-first</b> &mdash; Dodo (150+ countries), Razorpay (India), StoreKit (iOS), Stripe staged. <span class="src">feature-map.md</span></li>
+      <li><b>Maker</b> &mdash; Kalai Labs Pvt Ltd, India; first commit Oct 3, 2025; built almost entirely solo, in conversation with AI. <span class="src">docs/AIKIZI-COMPLETE-CONTEXT.md · git</span></li>
+    </ul>
+  </section>
+
+  <!-- 07 · THE TAKE -->
+  <section class="sec">
+    <div class="sec__n">07 — manas&rsquo;s read</div>
+    <h2 class="sec__t">What the company actually is, said plainly.</h2>
+    <ul class="b">
+      <li><b>Category:</b> AI visual-intelligence &mdash; the <em>understanding</em> layer of the creative stack, where almost everyone else builds the generation layer.</li>
+      <li><b>Unfair advantage:</b> a decoder it owns &mdash; an 8-stream, 120+-attribute taxonomy across four media types &mdash; plus an autonomous brain that runs ops. Both are hard to copy and compound with use.</li>
+      <li><b>Shape:</b> a prosumer creative tool with an enterprise-grade backend (408 routes, 5 databases, 35 crons, native apps) carried by one founder.</li>
+      <li><b>Voice:</b> plain, creator-first, scientific-metaphor (&ldquo;Style DNA&rdquo;, &ldquo;Blueprints&rdquo;, &ldquo;Weaves&rdquo;) &mdash; never hype, never &ldquo;prompt engineering.&rdquo;</li>
+    </ul>
+    <div class="credo">
+      <p>aikizi sells understanding, not output. In a market racing to generate more, it is the rare product that pays off knowing exactly what you&rsquo;re looking at &mdash; and that is the part competitors can&rsquo;t cheaply clone.</p>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <div class="flogo"><span class="logo" style="box-shadow:3px 3px 0 var(--ink);padding:7px 12px"><span class="pr" style="font-size:16px">&gt;_</span><span class="dv" style="height:17px;margin:0 11px"></span><span class="wd" style="font-size:13px;letter-spacing:.28em;padding-left:.28em">AIKIZI</span></span></div>
+    <div><b>aikizi</b> &mdash; AI visual-intelligence · Style DNA Decoder · aikizi.com. This is the post-extraction showcase manas renders after connecting a project: read the <b>code</b> + crawl the <b>site</b>, extract the company, cite every fact, refuse what isn&rsquo;t there.</div>
+    <div><b>Sources:</b> the aikizi repository (README.md · CLAUDE.md · docs/claude-refs/* · wrangler.toml · src/worker/brain/* · git) + a live crawl of <span class="mono">aikizi.com</span>. Grasped <b>2026-06-08</b> · Context Pack v1 · grounded, cited, un-fabricated.</div>
+  </footer>
+
+</main>
+
+<!-- ============================ POINT-AND-EDIT UI ============================ -->
+<div class="me-hint" id="meHint" role="status">
+  <span class="hd"></span>
+  <span><b>Click any block or word</b> to point manas at it and ask for a change.</span>
+  <button type="button" id="meHintX">Got it</button>
+</div>
+
+<aside class="me-panel" id="mePanel" hidden aria-label="Edit panel" role="dialog" aria-modal="false">
+  <div class="me-panel__bar">
+    <span class="bd"></span>
+    <span>Editing</span>
+    <span class="me-panel__live" id="meLive" data-live="0">offline preview</span>
+    <button type="button" class="me-panel__x" id="meClose" aria-label="Close (Esc)">&#x2715;</button>
+  </div>
+  <div class="me-head">
+    <div class="lbl" id="meLabel">&mdash;</div>
+    <div class="snip" id="meSnip"></div>
+    <div class="prov" id="meProv" hidden></div>
+  </div>
+  <div class="me-thread" id="meThread"></div>
+  <form class="me-form" id="meForm" autocomplete="off">
+    <input type="text" id="meInput" placeholder="Tell manas what to change&hellip;" aria-label="Tell manas what to change">
+    <button type="submit">Send</button>
+  </form>
+</aside>
+
+<script>
+/* manas point-and-edit — vanilla JS, single IIFE, offline-first with live fallback. */
+(function(){
+  "use strict";
+  var ROOT = document.querySelector('main.wrap');
+  if(!ROOT) return;
+
+  var panel  = document.getElementById('mePanel');
+  var liveTag= document.getElementById('meLive');
+  var elLabel= document.getElementById('meLabel');
+  var elSnip = document.getElementById('meSnip');
+  var elProv = document.getElementById('meProv');
+  var thread = document.getElementById('meThread');
+  var form   = document.getElementById('meForm');
+  var input  = document.getElementById('meInput');
+  var hint   = document.getElementById('meHint');
+
+  var current = null;     // currently selected .ed element
+  var baseUrl = null;     // resolved backend base, or null = offline
+  var LIVE = false;
+
+  /* ---------- 1. TAGGING: mark editables, innermost-first, deterministic ids ---------- */
+  // [selector, type, human label] — keyword selectors come AFTER containers so they
+  // win via closest('.ed') at click time; tag() guards against double-tagging.
+  var SPECS = [
+    ['.mast h1',   'headline',  'Masthead headline'],
+    ['.mast .sub', 'lead',      'Hero description'],
+    ['.mast .note','note',      'Provenance note'],
+    ['.sec',       'section',   'Section'],
+    ['.sec__n',    'eyebrow',   'Section label'],
+    ['.sec__t',    'sectitle',  'Section title'],
+    ['.sec__lead', 'lead',      'Section lead'],
+    ['.dt',        'metric',    'Metric cell'],
+    ['ul.b li',    'bullet',    'Bullet'],
+    ['.st',        'stream',    'Stream chip'],
+    ['.md',        'media',     'Media row'],
+    ['.tile',      'surface',   'Surface tile'],
+    ['.pl',        'plan',      'Plan row'],
+    ['.ar',        'archrow',   'Architecture row'],
+    ['.box',       'box',       'Box'],
+    ['.credo p',   'credo',     'Credo'],
+    // prominent value sub-fields — so clicking the big number / name / price edits THAT
+    // value, not the card's longest run. Listed before keywords; non-keyword types, so
+    // they use the structure-safe longest-run write-back (any nested <b>/.mono survives).
+    ['.dt .v',     'metricval', 'Metric value'],
+    ['.dt .x',     'metricnote','Metric note'],
+    ['.st .sn',    'streamname','Stream name'],
+    ['.st .sx',    'streamnote','Stream note'],
+    ['.ar .av',    'archval',   'Architecture value'],
+    ['.pl .pn',    'planname',  'Plan name'],
+    ['.pl .pp',    'planprice', 'Plan price'],
+    ['.pl .px',    'plandesc',  'Plan details'],
+    ['.tile .tx',  'surfdesc',  'Surface description'],
+    ['.md .mc',    'mediadesc', 'Media classes'],
+    ['.md .mt',    'mediatok',  'Media tokens'],
+    // inline keywords — innermost; resolved via closest('.ed') + stopPropagation.
+    // (Spec order is for readability only; innermost-wins is enforced at click
+    //  time by closest('.ed') + stopPropagation, never by this array's order.)
+    ['b',          'keyword',   'Keyword'],
+    ['strong',     'keyword',   'Keyword'],
+    ['.mono',      'keyword',   'Code chip'],
+    ['.src',       'citation',  'Citation'],
+    ['.cite',      'citation',  'Citation']
+  ];
+
+  var counters = {};
+  function nextId(type){
+    counters[type] = (counters[type]||0) + 1;
+    return 'ed-' + type + '-' + counters[type];
+  }
+
+  function tag(el, type, label){
+    if(el.classList.contains('ed')) return;   // already tagged
+    el.classList.add('ed');
+    el.setAttribute('data-edit-id', nextId(type));
+    el.setAttribute('data-edit-type', type);
+    el.setAttribute('data-edit-label', label);
+    el.setAttribute('tabindex','0');
+    // ARIA: only the inline LEAF editables (keyword / citation) carry
+    // role='button'. Containers (sections, boxes, leads, bullets…) nest other
+    // editables, and role=button inside role=button is invalid ARIA and makes
+    // a screen reader announce a whole section as one button. Containers get an
+    // editable aria-label instead, while staying keyboard-activatable via the
+    // tabindex + Enter/Space handler.
+    if(type === 'keyword' || type === 'citation'){
+      el.setAttribute('role','button');
+    } else {
+      el.setAttribute('aria-label', 'Edit: ' + label);
+    }
+    // mark elements that already own a ::before so the bracket pseudo doesn't fight them
+    if(el.matches('.sec, ul.b li, .box, .sec__n')) el.setAttribute('data-haspseudo','1');
+  }
+
+  SPECS.forEach(function(spec){
+    var nodes = ROOT.querySelectorAll(spec[0]);
+    for(var i=0;i<nodes.length;i++){ tag(nodes[i], spec[1], spec[2]); }
+  });
+
+  /* the gated deploy needs the founder's JWT — reuse the cockpit's persisted
+     Supabase session straight from localStorage (no SDK on this page) */
+  function authHeaders(h){
+    h = h || {};
+    try{
+      for(var i=0;i<localStorage.length;i++){
+        var k = localStorage.key(i);
+        if(k && k.indexOf('sb-')===0 && k.indexOf('-auth-token')!==-1){
+          var tok = (JSON.parse(localStorage.getItem(k))||{}).access_token;
+          if(tok){ h['Authorization'] = 'Bearer ' + tok; }
+          break;
+        }
+      }
+    }catch(e){}
+    return h;
+  }
+
+  /* ---------- helpers ---------- */
+  function elementText(el){
+    return (el.textContent||'').replace(/\s+/g,' ').trim();
+  }
+  function shortLabel(el){
+    return el.getAttribute('data-edit-label') || 'Element';
+  }
+  function provenanceOf(el){
+    var hit = el.querySelector ? el.querySelector('.src, .cite, .prov') : null;
+    if(!hit){
+      var box = el.closest('li, .box, .sec, .md, .pl, .ar, .tile, .dt, .st');
+      if(box && box !== el) hit = box.querySelector('.src, .cite, .prov');
+    }
+    if(hit && hit !== el) return elementText(hit);
+    if((el.getAttribute('data-edit-type')==='citation')) return elementText(el);
+    return '';
+  }
+
+  // The exact text the LIVE path will overwrite — kept in lock-step with the
+  // write-back in the submit handler. Keywords swap their whole text; containers
+  // edit ONLY their longest text run, so a bullet's <b> lead + .src citation
+  // survive (the model never sees or rewrites them). This is what makes the
+  // backend edit structure-safe instead of clobbering the element.
+  function editableText(el){
+    if(isKeywordEl(el)) return elementText(el);
+    var lng = longestTextNode(el);
+    if(!lng) return elementText(el);
+    // A bullet's body run physically STARTS with the "— " separator (it lives in the
+    // text node, not the <b>). Strip that boundary before sending so the model only
+    // rewrites the prose; the exact separator is re-prepended on write-back. Without
+    // this, a live reply that omits the leading dash fuses the <b> lead into the body.
+    return lng.nodeValue.replace(/^[\s—–\-]+/,'').replace(/\s+/g,' ').trim();
+  }
+
+  /* ---------- 2/3. SELECT ---------- */
+  function clearSelection(){
+    if(current){ current.classList.remove('ed-sel'); }
+    current = null;
+  }
+  function selectEl(el){
+    if(current === el){ try{ input.focus(); }catch(e){} return; }
+    if(hint){ hint.hidden = true; }   // starting an edit hides the discovery hint for
+                                      // THIS session only (no persist) — a showcase page
+                                      // reloaded by another viewer still gets the cue;
+                                      // only the explicit "Got it" button persists dismissal.
+    clearSelection();
+    current = el;
+    el.classList.add('ed-sel');
+    openPanel(el);
+  }
+
+  function openPanel(el){
+    panel.hidden = false;
+    elLabel.textContent = shortLabel(el);
+    refreshSnip(el, true);
+    var prov = provenanceOf(el);
+    if(prov){ elProv.hidden = false; elProv.textContent = 'from ' + prov; }
+    else { elProv.hidden = true; elProv.textContent = ''; }
+    thread.innerHTML = '';
+    addMsg('manas',
+      'Pointed at the ' + shortLabel(el).toLowerCase() +
+      '. Tell me what to change — e.g. "change X to Y", "shorten", or "remove".');
+    ensureVisible(el);      // nudge the selection clear of the docked panel
+    setTimeout(function(){ try{ input.focus(); }catch(e){} }, 30);
+  }
+
+  function closePanel(){
+    panel.hidden = true;
+    clearSelection();
+  }
+
+  function refreshSnip(el, force){
+    if(!force && current !== el) return;
+    var txt = elementText(el);
+    elSnip.textContent = txt.length > 160 ? txt.slice(0,160) + '…' : txt;
+  }
+
+  /* keep the selection visible + clear of the bottom-right panel. Only scrolls
+     when the element is actually hidden (behind the panel, or off-screen); a
+     comfortably-visible selection is left exactly where it is. Honours
+     prefers-reduced-motion by skipping the smooth animation. */
+  function prefersReducedMotion(){
+    try{ return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches); }
+    catch(e){ return false; }
+  }
+  function ensureVisible(el){
+    if(!el || !el.getBoundingClientRect) return;
+    requestAnimationFrame(function(){
+      var er = el.getBoundingClientRect();
+      var vh = window.innerHeight || document.documentElement.clientHeight;
+      var pad = 12;
+      var pr = (panel && !panel.hidden) ? panel.getBoundingClientRect() : null;
+      var overlapsPanel = pr &&
+        er.right > pr.left && er.left < pr.right &&
+        er.bottom > pr.top && er.top < pr.bottom;
+      var offBelow = er.bottom > vh - pad;
+      var offAbove = er.top < pad;
+      if(!(overlapsPanel || offBelow || offAbove)) return;   // already clear → leave it
+      var target = window.scrollY + er.top - vh * 0.22;       // bring it ~22% from the top
+      try{
+        window.scrollTo({ top: Math.max(0, target), behavior: prefersReducedMotion() ? 'auto' : 'smooth' });
+      }catch(e){ window.scrollTo(0, Math.max(0, target)); }
+    });
+  }
+
+  /* ---------- thread rendering ---------- */
+  function addMsg(who, text, undoFn){
+    var d = document.createElement('div');
+    d.className = 'me-msg ' + (who==='manas' ? 'm' : 'u');
+    var w = document.createElement('span');
+    w.className = 'who';
+    w.textContent = who;
+    d.appendChild(w);
+    var body = document.createElement('span');
+    body.textContent = text;
+    d.appendChild(body);
+    if(undoFn){
+      d.appendChild(document.createElement('br'));
+      var u = document.createElement('span');
+      u.className = 'undo';
+      u.textContent = 'undo';
+      u.addEventListener('click', function(){
+        if(u.getAttribute('data-done')==='1') return;
+        undoFn();
+        u.setAttribute('data-done','1');
+        u.textContent = 'undone';
+        if(current) refreshSnip(current);
+      });
+      d.appendChild(u);
+    }
+    thread.appendChild(d);
+    thread.scrollTop = thread.scrollHeight;
+    return d;
+  }
+
+  /* ---------- 5. EDIT ENGINE (offline) ---------- */
+  // Replace first occurrence of `find` with `repl` across TEXT NODES ONLY
+  // (preserves child structure of .dt/.md/.pl/.ar/.st/.tile etc.)
+  function replaceInTextNodes(el, find, repl){
+    var walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, null);
+    var lower = find.toLowerCase();
+    var n;
+    while((n = walker.nextNode())){
+      var v = n.nodeValue;
+      var idx = v.toLowerCase().indexOf(lower);
+      if(idx !== -1){
+        n.nodeValue = v.slice(0, idx) + repl + v.slice(idx + find.length);
+        return true;
+      }
+    }
+    return false;
+  }
+  function longestTextNode(el){
+    var longest=null, longestLen=0;
+    var walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, null);
+    var n;
+    while((n = walker.nextNode())){
+      var len=(n.nodeValue||'').trim().length;
+      if(len>longestLen){ longestLen=len; longest=n; }
+    }
+    return longest;
+  }
+  function snapshot(el){ return { html: el.innerHTML }; }
+  function restore(el, snap){ el.innerHTML = snap.html; }
+  function isKeywordEl(el){
+    var t = el.getAttribute('data-edit-type');
+    return t === 'keyword' || t === 'citation';
+  }
+
+  // Parse the instruction → {kind, ...}
+  function parseInstruction(msg){
+    var m = msg.trim();
+    var lc = m.toLowerCase();
+    var rem = parseRemove(m);
+    if(rem) return rem;
+    if(/^(shorten|trim|condense|tighten)\b/.test(lc)) return {kind:'shorten'};
+    var arrow = m.match(/^(.+?)\s*(?:->|=>|→)\s*(.+)$/);
+    if(arrow) return {kind:'replace', find:unquote(arrow[1].trim()), repl:unquote(arrow[2].trim())};
+    var chg = m.match(/^(?:change|replace|swap|rename|make)\s+(.+?)\s+(?:to|with|into)\s+(.+)$/i);
+    if(chg) return {kind:'replace', find:unquote(chg[1].trim()), repl:unquote(chg[2].trim())};
+    var setm = m.match(/^(?:set\s+(?:it\s+)?to|use|say|write|new\s+text:?)\s+(.+)$/i);
+    if(setm) return {kind:'value', value:unquote(setm[1].trim())};
+    if(looksLikeValue(m)) return {kind:'value', value:m};
+    return {kind:'edit'};
+  }
+  function unquote(s){ return s.replace(/^["'“‘]+|["'”’]+$/g,'').trim(); }
+
+  // Distinguish a WHOLE-ELEMENT delete from a SUBSTRING delete.
+  //   whole element : "remove", "delete this", "remove it", "remove the bullet"
+  //   substring     : 'remove "X"', "delete the word X", "remove BYOK from the price"
+  // Returns {kind:'remove'} | {kind:'replace', find:X, repl:''} | null (not a remove).
+  function parseRemove(m){
+    var lead = m.match(/^(remove|delete|drop)\b\s*(.*)$/i);
+    if(!lead) return null;
+    var rest = lead[2].trim();
+
+    // bare verb, or "this"/"it" → whole element
+    if(rest === '' || /^(this|it)\b[.!]?$/i.test(rest)) return {kind:'remove'};
+
+    // explicitly scoped to a word/phrase/substring → SUBSTRING delete
+    var scoped = rest.match(/^the\s+(?:word|phrase|text|string|term)\s+(.+)$/i);
+    if(scoped){
+      var sub = unquote(scoped[1].replace(/\s+from\b[\s\S]*$/i,'').trim());
+      if(sub) return {kind:'replace', find:sub, repl:''};
+    }
+
+    // a quoted run anywhere → SUBSTRING delete of the quoted text
+    var quoted = rest.match(/["'“‘]([^"'”’]+)["'”’]/);
+    if(quoted && quoted[1].trim()) return {kind:'replace', find:quoted[1].trim(), repl:''};
+
+    // "<thing> from <where>" → SUBSTRING delete of <thing>
+    var fromIdx = rest.search(/\sfrom\b/i);
+    if(fromIdx !== -1){
+      var thing = unquote(rest.slice(0, fromIdx).replace(/^the\s+/i,'').trim());
+      if(thing) return {kind:'replace', find:thing, repl:''};
+    }
+
+    // "the <single token>" with no scope/quote/from → treat as a whole-element
+    // label reference (e.g. "remove the bullet", "delete the box").
+    if(/^the\s+\S+[.!]?$/i.test(rest)) return {kind:'remove'};
+
+    // Anything else after the verb is a specific phrase → SUBSTRING delete,
+    // so "remove production-ready" never nukes the whole block.
+    var phrase = unquote(rest.replace(/\sfrom\b[\s\S]*$/i,'').trim());
+    if(phrase) return {kind:'replace', find:phrase, repl:''};
+    return {kind:'remove'};
+  }
+
+  function looksLikeValue(m){
+    var lc = m.toLowerCase();
+    if(/\b(change|replace|swap|rename|shorten|trim|remove|delete|make it|turn it|fix|update|edit it)\b/.test(lc)) return false;
+    return m.length >= 2 && m.length <= 200;
+  }
+  function firstSentence(text){
+    var m = text.match(/^.*?[.!?—](\s|$)/);
+    if(m) return m[0].trim();
+    var w = text.split(/\s+/);
+    return w.slice(0, Math.min(12, w.length)).join(' ');
+  }
+
+  // Apply the local edit. Returns {reply, undo} or null if it deferred to contentEditable.
+  function applyLocalEdit(el, instr){
+    var snap = snapshot(el);
+    var keyword = isKeywordEl(el);
+
+    if(instr.kind === 'remove'){
+      var parent = el.parentNode;
+      var next = el.nextSibling;
+      if(!parent) return {reply:"I couldn't find a parent to remove this from.", undo:null};
+      if(!window.confirm('Remove this ' + shortLabel(el).toLowerCase() + '?')){
+        return {reply:'Kept it — removal cancelled.', undo:null};
+      }
+      var removedLabel = shortLabel(el).toLowerCase();
+      el.classList.remove('ed-sel');   // don't carry the selection ring onto the detached node
+      parent.removeChild(el);
+      // Keep the panel OPEN so the reply + Undo render visibly. The element is
+      // detached, so drop the live selection pointer but leave the panel up and
+      // retarget its head to a stable 'Removed' state (no panel.hidden flip).
+      if(current === el){
+        current = null;
+        elLabel.textContent = 'Removed';
+        elSnip.textContent = 'Removed the ' + removedLabel + '. Use Undo below to restore it.';
+        elProv.hidden = true; elProv.textContent = '';
+      }
+      return {
+        reply:'Removed the ' + removedLabel + '.',
+        undo:function(){
+          parent.insertBefore(el, next);
+          if(current) refreshSnip(current);
+        }
+      };
+    }
+
+    if(instr.kind === 'replace'){
+      var ok = replaceInTextNodes(el, instr.find, instr.repl);
+      if(ok){
+        var rmsg = instr.repl === ''
+          ? 'Deleted "' + instr.find + '".'
+          : 'Changed "' + instr.find + '" to "' + instr.repl + '".';
+        return { reply:rmsg, undo:function(){ restore(el, snap); } };
+      }
+      return null; // not found → offer direct edit
+    }
+
+    if(instr.kind === 'shorten'){
+      if(keyword){
+        var t = elementText(el);
+        var s = t.split(/\s+/).slice(0,2).join(' ');
+        el.textContent = s;
+        return {reply:'Shortened to "' + s + '".', undo:function(){ restore(el, snap); }};
+      }
+      var longest = longestTextNode(el);
+      if(longest){
+        var short = firstSentence(longest.nodeValue.trim());
+        longest.nodeValue = (/\s$/.test(longest.nodeValue)? short+' ' : short);
+        return {reply:'Trimmed it to the first sentence.', undo:function(){ restore(el, snap); }};
+      }
+      return null;
+    }
+
+    if(instr.kind === 'value'){
+      if(keyword){
+        el.textContent = instr.value;
+        return {reply:'Set it to "' + instr.value + '".', undo:function(){ restore(el, snap); }};
+      }
+      var lng = longestTextNode(el);
+      if(lng){
+        lng.nodeValue = instr.value;
+        var shown = instr.value.length>60 ? instr.value.slice(0,60)+'…' : instr.value;
+        return {reply:'Updated the text to "' + shown + '".', undo:function(){ restore(el, snap); }};
+      }
+      return null;
+    }
+
+    return null; // 'edit' → contentEditable fallback
+  }
+
+  // Direct contentEditable fallback, prefilled with current text.
+  function enterDirectEdit(el, reply){
+    var snap = snapshot(el);
+    el.setAttribute('contenteditable','true');
+    el.focus();
+    try{
+      var r = document.createRange(); r.selectNodeContents(el); r.collapse(false);
+      var s = window.getSelection(); s.removeAllRanges(); s.addRange(r);
+    }catch(e){}
+    function finish(){
+      el.removeAttribute('contenteditable');
+      el.removeEventListener('blur', finish);
+      el.removeEventListener('keydown', onkey);
+      if(current === el) refreshSnip(el);
+    }
+    function onkey(ev){
+      if(ev.key === 'Enter' && !ev.shiftKey){ ev.preventDefault(); finish(); }
+      if(ev.key === 'Escape'){ ev.preventDefault(); ev.stopPropagation(); restore(el, snap); finish(); }
+    }
+    el.addEventListener('blur', finish);
+    el.addEventListener('keydown', onkey);
+    addMsg('manas', reply || 'I have opened this for direct editing — type your fix in place, then press Enter (Esc to cancel).',
+      function(){ restore(el, snap); });
+  }
+
+  /* ---------- 5 (live). Try backend, fall back to local ---------- */
+  function backendEdit(el, instruction, cb){
+    // baseUrl==='' is a VALID same-origin base (page served by the backend);
+    // null is the real "offline" sentinel. Using !baseUrl here would wrongly
+    // bail to offline on the primary served-from-server path.
+    if(!LIVE || baseUrl === null){ cb(null); return; }
+    var payload = {
+      label: shortLabel(el),
+      edit_id: el.getAttribute('data-edit-id'),
+      current_text: editableText(el),
+      provenance: provenanceOf(el),
+      instruction: instruction
+    };
+    var ctrl = new AbortController();
+    var to = setTimeout(function(){ ctrl.abort(); }, 17000);  // >= server's 15s Flash timeout
+    fetch(baseUrl + '/api/profile/edit', {
+      method:'POST',
+      headers:authHeaders({'Content-Type':'application/json'}),
+      body: JSON.stringify(payload),
+      signal: ctrl.signal
+    }).then(function(r){
+      clearTimeout(to);
+      if(!r.ok) throw new Error('bad');
+      return r.json();
+    }).then(function(j){
+      var txt = j && (j.text || j.result || j.new_text);
+      cb(txt ? j : null);
+    }).catch(function(){ clearTimeout(to); cb(null); });
+  }
+
+  /* ---------- submit handler ---------- */
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+    if(!current) return;
+    var msg = input.value.trim();
+    if(!msg) return;
+    addMsg('you', msg);
+    input.value = '';
+    var el = current;
+    var instr = parseInstruction(msg);
+
+    backendEdit(el, msg, function(liveRes){
+      if(liveRes){
+        var snap = snapshot(el);
+        var newText = String(liveRes.text || liveRes.result || liveRes.new_text || '');
+        if(isKeywordEl(el)){
+          el.textContent = newText;
+        } else {
+          var lng = longestTextNode(el);
+          if(lng){
+            // write back into the SAME run we sent (editableText), re-prepending the
+            // run's leading boundary — whitespace AND any "— " separator that bracket
+            // the <b> lead — plus trailing whitespace, so the reply can't fuse with the
+            // <b> lead or the .src citation. Mirrors editableText's leading-strip.
+            var orig = lng.nodeValue;
+            var lead = (orig.match(/^[\s—–\-]*/) || [''])[0];
+            var trail = (orig.match(/\s*$/) || [''])[0];
+            lng.nodeValue = lead + newText.trim() + trail;
+          } else { el.textContent = newText; }
+        }
+        addMsg('manas', liveRes.message || 'Applied your change (live manas).', function(){ restore(el, snap); });
+        refreshSnip(el);
+        return;
+      }
+      var res = applyLocalEdit(el, instr);
+      if(res){
+        addMsg('manas', res.reply, res.undo || null);
+        refreshSnip(el);
+      } else {
+        enterDirectEdit(el, 'I couldn’t resolve that as a precise edit — opening it for direct editing so you can type the fix.');
+      }
+    });
+  });
+
+  /* ---------- 6. delegated click → innermost .ed ---------- */
+  document.addEventListener('click', function(e){
+    if(e.target.closest('.me-panel') || e.target.closest('.me-hint')) return;
+    var ed = e.target.closest('.ed');
+    if(ed){
+      if(ed.getAttribute('contenteditable') === 'true') return; // editing in place
+      e.preventDefault();
+      e.stopPropagation();   // innermost wins
+      selectEl(ed);
+      return;
+    }
+    // 7. click-away on empty paper deselects + closes
+    if(!panel.hidden){ closePanel(); }
+  }, false);
+
+  // keyboard: Enter/Space on a focused .ed selects it; Esc closes
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Escape'){
+      if(!panel.hidden){ e.preventDefault(); closePanel(); }
+      return;
+    }
+    var ed = document.activeElement;
+    if(ed && ed.classList && ed.classList.contains('ed') && ed.getAttribute('contenteditable')!=='true'){
+      if(e.key === 'Enter' || e.key === ' '){
+        e.preventDefault();
+        selectEl(ed);
+      }
+    }
+  }, false);
+
+  document.getElementById('meClose').addEventListener('click', function(){ closePanel(); });
+
+  /* ---------- hint dismiss ---------- */
+  function dismissHint(){
+    if(hint){ hint.hidden = true; }
+    try{ localStorage.setItem('manas_hint_dismissed','1'); }catch(e){}
+  }
+  document.getElementById('meHintX').addEventListener('click', dismissHint);
+  try{ if(localStorage.getItem('manas_hint_dismissed')==='1') hint.hidden = true; }catch(e){}
+  setTimeout(function(){ if(hint && !hint.hidden){ hint.hidden = true; } }, 14000);
+
+  /* ---------- detectBase(): same-origin then localhost:8000; sets live/offline tag ---------- */
+  function probe(url, cb){
+    var ctrl = new AbortController();
+    var to = setTimeout(function(){ ctrl.abort(); }, 1500);
+    fetch(url + '/api/profile/edit', { method:'OPTIONS', signal: ctrl.signal })
+      .then(function(r){ clearTimeout(to); cb(!!(r && (r.ok || r.status===204 || r.status===405))); })
+      .catch(function(){ clearTimeout(to); cb(false); });
+  }
+  function detectBase(){
+    var candidates = [];
+    if(location.protocol === 'http:' || location.protocol === 'https:') candidates.push('');
+    candidates.push('http://localhost:8000');   // the saakshe service (serves /api/profile/edit)
+    candidates.push('http://localhost:8791');   // the standalone manas_profile_server.py
+    var i = 0;
+    (function tryNext(){
+      if(i >= candidates.length){
+        LIVE = false; baseUrl = null;
+        liveTag.textContent = 'offline preview'; liveTag.setAttribute('data-live','0');
+        return;
+      }
+      var c = candidates[i++];
+      probe(c, function(ok){
+        if(ok){
+          LIVE = true; baseUrl = c;
+          liveTag.textContent = 'live manas'; liveTag.setAttribute('data-live','1');
+        } else { tryNext(); }
+      });
+    })();
+  }
+  try{ detectBase(); }catch(e){ LIVE=false; baseUrl=null; }
+
+})();
+</script>
+</body>
+</html>

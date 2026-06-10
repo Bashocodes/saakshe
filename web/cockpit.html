@@ -1609,7 +1609,7 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
         +'<span class="ct"><span class="info" data-tip="cited · versioned — every fact keeps its source">'+icon('seal','sm')+'</span> cited · versioned</span></div>'
         +'<div class="pbody tight" style="display:flex;flex-direction:column;">'
           +'<div class="packline"><span class="pack">Context Pack <b>'+esc(orgPack())+'</b></span><span class="pack cap">'+(ORG.grounded?'cited · versioned':'empty — connect a project to ground memory')+'</span>'
-            +(ORG.grounded?'<button class="qbtn" type="button" onclick="window.cockpitOpenGate&&cockpitOpenGate()" data-tip="the extraction readout — org, cited facts, rules, questions">what manas grasped →</button>':'')+'</div>'
+            +(ORG.grounded?'<button class="qbtn" type="button" onclick="location.href=\'/grasped.html\'" data-tip="the full grasped profile — point at any text and edit it by chatting to manas">what manas grasped →</button>':'')+'</div>'
           +'<div class="sub">organized buckets</div>'+bucketsHTML()
           +'<div class="compaction">summaries committed first; raw fragments folded after.</div>'
           +'<div class="sub" style="margin-top:13px;">imbibing now</div>'
@@ -2871,6 +2871,7 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
       </div>
       <div class="cg-actions">
         <button type="button" class="cg-btn cg-primary" id="cgEnterBtn">Enter the cockpit</button>
+        <button type="button" class="cg-btn" onclick="location.href='/grasped.html'" data-tip="point at any text and edit it by chatting to manas">full profile — point &amp; edit &rarr;</button>
         <button type="button" class="cg-btn" id="cgReingestBtn">&#8635; re-run ingest</button>
         <button type="button" class="cg-btn" id="cgAddBtn">&plusmn; add sources</button>
         <button type="button" class="cg-btn" id="cgResetBtn">start over</button>
