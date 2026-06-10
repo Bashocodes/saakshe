@@ -45,6 +45,7 @@ from common.supastream import SupabaseEventStream
 import orchestrator
 import manas.runner as manas_runner
 from kalai import media_crew, media_pipeline
+from service import presenter
 from witness import agent as witness
 from witness import telemetry as tel
 from witness import voice as witness_voice
@@ -463,6 +464,12 @@ async def ask(req: AskRequest, request: Request, sess: Session = Depends(_sessio
     _require_auth_if_live(sess.user)
     text = (req.text or "").strip()
     low = text.lower()
+    mi = presenter.media_intent(text)
+    if mi["is_media"]:
+        q = media_crew.quote(seconds=4, budget_usd=mi["budget_usd"],
+                             has_source_image=True, wants_hdr=mi["wants_hdr"])
+        return {"kind": "media_quote", "quote": q,
+                "blocks": presenter.quote_blocks(q)}
     if any(h in low for h in _DECISION_HINTS) and "?" in text:
         if not sess.store.is_grounded():
             return {"kind": "connect_first",
@@ -473,7 +480,7 @@ async def ask(req: AskRequest, request: Request, sess: Session = Depends(_sessio
                                      ok_text="That's a real decision — routing it to arivu. A gate will land in your queue.",
                                      wrap_key="flywheel")
     reply = await witness.respond(text, req.run_id, sess.stream)
-    return {"kind": "witness", **reply}
+    return {"kind": "witness", **reply, "blocks": presenter.to_blocks(reply)}
 
 
 # ─── the flywheel (resumable 2-gate state machine) ───────────────────────────
