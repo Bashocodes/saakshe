@@ -113,8 +113,6 @@ html[data-theme="dark"] .sb-brand .mark,
 html[data-theme="dark"] .cg-title b{ color:var(--witness); }
 html[data-theme="dark"] .navlist button.nav.active{ color:var(--witness); }
 html[data-theme="dark"] .navlist button.nav.active .navic{ color:var(--witness); }
-/* the overview headline carries the terminal prompt — dark only, flat */
-html[data-theme="dark"] .ovhead::before{ content:"saakshe@cockpit:~$ "; font-family:var(--font-mono); color:var(--ink-3); }
 *{ box-sizing:border-box; }
 html,body{ margin:0; padding:0; }
 html.js,html.js body{ height:100vh; overflow:hidden; }
@@ -277,14 +275,31 @@ html[data-bot="joy"] .skbot .skeye.R{ animation-delay:.07s; }
 .app.rail-collapsed .rail-reopen{ display:inline-flex; }
 
 /* ----------------------------- SIDEBAR ----------------------------------- */
+/* a SHORT floating Brut panel, top-left — content height, not a full column
+   (founder, 2026-06-10: "cut it short, keep it to the left, keep it collapsible") */
 .sidebar{
-  grid-area:side; min-height:0; height:100%; overflow:hidden;
-  border-right:var(--hair) solid var(--hairline); background:var(--plate);
-  display:flex; flex-direction:column; padding:12px 10px 12px;
+  grid-area:side; min-height:0; align-self:start;
+  height:auto; max-height:calc(100% - 20px); overflow:auto;
+  margin:10px 0 0 10px;
+  border:var(--line-w) solid var(--line); border-radius:var(--radius);
+  background:var(--plate); background-image:var(--grad-surf);
+  box-shadow:var(--shadow);
+  display:flex; flex-direction:column; padding:10px;
 }
-.sb-brand{ display:flex; align-items:center; gap:8px; padding:4px 8px 12px; }
-.sb-brand .mark{ font-family:'Syncopate',var(--word); font-weight:700; font-size:10.5px; letter-spacing:.26em; white-space:nowrap; }
-.sb-brand .gloss{ font-family:var(--font-body); font-size:12px; color:var(--muted); letter-spacing:.03em; }
+.sb-head{ display:flex; align-items:center; gap:8px; padding:0 2px 8px; }
+.sb-head .plabel{ font-family:var(--font-mono); font-size:10px; font-weight:700;
+  letter-spacing:.16em; text-transform:uppercase; color:var(--muted); }
+/* the connected project(s) — one row each, stacked above Overview; click = grasped */
+.sb-projects{ display:flex; flex-direction:column; gap:4px; padding-bottom:10px;
+  border-bottom:var(--hair) solid var(--hairsoft); margin-bottom:8px; }
+.sb-proj{ display:flex; align-items:center; gap:8px; width:100%; text-align:left;
+  background:var(--wash); border:var(--hair) solid var(--hairline); border-radius:var(--r);
+  padding:7px 9px; cursor:pointer; color:var(--ink);
+  font-family:var(--font-mono); font-size:11.5px; font-weight:700; letter-spacing:.02em; }
+.sb-proj:hover{ transform:translate(-1px,-1px); box-shadow:var(--shadow-sm); border-color:var(--line); }
+.sb-proj .pll{ width:8px; height:8px; border-radius:50%; background:var(--faint); flex:0 0 auto; }
+.sb-proj .pll.on{ background:var(--sig-green); }
+.sb-proj .pname{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .sb-toggle{
   margin-left:auto; background:transparent; border:var(--hair) solid var(--hairline);
   border-radius:var(--r); width:25px;height:25px; cursor:pointer; color:var(--muted);
@@ -320,13 +335,15 @@ html[data-bot="joy"] .skbot .skeye.R{ animation-delay:.07s; }
 .sb-foot .proj{ font-family:var(--font-body); font-size:11.5px; color:var(--muted); line-height:1.5; }
 .sb-foot .proj b{ color:var(--ink); font-weight:600; }
 /* collapsed rail — never anonymous: quadrant hue dots carry initials (m·b·r·d) + tooltips */
-.app.sb-collapsed .sb-brand .mark, .app.sb-collapsed .sb-brand .gloss,
+.app.sb-collapsed .sb-head .plabel, .app.sb-collapsed .sb-projects,
 .app.sb-collapsed .navlist button.nav .lbl, .app.sb-collapsed .navlist button.nav .nstat,
 .app.sb-collapsed .navlist button.nav .badge,
 .app.sb-collapsed .navlist .nsec, .app.sb-collapsed .sb-foot{ display:none; }
 .app.sb-collapsed .navlist button.nav{ justify-content:center; padding:8px 6px; }
 .app.sb-collapsed .navlist button.nav .navini{ display:flex; }
-.app.sb-collapsed .sb-brand{ justify-content:center; padding:4px 0 12px; }
+.app.sb-collapsed .sb-head{ justify-content:center; padding:0 0 8px; }
+.app.sb-collapsed .sb-head .sb-toggle{ margin-left:0; }
+.app.sb-collapsed .sidebar{ padding:8px 6px; }
 .app.sb-collapsed .sb-toggle{ margin:0; }
 
 /* ----------------------------- STAGE ------------------------------------- */
@@ -745,11 +762,13 @@ html[data-bot="joy"] .skbot .skeye.R{ animation-delay:.07s; }
 @media (max-width:1099px){
   .app{ grid-template-columns:var(--sb-rail) minmax(0,1fr) var(--rail); }
   .app.sb-collapsed{ grid-template-columns:var(--sb-rail) minmax(0,1fr) var(--rail); }
-  .sb-brand .mark, .sb-brand .gloss, .navlist button.nav .lbl, .navlist button.nav .nstat,
+  .sb-head .plabel, .sb-projects, .navlist button.nav .lbl, .navlist button.nav .nstat,
   .navlist button.nav .badge, .navlist .nsec, .sb-foot{ display:none; }
   .navlist button.nav{ justify-content:center; padding:8px 6px; }
   .navlist button.nav .navini{ display:flex; }
-  .sb-brand{ justify-content:center; }
+  .sb-head{ justify-content:center; padding:0 0 8px; }
+  .sb-head .sb-toggle{ margin-left:0; }
+  .sidebar{ padding:8px 6px; }
 }
 @media (min-width:1900px){
   :root{ --rail:404px; }
@@ -1134,7 +1153,6 @@ html[data-theme="dark"] :is(.vtitle, .ovname, .drillanchor){
 /* 8 ── nav active: the agreed red bar (dark: phosphor), no layout shift */
 .navlist button.nav.active{ box-shadow:inset 4px 0 0 var(--act); font-weight:700; }
 html[data-theme="dark"] .navlist button.nav.active{ box-shadow:inset 4px 0 0 var(--c-kural); }
-html[data-theme="dark"] .navlist button.nav.active .lbl::before{ content:"> "; }
 
 /* 9 ── witness-rail tabs: mono segments, selected = ink fill (dark: phosphor) */
 .railtabs{ gap:6px; padding:8px 12px; }
@@ -1244,7 +1262,6 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
   <!-- ============================== TOPBAR ============================== -->
   <header class="topbar">
     <div class="tb-brand"><span class="skbot" aria-hidden="true"><span class="skface"><i class="skeye L"></i><i class="skeye R"></i><i class="skmouth"></i></span></span><span class="tb-word" aria-label="saakshe">SΛΛKSHE</span></div>
-    <div class="tb-crumb"><b id="tbOrgName">— connect a project —</b><span class="sep" aria-hidden="true">·</span><span id="tbOrgLine">connect over setu to begin</span></div>
     <div class="tb-spacer"></div>
     <div class="pills">
       <button class="pill" id="pillConnect" data-tip="connect a project — sources are granted over setu" type="button" onclick="window.cockpitOpenGate&&cockpitOpenGate()"><svg class="ic"><use href="#i-database"/></svg><span>connect</span></button>
@@ -1262,10 +1279,12 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
 
   <!-- ============================== SIDEBAR ============================= -->
   <aside class="sidebar">
-    <div class="sb-brand">
-      <span class="skbot sm" aria-hidden="true"><span class="skface"><i class="skeye L"></i><i class="skeye R"></i><i class="skmouth"></i></span></span>
-      <span class="mark" aria-label="saakshe">SΛΛKSHE</span>
+    <div class="sb-head">
+      <span class="plabel">project</span>
       <button class="sb-toggle" id="sbToggle" type="button" aria-label="Collapse sidebar" data-tip="collapse / expand"><svg class="ic sm"><use href="#i-back"/></svg></button>
+    </div>
+    <div class="sb-projects" id="sbProjects" data-tip="what manas grasped — the live extraction">
+      <button class="sb-proj" type="button"><span class="pll"></span><span class="pname" id="sbOrgName">— connect a project —</span></button>
     </div>
     <nav>
       <ul class="navlist" id="navlist">
@@ -1282,8 +1301,7 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
       </ul>
     </nav>
     <div class="sb-foot">
-      <div class="proj"><b id="sbOrgName">— connect a project —</b><br><span id="sbOrgLine">bridged via setu · granted, never taken</span></div>
-      <div class="proj" id="sbDeploy" style="margin-top:7px;font-family:var(--font-mono);font-size:10px;letter-spacing:.04em;" hidden></div>
+      <div class="proj" id="sbDeploy" style="font-family:var(--font-mono);font-size:10px;letter-spacing:.04em;" hidden></div>
     </div>
   </aside>
 
@@ -1578,12 +1596,9 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
         +'<span class="ovmark s-'+q+'" aria-hidden="true"></span></button>';
     }).join('');
     return '<div class="view"><div class="vbody">'
-    +'<div class="eyebrow"><span class="num">00</span> &nbsp;/&nbsp; Overview</div>'
-    +'<h2 class="vtitle ovhead">Three agents.</h2>'
-    +'<p class="vlede sm">You speak to saakshe — the agents do the work. <b class="c-manas">manas</b> knows, <b class="c-kalai">kalai</b> makes, <b class="c-kural">kural</b> engages.</p>'
-    +'<div class="projhdr" style="margin-top:12px;"><span class="ll"></span><span class="pn">'+esc(orgName())+'</span>'
-      +'<span class="pm"><b>'+esc(orgDayLine())+'</b> · '+(ORG.grounded?'granted sources imbibed':'connect over setu to begin')+'</span>'
-      +'<span class="pm" style="margin-left:auto;">memory <b>Context Pack '+esc(orgPack())+'</b>'+(ORG.grounded?'':' · — no spend yet —')+'</span></div>'
+    +'<div class="projhdr"><span class="ll"></span><span class="pn">'+esc(orgName())+'</span>'
+      +(ORG.grounded?'':'<span class="pm">connect over setu to begin</span>')
+      +'<span class="pm" style="margin-left:auto;">memory <b>Context Pack '+esc(orgPack())+'</b></span></div>'
     +'<div class="grid3 ovquads" style="margin-top:13px;">'+ovc+'</div>'
     +'<div class="grid3" style="margin-top:13px; flex:1 1 auto; min-height:0;">'
       +'<div class="panel"><div class="phead"><h3>'+icon('hand','sm')+' Taps waiting</h3><span class="ct" id="ovTapCt">0 on you</span></div>'
@@ -2676,11 +2691,25 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
     ORG.grounded = !!status.grounded;
     ORG.openQuestions = status.open_questions || [];
     /* static DOM mirrors (set once; not re-rendered by go()) */
-    setText('tbOrgName', ORG.name);
-    setText('tbOrgLine', ORG.grounded ? orgDayLine()+' · Pack '+ORG.version : 'connect over setu to begin');
-    setText('sbOrgName', ORG.name);
-    setText('sbOrgLine', ORG.grounded ? ('bridged via setu · '+orgDayLine()+' · Pack '+ORG.version) : 'bridged via setu · granted, never taken');
     setText('todayPack', ORG.version);
+    /* the sidebar project rows — one per connected source, stacked above Overview;
+       repos lead. Click (delegated on #sbProjects) opens what manas grasped. */
+    (function(){
+      var sp = document.getElementById('sbProjects'); if(!sp) return;
+      var conns = (status.connections||[]).slice()
+        .sort(function(a,b){ return (a.kind==='github'?0:1) - (b.kind==='github'?0:1); });
+      function lbl(c){
+        var ref = String(c.ref||'');
+        if(c.kind==='github'){ var m = ref.match(/[:\/]([^\/:]+\/[^\/]+?)(?:\.git)?$/); return m ? m[1] : ref; }
+        return ref.replace(/^https?:\/\//,'').replace(/^www\./,'').replace(/\/.*$/,'') || ref;
+      }
+      var rows = conns.map(function(c){
+        return '<button class="sb-proj" type="button"><span class="pll'+(ORG.grounded?' on':'')+'"></span>'
+          +'<span class="pname">'+esc(lbl(c))+'</span></button>';
+      });
+      sp.innerHTML = rows.length ? rows.join('')
+        : '<button class="sb-proj" type="button"><span class="pll"></span><span class="pname">— connect a project —</span></button>';
+    })();
     /* questions are the one live number that survives into the empty cockpit */
     var qn = ORG.openQuestions.length;
     STATE.openQ = qn;
@@ -3272,9 +3301,11 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
   async function boot(){
     await authReady();
     /* the crumbs + the topbar connect pill are the way in */
-    ["tbOrgName","sbOrgName"].forEach(function(id){ var el=$(id);
-      if(el){ el.style.cursor="pointer"; el.title="setu — what manas grasped";
-        el.addEventListener("click", openGrasped); } });
+    /* the sidebar project rows are the way into the grasped readout — delegated,
+       so rows rebuilt by cockpitSetOrg stay wired */
+    (function(){ var sp=$("sbProjects");
+      if(sp){ sp.addEventListener("click", function(e){
+        if(e.target && e.target.closest && e.target.closest(".sb-proj")) openGrasped(); }); } })();
     /* the OWNER's sandbox is theirs to wipe — surface "start over" (hidden on
        the public demo for everyone else, whose store is the shared seed) */
     try{
