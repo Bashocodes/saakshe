@@ -41,8 +41,13 @@ def _placeholder_ref(kind: str, prompt: str) -> str:
 
 # ─── live Vertex clients (the ONLY network/creds path — mock these in tests) ──
 def _vertex_imagen(*, prompt: str, palette: str = "", **kwargs: Any) -> dict:
-    """Live Vertex Imagen call. Lazy genai import so the module is creds-free until
-    this function actually runs. Returns {image_ref, bytes, spend_usd}."""
+    """Live Vertex still-render call. Lazy genai import so the module is creds-free
+    until this function actually runs. Returns {image_ref, bytes, spend_usd}.
+
+    The whole Imagen model family EOLs 2026-06-24, so the SAAKSHE_MODEL_IMAGEN pin
+    must be a REAL escape hatch: a ``gemini-*`` pin (e.g. gemini-2.5-flash-image)
+    is driven through ``generate_content`` (image bytes arrive as ``inline_data``),
+    while an ``imagen-*`` pin keeps the classic ``generate_images`` path."""
     from google import genai  # lazy — no import/client at module load or in demo
 
     client = genai.Client(
@@ -50,18 +55,36 @@ def _vertex_imagen(*, prompt: str, palette: str = "", **kwargs: Any) -> dict:
         project=config.GOOGLE_CLOUD_PROJECT,
         location=config.GEMINI_LOCATION,
     )
-    resp = client.models.generate_images(
-        model=config.MODEL_IMAGEN,
-        prompt=prompt if not palette else f"{prompt}\nPalette: {palette}",
-        config={"number_of_images": 1},
-    )
-    images = getattr(resp, "generated_images", None) or []
+    model = config.MODEL_IMAGEN
+    full_prompt = prompt if not palette else f"{prompt}\nPalette: {palette}"
     img_bytes: Optional[bytes] = None
-    if images:
-        img = getattr(images[0], "image", None)
-        img_bytes = getattr(img, "image_bytes", None)
+    if model.startswith("gemini"):
+        resp = client.models.generate_content(
+            model=model,
+            contents=full_prompt,
+            config={"response_modalities": ["TEXT", "IMAGE"]},
+        )
+        for cand in getattr(resp, "candidates", None) or []:
+            parts = getattr(getattr(cand, "content", None), "parts", None) or []
+            for part in parts:
+                data = getattr(getattr(part, "inline_data", None), "data", None)
+                if data:
+                    img_bytes = data
+                    break
+            if img_bytes:
+                break
+    else:
+        resp = client.models.generate_images(
+            model=model,
+            prompt=full_prompt,
+            config={"number_of_images": 1},
+        )
+        images = getattr(resp, "generated_images", None) or []
+        if images:
+            img = getattr(images[0], "image", None)
+            img_bytes = getattr(img, "image_bytes", None)
     return {
-        "image_ref": f"vertex://imagen/{config.MODEL_IMAGEN}",
+        "image_ref": f"vertex://imagen/{model}",
         "bytes": img_bytes,
         "spend_usd": 0.0,  # real cost is metered by the spend executor, not estimated here
     }

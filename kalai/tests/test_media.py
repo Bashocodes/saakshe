@@ -73,6 +73,76 @@ def test_render_reel_live_dispatches_to_vertex_with_prompt(monkeypatch):
     assert calls["prompt"] == "teaser"
 
 
+# ─── imagen EOL escape hatch: a gemini-* pin drives generate_content ─────────
+class _FakeInline:
+    def __init__(self, data):
+        self.data = data
+
+
+class _FakePart:
+    def __init__(self, data):
+        self.inline_data = _FakeInline(data)
+
+
+class _FakeContent:
+    def __init__(self, data):
+        self.parts = [_FakePart(data)]
+
+
+class _FakeCandidate:
+    def __init__(self, data):
+        self.content = _FakeContent(data)
+
+
+def _fake_client(calls):
+    class _Models:
+        def generate_images(self, **kw):
+            calls["api"] = "generate_images"
+            calls.update(kw)
+            img = type("I", (), {"image": type("B", (), {"image_bytes": b"imagen-png"})()})()
+            return type("R", (), {"generated_images": [img]})()
+
+        def generate_content(self, **kw):
+            calls["api"] = "generate_content"
+            calls.update(kw)
+            return type("R", (), {"candidates": [_FakeCandidate(b"gemini-png")]})()
+
+    class _Client:
+        def __init__(self, **kw):
+            self.models = _Models()
+
+    return _Client
+
+
+def test_vertex_imagen_gemini_pin_uses_generate_content(monkeypatch):
+    """The Imagen family EOLs 2026-06-24 (mid-judging). Pinning
+    SAAKSHE_MODEL_IMAGEN to a gemini image model must drive generate_content and
+    pull the still from inline_data — the env pin is a REAL escape hatch, not a
+    different way to call a dead API."""
+    import google.genai as genai_mod
+
+    calls: dict = {}
+    monkeypatch.setattr(genai_mod, "Client", _fake_client(calls))
+    monkeypatch.setattr(config, "MODEL_IMAGEN", "gemini-2.5-flash-image")
+    out = media._vertex_imagen(prompt="p", palette="slate")
+    assert calls["api"] == "generate_content"
+    assert out["bytes"] == b"gemini-png"
+    assert out["image_ref"] == "vertex://imagen/gemini-2.5-flash-image"
+
+
+def test_vertex_imagen_imagen_pin_still_uses_generate_images(monkeypatch):
+    """An imagen-* pin keeps today's generate_images path, byte-identical."""
+    import google.genai as genai_mod
+
+    calls: dict = {}
+    monkeypatch.setattr(genai_mod, "Client", _fake_client(calls))
+    monkeypatch.setattr(config, "MODEL_IMAGEN", "imagen-4.0-generate-001")
+    out = media._vertex_imagen(prompt="p")
+    assert calls["api"] == "generate_images"
+    assert out["bytes"] == b"imagen-png"
+    assert out["image_ref"] == "vertex://imagen/imagen-4.0-generate-001"
+
+
 # ─── the new config ids are wired (not dead constants) ───────────────────────
 def test_vertex_model_ids_present():
     assert config.MODEL_IMAGEN and config.MODEL_VEO
