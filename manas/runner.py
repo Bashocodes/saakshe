@@ -385,7 +385,10 @@ async def ask_founder_voice_live(question: str) -> a2a.FounderVoiceAnswer:
     runner = InMemoryRunner(agent=founder_voice_agent, app_name="manas_voice")
     session = await runner.session_service.create_session(
         app_name="manas_voice", user_id=_USER,
-        state={"voice_question": question, st.StateKeys.TOPIC: "pricing"},
+        # TOPIC follows the QUESTION (stem-matched by the corpus), so the agent's
+        # corpus block grounds what was actually asked — a pinned topic would drop
+        # every other in-corpus fact and force a spurious refusal.
+        state={"voice_question": question, st.StateKeys.TOPIC: question},
     )
     msg = types.Content(role="user", parts=[types.Part(text=question)])
     text = ""
@@ -427,12 +430,16 @@ def _get_founder_context(topic: str = "pricing") -> dict:
 def _run_coro_blocking(make_coro):
     """Run a coroutine to completion from SYNC code that may itself sit inside a
     running event loop — always on a FRESH thread (its own loop). Keeps a2a.dispatch
-    a plain blocking call that never raises "loop already running"."""
+    a plain blocking call that never raises "loop already running". The caller's
+    contextvars are carried onto the fresh thread — a per-request tenant store must
+    not silently fall back to the global STORE."""
     import asyncio
+    import contextvars
     from concurrent.futures import ThreadPoolExecutor
 
+    ctx = contextvars.copy_context()
     with ThreadPoolExecutor(max_workers=1) as ex:
-        return ex.submit(lambda: asyncio.run(make_coro())).result()
+        return ex.submit(lambda: ctx.run(lambda: asyncio.run(make_coro()))).result()
 
 
 def _ask_founder_voice(question: str) -> dict:

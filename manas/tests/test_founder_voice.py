@@ -51,6 +51,43 @@ async def test_agent_does_not_false_match_prompt_words(grounded_company):
     assert ans.citations == []
 
 
+async def test_live_corpus_block_grounds_nonpricing_question(grounded_company, monkeypatch):
+    """Regression: the live session pinned TOPIC='pricing', so the corpus block handed
+    to the agent dropped every non-pricing fact — an in-corpus question about the
+    audience would be spuriously refused by the REAL model. The pack built for the
+    live instruction must ground the actual question."""
+    from manas.tools import corpus as corpus_mod
+
+    seen = {}
+    real = corpus_mod.context_pack
+
+    def spy(topic="company"):
+        pack = real(topic)
+        seen["pack"] = pack
+        return pack
+
+    monkeypatch.setattr(corpus_mod, "context_pack", spy)
+    ans = await runner.ask_founder_voice_live("who is the product for?")
+    assert ans.refused is False
+    blob = " ".join(f["claim"].lower() for f in seen["pack"].facts)
+    assert "makers" in blob
+
+
+def test_run_coro_blocking_carries_tenant_store():
+    """Regression: the sync→async bridge ran on a bare thread, so a per-request
+    tenant store bound via contextvar silently fell back to the global STORE."""
+    async def _probe():
+        return project.current_store()
+
+    sentinel = object()
+    token = project.set_current_store(sentinel)
+    try:
+        got = runner._run_coro_blocking(lambda: _probe())
+    finally:
+        project.reset_current_store(token)
+    assert got is sentinel
+
+
 # ─── the DEFAULT path drives Claude in live (mock the seam, force live) ──────
 async def test_default_path_drives_claude_agent_in_live(grounded_company, monkeypatch):
     """The default founder-voice entry point routes through the REAL Claude
