@@ -79,6 +79,20 @@ case "$PROFILE" in
     echo "unknown SAAKSHE_DEPLOY_PROFILE '$PROFILE' (use demo | gated | billing)" >&2; exit 1
     ;;
 esac
+
+# ── the channel surface (kural's real outbound + the outcome read-back) ──────
+# Pure founder configuration, profile-independent: unset = the mouth dry-runs and
+# no stats are pulled, exactly as before. These three are passed through ONLY
+# when the deployer's environment carries them. SAAKSHE_ALLOW_LIVE_SEND is the
+# deliberate exception of the triple AND-gate (env ∧ founder tap ∧ registered
+# client): it is passed through but NEVER defaulted — arming a real send is an
+# explicit per-deploy act, not a side effect of configuring the webhook.
+for CH in SAAKSHE_CHANNEL_WEBHOOK_URL SAAKSHE_CHANNEL_WEBHOOK_TOKEN \
+          SAAKSHE_CHANNEL_STATS_URL SAAKSHE_ALLOW_LIVE_SEND; do
+  V="${!CH:-}"
+  [ -n "$V" ] && ENV_VARS+="|${CH}=${V}"
+done
+
 echo "→ profile: $PROFILE"
 
 echo "→ enabling APIs (Run · Build · Artifact Registry · Vertex)…"
