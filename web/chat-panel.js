@@ -11,17 +11,19 @@
   var BOT = '<span class="skbot sm" aria-hidden="true"><span class="skface">' +
             '<span class="skeye L"></span><span class="skeye R"></span>' +
             '<span class="skmouth"></span></span></span>';
+  /* no header bar — the cockpit's single topbar crowns the pane. The ONE bot
+     mark floats top-right inside the chat (its Λ-eyes animate while saakshe
+     thinks/replies via the global html[data-bot] states), with the live dot +
+     collapse beside it. Faculty tabs sit just ABOVE the ask box. */
   pane.innerHTML =
-    '<div class="ch-head">' + BOT + '<span class="brand">SΛΛKSHE</span>' +
-    '<span class="t">· COMPANY CHAT</span><span class="live" id="sa-ch-live"></span>' +
+    '<div class="ch-float">' + BOT + '<span class="live" id="sa-ch-live"></span>' +
     '<button class="ch-collapse" id="sa-ch-clps" type="button" title="collapse the chat pane" aria-label="collapse chat">⇥</button></div>' +
+    '<div class="ch-feed" id="sa-ch-feed" aria-live="polite"></div>' +
     '<div class="ch-tabs" role="tablist" aria-label="filter by faculty">' +
     '<button class="ch-tab on" type="button" data-q="saakshe" role="tab" aria-selected="true">saakshe</button>' +
     '<button class="ch-tab" type="button" data-q="manas" role="tab" aria-selected="false"><span class="fdot"></span>manas</button>' +
-    '<button class="ch-tab" type="button" data-q="arivu" role="tab" aria-selected="false"><span class="fdot"></span>arivu</button>' +
     '<button class="ch-tab" type="button" data-q="kalai" role="tab" aria-selected="false"><span class="fdot"></span>kalai</button>' +
     '<button class="ch-tab" type="button" data-q="kural" role="tab" aria-selected="false"><span class="fdot"></span>kural</button></div>' +
-    '<div class="ch-feed" id="sa-ch-feed" aria-live="polite"></div>' +
     '<div class="ch-input"><input id="sa-ch-inp" placeholder="ask saakshe…" aria-label="ask saakshe">' +
     '<button id="sa-ch-mic" type="button" title="voice — Gemini Live" aria-label="voice">' +
     '<svg class="ic" aria-hidden="true"><use href="#i-mic"/></svg><span class="recdot"></span></button>' +

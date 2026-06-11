@@ -209,7 +209,7 @@ html[data-bot="joy"] .skbot .skeye.R{ animation-delay:.07s; }
   .skbot, .skbot .skeye{ animation:none !important; }
 }
 /* the locked wordmark — Syncopate Bold, .26em tracking, SΛΛKSHE */
-.tb-word{ font-family:'Syncopate',var(--word); font-weight:700; font-size:11.5px; letter-spacing:.26em; white-space:nowrap; }
+.tb-word{ font-family:'Syncopate',var(--word); font-weight:700; font-size:23px; letter-spacing:.26em; white-space:nowrap; }
 
 /* signal text */
 .t-red{ color:var(--sig-red); } .t-green{ color:var(--sig-green); }
@@ -243,8 +243,11 @@ html[data-bot="joy"] .skbot .skeye.R{ animation-delay:.07s; }
 .app.sb-collapsed.rail-collapsed{ grid-template-columns:var(--sb-rail) minmax(0,1fr) 0; }
 
 /* ----------------------------- TOPBAR ----------------------------------- */
+/* ONE bar across the whole window — fixed full-bleed so it also crowns the
+   chat pane (which starts below it); the grid row still reserves its height. */
 .topbar{
   grid-area:top; height:var(--topbar); min-height:0;
+  position:fixed; top:0; left:0; right:0; z-index:700;
   display:flex; align-items:center; gap:13px; padding:0 16px 0 18px;
   border-bottom:var(--hair) solid var(--hairline); background:var(--plate);
 }
@@ -1150,6 +1153,10 @@ html[data-theme="dark"] :is(.vtitle, .ovname, .drillanchor){
   background:none; -webkit-text-fill-color:currentColor; color:var(--ink);
 }
 
+/* 7c ── overview columns: each agent's card with its needs-you panel below */
+.ovcol{ display:flex; flex-direction:column; gap:13px; min-height:0; }
+.ovcol .panel{ flex:1 1 auto; min-height:0; }
+
 /* 8 ── nav active: the agreed red bar (dark: phosphor), no layout shift */
 .navlist button.nav.active{ box-shadow:inset 4px 0 0 var(--act); font-weight:700; }
 html[data-theme="dark"] .navlist button.nav.active{ box-shadow:inset 4px 0 0 var(--c-kural); }
@@ -1189,7 +1196,8 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
    witness rail; under 1100px it becomes a FAB-opened floating panel. ── */
 @media(min-width:1100px){
   body{ margin-right:30vw; transition:margin-right .28s var(--ease); }
-  #sa-chatpane{ position:fixed; top:0; right:0; width:30vw; height:100vh;
+  #sa-chatpane{ position:fixed; top:var(--topbar); right:0; width:30vw;
+    height:calc(100vh - var(--topbar));
     border-left:var(--line-w) solid var(--line); background:var(--surface); z-index:600;
     transition:width .28s var(--ease); }
   html.sk-chat-collapsed body{ margin-right:64px; }
@@ -1261,7 +1269,7 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
 
   <!-- ============================== TOPBAR ============================== -->
   <header class="topbar">
-    <div class="tb-brand"><span class="skbot" aria-hidden="true"><span class="skface"><i class="skeye L"></i><i class="skeye R"></i><i class="skmouth"></i></span></span><span class="tb-word" aria-label="saakshe">SΛΛKSHE</span></div>
+    <div class="tb-brand"><span class="tb-word" aria-label="saakshe">SΛΛKSHE</span></div>
     <div class="tb-spacer"></div>
     <div class="pills">
       <button class="pill" id="pillConnect" data-tip="connect a project — sources are granted over setu" type="button" onclick="window.cockpitOpenGate&&cockpitOpenGate()"><svg class="ic"><use href="#i-database"/></svg><span>connect</span></button>
@@ -1579,14 +1587,14 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
 
   var BUILD = {};
   BUILD.overview = function(){
-    var miniQ = openQuestionsList(4).map(function(o){
-      return '<li data-jumpq><b class="c-'+o.quad+'">'+o.quad+'</b> · '+esc(o.short)+'<div class="qmeta">'+esc(o.meta)+'</div></li>';
-    }).join('');
     var OVTINT = { manas:'tint-amber', arivu:'tint-blue', kalai:'tint-rose', kural:'tint-green' };
+    /* one COLUMN per agent: its card, then everything that agent needs from you
+       (questions; kural also carries the taps/publish gate) directly below it. */
+    var allQ = openQuestionsList(0);
     var ovc = ['manas','kalai','kural'].map(function(q){
       var m=QMETA[q]; var st=OVSTATUS[q]; var qn=quadQ[q];
       var tapbit = q==='kural' ? '<span class="ovpill" data-tip="taps waiting"><span class="pdot" style="background:var(--sig-amber)"></span>✋ '+gateOpen()+'</span>' : '';
-      return '<button class="ovcard '+OVTINT[q]+'" data-view="'+q+'" type="button">'
+      var card = '<button class="ovcard '+OVTINT[q]+'" data-view="'+q+'" type="button">'
         +'<div class="ovtop"><span class="ovname c-'+q+'">'+q+'</span><span class="ovverb">'+m.verb+'</span></div>'
         +'<div class="ovtwo">'+st.two+'</div><div class="ovthree">'+st.three+'</div>'
         +'<div class="ovspark">'+st.spark+'</div>'
@@ -1594,25 +1602,35 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
         + OVWORK[q]
         +'<span class="ovpill" data-tip="questions waiting"><span class="pdot" style="background:var(--sig-red)"></span>? '+qn+'</span>'+tapbit+'</div>'
         +'<span class="ovmark s-'+q+'" aria-hidden="true"></span></button>';
+      var rows = allQ.filter(function(o){ return o.quad===q; });
+      if(q==='manas'){
+        /* manas raises the grounding ClarifyingQuestions — they live on ORG,
+           not Q[quad].questions, so fold them in here where the founder looks */
+        (ORG.openQuestions||[]).forEach(function(oq){
+          var s=String(oq.text||''); rows.push({quad:'manas',
+            short:(s.length>72?s.slice(0,70)+'…':s), meta:oq.why||'raised while grounding'});
+        });
+      }
+      var items = rows.map(function(o){
+        return '<li data-jumpq><b class="c-'+o.quad+'">'+o.quad+'</b> · '+esc(o.short)+'<div class="qmeta">'+esc(o.meta)+'</div></li>';
+      }).join('');
+      var body = items ? '<ul class="qlist">'+items+'</ul>'
+        : '<div class="sub" style="padding:2px 2px 6px;">nothing waiting on you</div>';
+      if(q==='kural'){
+        body += '<div class="gates-col" style="display:flex;flex-direction:column;gap:8px;margin-top:9px;">'+emptyGateHTML()+'</div>';
+      }
+      var panel = '<div class="panel"><div class="phead"><h3>'+icon('question','sm')+' '+q+' — needs you</h3>'
+        +'<span class="ct">? '+rows.length+(q==='kural'?' · ✋ '+gateOpen():'')+'</span></div>'
+        +'<div class="pbody tight">'+body+'</div></div>';
+      return '<div class="ovcol">'+card+panel+'</div>';
     }).join('');
     return '<div class="view"><div class="vbody">'
     +'<div class="projhdr"><span class="ll"></span><span class="pn">'+esc(orgName())+'</span>'
-      +(ORG.grounded?'':'<span class="pm">connect over setu to begin</span>')
+      +(ORG.grounded
+        ?'<button class="qbtn" type="button" style="flex:0 0 auto;width:auto;" onclick="location.href=\'/grasped.html\'" data-tip="the stored extraction — everything manas grasped, point-and-editable">what manas grasped →</button>'
+        :'<span class="pm">connect over setu to begin</span>')
       +'<span class="pm" style="margin-left:auto;">memory <b>Context Pack '+esc(orgPack())+'</b></span></div>'
-    +'<div class="grid3 ovquads" style="margin-top:13px;">'+ovc+'</div>'
-    +'<div class="grid3" style="margin-top:13px; flex:1 1 auto; min-height:0;">'
-      +'<div class="panel"><div class="phead"><h3>'+icon('hand','sm')+' Taps waiting</h3><span class="ct" id="ovTapCt">0 on you</span></div>'
-        +'<div class="pbody tight gates-col" style="display:flex;flex-direction:column;gap:8px;">'+emptyGateHTML()+'</div></div>'
-      +'<div class="panel"><div class="phead"><h3>'+icon('question','sm')+' Question queue</h3><span class="ct"><span id="ovQCt">'+STATE.openQ+'</span> open</span></div>'
-        +'<div class="pbody tight"><ul class="qlist">'+miniQ+'</ul></div></div>'
-      +'<div class="panel"><div class="phead"><h3>'+icon('ledger','sm')+' Today</h3><span class="ct">on your keys</span></div>'
-        +'<div class="pbody tight"><div class="krows">'
-          +'<div class="krow"><span class="kk">Cost today</span><span class="kv">— no spend yet —</span></div>'
-          +'<div class="krow"><span class="kk">Memory</span><span class="kv">Pack <b>'+esc(orgPack())+'</b></span></div>'
-        +'</div>'
-        +'<div class="sub" style="margin-top:8px;">No run yet — ask saakshe a real decision and spend lands here.</div>'
-        +'</div></div>'
-    +'</div>'
+    +'<div class="grid3 ovquads" style="margin-top:13px; flex:1 1 auto; min-height:0;">'+ovc+'</div>'
     +'</div></div>';
   };
 
