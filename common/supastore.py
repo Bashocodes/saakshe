@@ -180,11 +180,13 @@ class SupabaseStore:
     def org_for_flywheel(self) -> dict:
         """The org dict the orchestrator/arivu consume (never a canned default)."""
         org = self.org
+        public = (org.get("relationship") == "public")
         return {
-            "name": org.get("name") or "your company",
-            "kind": org.get("kind") or "the connected company",
+            "name": org.get("name") or ("the project" if public else "your company"),
+            "kind": org.get("kind") or ("a public product" if public else "the connected company"),
             "memory_pack": self.version,
             "one_liner": org.get("one_liner", ""),
+            "relationship": org.get("relationship") or "own",
         }
 
     # ── mutations ─────────────────────────────────────────────────────────────
@@ -200,7 +202,8 @@ class SupabaseStore:
     def set_status(self, status: str) -> None:
         self._patch("projects", {"id": self.pid}, {"status": status})
 
-    def set_org(self, name: str = "", kind: str = "", one_liner: str = "") -> None:
+    def set_org(self, name: str = "", kind: str = "", one_liner: str = "",
+                relationship: str = "") -> None:
         org = dict(self.org)
         if name:
             org["name"] = name
@@ -208,6 +211,9 @@ class SupabaseStore:
             org["kind"] = kind
         if one_liner:
             org["one_liner"] = one_liner
+        if relationship:
+            # "own" | "public" — mirrors the file store's marker (see project.py)
+            org["relationship"] = relationship
         self._patch("projects", {"id": self.pid}, {"org": org})
 
     def _next_version(self) -> str:

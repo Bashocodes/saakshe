@@ -112,9 +112,10 @@ async def ingest_connected(
             # as a cited "founder answer" fact (answer_question), so the pack
             # builds from the founder's own words.
             has_logo = bool(store.assets_for(kinds=["logo"]))
+            rel = store.org.get("relationship") or "own"
             qs = doubts.detect([], [], [], has_social_connection=False,
-                               has_logo_asset=has_logo)
-            qs = await questions.personalize(qs, [], [], [], {},
+                               has_logo_asset=has_logo, owned=(rel != "public"))
+            qs = await questions.personalize(qs, [], [], [], {"relationship": rel},
                                              stream=stream, run_id=run_id)
             store.set_questions(qs)
             store.set_status(project.NEEDS_ANSWERS if qs else project.EMPTY)
@@ -162,11 +163,14 @@ async def ingest_connected(
 
     has_social = any(b.channel == "social" and b.ok and b.text for b in bundles)
     has_logo = bool(store.assets_for(kinds=["logo"]))
+    rel = store.org.get("relationship") or "own"
     qs = doubts.detect(cited, voice_rules, brand_rules,
-                       has_social_connection=has_social, has_logo_asset=has_logo)
+                       has_social_connection=has_social, has_logo_asset=has_logo,
+                       owned=(rel != "public"))
     # Live: Gemini rephrases each code-triggered ask against the just-committed
     # corpus (demo/CI: identity — the deterministic templates ARE the demo).
-    qs = await questions.personalize(qs, cited, voice_rules, brand_rules, org_hint,
+    qs = await questions.personalize(qs, cited, voice_rules, brand_rules,
+                                     {**org_hint, "relationship": rel},
                                      stream=stream, run_id=run_id)
     store.set_org(**org_hint)
     store.set_questions(qs)

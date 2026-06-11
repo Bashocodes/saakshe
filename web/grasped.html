@@ -1134,7 +1134,7 @@ ul.b.tight li::before{top:15px;width:9px;height:9px}
 
   function render(d){
     var org = d.org||{};
-    var name = org.name || 'your company';
+    var name = org.name || ((org.relationship==='public') ? 'the project' : 'your company');
     var one = String(org.one_liner||'').trim();
     var facts = d.facts||[], voice = d.voice_rules||[], brand = d.brand_rules||[], qs = d.questions||[];
     var conns = d.connections||[];

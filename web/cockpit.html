@@ -1376,7 +1376,7 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
      Filled by window.cockpitReveal(status) from /api/connect/status. Every view
      that prints the name/version/day interpolates ORG at render time (so a re-render
      after grounding picks up the real values). NO canned company is hardcoded. */
-  var ORG = { name:'— connect a project —', version:'v0', day:0, oneLiner:'', grounded:false, openQuestions:[] };
+  var ORG = { name:'— connect a project —', version:'v0', day:0, oneLiner:'', grounded:false, openQuestions:[], relationship:'own' };
   function orgName(){ return ORG.name; }
   function orgPack(){ return ORG.version; }
   function orgDayLine(){ return ORG.grounded ? ('connected '+ORG.day+(ORG.day===1?' day':' days')) : 'not connected yet'; }
@@ -2710,6 +2710,7 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
     ORG.oneLiner = org.one_liner || '';
     ORG.grounded = !!status.grounded;
     ORG.openQuestions = status.open_questions || [];
+    ORG.relationship = org.relationship || 'own';
     /* static DOM mirrors (set once; not re-rendered by go()) */
     setText('todayPack', ORG.version);
     /* the sidebar project rows — one per connected source, stacked above Overview;
@@ -2742,7 +2743,10 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
     if(!questions.length) return;
     var n = questions.length;
     var list = questions.map(function(q){ return '\u201c'+(q.text||q.q||'')+'\u201d'; }).join('  \u00b7  ');
-    var lead = 'manas has '+n+' question'+(n===1?'':'s')+' about your company: '+list+'  Answer in the connect panel \u2014 or tell me here.';
+    var who = (ORG.relationship==='public')
+      ? ((ORG.name && ORG.name!=='\u2014 connect a project \u2014') ? ORG.name : 'the project')
+      : 'your company';
+    var lead = 'manas has '+n+' question'+(n===1?'':'s')+' about '+who+': '+list+'  Answer in the connect panel \u2014 or tell me here.';
     /* ONE chat: the seed lands in the company chat panel (poll briefly — its
        script loads after this one), falling back to the legacy bubble if absent */
     (function toPanel(tries){
@@ -2886,10 +2890,18 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
     <!-- STEP: CONNECT -->
     <section class="cg-step" id="cgStepConnect" hidden>
       <div class="cg-lede">
-        <h1>Connect your company.</h1>
+        <h1>Connect a project.</h1>
         <p>Grant a project over <b>setu</b> and <b>manas</b> reads it live — your repo, your site — and grounds the company in cited memory before anything decides or speaks. Nothing is canned; everything below comes from what you connect.</p>
       </div>
       <div class="cg-form">
+        <div class="cg-field cg-relfield">
+          <span class="cg-lbl">Whose product is this?</span>
+          <div class="cg-rel" role="radiogroup" aria-label="whose product is this">
+            <label class="cg-relopt"><input type="radio" name="cgRel" id="cgRelMine" value="own" checked><span>my product</span></label>
+            <label class="cg-relopt"><input type="radio" name="cgRel" id="cgRelPublic" value="public"><span>a public product I&rsquo;m exploring</span></label>
+          </div>
+          <span class="cg-help">mark it public and saakshe studies the project instead of speaking as its owner</span>
+        </div>
         <label class="cg-field">
           <span class="cg-lbl">Git repo</span>
           <input id="cgGithub" type="text" autocomplete="off" placeholder="owner/repo  or  any https git URL">
@@ -2987,6 +2999,13 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
   .cg-field input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 2px var(--accent)}
   .cg-field input::placeholder{color:var(--ink-3,#a89b8d)}
   .cg-help{font-size:11.5px;color:var(--ink-3,#72665b)}
+  .cg-relfield{grid-column:1/-1}
+  .cg-rel{display:flex;gap:10px;flex-wrap:wrap}
+  .cg-relopt{display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;
+    border:var(--hair) solid var(--line);border-radius:var(--radius-pill,999px);padding:8px 15px;
+    background:var(--bg,#efe9e3);color:var(--ink,#241f1b)}
+  .cg-relopt input{accent-color:var(--act);margin:0}
+  .cg-relopt:has(input:checked){background:var(--act);color:var(--on-act);border-color:var(--line)}
   .cg-actions{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
   .cg-status{font-family:var(--font-mono);font-size:12px;color:var(--ink-3,#72665b)}
   .cg-btn{font:inherit;font-size:14px;font-weight:600;border:var(--hair) solid var(--line);border-radius:var(--radius);padding:11px 20px;cursor:pointer;
@@ -3151,6 +3170,11 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
     if(web) sources.push({kind:"website", ref:web, mechanism:"public"});
     if(docs) sources.push({kind:"docs", ref:docs});
     if(soc) sources.push({kind:"social", ref:soc});
+    /* the ownership marker rides the first grant — lands on org.relationship */
+    var rel=(document.querySelector('input[name="cgRel"]:checked')||{}).value||"own";
+    if(sources.length){ sources[0].relationship=rel; }
+    var ih=document.querySelector("#cgStepIngest h1");
+    if(ih){ ih.textContent=(rel==="public")?"manas is reading the project.":"manas is reading your company."; }
     $("cgConnectBtn").disabled=true; $("cgConnectStatus").textContent="granting sources over setu…";
     try{
       for(var i=0;i<sources.length;i++){
@@ -3232,10 +3256,14 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
   }
 
   /* ---- RESULT step ---- */
+  /* fallback identity honors the ownership marker — a public product the
+     founder is exploring must never be called "your company" */
+  function fbName(org){ return (org&&org.relationship==="public") ? "the project" : "your company"; }
+  function fbKind(org){ return (org&&org.relationship==="public") ? "a public product" : "the connected company"; }
   function renderResult(d){
     var org=d.org||{};
-    $("cgOrgName").textContent = (org.name&&String(org.name).trim()) || "your company";
-    $("cgOrgKind").textContent = org.kind || "the connected company";
+    $("cgOrgName").textContent = (org.name&&String(org.name).trim()) || fbName(org);
+    $("cgOrgKind").textContent = org.kind || fbKind(org);
     $("cgOrgVer").textContent = d.version || "v0";
     $("cgOrgOneLiner").textContent = org.one_liner || "";
     var facts=d.facts||[];
@@ -3388,8 +3416,8 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
          ingest from boot — a stray refresh must not silently spend again. Land
          on the result step; ↻ re-run ingest is the explicit way forward. */
       show("cgStepResult");
-      $("cgOrgName").textContent=(st.org&&st.org.name)|| "your company";
-      $("cgOrgKind").textContent=(st.org&&st.org.kind)||"the connected company";
+      $("cgOrgName").textContent=(st.org&&st.org.name)|| fbName(st.org);
+      $("cgOrgKind").textContent=(st.org&&st.org.kind)|| fbKind(st.org);
       $("cgOrgVer").textContent=st.version||"v0";
       $("cgOrgOneLiner").textContent=(st.org&&st.org.one_liner)||"";
       $("cgFacts").innerHTML='<div class="cg-empty sm">'+(st.fact_count?(st.fact_count+" facts in memory"):"no facts yet")+'</div>';

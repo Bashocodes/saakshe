@@ -304,6 +304,9 @@ class ConnectRequest(BaseModel):
     ref: str
     mechanism: Optional[str] = None
     token: Optional[str] = None
+    # "own" (default) | "public" — whether the founder owns the product or is
+    # exploring someone else's public one; lands on org.relationship.
+    relationship: Optional[str] = None
 
 
 class AnswerRequest(BaseModel):
@@ -494,6 +497,10 @@ def connect_source(req: ConnectRequest, sess: Session = Depends(_session_dep)) -
     if kind not in ("github", "repo", "website", "web", "docs", "social"):
         raise HTTPException(status_code=400, detail=f"unknown source kind {kind!r}")
     kind = {"repo": "github", "web": "website"}.get(kind, kind)
+    rel = (req.relationship or "").strip().lower()
+    if rel and rel not in ("own", "public"):
+        raise HTTPException(status_code=400,
+                            detail=f"unknown relationship {rel!r} — 'own' or 'public'")
     meta: dict[str, Any] = {}
     if kind == "github":
         # Default to a mechanism that can actually work in-container: https for
@@ -503,6 +510,8 @@ def connect_source(req: ConnectRequest, sess: Session = Depends(_session_dep)) -
         if req.token:
             meta["token"] = req.token
     conn = sess.store.add_connection(kind, req.ref.strip(), meta)
+    if rel:
+        sess.store.set_org(relationship=rel)
     return _redact_secrets({"ok": True, "connection": conn.as_dict(), "status": sess.store.status_dict()})
 
 

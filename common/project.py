@@ -185,7 +185,8 @@ class ProjectStore:
             self.ingest_status = status
         self._save()
 
-    def set_org(self, name: str = "", kind: str = "", one_liner: str = "") -> None:
+    def set_org(self, name: str = "", kind: str = "", one_liner: str = "",
+                relationship: str = "") -> None:
         with self._lock:
             if name:
                 self.org["name"] = name
@@ -193,6 +194,12 @@ class ProjectStore:
                 self.org["kind"] = kind
             if one_liner:
                 self.org["one_liner"] = one_liner
+            if relationship:
+                # "own" (the founder's product — the default everywhere) or
+                # "public" (a product they merely connected to explore). Ingest's
+                # set_org(**org_hint) never carries it, so a grounding pass can't
+                # clobber the marker set at connect time.
+                self.org["relationship"] = relationship
         self._save()
 
     def _next_version(self) -> str:
@@ -358,12 +365,13 @@ class ProjectStore:
     def org_for_flywheel(self) -> dict:
         """The org dict the orchestrator/arivu consume — derived from the real
         connected project, never a canned default."""
-        name = self.org.get("name") or "your company"
+        public = (self.org.get("relationship") == "public")
         return {
-            "name": name,
-            "kind": self.org.get("kind") or "the connected company",
+            "name": self.org.get("name") or ("the project" if public else "your company"),
+            "kind": self.org.get("kind") or ("a public product" if public else "the connected company"),
             "memory_pack": self.version,
             "one_liner": self.org.get("one_liner", ""),
+            "relationship": self.org.get("relationship") or "own",
         }
 
 

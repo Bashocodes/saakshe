@@ -46,6 +46,7 @@ def _build_prompt(qs: list[a2a.ClarifyingQuestion], facts: list[dict],
         f'- id: {q.id}\n  trigger: {q.trigger}\n  why: {q.why}\n  template: {q.text}'
         for q in qs
     )
+    public = str(org.get("relationship") or "").lower() == "public"
     return (
         f"You are manas, the memory of {name}"
         + (f" ({what})" if what else "")
@@ -53,6 +54,9 @@ def _build_prompt(qs: list[a2a.ClarifyingQuestion], facts: list[dict],
           "was raised by a deterministic code trigger, with the honest reason in `why`.\n\n"
         f"The corpus you DID ground (cited facts):\n{digest}\n"
         + (f"\nBrand voice: {voice}\n" if voice else "")
+        + (f"\nThe founder does NOT own {name} — it is a public product they are "
+           "exploring. Speak of the product in the third person ('this product', or its "
+           "name); never say 'your product' or 'your company'.\n" if public else "")
         + f"\nThe questions to ask the founder:\n{asks}\n\n"
         "Rephrase each question so it is specific to this company: reference what the "
         "corpus already shows, then ask exactly for the gap in `why`. Speak directly to "

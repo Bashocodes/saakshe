@@ -35,6 +35,9 @@ _REQUIRED = [
         "ask": "How does your product make money — free, a subscription, usage-based, a one-time price? "
                "Name the tier(s) and rough price if you can.",
         "label": "how you price / your offer",
+        "ask_public": "How does this product make money — free, a subscription, usage-based, "
+                      "a one-time price? Name the tier(s) and rough price if you know.",
+        "label_public": "how it prices / its offer",
     },
     {
         "key": "audience",
@@ -43,6 +46,8 @@ _REQUIRED = [
         "blocks": "audience-grounded making + outreach (kalai · kural)",
         "ask": "Who is this for — who are your customers, in your own words?",
         "label": "who your customers are",
+        "ask_public": "Who is this product for — who uses it, in your own words?",
+        "label_public": "who its users are",
     },
     {
         "key": "voice",
@@ -52,6 +57,9 @@ _REQUIRED = [
         "ask": "How should the company sound — describe your brand voice in a line or two "
                "(e.g. 'plain and warm, never hypey').",
         "label": "your brand voice",
+        "ask_public": "How does this product sound — describe its brand voice in a line or two "
+                      "(e.g. 'plain and warm, never hypey').",
+        "label_public": "its brand voice",
     },
     {
         # Specific channel signals only — NOT bare "post"/"channel"/"x", which
@@ -63,6 +71,9 @@ _REQUIRED = [
         "blocks": "outreach (kural)",
         "ask": "Where do you reach people — your main channel(s) (Instagram, X, LinkedIn, email…)?",
         "label": "your main channel",
+        "ask_public": "Where does this product reach people — its main channel(s) "
+                      "(Instagram, X, LinkedIn, email…)?",
+        "label_public": "its main channel",
     },
 ]
 
@@ -80,10 +91,14 @@ def detect(
     has_social_connection: bool = False,
     has_logo_asset: bool = True,
     max_questions: int = 4,
+    owned: bool = True,
 ) -> list[a2a.ClarifyingQuestion]:
     """Return the clarifying questions a connect raises. Contradictions first
     (they're concrete and load-bearing), then the most important missing fields.
-    Stable ids (hash of content) so a re-ingest doesn't re-ask an answered one."""
+    Stable ids (hash of content) so a re-ingest doesn't re-ask an answered one.
+    ``owned=False`` (org.relationship == "public" — a product the founder is
+    exploring, not theirs) flips the phrasing to third person; the triggers and
+    ids are identical either way."""
     voice_rules = voice_rules or []
     brand_rules = brand_rules or []
     out: list[a2a.ClarifyingQuestion] = []
@@ -115,8 +130,8 @@ def detect(
             continue
         out.append(a2a.ClarifyingQuestion(
             id=_qid("missing", dim["key"]),
-            text=dim["ask"],
-            why=f"no connected source mentioned {dim['label']}",
+            text=dim["ask"] if owned else dim["ask_public"],
+            why=f"no connected source mentioned {dim['label'] if owned else dim['label_public']}",
             trigger="missing_field",
             blocks=dim["blocks"],
         ))
@@ -127,7 +142,9 @@ def detect(
     if not has_logo_asset:
         out.append(a2a.ClarifyingQuestion(
             id=_qid("missing_asset", "logo"),
-            text="I don't have your logo. Add one to the vault so kalai can put it on what it makes?",
+            text=("I don't have your logo. Add one to the vault so kalai can put it on what it makes?"
+                  if owned else
+                  "I don't have this product's logo. Add one to the vault so kalai can put it on what it makes?"),
             why="the brand-asset vault holds no asset of kind 'logo'",
             trigger="missing_asset",
             blocks="logo placement on creative (kalai)",
