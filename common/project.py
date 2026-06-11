@@ -376,13 +376,26 @@ def _make_store(user: str):
     """Construct the backing store for a user.
 
     DEFAULT = the file-based ProjectStore (demo-first, creds-free, robust).
-    OPT-IN  = Supabase, only when SAAKSHE_STORE=supabase AND a service key is
-    configured (env SAAKSHE_SUPABASE_KEY or ~/.saakshe_supabase_key). This is
-    additive: with no env set, behaviour is byte-identical to before, so the
+    OPT-IN  = Supabase, only when a service key is configured (env
+    SAAKSHE_SUPABASE_KEY or ~/.saakshe_supabase_key) AND one of:
+
+      * SAAKSHE_STORE=supabase        — every store (the billing profile), or
+      * SAAKSHE_OWNER_STORE=supabase  — PER-USER stores only (user != "founder").
+        This is the gated profile's durability fix: the seeded judge demo stays
+        on the baked file store, while a signed-in owner's connections live in
+        Supabase and SURVIVE a redeploy (the file store dies with the container).
+
+    Additive: with no env set, behaviour is byte-identical to before, so the
     demo, pytest and isolated runs are unaffected. Any wiring/connectivity issue
     falls back to the file store rather than breaking the service.
     """
-    if os.environ.get("SAAKSHE_STORE", "").strip().lower() == "supabase":
+    def _env(name: str) -> str:
+        return os.environ.get(name, "").strip().lower()
+
+    want_supabase = _env("SAAKSHE_STORE") == "supabase" or (
+        user != "founder" and _env("SAAKSHE_OWNER_STORE") == "supabase"
+    )
+    if want_supabase:
         try:
             from . import supastore
             if supastore.available():

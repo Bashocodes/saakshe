@@ -56,6 +56,15 @@ case "$PROFILE" in
     ENV_VARS="^|^${COMMON_ENV}|SAAKSHE_STORE=file|SAAKSHE_PUBLIC_DEMO=1|SAAKSHE_REQUIRE_SIGNIN=1"
     ENV_VARS+="|SAAKSHE_SUPABASE_URL=${SAAKSHE_SUPABASE_URL}|SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}"
     ENV_VARS+="|OWNER_EMAILS=${OWNER_EMAILS}"
+    # Durable owner store (opt-in, SAAKSHE_OWNER_STORE=supabase): a signed-in
+    # owner's per-user store rides Supabase, so a redeploy no longer wipes their
+    # connections; the seeded judge demo stays on the baked file store. Needs the
+    # service key — falls back to ~/.saakshe_supabase_key like the billing profile.
+    if [ -n "${SAAKSHE_OWNER_STORE:-}" ]; then
+      SAAKSHE_SUPABASE_KEY="${SAAKSHE_SUPABASE_KEY:-$(cat ~/.saakshe_supabase_key 2>/dev/null || true)}"
+      : "${SAAKSHE_SUPABASE_KEY:?SAAKSHE_OWNER_STORE=supabase needs SAAKSHE_SUPABASE_KEY (or ~/.saakshe_supabase_key)}"
+      ENV_VARS+="|SAAKSHE_OWNER_STORE=${SAAKSHE_OWNER_STORE}|SAAKSHE_SUPABASE_KEY=${SAAKSHE_SUPABASE_KEY}"
+    fi
     ;;
   billing)
     # ── credit/auth (multi-tenant) config — secrets come from the gitignored .env.local
