@@ -2,6 +2,8 @@
 
 Paste each section into the matching Devpost field. Track 1 (Build), Google for Startups AI Agents Challenge.
 
+**Architecture diagram link (no sign-in needed):** https://saakshe.com/architecture — also at `docs/architecture.svg` in this repo.
+
 ---
 
 ## 1. Project name + tagline

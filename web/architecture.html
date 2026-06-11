@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>saakshe — architecture</title>
+<meta name="description" content="saakshe architecture — one founder, four realms, 42 agents, two human gates. ADK on Cloud Run; Gemini + Claude via Vertex AI.">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Syncopate:wght@700&display=swap">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#F4EEE2;color:#111;font:15px/1.6 'Space Grotesk',Helvetica,sans-serif;padding:0 22px 70px}
+.wrap{max-width:1280px;margin:0 auto}
+header{display:flex;align-items:baseline;justify-content:space-between;gap:14px;
+       padding:26px 0 18px;border-bottom:3px solid #111;flex-wrap:wrap}
+.wm{font-family:'Syncopate',sans-serif;font-weight:700;font-size:17px;letter-spacing:.295em;text-indent:.295em;color:#111;text-decoration:none}
+.tag{font-size:12px;color:#555;letter-spacing:.04em}
+h1{font-size:26px;font-weight:700;letter-spacing:-.01em;margin:26px 0 6px;text-transform:uppercase}
+.sub{color:#555;font-size:13.5px;margin-bottom:22px}
+.frame{background:#fff;border:3px solid #111;box-shadow:8px 8px 0 #111;padding:10px}
+.frame img{display:block;width:100%;height:auto}
+.row{display:flex;gap:12px;flex-wrap:wrap;margin-top:24px}
+.btn{display:inline-block;font-size:13px;font-weight:700;letter-spacing:.03em;color:#111;
+     text-decoration:none;border:2px solid #111;background:#fff;padding:8px 18px;box-shadow:3px 3px 0 #111}
+.btn.primary{background:#0a39ff;color:#fff}
+.btn:active{transform:translate(3px,3px);box-shadow:none}
+footer{margin-top:46px;border-top:2px solid #111;padding-top:12px;font-size:12px;color:#555}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <a class="wm" href="/">SΛΛKSHE</a>
+    <span class="tag">architecture · Google for Startups AI Agents Challenge · Track 1 Build</span>
+  </header>
+
+  <h1>The agentic company + its witness</h1>
+  <p class="sub">One founder · four realms · 42 agents · two human gates. Every seat, model and gate below matches the live registry at <a href="/api/saakshe/agents">/api/saakshe/agents</a>.</p>
+
+  <div class="frame">
+    <img src="/architecture.svg" alt="saakshe architecture diagram — the founder talks only to saakshe the witness; manas grounds, arivu decides behind gate 1, kalai makes, kural delivers verbatim behind gate 2; all on ADK, Gemini and Claude via Vertex AI, Cloud Run." width="1660" height="1330">
+  </div>
+
+  <div class="row">
+    <a class="btn primary" href="/">← saakshe.com</a>
+    <a class="btn" href="/architecture.svg" download="saakshe-architecture.svg">download SVG</a>
+    <a class="btn" href="https://github.com/Bashocodes/saakshe">code on GitHub</a>
+  </div>
+
+  <footer>manas 10 · arivu 10 · kalai 11 · kural 11 = 42 agents — the witness is never counted · ADK on Cloud Run · Gemini 3.1 Pro Preview / 3.5 Flash + Claude Sonnet 4.6 via Vertex AI</footer>
+</div>
+</body>
+</html>
