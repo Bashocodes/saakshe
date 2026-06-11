@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <!-- saakshe witness mark: two lambda eyes on near-black -->
+  <rect width="64" height="64" rx="12" fill="#141118"/>
+  <path d="M11 44 L21 20 L31 44" fill="none" stroke="#F4EEE2" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M33 44 L43 20 L53 44" fill="none" stroke="#F4EEE2" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

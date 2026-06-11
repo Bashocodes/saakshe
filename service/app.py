@@ -90,10 +90,31 @@ app = FastAPI(
     description="One front door over four ADK quadrants (manas·arivu·kalai·kural) and the witness.",
     version="1.0.0",
 )
-app.add_middleware(
-    CORSMiddleware, allow_origins=["*"], allow_credentials=False,
-    allow_methods=["*"], allow_headers=["*"],
+_DEFAULT_ORIGINS = (
+    "https://saakshe.com,https://www.saakshe.com,"
+    "http://localhost:8000,http://localhost:8765"
 )
+_ALLOWED_ORIGINS = [
+    o.strip()
+    for o in os.environ.get("SAAKSHE_ALLOWED_ORIGINS", _DEFAULT_ORIGINS).split(",")
+    if o.strip()
+]
+app.add_middleware(
+    CORSMiddleware, allow_origins=_ALLOWED_ORIGINS, allow_credentials=False,
+    allow_methods=["GET", "POST", "OPTIONS", "DELETE"],
+    allow_headers=["Authorization", "Content-Type"],
+)
+
+
+@app.middleware("http")
+async def _security_headers(request: Request, call_next):
+    """Baseline hardening headers on every response (no CSP yet — the site is
+    single-file inline-everything HTML, a CSP would need nonces page-by-page)."""
+    response = await call_next(request)
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    return response
 
 
 @app.exception_handler(Exception)
@@ -1138,19 +1159,29 @@ def _serve_page(name: str) -> Any:
     if ext in _ASSET_TYPES:
         asset = _WEB / name
         if asset.exists():
-            return FileResponse(asset, media_type=_ASSET_TYPES[ext])
+            return FileResponse(asset, media_type=_ASSET_TYPES[ext],
+                                headers={"Cache-Control": "public, max-age=86400"})
         raise HTTPException(status_code=404, detail=f"no asset {name!r}")
     if not name.endswith(".html"):
         name += ".html"
+    _html_headers = {"Cache-Control": "no-cache"}
     page = _WEB / name
     if page.exists():
-        return FileResponse(page)
+        return FileResponse(page, headers=_html_headers)
     if name == "cockpit.html" and _LEGACY_COCKPIT.exists():
-        return FileResponse(_LEGACY_COCKPIT)
+        return FileResponse(_LEGACY_COCKPIT, headers=_html_headers)
     branded = _WEB / "404.html"
     if branded.exists():  # a typo'd URL lands on a saakshe page, not bare JSON
-        return FileResponse(branded, status_code=404)
+        return FileResponse(branded, status_code=404, headers=_html_headers)
     raise HTTPException(status_code=404, detail=f"no page {name!r}")
+
+
+@app.get("/favicon.ico", include_in_schema=False)
+def favicon_ico() -> Any:
+    """Browsers hit bare /favicon.ico unprompted — serve the SVG witness mark
+    instead of a branded-404 page. (/favicon.svg already rides _ASSET_TYPES.)"""
+    return FileResponse(_WEB / "favicon.svg", media_type="image/svg+xml",
+                        headers={"Cache-Control": "public, max-age=86400"})
 
 
 @app.get("/auth/callback", response_class=HTMLResponse)

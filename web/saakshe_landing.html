@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<link rel="icon" href="data:,">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <title>saakshe — the agentic company you talk to</title>
 <meta name="description" content="saakshe: one founder, a whole company, one witness. Three faculties — manas knows, kalai creates, kural engages — each deciding through arivu, the shared decision chamber. You talk only to saakshe, the witness. Built on Google's stack for the AI Agents Challenge.">
 <meta property="og:title" content="saakshe — the agentic company you talk to">
@@ -381,9 +381,9 @@ html[data-theme="dark"] .stack{border-color:var(--line);box-shadow:none}
 .st .sv{font-family:var(--head);font-weight:700;font-size:16px;margin-top:7px;line-height:1.2}
 html[data-theme="dark"] .st .sv{font-weight:500;color:var(--ink)}
 .st .sx{font-size:13px;color:var(--ink-2);margin-top:7px;line-height:1.5}
-.honest{margin-top:20px;border-left:5px solid var(--c-arivu);padding:10px 0 10px 16px;background:var(--card-2);
+.honest{margin-top:20px;border:1.5px solid var(--line);padding:10px 16px;background:var(--card-2);
   font-family:var(--mono);font-size:13px;color:var(--ink-2);line-height:1.6;border-radius:var(--radius)}
-html[data-theme="dark"] .honest{border-left-color:var(--c-arivu);background:transparent}
+html[data-theme="dark"] .honest{border-color:var(--line);background:transparent}
 .honest b{color:var(--ink)}
 
 /* ═══════════════════════════════════════════════════════════════════════
@@ -421,8 +421,9 @@ html[data-theme="dark"] .cp-chip{background:transparent;border:1.5px solid var(-
 html[data-theme="dark"] .cp-rail{border-right:1px solid var(--line);background:#0b0f0b}
 .cp-nav{font-family:var(--mono);font-size:12px;letter-spacing:.04em;color:var(--ink-2);padding:10px 16px;display:flex;align-items:center;gap:9px;cursor:default}
 .cp-nav .ni{width:9px;height:9px;flex:none;background:var(--ink-3)}
-.cp-nav.on{color:var(--ink);font-weight:700;background:var(--card-2);border-left:4px solid var(--act);padding-left:12px}
-html[data-theme="dark"] .cp-nav.on{color:var(--c-kural);background:rgba(94,240,138,.06);border-left-color:var(--c-kural)}
+.cp-nav.on{color:var(--ink);font-weight:700;background:var(--card-2)}
+.cp-nav.on::before{content:'> ';color:var(--act);margin-right:-4px}
+html[data-theme="dark"] .cp-nav.on{color:var(--c-kural);background:rgba(94,240,138,.06)}
 .cp-nav.on .ni{background:var(--act)}
 html[data-theme="dark"] .cp-nav.on .ni{background:var(--c-kural);box-shadow:none}
 html[data-theme="dark"] .cp-nav.on::before{content:'> ';margin-right:-4px}
@@ -556,6 +557,7 @@ html[data-theme="dark"] .vmap .a-kural,html[data-theme="dark"] .vmap .a-saakshe{
   .reveal{opacity:0;transform:translateY(16px);transition:opacity .6s ease,transform .6s ease}
   .reveal.in{opacity:1;transform:none}
 }
+@media print{.reveal{opacity:1 !important;transform:none !important}}
 @media(max-width:560px){
   body{font-size:16px}
   .hero h1{font-size:clamp(34px,11vw,52px)}
@@ -575,7 +577,7 @@ html[data-theme="dark"] .vmap .a-kural,html[data-theme="dark"] .vmap .a-saakshe{
       <span class="skbot" aria-hidden="true"><span class="skeye L"></span><span class="skeye R"></span><span class="skmouth"></span></span><span class="dv"></span><span class="wd">SΛΛKSHE</span>
     </a>
     <div class="bar-right">
-      <a class="signin" href="cockpit.html" data-cta="signin">Sign in</a>
+      <a class="signin" href="/cockpit" data-cta="signin">Sign in</a>
       <div class="toggle" role="group" aria-label="Theme">
         <button id="tg-light" type="button" aria-pressed="true"><span class="dot"></span>Brut</button>
         <button id="tg-dark" type="button" aria-pressed="false"><span class="dot"></span>Obsidian</button>
@@ -598,7 +600,7 @@ html[data-theme="dark"] .vmap .a-kural,html[data-theme="dark"] .vmap .a-saakshe{
     </div>
 
     <div class="cta-row">
-      <a class="btn prim" href="cockpit.html" data-cta="connect">Connect your project</a>
+      <a class="btn prim" href="/cockpit" data-cta="connect">Connect your project</a>
       <a class="btn" href="#cockpit">See the cockpit ↓</a>
     </div>
   </header>
@@ -854,7 +856,7 @@ html[data-theme="dark"] .vmap .a-kural,html[data-theme="dark"] .vmap .a-saakshe{
     <h2>Connect your project. Meet your company.</h2>
     <p>One founder, a whole company behind a witness you talk to. Bring your keys, connect your repo and site, and tap the two gates that matter.</p>
     <div class="cta-row">
-      <a class="btn prim" href="cockpit.html" data-cta="connect">Connect your project</a>
+      <a class="btn prim" href="/cockpit" data-cta="connect">Connect your project</a>
       <a class="btn" href="#cockpit">See the cockpit ↑</a>
     </div>
   </section>
@@ -872,12 +874,12 @@ html[data-theme="dark"] .vmap .a-kural,html[data-theme="dark"] .vmap .a-saakshe{
       <span>witnesses&nbsp;→&nbsp;<b class="a-saakshe">saakshe</b></span>
     </div>
     <div class="vmap flinks">
-      <span><a href="/cockpit.html">cockpit</a></span>
-      <span><a href="/samples.html">samples</a></span>
-      <span><a href="/pricing.html">pricing</a></span>
-      <span><a href="/faq.html">faq</a></span>
-      <span><a href="/terms.html">terms</a></span>
-      <span><a href="/privacy.html">privacy</a></span>
+      <span><a href="/cockpit">cockpit</a></span>
+      <span><a href="/samples">samples</a></span>
+      <span><a href="/pricing">pricing</a></span>
+      <span><a href="/faq">faq</a></span>
+      <span><a href="/terms">terms</a></span>
+      <span><a href="/privacy">privacy</a></span>
     </div>
     <div class="meta">Track 1 · Build · <b>Google for Startups AI Agents Challenge</b>. Built on ADK · Gemini · Claude·Vertex · Cloud Run. The agentic company you talk to.</div>
   </footer>
@@ -904,16 +906,34 @@ html[data-theme="dark"] .vmap .a-kural,html[data-theme="dark"] .vmap .a-saakshe{
   sync(root.getAttribute('data-theme')||'light');
   bL.addEventListener('click',function(){setTheme('light');});
   bD.addEventListener('click',function(){setTheme('dark');});
+  // keep aria-pressed in sync when the theme changes outside a click (other tab, script)
+  if('MutationObserver' in window){
+    new MutationObserver(function(){sync(root.getAttribute('data-theme')||'light');})
+      .observe(root,{attributes:true,attributeFilter:['data-theme']});
+  }
+  window.addEventListener('storage',function(e){
+    if(e.key==='saakshe-theme'&&(e.newValue==='dark'||e.newValue==='light')){setTheme(e.newValue);}
+  });
 
   // scroll-reveal (respects reduced motion)
   var rm=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var reveals=Array.prototype.slice.call(document.querySelectorAll('.reveal'));
+  function revealAll(){reveals.forEach(function(el){el.classList.add('in');});}
   if(!rm && 'IntersectionObserver' in window){
+    // anything already within the viewport reveals immediately (no first-paint void)
+    var vh=window.innerHeight||document.documentElement.clientHeight;
+    reveals.forEach(function(el){
+      var r=el.getBoundingClientRect();
+      if(r.top<vh && r.bottom>0){el.classList.add('in');}
+    });
     var io=new IntersectionObserver(function(es){
       es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target);} });
     },{threshold:.12,rootMargin:'0px 0px -8% 0px'});
-    document.querySelectorAll('.reveal').forEach(function(el){io.observe(el);});
+    reveals.forEach(function(el){ if(!el.classList.contains('in')) io.observe(el); });
+    // failsafe: never leave a section invisible (print, full-page capture, fast scrollers)
+    setTimeout(revealAll,3500);
   } else {
-    document.querySelectorAll('.reveal').forEach(function(el){el.classList.add('in');});
+    revealAll();
   }
 })();
 </script>

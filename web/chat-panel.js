@@ -145,11 +145,12 @@
         last.appendChild(acts);
       }
       else if (b.t === 'slider' && last) {
+        var sv = +b.value || 4, q = b.quote || { total_usd: 0, est_wall_sec: 0 };
         var s = el('<div class="sld"><div class="lab"><span>DURATION</span>' +
-          '<span class="dv">' + b.value + 's</span></div>' +
-          '<input type="range" min="' + (+b.min || 1) + '" max="' + (+b.max || 8) + '" value="' + (+b.value || 4) + '" aria-label="duration seconds">' +
-          '<div class="quote"><span>est. cost</span><b class="qc">$' + b.quote.total_usd.toFixed(3) + '</b></div>' +
-          '<div class="quote"><span>est. render</span><b class="qt">~' + b.quote.est_wall_sec + 's</b></div></div>');
+          '<span class="dv">' + sv + 's</span></div>' +
+          '<input type="range" min="' + (+b.min || 1) + '" max="' + (+b.max || 8) + '" value="' + sv + '" aria-label="duration seconds">' +
+          '<div class="quote"><span>est. cost</span><b class="qc">$' + (+q.total_usd || 0).toFixed(3) + '</b></div>' +
+          '<div class="quote"><span>est. render</span><b class="qt">~' + q.est_wall_sec + 's</b></div></div>');
         s.querySelector('input').oninput = function (e) {
           state.seconds = +e.target.value;
           s.querySelector('.dv').textContent = state.seconds + 's';
@@ -291,8 +292,20 @@
     var fails = 0, every = 1500;
     state.poller = setInterval(function () {
       fetch('/api/kalai/media/job/' + jid, { headers: hdrs({}) })
-        .then(function (r) { return r.json(); })
+        .then(function (r) {
+          if (!r.ok) {
+            return r.json().catch(function () { return null; }).then(function (d) {
+              clearInterval(state.poller); state.poller = null;
+              p.textContent = 'render check failed.';
+              httpBubble({ ok: false, status: r.status, data: d }, 'check the render');
+              down(); persist();
+              return null;
+            });
+          }
+          return r.json();
+        })
         .then(function (s) {
+          if (s == null) return;
           fails = 0;
           if (s.status === 'rendering') {
             p.textContent = 'frame ' + s.frame + '/' + s.frames + ' · rendering…';
@@ -582,7 +595,7 @@
     down(true);
   } else {
     var g = msg('SΛΛKSHE · WITNESS',
-      'I see everything the four agents do — and answer only from it. Ask me anything about your company.');
+      'I see everything the three agents and the arivu chamber do — and answer only from it. Ask me anything about your company.');
     var sugs = el('<div class="sugs"></div>');
     [['what is waiting on me?', "what's waiting on me?"],
      ['status', 'status'],

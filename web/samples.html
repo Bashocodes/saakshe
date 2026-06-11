@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<link rel="icon" href="data:,">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>samples — repos the company had never seen</title>
 <meta name="description" content="Three famous open-source products (Excalidraw Whiteboard · Cal.com · Plausible Analytics) connected through saakshe's own ingest pipeline — real clone, real site fetch, live Gemini imbibers, a versioned source-cited Context Pack, and the clarifying questions manas asked back. Captured verbatim; verify every line against the public repos.">
@@ -100,8 +100,8 @@ a.tag{border-bottom-width:1px} a.tag:hover{color:var(--acc);border-color:var(--r
 .jack .jdot{width:11px;height:11px;border-radius:50%;background:var(--sw-off);flex:none}
 .jack .jname{flex:1;font-weight:500}
 .jack .jstate{font-family:"Martian Mono",monospace;font-size:13px;letter-spacing:0.06em;color:var(--muted-s)}
-.jack[aria-pressed="true"] .jdot{background:var(--manas)}
-.jack[aria-pressed="true"] .jstate{color:var(--acc)}
+.jack[data-patched="true"] .jdot{background:var(--manas)}
+.jack[data-patched="true"] .jstate{color:var(--acc)}
 .readonly-note{font-size:14px;color:var(--ink-2);margin:12px 0 0}
 .pack{background:var(--well);border:1px solid var(--rule);border-radius:8px;padding:16px}
 .pack .ver{font-family:"Saira",sans-serif;font-weight:700;font-size:22px;color:var(--ink)}
@@ -176,7 +176,7 @@ a.btn-ghost{color:var(--ink-2)} .btn-ghost:hover{color:var(--ink);background:var
       <div class="demo-grid">
         <div>
           <div class="label" style="margin-bottom:8px">granted sources</div>
-          <ul class="jacks"><li><span class="jack" aria-pressed="true"><span class="jdot" aria-hidden="true"></span><span class="jname">code repo</span><span class="jstate">patched</span></span></li><li><span class="jack" aria-pressed="true"><span class="jdot" aria-hidden="true"></span><span class="jname">website</span><span class="jstate">patched</span></span></li></ul>
+          <ul class="jacks"><li><span class="jack" data-patched="true"><span class="jdot" aria-hidden="true"></span><span class="jname">code repo</span><span class="jstate">patched</span></span></li><li><span class="jack" data-patched="true"><span class="jdot" aria-hidden="true"></span><span class="jname">website</span><span class="jstate">patched</span></span></li></ul>
           <p class="readonly-note">read-only · a shallow clone and a page fetch — exactly what any
           founder grants on day one. Every line on the right traces back to one of these.</p>
         </div>
@@ -197,20 +197,21 @@ a.btn-ghost{color:var(--ink-2)} .btn-ghost:hover{color:var(--ink);background:var
 
 <section>
   <div class="wrap">
-    <span class="sec-no">02 — Cal.com</span>
+    <span class="sec-no">02 — Cal.com (Cal.diy community edition)</span>
     <div class="demo">
       <div class="demo-head">
         <div>
           <div class="eyebrow">patched in over setu · read live</div>
-          <h3 style="margin-top:6px">Cal.com</h3>
+          <h3 style="margin-top:6px">Cal.com (Cal.diy community edition)</h3>
           <p class="ink2" style="font-size:15px;max-width:58ch;margin:8px 0 0">A fully customizable scheduling software for individuals, businesses taking calls and developers building scheduling platforms where users meet users.</p>
+          <p class="ink2" style="font-size:13.5px;max-width:58ch;margin:6px 0 0">capture note · this run was made against the Cal.diy community fork of Cal.com, so the cited facts describe Cal.diy.</p>
         </div>
         <div class="flex"><a class="tag" href="https://github.com/calcom/cal.com" target="_blank" rel="noopener">github · calcom/cal.com</a><a class="tag" href="https://cal.com" target="_blank" rel="noopener">website · cal.com</a><span class="tag">19 cited facts</span></div>
       </div>
       <div class="demo-grid">
         <div>
           <div class="label" style="margin-bottom:8px">granted sources</div>
-          <ul class="jacks"><li><span class="jack" aria-pressed="true"><span class="jdot" aria-hidden="true"></span><span class="jname">code repo</span><span class="jstate">patched</span></span></li><li><span class="jack" aria-pressed="true"><span class="jdot" aria-hidden="true"></span><span class="jname">website</span><span class="jstate">patched</span></span></li></ul>
+          <ul class="jacks"><li><span class="jack" data-patched="true"><span class="jdot" aria-hidden="true"></span><span class="jname">code repo</span><span class="jstate">patched</span></span></li><li><span class="jack" data-patched="true"><span class="jdot" aria-hidden="true"></span><span class="jname">website</span><span class="jstate">patched</span></span></li></ul>
           <p class="readonly-note">read-only · a shallow clone and a page fetch — exactly what any
           founder grants on day one. Every line on the right traces back to one of these.</p>
         </div>
@@ -244,7 +245,7 @@ a.btn-ghost{color:var(--ink-2)} .btn-ghost:hover{color:var(--ink);background:var
       <div class="demo-grid">
         <div>
           <div class="label" style="margin-bottom:8px">granted sources</div>
-          <ul class="jacks"><li><span class="jack" aria-pressed="true"><span class="jdot" aria-hidden="true"></span><span class="jname">code repo</span><span class="jstate">patched</span></span></li><li><span class="jack" aria-pressed="true"><span class="jdot" aria-hidden="true"></span><span class="jname">website</span><span class="jstate">patched</span></span></li></ul>
+          <ul class="jacks"><li><span class="jack" data-patched="true"><span class="jdot" aria-hidden="true"></span><span class="jname">code repo</span><span class="jstate">patched</span></span></li><li><span class="jack" data-patched="true"><span class="jdot" aria-hidden="true"></span><span class="jname">website</span><span class="jstate">patched</span></span></li></ul>
           <p class="readonly-note">read-only · a shallow clone and a page fetch — exactly what any
           founder grants on day one. Every line on the right traces back to one of these.</p>
         </div>
@@ -269,11 +270,11 @@ a.btn-ghost{color:var(--ink-2)} .btn-ghost:hover{color:var(--ink);background:var
     <div class="panel">
       <h3 style="margin-bottom:8px">This is minute one with any company.</h3>
       <p class="ink2" style="max-width:62ch">Patch your own jacks, watch the Pack form, answer what manas asks —
-      then the rest of the company (arivu decides · kalai makes · kural engages) works only from that
+      then the rest of the company (arivu decides · kalai creates · kural engages) works only from that
       cited memory, behind your two gates.</p>
       <div class="flex">
         <a class="btn" href="setu.html">how connection works →</a>
-        <a class="btn-ghost btn" href="saakshe_landing.html">about saakshe</a>
+        <a class="btn-ghost btn" href="/">about saakshe</a>
       </div>
     </div>
   </div>
@@ -283,14 +284,14 @@ a.btn-ghost{color:var(--ink-2)} .btn-ghost:hover{color:var(--ink);background:var
 
 <footer class="foot">
   <div class="wrap">
-    <p class="seam">knows → manas &nbsp;·&nbsp; decides → arivu &nbsp;·&nbsp; makes → kalai &nbsp;·&nbsp; engages → kural &nbsp;·&nbsp; witnesses → saakshe</p>
+    <p class="seam">knows → manas &nbsp;·&nbsp; decides → arivu &nbsp;·&nbsp; creates → kalai &nbsp;·&nbsp; engages → kural &nbsp;·&nbsp; witnesses → saakshe</p>
     <div class="siblings">
       <a href="setu.html">setu</a>
       <a href="manas.html">manas</a>
-      <a href="arivu.html">arivu</a>
       <a href="kalai.html">kalai</a>
       <a href="kural.html">kural</a>
-      <a href="cockpit.html">saakshe</a>
+      <a href="arivu.html">arivu — the chamber</a>
+      <a href="cockpit.html">cockpit</a>
     </div>
     <p class="footmeta">samples — three real ingestion captures, verbatim. Excalidraw Whiteboard · Cal.com · Plausible Analytics.<br>
     read-only sources · every fact cited · the questions are what manas actually asked &nbsp;·&nbsp;

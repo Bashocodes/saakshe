@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<link rel="icon" href="data:,">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>manas — the company's mind</title>
 <meta name="description" content="manas (Sanskrit, the mind) is the UNDERSTAND layer of an agentic company. A multi-agent mind that imbibes the founder — vision, voice, history, the living pulse of what people say — synthesises it into one canonical, versioned, source-cited company memory, and publishes it over A2A so kalai and kural are bound by who the company actually is. Built on ADK with Gemini and Claude via Vertex AI.">
@@ -407,6 +407,7 @@ ul.b li b{color:var(--ink)}
 .foot .penta .t:last-child{border-right:none}
 @media(max-width:860px){.foot .penta .t:nth-child(2n){border-right:none}}
 @media(max-width:520px){.foot .penta .t{border-right:none}}
+.foot .penta a.t{display:block;color:inherit;text-decoration:none}
 .foot .penta .t .n{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
 .foot .penta .t .nm{font-family:var(--disp);font-weight:600;font-size:16px;color:var(--ink);margin-top:8px}
 .foot .penta .t.this .nm{color:var(--accent)}
@@ -580,6 +581,17 @@ html:not(.js) .viz .ctl{display:none}
 </style>
 </head>
 <body>
+<!-- ● LIVE — manas is a backend behind saakshe; the live experience runs through the
+     saakshe cockpit (the single front door), where the mind grounds the live flywheel. -->
+<a href="/cockpit" id="manasLiveLink"
+   title="Open saakshe — the cockpit. manas runs as the understand-step of the live flywheel inside it."
+   style="position:fixed;top:14px;left:14px;z-index:60;display:inline-flex;align-items:center;gap:7px;
+   padding:7px 13px;border-radius:999px;font:600 12px/1 ui-sans-serif,system-ui,sans-serif;text-decoration:none;
+   color:var(--ink);background:var(--panel);border:1px solid var(--rule-2);
+   backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)">
+   <span style="width:8px;height:8px;border-radius:50%;background:var(--accent);
+   animation:manasLivePulse 1.8s ease-in-out infinite"></span>live · in saakshe</a>
+<style>@keyframes manasLivePulse{0%,100%{opacity:1}50%{opacity:.35}}</style>
 <!-- ambient drifting founder-fragments (parallax inward). Faint; reduced-motion -> static. -->
 <div class="driftfield" aria-hidden="true">
   <span class="frag" style="left:8%;top:18%;--dx:34vw;--dy:24vh;animation-delay:-2s">brand_book.pdf · p12</span>
@@ -605,7 +617,7 @@ html:not(.js) .viz .ctl{display:none}
       <span class="seg"><span class="dot dim"></span>memory core <span class="v">growing</span></span>
       <span class="seg"><span class="dot"></span>artifacts imbibed <span class="v"><span class="ct" data-count-to="2148">2,148</span></span></span>
       <span class="seg"><span class="dot warm"></span>Context Pack <span class="v mono">v<span class="ct" data-count-to="14">14</span></span></span>
-      <span class="seg"><span class="dot pend"></span>bound siblings <span class="v">3</span></span>
+      <span class="seg"><span class="dot pend"></span>bound siblings <span class="v">2</span></span>
     </div>
 
     <div class="kick hero-anim" style="--d:90ms">manas &nbsp;·&nbsp; the mind</div>
@@ -1057,7 +1069,7 @@ html:not(.js) .viz .ctl{display:none}
         <div class="arrow"><span class="line"></span><span class="gl">→</span></div>
         <div class="node core"><div class="t">A2A Pack</div><div class="s">binds kalai · kural</div></div>
       </div>
-      <p class="caption">A single agent that imbibes a fact and also serves it has no independent check on itself — it confabulates a founder-opinion the moment memory runs out. manas splits the labor: the <span class="acc">Gemini Imbibers</span> only ever emit <span class="acc">cited candidates</span>, the <span class="acc">Curator loop</span> refuses to commit anything that can't cite a source or that contradicts memory, a contested item is held for a human, and the <span class="acc">Claude·Vertex Founder-Voice</span> refuses rather than invent when the core doesn't cover the question. The divide between imbiber and curator — and the deterministic verify before any commit — is the safety property that makes this a mind, not a confabulator. The Pack it commits then binds the two siblings over A2A: <span class="acc">kalai makes from it; kural speaks from it</span> — kural the only mouth, grounding every post and reply here first.</p>
+      <p class="caption">A single agent that imbibes a fact and also serves it has no independent check on itself — it confabulates a founder-opinion the moment memory runs out. manas splits the labor: the <span class="acc">Gemini Imbibers</span> only ever emit <span class="acc">cited candidates</span>, the <span class="acc">Curator loop</span> refuses to commit anything that can't cite a source or that contradicts memory, a contested item is held for a human, and the <span class="acc">Claude·Vertex Founder-Voice</span> refuses rather than invent when the core doesn't cover the question. The divide between imbiber and curator — and the deterministic verify before any commit — is the safety property that makes this a mind, not a confabulator. The Pack it commits then binds the two siblings over A2A: <span class="acc">kalai creates from it; kural speaks from it</span> — kural the only mouth, grounding every post and reply here first.</p>
     </div>
   </section>
 
@@ -1103,7 +1115,7 @@ html:not(.js) .viz .ctl{display:none}
       </div>
       <div class="layer">
         <div class="name">Interop<span class="sub">A2A · to_a2a() · the hub</span></div>
-        <div class="body">manas is the <b>A2A hub</b> of the whole set — the others connect to it. Exposed via <code>to_a2a()</code> with a published Agent Card advertising two skills: <code>get_founder_context</code> (returns the current Pack version + targeted grounded essence) and <code>ask_founder_voice</code> (Claude-rendered, citation-bound, refuses out-of-corpus). It binds <b>kalai</b> and <b>kural</b> — <b>kalai makes from it; kural speaks from it</b> — each consulting manas before it acts, and kural, the company's only mouth, grounding every post and every reply in this memory first. Any compliant enterprise agent can discover the card too. An MCP toolset also exposes the raw retrieval surface, mirroring <code>multiformat-hybrid-rag</code>.</div>
+        <div class="body">manas is the <b>A2A hub</b> of the whole set — the others connect to it. Exposed via <code>to_a2a()</code> with a published Agent Card advertising two skills: <code>get_founder_context</code> (returns the current Pack version + targeted grounded essence) and <code>ask_founder_voice</code> (Claude-rendered, citation-bound, refuses out-of-corpus). It binds <b>kalai</b> and <b>kural</b> — <b>kalai creates from it; kural speaks from it</b> — each consulting manas before it acts, and kural, the company's only mouth, grounding every post and every reply in this memory first. Any compliant enterprise agent can discover the card too. An MCP toolset also exposes the raw retrieval surface, mirroring <code>multiformat-hybrid-rag</code>.</div>
       </div>
       <div class="layer">
         <div class="name">Safe action<span class="sub">verify-before-commit · HITL gate</span></div>
@@ -1152,7 +1164,7 @@ html:not(.js) .viz .ctl{display:none}
       <p class="cite">Founder-Voice, rendered from stored memory · cites <span class="src">memo_07@2:14</span> · <span class="src">brand_book.pdf p12</span> · <span class="src">reviews#1204</span> &nbsp;—&nbsp; on day one, the same question returned <span class="acc">∅ not yet in the founder's memory</span>.</p>
     </div>
 
-    <p class="sec__lead reveal" style="margin-top:22px">For <b>Aamod &amp; Co.</b>, manas means kalai writes product copy in Aamod's real register, kural reaches retailers in a voice he would actually use, — all without Aamod approving every message. And the loop closes: when kural posts and a buyer replies, that reply flows back through the Social Sentiment Imbiber as a cited candidate memory — so when 1,200 customers say a scent is "too strong," that lands as a softened brand rule the whole company adopts at once, with one confirmation tap — the transfusion moment, on-rails.</p>
+    <p class="sec__lead reveal" style="margin-top:22px">For <b>Aamod &amp; Co.</b>, manas means kalai writes product copy in Aamod's real register, kural reaches retailers in a voice he would actually use — all without Aamod approving every message. And the loop closes: when kural posts and a buyer replies, that reply flows back through the Social Sentiment Imbiber as a cited candidate memory — so when 1,200 customers say a scent is "too strong," that lands as a softened brand rule the whole company adopts at once, with one confirmation tap — the transfusion moment, on-rails.</p>
 
     <div class="buy reveal">
       <div class="b stagger" style="--d:0ms">
@@ -1174,7 +1186,7 @@ html:not(.js) .viz .ctl{display:none}
 
     <div class="metrics reveal" style="margin-top:24px">
       <div class="m"><div class="num">1</div><div class="lbl">canonical truth the company runs on</div></div>
-      <div class="m"><div class="num">3</div><div class="lbl">siblings bound by every Pack version</div></div>
+      <div class="m"><div class="num">2</div><div class="lbl">siblings bound by every Pack version</div></div>
       <div class="m"><div class="num">@0.8</div><div class="lbl">groundedness-with-refusal eval bar</div></div>
       <div class="m"><div class="num">1 tap</div><div class="lbl">to confirm a new "who we are"</div></div>
     </div>
@@ -1194,7 +1206,7 @@ html:not(.js) .viz .ctl{display:none}
 
     <p class="map reveal"><span class="here">UNDERSTAND</span> → DECIDE → MAKE / GROW &nbsp;·&nbsp; the mind grounds the company.</p>
 
-    <p class="map reveal" style="margin-top:14px">knows → <span class="here">manas</span> · decides → arivu · makes → kalai · engages → kural · witnesses → saakshe.</p>
+    <p class="map reveal" style="margin-top:14px">knows → <span class="here">manas</span> · decides → arivu · creates → kalai · engages → kural · witnesses → saakshe.</p>
 
     <div class="penta reveal">
       <div class="t this">
@@ -1202,21 +1214,26 @@ html:not(.js) .viz .ctl{display:none}
         <div class="nm">manas</div>
         <div class="ds">The company's mind — imbibes the founder, holds the canonical memory, and binds every sibling over A2A. Track 1 · Build.</div>
       </div>
-      <div class="t">
+      <a class="t" href="/arivu">
         <div class="n">DECIDE</div>
         <div class="nm">arivu</div>
         <div class="ds">The operational judgment — which agent acts, what to spend, what to prioritise. Reads manas's essence; out of scope for manas by design.</div>
-      </div>
-      <div class="t">
+      </a>
+      <a class="t" href="/kalai">
         <div class="n">MAKE</div>
         <div class="nm">kalai</div>
         <div class="ds">The autonomous creative studio. Makes on-brand, multi-platform content — grounded in manas's voice and visual rules.</div>
-      </div>
-      <div class="t">
+      </a>
+      <a class="t" href="/kural">
         <div class="n">GROW</div>
         <div class="nm">kural</div>
         <div class="ds">The autonomous growth team. Finds, researches and reaches prospects — grounded in manas's tone and stance before it sends.</div>
-      </div>
+      </a>
+      <a class="t" href="/cockpit">
+        <div class="n">WITNESS</div>
+        <div class="nm">saakshe</div>
+        <div class="ds">The witness — the live cockpit the founder runs the company from; every gate, run and resolution lands there.</div>
+      </a>
     </div>
 
     <p class="legal reveal">

@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <title>saakshe — project stats &amp; agent architecture</title>
 <meta name="description" content="A deep-dive into the saakshe codebase: ~30.6k lines of code, 27 LLM-backed agents across four ADK quadrants, the two-gate flywheel, the Gemini + Claude-via-Vertex model stack, the witness's telemetry tools, the shared substrate, the frontend surfaces, and honest caveats.">
 <meta property="og:title" content="saakshe — project stats &amp; agent architecture">
@@ -220,7 +221,7 @@
     </div>
     <div class="tbl">
       <table>
-        <tr><th>Frontend surface</th><th>Size</th><th>Lines</th></tr>
+        <tr><th>Frontend surface — at unification (2026-06-08)</th><th>Size</th><th>Lines</th></tr>
         <tr><td><b>cockpit.html</b> — the live front door</td><td>216KB</td><td>3,104</td></tr>
         <tr><td><b>saakshe.html</b> — the witness demo</td><td>168KB</td><td>2,760</td></tr>
         <tr><td>arivu.html</td><td>124KB</td><td>1,736</td></tr>
@@ -301,7 +302,7 @@
 
     <!-- KURAL -->
     <div class="card">
-      <h3>kural — engages</h3><div class="role">5 LLM seats · 1 Claude · carries kalai's master untouched</div>
+      <h3>kural — engages</h3><div class="role">7 LLM seats · 2 Claude · carries kalai's master untouched</div>
       <div class="agents">
         <div class="ag"><i class="dot claude"></i><span class="who">Envoy Lead</span> qualifies the campaign<span class="mdl">Claude Sonnet</span></div>
         <div class="ag"><i class="dot gem"></i><span class="who">2 Scouts</span> audience + timing<span class="mdl">Gemini Flash ×2</span></div>
@@ -325,7 +326,7 @@
   <h2><span class="num">04</span>The model stack</h2>
   <p class="sub">Routine intelligence runs on Gemini; high-stakes seats (verdicts, compliance,
   curation) run on <b>Claude via Vertex</b> in <span class="mono">us-east5</span>. Every ID is an env-overridable
-  default pinned in code — <b>8 Claude seats, 18 Gemini seats</b> across the quadrants.</p>
+  default pinned in code — <b>8 Claude seats, 20 Gemini seats</b> across the quadrants.</p>
   <div class="tbl">
     <table>
       <tr><th>Role tier</th><th>Model (code default)</th><th>Where</th><th>Used by</th></tr>
@@ -356,7 +357,7 @@
     <div class="rail"></div>
     <div class="step"><div class="ico gate">✋</div><div class="body"><div class="t" style="color:var(--gate)">GATE 1 · decision tap <span style="color:var(--ink3);font-weight:400">(reversible)</span></div><div class="d">founder approves the verdict before any side effect fires</div></div></div>
     <div class="rail"></div>
-    <div class="step"><div class="ico">3</div><div class="body"><div class="t">arivu executes → kalai makes → kural carries</div><div class="d">resolution doc + A2A dispatch → brand-cleared master → kural carries it untouched to the channel (no gates between)</div></div></div>
+    <div class="step"><div class="ico">3</div><div class="body"><div class="t">arivu executes → kalai creates → kural carries</div><div class="d">resolution doc + A2A dispatch → brand-cleared master → kural carries it untouched to the channel (no gates between)</div></div></div>
     <div class="rail"></div>
     <div class="step"><div class="ico gate">✋</div><div class="body"><div class="t" style="color:var(--gate)">GATE 2 · publish tap <span style="color:var(--ink3);font-weight:400">(irreversible)</span></div><div class="d">founder signs off before anything reaches the world</div></div></div>
     <div class="rail"></div>

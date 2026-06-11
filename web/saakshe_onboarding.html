@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<link rel="icon" href="data:,">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <title>saakshe — welcome aboard</title>
 <meta name="description" content="Post-sign-in onboarding for saakshe: meet your company. saakshe is the witness; manas knows, arivu decides, kalai creates, kural engages. Connect your project, keep your keys, hold the two gates.">
 <meta property="og:title" content="saakshe — welcome aboard">
@@ -371,18 +371,26 @@ html[data-theme="dark"] #nav-skip:hover{box-shadow:none;color:var(--ink)}
 /* slim layout: back | dots | next, then skip on its own line on small screens */
 .nav .right{display:inline-flex;align-items:center;gap:clamp(8px,1.6vw,14px);justify-self:end}
 
-/* dots */
-.dots{display:flex;align-items:center;justify-content:center;gap:clamp(7px,1.6vw,11px);flex-wrap:wrap;
+/* dots — small visual square, but a >=40px hit target (visual lives on ::before) */
+.dots{display:flex;align-items:center;justify-content:center;gap:clamp(2px,1vw,6px);flex-wrap:wrap;
   grid-column:2;min-width:0}
-.dot{appearance:none;width:13px;height:13px;padding:0;border:2px solid var(--line);border-radius:0;
-  background:transparent;cursor:pointer;flex:none;transition:background .15s ease,transform .15s ease}
-.dot:hover{transform:scale(1.18)}
-.dot[aria-current="true"]{background:var(--act);border-color:var(--act)}
-html[data-theme="dark"] .dot{border-color:var(--ink-3)}
-html[data-theme="dark"] .dot[aria-current="true"]{background:var(--c-kural);border-color:var(--c-kural);box-shadow:none}
-@media(max-width:560px){.dot{width:11px;height:11px}}
-/* below 430px keep all 8 dots on ONE row between Back and Next+Skip */
-@media(max-width:430px){.dots{flex-wrap:nowrap;gap:5px}.dot{width:9px;height:9px}}
+.dot{appearance:none;position:relative;width:40px;height:40px;padding:0;border:0;
+  background:transparent;cursor:pointer;flex:none}
+.dot::before{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  width:13px;height:13px;border:2px solid var(--line);background:transparent;
+  transition:background .15s ease,transform .15s ease}
+.dot:hover::before{transform:translate(-50%,-50%) scale(1.18)}
+.dot[aria-current="true"]::before{background:var(--act);border-color:var(--act)}
+html[data-theme="dark"] .dot::before{border-color:var(--ink-3)}
+html[data-theme="dark"] .dot[aria-current="true"]::before{background:var(--c-kural);border-color:var(--c-kural);box-shadow:none}
+/* below 640px the 8 x 40px targets get their own full-width row (no collision with Back/Next) */
+@media(max-width:640px){
+  .nav>#nav-back{grid-row:1;grid-column:1}
+  .nav>.right{grid-row:1;grid-column:3}
+  .dots{grid-row:2;grid-column:1/-1;gap:0}
+}
+@media(max-width:560px){.dot::before{width:11px;height:11px}}
+@media(max-width:430px){.dots{flex-wrap:nowrap}.dot::before{width:9px;height:9px}}
 
 /* count caption under the nav */
 .nav-count{grid-column:1 / -1;justify-self:center;font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;
@@ -404,7 +412,7 @@ html[data-theme="dark"] .nav-count .num{color:var(--ink-2);text-shadow:none}
 
   <!-- ═══ PERSISTENT SLIM TOP BAR (rendered once, on every slide) ═══ -->
   <div class="topbar">
-    <a class="logo" href="#" aria-label="saakshe home">
+    <a class="logo" href="/" aria-label="saakshe home">
       <span class="skbot" aria-hidden="true"><span class="skeye L"></span><span class="skeye R"></span><span class="skmouth"></span></span><span class="dv"></span><span class="wd">SΛΛKSHE</span>
     </a>
     <div class="tb-mid">
@@ -452,7 +460,7 @@ html[data-theme="dark"] .nav-count .num{color:var(--ink-2);text-shadow:none}
           <circle class="iris" cx="80" cy="70" r="11"/>
         </svg>
       </div>
-      <h1 class="s-head">Connect your project.</h1>
+      <h2 class="s-head">Connect your project.</h2>
       <ul class="s-lines">
         <li>the company grounds in your <b>real sources.</b></li>
         <li>repo, site, socials — nothing invented.</li>
@@ -466,7 +474,7 @@ html[data-theme="dark"] .nav-count .num{color:var(--ink-2);text-shadow:none}
       <div class="s-kick"><span class="num">03 · manas</span></div>
       <div class="hero-shape hs-circle" aria-hidden="true"><span class="core"></span></div>
       <span class="s-verb">⬤ knows</span>
-      <h1 class="s-head">manas knows.</h1>
+      <h2 class="s-head">manas knows.</h2>
       <ul class="s-lines">
         <li>imbibes your granted sources over <b>setu</b>.</li>
         <li>commits a versioned <b>Context Pack</b> of cited facts.</li>
@@ -480,7 +488,7 @@ html[data-theme="dark"] .nav-count .num{color:var(--ink-2);text-shadow:none}
       <div class="s-kick"><span class="num">04 · arivu</span></div>
       <div class="hero-shape hs-diamond" aria-hidden="true"><span class="core"></span></div>
       <span class="s-verb">◆ decides</span>
-      <h1 class="s-head">arivu decides.</h1>
+      <h2 class="s-head">arivu decides.</h2>
       <ul class="s-lines">
         <li>the shared <b>decision chamber</b> the three faculties call.</li>
         <li>on a real decision, it convenes <b>five lenses.</b></li>
@@ -495,7 +503,7 @@ html[data-theme="dark"] .nav-count .num{color:var(--ink-2);text-shadow:none}
       <div class="s-kick"><span class="num">05 · kalai</span></div>
       <div class="hero-shape hs-triangle" aria-hidden="true"><span class="core"></span></div>
       <span class="s-verb">▲ creates</span>
-      <h1 class="s-head">kalai creates.</h1>
+      <h2 class="s-head">kalai creates.</h2>
       <ul class="s-lines">
         <li>the maker — <b>on-brand image and copy.</b></li>
         <li>a brand-fidelity loop with <b>fail-closed compliance.</b></li>
@@ -509,11 +517,11 @@ html[data-theme="dark"] .nav-count .num{color:var(--ink-2);text-shadow:none}
       <div class="s-kick"><span class="num">06 · kural</span></div>
       <div class="hero-shape hs-square" aria-hidden="true"><span class="core"></span></div>
       <span class="s-verb">◼ engages</span>
-      <h1 class="s-head">kural engages.</h1>
+      <h2 class="s-head">kural engages.</h2>
       <ul class="s-lines">
         <li>the <b>only mouth.</b></li>
         <li>carries <b>kalai's cleared words</b> untouched.</li>
-        <li>it authors nothing; nothing leaves unsent-for.</li>
+        <li>it authors nothing; nothing ships without your tap.</li>
         <li>your second human gate: <b>you tap to publish.</b></li>
       </ul>
       <span class="s-gate">second human gate · you tap to publish</span>
@@ -522,7 +530,7 @@ html[data-theme="dark"] .nav-count .num{color:var(--ink-2);text-shadow:none}
     <!-- ── 07 · the flywheel (the slide visual IS the flywheel) ── -->
     <section class="slide slide-7" data-slide="7" id="slide-7" aria-hidden="true" style="--accent:var(--c-kural)">
       <div class="s-kick"><span class="num">07 · the flywheel</span></div>
-      <h1 class="s-head">Two taps, you stay in control.</h1>
+      <h2 class="s-head">Two taps, you stay in control.</h2>
       <div class="hero-shape flywheel" aria-label="The flywheel: ask, manas grounds, arivu decides (tap one), kalai creates, kural engages (tap two), published, then manas learns">
         <div class="fw w-connect">
           <div class="step">00 · you</div>
@@ -575,14 +583,14 @@ html[data-theme="dark"] .nav-count .num{color:var(--ink-2);text-shadow:none}
           </svg>
         </div>
       </div>
-      <h1 class="s-head">Connect your project.</h1>
+      <h2 class="s-head">Connect your project.</h2>
       <ul class="s-lines">
         <li>the company is <b>ready to ground.</b></li>
         <li>grant your sources. keep your keys.</li>
         <li>two gates, <b>both yours.</b></li>
         <li>let's begin.</li>
       </ul>
-      <a id="connect-cta" class="btn prim" href="cockpit.html">Connect your project</a>
+      <a id="connect-cta" class="btn prim" href="/cockpit">Connect your project</a>
     </section>
 
   </div>
@@ -628,6 +636,14 @@ html[data-theme="dark"] .nav-count .num{color:var(--ink-2);text-shadow:none}
   sync(root.getAttribute('data-theme')||'light');
   bL.addEventListener('click',function(){setTheme('light');});
   bD.addEventListener('click',function(){setTheme('dark');});
+  // keep aria-pressed in sync when the theme changes outside a click (other tab, script)
+  if('MutationObserver' in window){
+    new MutationObserver(function(){sync(root.getAttribute('data-theme')||'light');})
+      .observe(root,{attributes:true,attributeFilter:['data-theme']});
+  }
+  window.addEventListener('storage',function(e){
+    if(e.key==='saakshe-theme'&&(e.newValue==='dark'||e.newValue==='light')){setTheme(e.newValue);}
+  });
 })();
 </script>
 <script>

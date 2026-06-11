@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<link rel="icon" href="data:,">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <title>saakshe &mdash; FAQ &amp; how it works</title>
 <meta name="description" content="How saakshe works: the witness, the four-faculty company, the two-gate flywheel, credits, privacy, connecting your project, and how arivu decides.">
 <meta property="og:title" content="saakshe — FAQ &amp; how it works">
@@ -203,10 +203,10 @@ html[data-theme="dark"] .tag::before{content:'[ '}html[data-theme="dark"] .tag::
 .tag.no{border-color:var(--act);color:var(--act-text)}
 html[data-theme="dark"] .tag.no{border-color:var(--c-kalai);color:var(--c-kalai)}
 
-/* informational note (arivu-blue rail) */
-.honest{margin-top:20px;border-left:5px solid var(--c-arivu);padding:11px 0 11px 16px;background:var(--card-2);
+/* informational note (framed) */
+.honest{margin-top:20px;border:1.5px solid var(--line);padding:11px 16px;background:var(--card-2);
   font-family:var(--mono);font-size:13px;color:var(--ink-2);line-height:1.6;border-radius:var(--radius)}
-html[data-theme="dark"] .honest{border-left-color:var(--c-arivu);background:transparent}
+html[data-theme="dark"] .honest{border-color:var(--line);background:transparent}
 .honest b{color:var(--ink)}
 
 /* witness-voice one-liner */
@@ -259,6 +259,7 @@ html[data-theme="dark"] .vmap .a-kural,html[data-theme="dark"] .vmap .a-saakshe{
   .reveal{opacity:0;transform:translateY(16px);transition:opacity .6s ease,transform .6s ease}
   .reveal.in{opacity:1;transform:none}
 }
+@media print{.reveal{opacity:1 !important;transform:none !important}}
 
 /* ─────────── content-page additions (each with a dark override) ─────────── */
 .phero{padding-top:26px}
@@ -386,14 +387,14 @@ html[data-theme="dark"] .fourkick{color:var(--act)}
     <details class="qa">
       <summary>What do credits buy &mdash; and how many are free?</summary>
       <div class="qa__b">
-        <p>Every AI action spends <b>credits</b>: a flywheel run is about 20, connect + ingest about 20, a manas edit about 10, a kalai make about 15, a kural engage about 15 (indicative, tuned during launch). You get <b>100 free credits</b> on sign-up &mdash; roughly <b>5 full decision runs</b> on the house. You're never charged for a run that fails. See the <a href="/pricing.html">pricing page</a> for the full table.</p>
+        <p>Every AI action spends <b>credits</b>: a flywheel run is about 20, connect + ingest about 20, a manas edit about 10, a kalai make about 15, a kural engage about 15 (indicative, tuned during launch). You get <b>100 free credits</b> on sign-up &mdash; roughly <b>5 full decision runs</b> on the house. You're never charged for a run that fails. See the <a href="/pricing">pricing page</a> for the full table.</p>
       </div>
     </details>
 
     <details class="qa">
       <summary>Is my data private?</summary>
       <div class="qa__b">
-        <p>Yes. Your connected sources are <b>read-only</b> &mdash; granted, never taken &mdash; and we don't sell your data or train public models on it. AI processing runs on Google Gemini via Vertex AI; auth and storage are on Supabase. Full detail, retention, and deletion-on-request are in the <a href="/privacy.html">Privacy Policy</a>.</p>
+        <p>Yes. Your connected sources are <b>read-only</b> &mdash; granted, never taken &mdash; and we don't sell your data or train public models on it. AI processing runs on Google Gemini via Vertex AI; auth and storage are on Supabase. Full detail, retention, and deletion-on-request are in the <a href="/privacy">Privacy Policy</a>.</p>
       </div>
     </details>
 
@@ -417,8 +418,8 @@ html[data-theme="dark"] .fourkick{color:var(--act)}
     <h2>Talk to your company.</h2>
     <p>Connect your project, ground it in your own memory, and tap the two gates that matter. Start free &mdash; 100 credits on the house.</p>
     <div class="cta-row">
-      <a class="btn prim" href="/cockpit.html">Start free &rarr;</a>
-      <a class="btn" href="/pricing.html">See pricing</a>
+      <a class="btn prim" href="/cockpit">Start free &rarr;</a>
+      <a class="btn" href="/pricing">See pricing</a>
     </div>
   </section>
 
@@ -427,7 +428,7 @@ html[data-theme="dark"] .fourkick{color:var(--act)}
     <div class="flogo">
       <a class="logo" href="/" aria-label="saakshe"><span class="skbot" aria-hidden="true"><span class="skeye L"></span><span class="skeye R"></span><span class="skmouth"></span></span><span class="dv"></span><span class="wd">SΛΛKSHE</span></a>
     </div>
-    <nav class="foot-nav" aria-label="Pages"><a href="/">Home</a><a href="/cockpit.html">Cockpit</a><a href="/pricing.html">Pricing</a><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/faq.html" aria-current="page">FAQ</a></nav>
+    <nav class="foot-nav" aria-label="Pages"><a href="/">Home</a><a href="/cockpit">Cockpit</a><a href="/pricing">Pricing</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a><a href="/faq" aria-current="page">FAQ</a></nav>
     <div class="vmap">
       <span>knows&nbsp;&rarr;&nbsp;<b class="a-manas">manas</b></span>
       <span>decides&nbsp;&rarr;&nbsp;<b class="a-arivu">arivu</b></span>
@@ -460,15 +461,33 @@ html[data-theme="dark"] .fourkick{color:var(--act)}
   sync(root.getAttribute('data-theme')||'light');
   bL.addEventListener('click',function(){setTheme('light');});
   bD.addEventListener('click',function(){setTheme('dark');});
+  // keep aria-pressed in sync when the theme changes outside a click (other tab, script)
+  if('MutationObserver' in window){
+    new MutationObserver(function(){sync(root.getAttribute('data-theme')||'light');})
+      .observe(root,{attributes:true,attributeFilter:['data-theme']});
+  }
+  window.addEventListener('storage',function(e){
+    if(e.key==='saakshe-theme'&&(e.newValue==='dark'||e.newValue==='light')){setTheme(e.newValue);}
+  });
 
   var rm=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var reveals=Array.prototype.slice.call(document.querySelectorAll('.reveal'));
+  function revealAll(){reveals.forEach(function(el){el.classList.add('in');});}
   if(!rm && 'IntersectionObserver' in window){
+    // anything already within the viewport reveals immediately (no first-paint void)
+    var vh=window.innerHeight||document.documentElement.clientHeight;
+    reveals.forEach(function(el){
+      var r=el.getBoundingClientRect();
+      if(r.top<vh && r.bottom>0){el.classList.add('in');}
+    });
     var io=new IntersectionObserver(function(es){
       es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target);} });
     },{threshold:.12,rootMargin:'0px 0px -8% 0px'});
-    document.querySelectorAll('.reveal').forEach(function(el){io.observe(el);});
+    reveals.forEach(function(el){ if(!el.classList.contains('in')) io.observe(el); });
+    // failsafe: never leave a section invisible (print, full-page capture, fast scrollers)
+    setTimeout(revealAll,3500);
   } else {
-    document.querySelectorAll('.reveal').forEach(function(el){el.classList.add('in');});
+    revealAll();
   }
 })();
 </script>

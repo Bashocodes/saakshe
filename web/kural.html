@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<link rel="icon" href="data:,">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>kural — the autonomous growth team · finds them, researches them, reaches them</title>
 <meta name="description" content="kural (Tamil: voice, as in the Thirukkural) is a B2B multi-agent growth team you buy on Google Cloud Marketplace — and hire over A2A. It finds prospects, researches them in parallel, drafts and fact-checks personalised outreach, then actually sends it AS THE BUYER and books the meeting — a real, OAuth-authenticated, safe-by-construction irreversible action.">
@@ -179,6 +179,9 @@ html:not(.js) .themetoggle{cursor:default}
 .btn:hover{transform:translateY(-2px);box-shadow:var(--lift-hi)}
 .btn.ghost:hover{box-shadow:0 10px 26px -16px rgba(20,22,27,.28)}
 .btn:active{transform:translateY(0)}
+/* .chip — a static label, not a control: no hover lift, no pointer promise */
+.btn.chip{cursor:default}
+.btn.chip:hover{transform:none;box-shadow:none}
 
 /* =================== generic panels & grids =================== */
 .grid{display:grid;gap:14px;margin-top:24px}
@@ -384,6 +387,11 @@ html:not(.js) .themetoggle{cursor:default}
 html:not(.js) .viz__controls{display:none}
 
 .viz__stage{margin-top:20px;position:relative}
+/* small screens: the 1000×470 flagship SVG is illegible squeezed — let it scroll sideways instead */
+@media(max-width:640px){
+  .viz__stage{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .viz__stage svg{min-width:760px}
+}
 .viz svg{display:block;width:100%;height:auto}
 /* SVG connector lines = neutral hairline, full stroke (a line, never a side-band) */
 .viz .conn{stroke:var(--hair-strong);stroke-width:1.5;fill:none}
@@ -544,6 +552,18 @@ html:not(.js) .viz__controls{display:none}
 </style>
 </head>
 <body>
+<!-- ● LIVE — kural is a backend behind saakshe; the live experience runs through the
+     saakshe cockpit (the single front door), where the mouth publishes inside the flywheel.
+     Pinned bottom-left here because kural's in-flow topbar owns the top edge. -->
+<a href="/cockpit" id="kuralLiveLink"
+   title="Open saakshe — the cockpit. kural runs as the engage-step of the live flywheel inside it."
+   style="position:fixed;bottom:14px;left:14px;z-index:60;display:inline-flex;align-items:center;gap:7px;
+   padding:7px 13px;border-radius:999px;font:600 12px/1 ui-sans-serif,system-ui,sans-serif;text-decoration:none;
+   color:var(--ink);background:var(--panel);border:1px solid var(--hair-strong);
+   backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)">
+   <span style="width:8px;height:8px;border-radius:50%;background:var(--accent);
+   animation:kuralLivePulse 1.8s ease-in-out infinite"></span>live · in saakshe</a>
+<style>@keyframes kuralLivePulse{0%,100%{opacity:1}50%{opacity:.35}}</style>
 <main class="wrap">
 
   <!-- ========================= HERO ========================= -->
@@ -561,7 +581,7 @@ html:not(.js) .viz__controls{display:none}
     </div>
 
     <div class="eyebrow hero-anim" style="margin-top:34px">Tamil: voice — as in the Thirukkural, the one sent ahead</div>
-    <div class="wordmark hero-anim">kural</div>
+    <h1 class="wordmark hero-anim">kural</h1>
     <div class="deva hero-anim"><b>kural</b> &nbsp;·&nbsp; the messenger who carries your name into the room before you arrive.</div>
 
     <div class="tagline hero-anim">Finds them. <span class="sep">·</span> Researches them. <span class="sep">·</span> Reaches them.</div>
@@ -580,8 +600,8 @@ html:not(.js) .viz__controls{display:none}
     </div>
 
     <div class="cta-row hero-anim">
-      <span class="btn"><span class="dot" style="background:var(--paper)"></span>Get it on Marketplace</span>
-      <span class="btn ghost">Read the Agent Card</span>
+      <span class="btn chip"><span class="dot" style="background:var(--paper)"></span>Get it on Marketplace</span>
+      <a class="btn ghost" href="/api/kural/agent-card">Read the Agent Card</a>
     </div>
   </header>
 
@@ -834,7 +854,7 @@ html:not(.js) .viz__controls{display:none}
       </div>
       <div class="card">
         <div class="tag">Who buys it</div>
-        <h3>Agencies & studios</h3>
+        <h3>Agencies &amp; studios</h3>
         <p>Run client outbound at scale with a per-client safety gate and an audit trail of every message sent.</p>
       </div>
     </div>
@@ -1046,9 +1066,9 @@ html:not(.js) .viz__controls{display:none}
       </div>
     </div>
 
-    <!-- THE HANDOFF — kalai makes, kural publishes; a tweak goes back to kalai -->
+    <!-- THE HANDOFF — kalai creates, kural publishes; a tweak goes back to kalai -->
     <div class="handoff reveal" style="margin-top:18px">
-      <div class="k">The handoff · kalai makes → kural publishes · a tweak goes BACK to kalai</div>
+      <div class="k">The handoff · kalai creates → kural publishes · a tweak goes BACK to kalai</div>
       <div class="chips" style="margin-top:14px;align-items:center">
         <span class="chip">kalai · approved master</span>
         <span class="arr" style="font-family:var(--mono);color:var(--mute);font-weight:700">A2A →</span>
@@ -1061,7 +1081,7 @@ html:not(.js) .viz__controls{display:none}
         <span class="chip"><span class="acc">live</span></span>
       </div>
       <p style="margin-top:14px;color:var(--ink);font-size:16px;max-width:78ch">kalai's <strong>Compliance check</strong> is an internal, fail-closed gate <em>before</em> the handoff; the <strong>human sign-off</strong>
-        is the founder's second tap at the Publisher, at the mouth, just before the world. <strong>arivu commands, kalai makes, kural speaks.</strong>
+        is the founder's second tap at the Publisher, at the mouth, just before the world. <strong>arivu commands, kalai creates, kural speaks.</strong>
         kural never edits creative — a tweak returns to kalai.</p>
     </div>
 
@@ -1334,7 +1354,7 @@ html:not(.js) .viz__controls{display:none}
     </div>
 
     <p class="reveal" style="margin-top:26px;font-family:var(--mono);font-size:13px;letter-spacing:.06em;color:var(--mute);line-height:1.8">
-      knows → manas &nbsp;·&nbsp; decides → arivu &nbsp;·&nbsp; makes → kalai &nbsp;·&nbsp; <span class="acc">engages → kural</span> &nbsp;·&nbsp; witnesses → saakshe
+      knows → manas &nbsp;·&nbsp; decides → arivu &nbsp;·&nbsp; creates → kalai &nbsp;·&nbsp; <span class="acc">engages → kural</span> &nbsp;·&nbsp; witnesses → saakshe
     </p>
 
     <div class="footmeta reveal">

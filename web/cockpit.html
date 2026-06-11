@@ -3,12 +3,18 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="icon" href="data:,">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Archivo+Black&family=Archivo:wght@500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Michroma&family=Syncopate:wght@700&display=swap">
 <title>saakshe — cockpit</title>
-<meta name="description" content="The saakshe cockpit — the working seat of one connected company, run by three agents: manas knows, kalai makes, kural engages; saakshe witnesses. A fixed-viewport, click-everything cockpit.">
+<meta name="description" content="The saakshe cockpit — the working seat of one connected company, run by three agents: manas knows, kalai creates, kural engages; saakshe witnesses. A fixed-viewport, click-everything cockpit.">
+<meta property="og:title" content="saakshe — cockpit">
+<meta property="og:description" content="The saakshe cockpit — the working seat of one connected company, run by three agents: manas knows, kalai creates, kural engages; saakshe witnesses. A fixed-viewport, click-everything cockpit.">
+<meta property="og:url" content="https://saakshe.com/cockpit">
+<meta property="og:image" content="https://saakshe.com/og.png">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
 
 <!-- =========================================================================
      PRE-PAINT THEME — set data-theme on <html> BEFORE first paint.
@@ -139,6 +145,9 @@ button{ font:inherit; }
 ::-webkit-scrollbar-thumb{ background:var(--hairline); border-radius:var(--radius-sm); }
 ::-webkit-scrollbar-track{ background:transparent; }
 .svgsprite{ position:absolute; width:0; height:0; overflow:hidden; }
+/* visually-hidden page h1 — the app chrome carries no visible top heading */
+.vh-h1{ position:absolute; width:1px; height:1px; margin:-1px; padding:0; border:0;
+  overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
 
 /* hue text helpers */
 .c-manas{ color:var(--manas); } .c-arivu{ color:var(--arivu); }
@@ -786,6 +795,36 @@ html[data-bot="joy"] .skbot .skeye.R{ animation-delay:.07s; }
   .sb-head .sb-toggle{ margin-left:0; }
   .sidebar{ padding:8px 6px; }
 }
+/* Under 800px the right rail leaves the grid: it becomes a full-width fixed
+   overlay under the topbar. openRail()/railClose still drive .rail-collapsed —
+   the railhead's existing ✕ stays reachable at the top of the overlay. */
+@media (max-width:800px){
+  .app, .app.sb-collapsed,
+  .app.rail-collapsed, .app.sb-collapsed.rail-collapsed{
+    grid-template-columns:var(--sb-rail) minmax(0,1fr) 0;
+  }
+  .rail{
+    position:fixed; top:var(--topbar); right:0; bottom:0; left:0;
+    width:auto; height:auto; z-index:850;
+    border-left:none; border-top:var(--hair) solid var(--hairline);
+  }
+}
+/* Phones: the fixed-viewport cockpit unfixes — the page scrolls vertically,
+   the overview stacks to one column, and the topbar controls scroll sideways. */
+@media (max-width:720px){
+  html.js, html.js body{ height:auto; min-height:100dvh; overflow:auto; }
+  .app{ height:auto; min-height:100dvh; }
+  .stage{ height:auto; min-height:0; overflow:visible; }
+  .view{ height:auto; }
+  /* html prefix outranks the later SOFT-CLAY .qgroups.three 3-col rule */
+  html .qgroups, html .qgroups.three, html .grid3{ grid-template-columns:1fr; grid-auto-rows:auto; }
+  /* all 7 topbar controls stay reachable at 390px — the bar scrolls sideways */
+  .topbar{ overflow-x:auto; overflow-y:hidden; -webkit-overflow-scrolling:touch; }
+  .topbar > *{ flex:0 0 auto; }
+  .tb-spacer{ flex:0 0 6px; }
+  /* home-bar clearance on the bottom chat input row */
+  .chatin{ padding-bottom:calc(9px + env(safe-area-inset-bottom)); }
+}
 @media (min-width:1900px){
   :root{ --rail:404px; }
 }
@@ -1214,16 +1253,20 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
     border-left:var(--line-w) solid var(--line); background:var(--surface); z-index:600;
     transition:width .28s var(--ease); }
   html.sk-chat-collapsed body{ margin-right:64px; }
-  html.sk-chat-collapsed #sa-chatpane{ width:64px; }
+  /* collapsed rail: clip the pane's own box so the 38px witness mark can never
+     paint past the 64px rail (mid-transition or hover-transform) over the
+     project header; sit above stage cards, still under the topbar (700). */
+  html.sk-chat-collapsed #sa-chatpane{ width:64px; min-width:64px; overflow:hidden;
+    background:var(--surface); z-index:650; }
   #sa-chatfab{ display:none; }
 }
 @media(max-width:1099px){
-  #sa-chatpane{ display:none; position:fixed; right:12px; bottom:12px; z-index:900;
+  #sa-chatpane{ display:none; position:fixed; right:12px; bottom:calc(12px + env(safe-area-inset-bottom)); z-index:900;
     width:min(420px, calc(100vw - 24px)); height:min(72vh, 640px);
     border:var(--line-w) solid var(--line); border-radius:var(--radius);
     overflow:hidden; box-shadow:var(--shadow); }
   html.sk-chat-open #sa-chatpane{ display:flex; }
-  #sa-chatfab{ position:fixed; right:14px; bottom:14px; z-index:899; }
+  #sa-chatfab{ position:fixed; right:14px; bottom:calc(14px + env(safe-area-inset-bottom)); z-index:899; }
   html.sk-chat-open #sa-chatfab{ display:none; }
   /* the collapse affordance is a desktop concept */
   #sa-chatpane .ch-collapse{ display:none; }
@@ -1278,6 +1321,8 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
 <symbol id="i-handoff" viewBox="0 0 24 24"><path d="M3 12h14M13 6l6 6-6 6M3 7v10"/></symbol>
 </defs></svg>
 
+<h1 class="vh-h1">saakshe cockpit</h1>
+
 <div class="app rail-collapsed" id="app">
 
   <!-- ============================== TOPBAR ============================== -->
@@ -1309,16 +1354,16 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
     </div>
     <nav>
       <ul class="navlist" id="navlist">
-        <li><button class="nav" data-view="overview" type="button" data-tip="Overview — three agents at a glance" class="tip-r"><span class="navic"><svg class="ic sm"><use href="#i-overview"/></svg></span><span class="lbl">Overview</span></button></li>
+        <li><button class="nav tip-r" data-view="overview" type="button" data-tip="Overview — three agents at a glance"><span class="navic"><svg class="ic sm"><use href="#i-overview"/></svg></span><span class="lbl">Overview</span></button></li>
         <li class="nsec">Agents</li>
-        <li><button class="nav" data-view="manas" type="button" data-tip="manas — knows" class="tip-r"><span class="navic"><span class="dot manas lg"></span><span class="navini">m</span></span><span class="lbl">manas</span><span class="nstat"><span class="nidle">idle</span></span></button></li>
-        <li><button class="nav" data-view="kalai" type="button" data-tip="kalai — makes" class="tip-r"><span class="navic"><span class="dot kalai lg"></span><span class="navini">ka</span></span><span class="lbl">kalai</span><span class="nstat"><span class="nidle">idle</span></span></button></li>
-        <li><button class="nav" data-view="kural" type="button" data-tip="kural — engages" class="tip-r"><span class="navic"><span class="dot kural lg"></span><span class="navini">ku</span></span><span class="lbl">kural</span><span class="nstat"><span class="nidle">idle</span></span></button></li>
+        <li><button class="nav tip-r" data-view="manas" type="button" data-tip="manas — knows"><span class="navic"><span class="dot manas lg"></span><span class="navini">m</span></span><span class="lbl">manas</span><span class="nstat"><span class="nidle">idle</span></span></button></li>
+        <li><button class="nav tip-r" data-view="kalai" type="button" data-tip="kalai — creates"><span class="navic"><span class="dot kalai lg"></span><span class="navini">ka</span></span><span class="lbl">kalai</span><span class="nstat"><span class="nidle">idle</span></span></button></li>
+        <li><button class="nav tip-r" data-view="kural" type="button" data-tip="kural — engages"><span class="navic"><span class="dot kural lg"></span><span class="navini">ku</span></span><span class="lbl">kural</span><span class="nstat"><span class="nidle">idle</span></span></button></li>
         <li class="nsec">Attention</li>
-        <li><button class="nav" data-view="questions" type="button" data-tip="Questions needing you" class="tip-r"><span class="navic"><svg class="ic sm"><use href="#i-question"/></svg></span><span class="lbl">Questions</span><span class="badge red" id="navQBadge" style="display:none">0</span></button></li>
-        <li><button class="nav" data-view="activity" type="button" data-tip="Activity — the day as a feed" class="tip-r"><span class="navic"><svg class="ic sm"><use href="#i-activity"/></svg></span><span class="lbl">Activity</span></button></li>
+        <li><button class="nav tip-r" data-view="questions" type="button" data-tip="Questions needing you"><span class="navic"><svg class="ic sm"><use href="#i-question"/></svg></span><span class="lbl">Questions</span><span class="badge red" id="navQBadge" style="display:none">0</span></button></li>
+        <li><button class="nav tip-r" data-view="activity" type="button" data-tip="Activity — the day as a feed"><span class="navic"><svg class="ic sm"><use href="#i-activity"/></svg></span><span class="lbl">Activity</span></button></li>
         <li class="nsec">Account</li>
-        <li><button class="nav" data-view="settings" type="button" data-tip="Settings — the consent board" class="tip-r"><span class="navic"><svg class="ic sm"><use href="#i-gear"/></svg></span><span class="lbl">Settings</span></button></li>
+        <li><button class="nav tip-r" data-view="settings" type="button" data-tip="Settings — the consent board"><span class="navic"><svg class="ic sm"><use href="#i-gear"/></svg></span><span class="lbl">Settings</span></button></li>
       </ul>
     </nav>
   </aside>
@@ -1363,8 +1408,8 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
   <p style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:#8a7d70;">the cockpit, in plain words (no-script reading)</p>
   <p style="font-size:16px;">This is the <b>saakshe cockpit</b>. With JavaScript on, it boots into a <strong>connect step</strong> first — nothing is canned. You grant a real project over <b>setu, the bridge</b> (a GitHub repo read with your own SSH, your website, optional docs and a social handle), and <b>manas</b> reads it live, extracting cited facts and a versioned Context Pack. Until you connect, there is no company name, no numbers, no day — the cockpit shows <strong>— connect a project —</strong> everywhere identity would go. <em>Sources are granted, never taken.</em></p>
   <p style="font-size:16px;">Once a project is grounded, you speak only to saakshe — the chat answers in short cards with live numbers and one-tap actions. The company runs as <b>three agents</b> you watch from the side rail — manas, kalai and kural — each calling <b>arivu</b> to decide. Every agent page reads <b>desks across</b>: a connections strip, the four desks as a band, then the day's work beside its open questions. Click a desk to drill into its seats.</p>
-  <p style="font-size:16px;"><strong>manas (knows)</strong> — memory. It imbibes your granted sources, organizes them into buckets, and commits summaries before raw fragments so the window never blows up. <strong>arivu (decides)</strong> — judgment. Five lenses argue a real question; a Claude bench seals and stress-tests the verdict; nothing commits without your tap. <strong>kalai (makes)</strong> — creation, no channel keys; it produces masters and hands them to kural. <strong>kural (engages)</strong> — the only mouth; it holds the publish gate. <strong>saakshe</strong> witnesses all of it and is the only voice you talk to.</p>
-  <p style="font-size:16px;">Nothing has run yet in this empty state: no spend, no verdict, no banner, no outreach. Connect a project and ask saakshe a real decision (a question with a "?" that proposes a change) and the flywheel starts — manas grounds, arivu decides, a gate lands in your queue, kalai makes, kural publishes, manas learns. Cost lands on <b>your own keys</b> — every chargeable act is priced up front and refunded if the run fails. Models: Gemini runs the many seats; Claude via Vertex runs the high-stakes seats.</p>
+  <p style="font-size:16px;"><strong>manas (knows)</strong> — memory. It imbibes your granted sources, organizes them into buckets, and commits summaries before raw fragments so the window never blows up. <strong>arivu (decides)</strong> — judgment. Five lenses argue a real question; a Claude bench seals and stress-tests the verdict; nothing commits without your tap. <strong>kalai (creates)</strong> — creation, no channel keys; it produces masters and hands them to kural. <strong>kural (engages)</strong> — the only mouth; it holds the publish gate. <strong>saakshe</strong> witnesses all of it and is the only voice you talk to.</p>
+  <p style="font-size:16px;">Nothing has run yet in this empty state: no spend, no verdict, no banner, no outreach. Connect a project and ask saakshe a real decision (a question with a "?" that proposes a change) and the flywheel starts — manas grounds, arivu decides, a gate lands in your queue, kalai creates, kural publishes, manas learns. Cost lands on <b>your own keys</b> — every chargeable act is priced up front and refunded if the run fails. Models: Gemini runs the many seats; Claude via Vertex runs the high-stakes seats.</p>
   <p style="font-size:16px;">Drilling in goes deep once there is a real run. Click any desk for a <b>dossier spread</b>: a desk-flow strip, a card per seat with its standing role (or today's work once a run exists), its model and its reads-and-feeds, then a side panel of that desk in the day's story. Two work surfaces drill further — kalai's <b>studio</b> and kural's <b>outreach</b>. The activity view groups the day into phases. Every action shares the one state, so a tap in chat flips the gate everywhere. But all of that waits behind the connect step: <strong>connect a project first.</strong></p>
 </div></noscript>
 
@@ -1404,7 +1449,7 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
   var QMETA = {
     manas:{ verb:'knows', gloss:'the company’s organized recall', seats:7, cost:'—' },
     arivu:{ verb:'decides', gloss:'judgment · five lenses, one sealed verdict', seats:9, cost:'—' },
-    kalai:{ verb:'makes', gloss:'no channel keys · hands masters to kural', seats:5, cost:'—' },
+    kalai:{ verb:'creates', gloss:'no channel keys · hands masters to kural', seats:5, cost:'—' },
     kural:{ verb:'engages', gloss:'the only mouth · owns the gate', seats:7, cost:'—' }
   };
   function isQuad(v){ return v==='manas'||v==='arivu'||v==='kalai'||v==='kural'; }
@@ -1654,7 +1699,7 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
         +' onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();window.cockpitOpenGate&&cockpitOpenGate();}"')
       +'><span class="ll"></span><span class="pn">'+esc(orgName())+'</span>'
       +(ORG.grounded
-        ?'<button class="qbtn" type="button" style="flex:0 0 auto;width:auto;" onclick="location.href=\'/grasped.html\'" data-tip="the stored extraction — everything manas grasped, point-and-editable">what manas grasped →</button>'
+        ?'<button class="qbtn" type="button" style="flex:0 0 auto;width:auto;" onclick="location.href=\'/grasped\'" data-tip="the stored extraction — everything manas grasped, point-and-editable">what manas grasped →</button>'
         :'<span class="pm">connect over setu to begin →</span>')
       +'<span class="pm" style="margin-left:auto;">memory <b>Context Pack '+esc(orgPack())+'</b></span></div>'
     +'<div class="grid3 ovquads" style="margin-top:13px; flex:1 1 auto; min-height:0;">'+ovc+'</div>'
@@ -1689,7 +1734,7 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
         +'<span class="ct"><span class="info" data-tip="cited · versioned — every fact keeps its source">'+icon('seal','sm')+'</span> cited · versioned</span></div>'
         +'<div class="pbody tight" style="display:flex;flex-direction:column;">'
           +'<div class="packline"><span class="pack">Context Pack <b>'+esc(orgPack())+'</b></span><span class="pack cap">'+(ORG.grounded?'cited · versioned':'empty — connect a project to ground memory')+'</span>'
-            +(ORG.grounded?'<button class="qbtn" type="button" onclick="location.href=\'/grasped.html\'" data-tip="the full grasped profile — point at any text and edit it by chatting to manas">what manas grasped →</button>':'')+'</div>'
+            +(ORG.grounded?'<button class="qbtn" type="button" onclick="location.href=\'/grasped\'" data-tip="the full grasped profile — point at any text and edit it by chatting to manas">what manas grasped →</button>':'')+'</div>'
           +'<div class="sub">organized buckets</div>'+bucketsHTML()
           +'<div class="compaction">summaries committed first; raw fragments folded after.</div>'
           +'<div class="sub" style="margin-top:13px;">imbibing now</div>'
@@ -1742,7 +1787,7 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
           +'<div class="sub">Brand-fidelity loop</div>'
           +'<div class="docket-rider sans" style="margin:4px 0;">no make yet — kalai regenerates and scores each master until it looks like us, then hands it to kural.</div>'
           +'<div class="prov-line">'+icon('handoff','sm')+'<span>masters <span class="arr">→</span> kural · compliance-cleared</span></div>'
-          +'<div class="sub" style="margin-top:13px;">Generative AI MCP <span class="info" data-tip="kalai holds no channel keys — it makes, hands the master to kural">'+icon('question','sm')+'</span></div>'
+          +'<div class="sub" style="margin-top:13px;">Generative AI MCP <span class="info" data-tip="kalai holds no channel keys — it creates, hands the master to kural">'+icon('question','sm')+'</span></div>'
           +'<div class="choices">'
             +'<div class="choice">'+icon('example','sm')+'<span class="cn">Generative MCP</span><span class="cs on">'+icon('check','sm')+' connected</span></div>'
             +'<div class="choice">'+icon('spark','sm')+'<span class="cn">Gemini Images</span><span class="cs add">○ add key</span></div>'
@@ -1818,7 +1863,7 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
     'ORDER DISPATCHER':{ role:'commits the approved change only on your grant', prov:'change-commit ASKED — runs only on your grant' },
     /* kalai */
     'STUDIO DIRECTOR':{ role:'scopes the brief — one brief, multi-platform pack', why:'high-stakes — owns the brief' },
-    'VISUAL MAKER':{ role:'renders the masters', prov:'makes via ← Generative AI MCP' },
+    'VISUAL MAKER':{ role:'renders the masters', prov:'creates via ← Generative AI MCP' },
     'WORD SMITH':{ role:'drafts the copy' },
     'BRAND CHECK':{ role:'runs the brand-fidelity loop until it looks like us' },
     'LEGAL CHECK':{ role:'clears a master before it can ship', prov:'cleared master → handoff to kural', why:'high-stakes — can we say this safely' },
@@ -2003,7 +2048,7 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
     +'<div class="vbody"><div class="grid2" style="flex:1 1 auto;min-height:0;">'
       +'<div class="panel flex"><div class="phead"><h3>'+icon('spark','sm')+' Brand-fidelity loop</h3><span class="ct">no make yet</span></div>'
         +'<div class="pbody" style="display:flex;flex-direction:column;">'
-          +'<div class="docket-rider sans">kalai makes only when a verdict asks for it. When it does, it regenerates each master until it clears the brand-fidelity bar — and you see every scored pass here.</div>'
+          +'<div class="docket-rider sans">kalai creates only when a verdict asks for it. When it does, it regenerates each master until it clears the brand-fidelity bar — and you see every scored pass here.</div>'
           +'<div class="krows" style="margin-top:13px;">'
             +'<div class="krow"><span class="kk">Loop</span><span class="kv">scores each pass until it looks like us</span></div>'
             +'<div class="krow"><span class="kk">Master</span><span class="kv">handed to kural once compliance-cleared</span></div>'
@@ -2015,7 +2060,7 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
         +'</div></div>'
       +'<div class="panel flex"><div class="phead"><h3>'+icon('example','sm')+' Backends &amp; workspace</h3><span class="ct">no channel keys</span></div>'
         +'<div class="pbody" style="display:flex;flex-direction:column;">'
-          +'<div class="sub">Generative AI MCP <span class="info" data-tip="kalai holds no channel keys — it makes, hands the master to kural">'+icon('question','sm')+'</span></div>'
+          +'<div class="sub">Generative AI MCP <span class="info" data-tip="kalai holds no channel keys — it creates, hands the master to kural">'+icon('question','sm')+'</span></div>'
           +'<div class="choices">'
             +'<div class="choice">'+icon('example','sm')+'<span class="cn">Generative MCP</span><span class="cs on">'+icon('check','sm')+' connected</span></div>'
             +'<div class="choice">'+icon('spark','sm')+'<span class="cn">Gemini Images</span><span class="cs add">○ add key</span></div>'
@@ -2092,7 +2137,7 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
         +'</div></div>';
     } else if(quad==='kalai'){
       extra = '<div class="panel flex"><div class="phead"><h3>'+icon('example','sm')+' Generative AI MCP</h3><span class="ct">no channel keys</span></div>'
-        +'<div class="pbody sidebody"><div class="permnote">kalai holds <b>no channel keys</b> — it makes, then hands the master to <b class="c-kural">kural</b>. One backend is connected; two key slots wait for yours.</div>'
+        +'<div class="pbody sidebody"><div class="permnote">kalai holds <b>no channel keys</b> — it creates, then hands the master to <b class="c-kural">kural</b>. One backend is connected; two key slots wait for yours.</div>'
         +'<div class="choices">'
           +'<div class="choice">'+icon('example','sm')+'<span class="cn">Generative MCP</span><span class="cs on">'+icon('check','sm')+' connected</span></div>'
           +'<div class="choice">'+icon('spark','sm')+'<span class="cn">Gemini Images</span><span class="cs add">○ add key</span></div>'
@@ -2152,7 +2197,7 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
     function note(txt){ return '<div class="frow act" style="cursor:default;"><span class="ft">·</span><span class="fe" style="color:var(--muted);">'+esc(txt)+'</span></div>'; }
     var col1 = band('Now working','manas')+note('manas imbibes your granted sources and commits a cited Context Pack.')
              + band('The verdict','arivu')+note('arivu convenes five lenses and seals a tested verdict — for your tap.');
-    var col2 = band('The making','kalai')+note('kalai makes the masters and runs the brand-fidelity loop.')
+    var col2 = band('The making','kalai')+note('kalai creates the masters and runs the brand-fidelity loop.')
              + band('The engaging','kural')+note('kural speaks — only on an approved make, only after your tap.')
              + band('The commit','manas')+note('manas learns from the outcome; the Context Pack ticks up a version.');
     return '<div class="view"><div class="vbody">'
@@ -2574,9 +2619,9 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
     chips:[ ac("channels × scopes","nav:kural/connections","social"), ac("→ kural","nav:kural","handoff") ]
   };
   var R_HELP = {
-    lead:"saakshe is the witness — you speak only to me, and three agents do the work: manas knows, kalai makes, kural engages. Connect a project over setu, then ask what's waiting, what today cost, or what's in memory.",
+    lead:"saakshe is the witness — you speak only to me, and three agents do the work: manas knows, kalai creates, kural engages. Connect a project over setu, then ask what's waiting, what today cost, or what's in memory.",
     pills:[ fp("the witness","saksi"), fp("three agents","saksi") ],
-    chips:[ ac("manas knows","nav:manas","database"), ac("kalai makes","nav:kalai","palette"), ac("kural engages","nav:kural","handoff") ]
+    chips:[ ac("manas knows","nav:manas","database"), ac("kalai creates","nav:kalai","palette"), ac("kural engages","nav:kural","handoff") ]
   };
 
   /* ---- state-aware replies (empty state until a real run) ---- */
@@ -2746,7 +2791,7 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
     if(act==='live:open'){ var lt=document.getElementById('liveToggle'); if(lt) lt.click(); return; }
     if(act==='goreply'){ go('kural', null); return; }
     if(act==='auth:signin'){ if(window.SAAKSHE_AUTH) SAAKSHE_AUTH.signIn(); return; }
-    if(act==='open:pricing'){ window.open('/pricing.html','_blank','noopener'); return; }
+    if(act==='open:pricing'){ window.open('/pricing','_blank','noopener'); return; }
   }
   if(log){ log.addEventListener('click', function(e){
     var a=e.target.closest('.achip'); if(a && !a.classList.contains('done')){ chipAct(a.getAttribute('data-act')); }
@@ -2958,13 +3003,13 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
    chatScript:{
     turns:[
      {who:"user",text:"what is saakshe?"},
-     {who:"saksi",text:"I'm the witness — the one voice you talk to. Three agents do the work: manas knows, kalai makes, kural engages. I don't act on my own; I bring you what needs you and refuse what isn't grounded. Connect a project over setu and ask a real decision to begin."}
+     {who:"saksi",text:"I'm the witness — the one voice you talk to. Three agents do the work: manas knows, kalai creates, kural engages. I don't act on my own; I bring you what needs you and refuse what isn't grounded. Connect a project over setu and ask a real decision to begin."}
     ],
     triggers:[
      {keyword:"waiting",reply:"Nothing waiting on you yet — no flywheel has run. Connect a project and ask a real decision; if an agent proposes a change, a gate lands in your queue for your tap."},
      {keyword:"cost",reply:"No spend yet — nothing has run. Once you ask a decision, the work runs on your own keys — priced up front, refunded on failure; watch it land line-by-line in the live console."},
      {keyword:"memory",reply:"Memory grounds the moment you connect. manas imbibes your granted sources over setu and commits a versioned Context Pack of cited facts — nothing invented. No project connected yet, so memory is empty."},
-     {keyword:"saakshe",reply:"I'm the witness — the only voice you talk to. Three agents do the work: manas knows, kalai makes, kural engages. I watch them, surface what needs you, and refuse anything not grounded in your memory."},
+     {keyword:"saakshe",reply:"I'm the witness — the only voice you talk to. Three agents do the work: manas knows, kalai creates, kural engages. I watch them, surface what needs you, and refuse anything not grounded in your memory."},
      {keyword:"status",reply:"Empty state — no project connected, no run. Connect a repo and your site over setu, let manas ground the company, then ask a real decision to start the flywheel."}
     ]
    }
@@ -2994,7 +3039,7 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
     <!-- STEP: CONNECT -->
     <section class="cg-step" id="cgStepConnect" hidden>
       <div class="cg-lede">
-        <h1>Connect a project.</h1>
+        <h2>Connect a project.</h2>
         <p>Grant a project over <b>setu</b> and <b>manas</b> reads it live — your repo, your site — and grounds the company in cited memory before anything decides or speaks. Nothing is canned; everything below comes from what you connect.</p>
       </div>
       <div class="cg-form">
@@ -3040,7 +3085,7 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
     <!-- STEP: INGEST (live feed) -->
     <section class="cg-step" id="cgStepIngest" hidden>
       <div class="cg-lede">
-        <h1>manas is reading your company.</h1>
+        <h2>manas is reading your company.</h2>
         <p>Live ingestion over setu — the readers imbibe your sources, the Memory Curator verifies every citation, and any honest clarifying question is raised. This can take a moment.</p>
       </div>
       <div class="cg-feed" id="cgFeed"><div class="cg-empty">imbibing… <span class="cg-spin" aria-hidden="true"></span></div></div>
@@ -3049,7 +3094,7 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
     <!-- STEP: RESULT -->
     <section class="cg-step" id="cgStepResult" hidden>
       <div class="cg-lede">
-        <h1 id="cgOrgName">your company</h1>
+        <h2 id="cgOrgName">your company</h2>
         <p id="cgOrgLine"><span id="cgOrgKind"></span> · Context Pack <b id="cgOrgVer">v0</b></p>
         <p id="cgOrgOneLiner" class="cg-oneliner"></p>
       </div>
@@ -3069,7 +3114,7 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
       </div>
       <div class="cg-actions">
         <button type="button" class="cg-btn cg-primary" id="cgEnterBtn">Enter the cockpit</button>
-        <button type="button" class="cg-btn" onclick="location.href='/grasped.html'" data-tip="point at any text and edit it by chatting to manas">full profile — point &amp; edit &rarr;</button>
+        <button type="button" class="cg-btn" onclick="location.href='/grasped'" data-tip="point at any text and edit it by chatting to manas">full profile — point &amp; edit &rarr;</button>
         <button type="button" class="cg-btn" id="cgReingestBtn">&#8635; re-run ingest</button>
         <button type="button" class="cg-btn" id="cgAddBtn">&plusmn; add sources</button>
         <button type="button" class="cg-btn" id="cgResetBtn">start over</button>
@@ -3091,7 +3136,7 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
   .cg-title b{font-size:18px;letter-spacing:.04em;font-family:var(--word)}
   .cg-sub{color:var(--ink-3,#72665b);font-size:12.5px;margin-left:8px}
   .cg-mode{margin-left:auto;font-family:var(--font-mono);font-size:11px;color:var(--ink-3,#72665b)}
-  .cg-lede h1{font-family:var(--font-display);font-size:27px;line-height:1.18;margin:0 0 8px;font-weight:700;letter-spacing:-.01em}
+  .cg-lede h1,.cg-lede h2{font-family:var(--font-display);font-size:27px;line-height:1.18;margin:0 0 8px;font-weight:700;letter-spacing:-.01em}
   .cg-lede p{font-size:14.5px;line-height:1.55;color:var(--ink,#3a322b);margin:0;max-width:62ch}
   .cg-oneliner{color:var(--ink-3,#72665b);font-style:italic;margin-top:8px}
   .cg-form{display:grid;grid-template-columns:1fr 1fr;gap:14px 18px}
@@ -3153,7 +3198,7 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
     background:var(--surface,#fbf7f3);color:var(--ink,#241f1b)}
   .cg-qrow input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 2px var(--accent)}
   .cg-qdone{font-size:12.5px;color:var(--ink-3,#5e7a5e)}
-  @media(max-width:720px){.cg-form,.cg-cols{grid-template-columns:1fr}.cg-shell{padding:24px 20px 26px}.cg-lede h1{font-size:23px}}
+  @media(max-width:720px){.cg-form,.cg-cols{grid-template-columns:1fr}.cg-shell{padding:24px 20px 26px}.cg-lede h1,.cg-lede h2{font-size:23px}}
 </style>
 <script>
 (function(){
@@ -3277,7 +3322,7 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
     /* the ownership marker rides the first grant — lands on org.relationship */
     var rel=(document.querySelector('input[name="cgRel"]:checked')||{}).value||"own";
     if(sources.length){ sources[0].relationship=rel; }
-    var ih=document.querySelector("#cgStepIngest h1");
+    var ih=document.querySelector("#cgStepIngest h2");
     if(ih){ ih.textContent=(rel==="public")?"manas is reading the project.":"manas is reading your company."; }
     $("cgConnectBtn").disabled=true; $("cgConnectStatus").textContent="granting sources over setu…";
     try{
@@ -3313,10 +3358,19 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
     /* the brand mark squints + wears this agent's colour while rows land */
     if(window.SK_BOT) SK_BOT.flash(row.agent||row.source);
   }
+  /* the 700ms feed poll retries forever — after ~5 consecutive failures say so
+     in the gate feed instead of swallowing the error; recover on success */
+  var feedFails=0, feedLost=false;
   async function pumpFeed(){
     try{ var r=await fetch(base+"/api/stream?cursor="+cursor,{cache:"no-store",headers:(window.SA_HEADERS||Object)()}); var j=await cgJson(r);
       if(j.ok && j.data && j.data.rows){ j.data.rows.forEach(function(row){ feedRow(row); cursor=Math.max(cursor,row.seq+1); }); }
-    }catch(e){}
+      feedFails=0;
+      if(feedLost){ feedLost=false; feedRow({source:"saakshe",agent:"setu",text:"stream is back — live rows resuming"}); }
+    }catch(e){
+      feedFails++;
+      if(feedFails>=5 && !feedLost){ feedLost=true;
+        feedRow({source:"saakshe",agent:"setu",text:"lost the stream — retrying…"}); }
+    }
   }
   function startFeed(){ if(feedPoll) return; feedPoll=setInterval(function(){ if(ingesting) pumpFeed(); else { clearInterval(feedPoll); feedPoll=null; } }, 700); }
 
@@ -3330,10 +3384,15 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
     try{ var hr=await fetch(base+"/api/stream?cursor=0",{cache:"no-store",headers:(window.SA_HEADERS||Object)()}); var hj=await cgJson(hr);
       if(hj.ok && hj.data && typeof hj.data.cursor==="number"){ cursor=hj.data.cursor; } }catch(e){}
     startFeed();
+    /* the chargeable ingest blocks 10-40s — give it a hard ~120s deadline so a
+       hung backend can't leave the gate spinning forever */
+    var ctrl=(typeof AbortController!=="undefined")? new AbortController() : null;
+    var deadline=ctrl? setTimeout(function(){ ctrl.abort(); }, 120000) : null;
     try{
       var ik=(window.SAAKSHE_AUTH&&SAAKSHE_AUTH.idemKey)? SAAKSHE_AUTH.idemKey() : String(Date.now())+Math.random().toString(16).slice(2);
-      var r=await fetch(base+"/api/connect/ingest",{method:"POST",headers:(window.SA_HEADERS||Object)({"content-type":"application/json"}),body:JSON.stringify({idem_key:ik})});
+      var r=await fetch(base+"/api/connect/ingest",{method:"POST",headers:(window.SA_HEADERS||Object)({"content-type":"application/json"}),body:JSON.stringify({idem_key:ik}),signal:ctrl?ctrl.signal:undefined});
       var j=await cgJson(r);
+      if(deadline) clearTimeout(deadline);
       ingesting=false; await pumpFeed();
       if(j.status===402){
         /* out of credits is not a transient failure — never steer the founder
@@ -3341,7 +3400,7 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
         var bal=(j.data && j.data.balance!=null)? (" · balance "+j.data.balance) : "";
         feedRow({source:"saakshe",agent:"setu",text:"out of credits — ingest needs more"+bal});
         setTimeout(function(){ show("cgStepConnect"); $("cgConnectBtn").disabled=false;
-          $("cgConnectStatus").innerHTML='out of credits'+bal+' — <a href="/pricing.html" target="_blank" rel="noopener">see pricing</a>'; }, 1200);
+          $("cgConnectStatus").innerHTML='out of credits'+bal+' — <a href="/pricing" target="_blank" rel="noopener">see pricing</a>'; }, 1200);
         return;
       }
       if(!j.ok){ feedRow({source:"saakshe",agent:"setu",text:"ingest failed — "+((j.data&&(j.data.detail||j.data.error))||j.error||("HTTP "+j.status))});
@@ -3355,7 +3414,12 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
          not `d`. Covers both entry points (fresh connect + boot-resume). */
       var st=await getStatus(); if(st) lastStatus=st;
       show("cgStepResult");
-    }catch(e){ ingesting=false; feedRow({source:"saakshe",agent:"setu",text:"ingest error: "+e});
+    }catch(e){ if(deadline) clearTimeout(deadline); ingesting=false;
+      if(e && e.name==="AbortError"){
+        feedRow({source:"saakshe",agent:"setu",text:"ingest timed out — re-run"});
+        setTimeout(function(){ show("cgStepConnect"); $("cgConnectBtn").disabled=false;
+          $("cgConnectStatus").textContent="ingest timed out — re-run"; }, 1400); return; }
+      feedRow({source:"saakshe",agent:"setu",text:"ingest error: "+e});
       setTimeout(function(){ show("cgStepConnect"); $("cgConnectBtn").disabled=false; }, 1400); }
   }
 
@@ -3604,7 +3668,7 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
           <button type="button" class="lc-btn lc-primary" id="lcRun">▶ run the day</button>
           <span class="lc-status" id="lcStatus"></span>
         </div>
-        <div class="lc-feed" id="lcFeed"><div class="lc-empty">Press <b>run the day</b> — manas grounds → arivu decides → tap → kalai makes → kural publishes → manas learns. Every line is a real event from the backend stream.</div></div>
+        <div class="lc-feed" id="lcFeed"><div class="lc-empty">Press <b>run the day</b> — manas grounds → arivu decides → tap → kalai creates → kural publishes → manas learns. Every line is a real event from the backend stream.</div></div>
       </section>
       <aside class="lc-right">
         <div class="lc-card">
@@ -3934,14 +3998,34 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
       c.appendChild(b); g.appendChild(c);
     });
   }
+  /* poll() retries every 700ms forever — after ~5 consecutive failures say so
+     IN the feed instead of dying silently in the console; recover on success. */
+  var pollFails=0, lostRow=null;
+  function pollFailed(){
+    pollFails++;
+    if(pollFails<5 || lostRow) return;
+    var f=$("lcFeed"); var em=f.querySelector(".lc-empty"); if(em) em.remove();
+    lostRow=document.createElement("div"); lostRow.className="lc-row";
+    lostRow.innerHTML='<span class="lc-dot" style="background:var(--sig-red)"></span><span class="lc-src">saakshe · stream</span>'
+      +'<span class="lc-txt" style="color:var(--sig-red)">lost the stream — retrying…</span>';
+    f.appendChild(lostRow); f.scrollTop=f.scrollHeight;
+    $("lcStatus").textContent="lost the stream — retrying…";
+  }
+  function pollRecovered(){
+    pollFails=0;
+    if(!lostRow) return;
+    if(lostRow.parentNode) lostRow.parentNode.removeChild(lostRow);
+    lostRow=null;
+    if($("lcStatus").textContent==="lost the stream — retrying…") $("lcStatus").textContent="running…";
+  }
   async function refreshGates(){
     try{ var r=await fetch(base+"/api/gates?run_id="+encodeURIComponent(runId),{cache:"no-store",headers:AH()});
-      var d=await r.json(); renderGates(d.gates); }catch(e){ console.warn("saakshe: gate poll failed", e); }
+      var d=await r.json(); renderGates(d.gates); pollRecovered(); }catch(e){ console.warn("saakshe: gate poll failed", e); pollFailed(); }
   }
   async function pumpStream(){
     if(!runId) return;
     try{ var r=await fetch(base+"/api/stream?run_id="+encodeURIComponent(runId)+"&cursor="+cursor,{cache:"no-store",headers:AH()});
-      var d=await r.json(); (d.rows||[]).forEach(function(row){ feedRow(row); cursor=Math.max(cursor,row.seq+1); }); }catch(e){ console.warn("saakshe: stream poll failed", e); }
+      var d=await r.json(); (d.rows||[]).forEach(function(row){ feedRow(row); cursor=Math.max(cursor,row.seq+1); }); pollRecovered(); }catch(e){ console.warn("saakshe: stream poll failed", e); pollFailed(); }
   }
   async function poll(){
     if(!open||!runId){ polling=false; return; }

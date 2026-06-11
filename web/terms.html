@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<link rel="icon" href="data:,">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <title>saakshe &mdash; terms of service</title>
 <meta name="description" content="saakshe terms of service: accounts, credits, acceptable use, AI-output disclaimer, intellectual property, liability, and governing law (India). Effective June 10, 2026.">
 <meta property="og:title" content="saakshe — terms of service">
@@ -203,10 +203,10 @@ html[data-theme="dark"] .tag::before{content:'[ '}html[data-theme="dark"] .tag::
 .tag.no{border-color:var(--act);color:var(--act-text)}
 html[data-theme="dark"] .tag.no{border-color:var(--c-kalai);color:var(--c-kalai)}
 
-/* informational note (arivu-blue rail) */
-.honest{margin-top:20px;border-left:5px solid var(--c-arivu);padding:11px 0 11px 16px;background:var(--card-2);
+/* informational note (framed) */
+.honest{margin-top:20px;border:1.5px solid var(--line);padding:11px 16px;background:var(--card-2);
   font-family:var(--mono);font-size:13px;color:var(--ink-2);line-height:1.6;border-radius:var(--radius)}
-html[data-theme="dark"] .honest{border-left-color:var(--c-arivu);background:transparent}
+html[data-theme="dark"] .honest{border-color:var(--line);background:transparent}
 .honest b{color:var(--ink)}
 
 /* witness-voice one-liner */
@@ -254,11 +254,7 @@ html[data-theme="dark"] .vmap .a-kural,html[data-theme="dark"] .vmap .a-saakshe{
 .foot .meta{color:var(--ink-3)}
 .foot .meta b{color:var(--ink-2)}
 
-/* scroll-reveal */
-@media (prefers-reduced-motion:no-preference){
-  .reveal{opacity:0;transform:translateY(16px);transition:opacity .6s ease,transform .6s ease}
-  .reveal.in{opacity:1;transform:none}
-}
+/* scroll-reveal removed — legal pages render statically */
 
 /* ─────────── content-page additions (each with a dark override) ─────────── */
 .phero{padding-top:26px}
@@ -332,7 +328,6 @@ html[data-theme="dark"] .fourkick{color:var(--act)}
   .phero h1{font-size:clamp(30px,10vw,48px)}
 }
 </style>
-<noscript><style>.reveal{opacity:1!important;transform:none!important}</style></noscript>
 </head>
 <body>
 <main class="wrap">
@@ -356,7 +351,7 @@ html[data-theme="dark"] .fourkick{color:var(--act)}
     <p class="mono mute" style="margin-top:18px;font-size:13px;letter-spacing:.04em">Effective date: June 10, 2026 &middot; operated by saakshe, an independent project</p>
   </header>
 
-  <section class="sec reveal">
+  <section class="sec">
     <div class="sec__n"><span class="num">The terms</span></div>
     <h2 class="sec__t">Twelve clauses, in plain language.</h2>
     <div class="prose">
@@ -382,7 +377,7 @@ html[data-theme="dark"] .fourkick{color:var(--act)}
       <p><b>You keep yours.</b> Your connected sources, your content, and the outputs created for you remain yours. We retain ownership of the saakshe software, brand, and platform. You grant us only the limited rights needed to operate the service for you.</p>
 
       <h3>8. Termination</h3>
-      <p>You can stop using saakshe and delete your account at any time. We may suspend or terminate access for breach of these Terms, abuse, or where required by law. On termination, your data is handled as described in the <a href="/privacy.html">Privacy Policy</a>.</p>
+      <p>You can stop using saakshe and delete your account at any time. We may suspend or terminate access for breach of these Terms, abuse, or where required by law. On termination, your data is handled as described in the <a href="/privacy">Privacy Policy</a>.</p>
 
       <h3>9. Limitation of liability</h3>
       <p>To the maximum extent permitted by law, saakshe is provided &ldquo;as is&rdquo; and we are not liable for indirect, incidental, or consequential damages, or for loss arising from AI output, downtime, or actions you chose to publish. Our total liability is limited to the amounts (if any) you paid us in the prior twelve months.</p>
@@ -404,7 +399,7 @@ html[data-theme="dark"] .fourkick{color:var(--act)}
     <div class="flogo">
       <a class="logo" href="/" aria-label="saakshe"><span class="skbot" aria-hidden="true"><span class="skeye L"></span><span class="skeye R"></span><span class="skmouth"></span></span><span class="dv"></span><span class="wd">SΛΛKSHE</span></a>
     </div>
-    <nav class="foot-nav" aria-label="Pages"><a href="/">Home</a><a href="/cockpit.html">Cockpit</a><a href="/pricing.html">Pricing</a><a href="/privacy.html">Privacy</a><a href="/terms.html" aria-current="page">Terms</a><a href="/faq.html">FAQ</a></nav>
+    <nav class="foot-nav" aria-label="Pages"><a href="/">Home</a><a href="/cockpit">Cockpit</a><a href="/pricing">Pricing</a><a href="/privacy">Privacy</a><a href="/terms" aria-current="page">Terms</a><a href="/faq">FAQ</a></nav>
     <div class="vmap">
       <span>knows&nbsp;&rarr;&nbsp;<b class="a-manas">manas</b></span>
       <span>decides&nbsp;&rarr;&nbsp;<b class="a-arivu">arivu</b></span>
@@ -437,16 +432,15 @@ html[data-theme="dark"] .fourkick{color:var(--act)}
   sync(root.getAttribute('data-theme')||'light');
   bL.addEventListener('click',function(){setTheme('light');});
   bD.addEventListener('click',function(){setTheme('dark');});
-
-  var rm=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if(!rm && 'IntersectionObserver' in window){
-    var io=new IntersectionObserver(function(es){
-      es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target);} });
-    },{threshold:.12,rootMargin:'0px 0px -8% 0px'});
-    document.querySelectorAll('.reveal').forEach(function(el){io.observe(el);});
-  } else {
-    document.querySelectorAll('.reveal').forEach(function(el){el.classList.add('in');});
+  // keep aria-pressed in sync when the theme changes outside a click (other tab, script)
+  if('MutationObserver' in window){
+    new MutationObserver(function(){sync(root.getAttribute('data-theme')||'light');})
+      .observe(root,{attributes:true,attributeFilter:['data-theme']});
   }
+  window.addEventListener('storage',function(e){
+    if(e.key==='saakshe-theme'&&(e.newValue==='dark'||e.newValue==='light')){setTheme(e.newValue);}
+  });
+
 })();
 </script>
 </body>
