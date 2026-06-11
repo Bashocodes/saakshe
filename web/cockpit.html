@@ -1622,10 +1622,15 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
       return '<div class="ovcol">'+card+panel+'</div>';
     }).join('');
     return '<div class="view"><div class="vbody">'
-    +'<div class="projhdr"><span class="ll"></span><span class="pn">'+esc(orgName())+'</span>'
+    /* unconnected, the hero ribbon IS a way into the setu flow — same surface
+       the topbar connect pill and the sidebar project row open */
+    +'<div class="projhdr"'+(ORG.grounded?'':' role="button" tabindex="0" style="cursor:pointer" data-tip="connect a project — grant sources over setu"'
+        +' onclick="window.cockpitOpenGate&&cockpitOpenGate()"'
+        +' onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();window.cockpitOpenGate&&cockpitOpenGate();}"')
+      +'><span class="ll"></span><span class="pn">'+esc(orgName())+'</span>'
       +(ORG.grounded
         ?'<button class="qbtn" type="button" style="flex:0 0 auto;width:auto;" onclick="location.href=\'/grasped.html\'" data-tip="the stored extraction — everything manas grasped, point-and-editable">what manas grasped →</button>'
-        :'<span class="pm">connect over setu to begin</span>')
+        :'<span class="pm">connect over setu to begin →</span>')
       +'<span class="pm" style="margin-left:auto;">memory <b>Context Pack '+esc(orgPack())+'</b></span></div>'
     +'<div class="grid3 ovquads" style="margin-top:13px; flex:1 1 auto; min-height:0;">'+ovc+'</div>'
     +'</div></div>';
@@ -3543,7 +3548,9 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
       if(this.requireSignin){ gate(true); return; }   // the gated demo signs in by email
       if(this._sb) await this._sb.auth.signInWithOAuth(
       {provider:"google", options:{redirectTo: cbUrl()}}); },
-    signOut:async function(){ if(this._sb){ await this._sb.auth.signOut(); this._token=null; this._balance=null; render(); } }
+    /* sign-out hands the visitor to the landing page — never the bare sign-in
+       gate floating over a half-dead cockpit */
+    signOut:async function(){ if(this._sb){ await this._sb.auth.signOut(); this._token=null; this._balance=null; location.href="/"; } }
   };
   // Every fetch in the cockpit rides this (defined before any call fires).
   window.SA_HEADERS = function(extra){ return A.headers(extra); };
