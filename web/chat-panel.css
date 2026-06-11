@@ -59,7 +59,7 @@ html.sk-chat-collapsed #sa-chatpane .ch-rail:hover .skbot{transform:translateY(-
 #sa-chatpane .ch-tab .fdot{display:inline-block;width:8px;height:8px;margin-right:5px;
   vertical-align:0;border:1px solid var(--line)}
 #sa-chatpane .ch-tab[data-q="manas"] .fdot{background:var(--manas);border-radius:50%}
-#sa-chatpane .ch-tab[data-q="arivu"] .fdot{background:var(--arivu)}
+#sa-chatpane .ch-tab[data-q="arivu"] .fdot{background:var(--arivu);clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);border:0}
 #sa-chatpane .ch-tab[data-q="kalai"] .fdot{background:var(--kalai);clip-path:polygon(50% 0,100% 100%,0 100%);border:0}
 #sa-chatpane .ch-tab[data-q="kural"] .fdot{background:var(--kural)}
 #sa-chatpane .ch-tab:hover{transform:translate(-1px,-1px);box-shadow:var(--shadow-sm,2px 2px 0 var(--ink))}

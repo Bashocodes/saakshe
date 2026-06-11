@@ -21,6 +21,7 @@
     '<div class="ch-tabs" role="group" aria-label="filter by faculty">' +
     '<button class="ch-tab on" type="button" data-q="saakshe" aria-pressed="true">saakshe</button>' +
     '<button class="ch-tab" type="button" data-q="manas" aria-pressed="false"><span class="fdot"></span>manas</button>' +
+    '<button class="ch-tab" type="button" data-q="arivu" aria-pressed="false"><span class="fdot"></span>arivu</button>' +
     '<button class="ch-tab" type="button" data-q="kalai" aria-pressed="false"><span class="fdot"></span>kalai</button>' +
     '<button class="ch-tab" type="button" data-q="kural" aria-pressed="false"><span class="fdot"></span>kural</button>' +
     '<span class="live" id="sa-ch-live"></span>' +

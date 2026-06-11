@@ -400,7 +400,10 @@ class VaultAddRequest(BaseModel):
 
 
 _DECISION_HINTS = ("should we", "should i", "should the", "run the day", "start the day",
-                   "raise pro", "raise our", "raise the price", "decide whether", "decide if")
+                   "raise pro", "raise our", "raise the price", "decide whether", "decide if",
+                   "decide and", "and decide", "then decide", "decide this", "decide for me",
+                   "is this a good", "is it a good", "good idea", "worth building",
+                   "worth doing", "give me a verdict", "your verdict", "seal a verdict")
 
 
 # ─── public config + identity ─────────────────────────────────────────────────
@@ -760,7 +763,10 @@ async def ask(req: AskRequest, request: Request, sess: Session = Depends(_sessio
                              has_source_image=True, wants_hdr=mi["wants_hdr"])
         return {"kind": "media_quote", "quote": q,
                 "blocks": presenter.quote_blocks(q)}
-    if any(h in low for h in _DECISION_HINTS) and "?" in text:
+    # A decision ask routes to arivu on the hint phrase alone — founders (and
+    # voice transcripts) say "decide and tell me" without a question mark, and
+    # requiring "?" used to drop those into a witness refusal.
+    if any(h in low for h in _DECISION_HINTS) or low.rstrip(" .!").endswith("decide"):
         if not sess.store.is_grounded():
             return {"kind": "connect_first",
                     "text": "I can't run a decision on a blank memory — connect your project first "
@@ -826,7 +832,21 @@ async def _start_flywheel(sess: Session, *, question: Optional[str], idem_key: O
         if _refund_run(orchestrator.get_run(summary["run_id"]), user, "no safe decision — not charged"):
             summary["refunded"] = True
     if wrap_key == "flywheel":
-        return {"kind": "flywheel_started", "text": ok_text, "flywheel": summary}
+        # arivu speaks for its own chamber in the chat — the witness only carries
+        # telemetry; the realm that decides is the one that communicates the run.
+        if summary.get("status") == "no_safe_decision":
+            md = ("The five lenses argued it and no verdict survived the bench — "
+                  "dissent is on the record, and you were not charged.")
+        else:
+            md = (ok_text or "Convening the five lenses on this now — a sealed "
+                             "verdict will land in your queue for your tap.")
+        return {"kind": "flywheel_started", "text": ok_text, "flywheel": summary,
+                "blocks": [
+                    {"t": "text", "who": "arivu/chair", "md": md},
+                    {"t": "options", "items": [
+                        {"label": "what is waiting on me?", "send": "what's waiting on me?"},
+                        {"label": "who is acting right now?", "send": "who is acting right now?"}]},
+                ]}
     return summary
 
 
