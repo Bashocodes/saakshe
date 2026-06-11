@@ -105,7 +105,33 @@ async def ingest_connected(
     # ungrounded (the refuse-out-of-corpus contract at the ingestion boundary).
     readable = [b for b in bundles if b.ok and b.text]
     if not readable:
-        store.set_status(project.CONNECTING if store.is_connected() else project.EMPTY)
+        if not store.is_connected():
+            # The EMPTY START: a founder with no public repo or site begins with
+            # the interview instead of a dead end. Nothing is fabricated — the
+            # open questions are the first source, and every answer folds back
+            # as a cited "founder answer" fact (answer_question), so the pack
+            # builds from the founder's own words.
+            has_logo = bool(store.assets_for(kinds=["logo"]))
+            qs = doubts.detect([], [], [], has_social_connection=False,
+                               has_logo_asset=has_logo)
+            qs = await questions.personalize(qs, [], [], [], {},
+                                             stream=stream, run_id=run_id)
+            store.set_questions(qs)
+            store.set_status(project.NEEDS_ANSWERS if qs else project.EMPTY)
+            for q in qs:
+                stream.emit(run_id, NS, "Founder Voice",
+                            f"clarifying question raised — {q.text}",
+                            span="agent_run", kind="note")
+            stream.emit(run_id, NS, "Memory Curator",
+                        f"no sources connected — starting from the interview "
+                        f"({len(qs)} question(s); your answers become the first cited facts)",
+                        span="agent_run", kind="note")
+            return {"version": store.version, "facts": [], "fact_count": 0,
+                    "voice_rules": [], "brand_rules": [], "org": {},
+                    "groundedness": 0.0, "questions": [q.as_dict() for q in qs],
+                    "channels": [b.as_dict() for b in bundles],
+                    "grounded": False, "ingest_status": store.ingest_status}
+        store.set_status(project.CONNECTING)
         stream.emit(run_id, NS, "Memory Curator",
                     "no readable source — nothing committed (won't fabricate a memory)",
                     span="agent_run", kind="note")

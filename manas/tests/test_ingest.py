@@ -182,3 +182,47 @@ def test_first_paragraph_skips_blockquote_alerts():
     line = src._first_paragraph(md)
     assert line.startswith("The open scheduling infrastructure")
     assert "WARNING" not in line
+
+
+# ─── the EMPTY START: no sources → the interview, not a dead end ──────────────
+async def test_empty_start_opens_the_interview():
+    """Zero connections + ingest = clarifying questions open (NEEDS_ANSWERS),
+    nothing fabricated, nothing committed."""
+    store = project.ProjectStore(user="empty-start")
+    res = await runner.ingest_connected(EventStream(), "r-empty", store)
+    assert res["grounded"] is False
+    assert res["fact_count"] == 0                       # nothing fabricated
+    assert len(res["questions"]) >= 1                   # the interview is open
+    assert store.ingest_status == project.NEEDS_ANSWERS
+    assert store.open_questions()
+
+
+async def test_empty_start_answers_become_cited_facts():
+    """Each interview answer folds back as a 'founder answer' fact and ticks the
+    pack — the founder's own words are the first source."""
+    store = project.ProjectStore(user="empty-start-2")
+    s = EventStream()
+    await runner.ingest_connected(s, "r-empty2", store)
+    q = store.open_questions()[0]
+    out = await runner.answer_question(s, "r-empty2", q.id, "We sell HDR film presets.",
+                                       store=store)
+    assert out["ok"] is True
+    facts = store.all_facts()
+    assert any("founder answer" in str(f.get("source", "")) for f in facts)
+    assert store.version != "v0"
+
+
+async def test_unreadable_connection_still_no_interview_hijack(monkeypatch):
+    """A CONNECTED store whose sources failed to read keeps the old honest path
+    (CONNECTING, no questions) — the interview is only the EMPTY start."""
+    store = project.ProjectStore(user="bad-source")
+    store.add_connection("website", "https://unreachable.invalid")
+
+    async def _none(_store):
+        return [src.SourceBundle(channel="web", ref="https://unreachable.invalid",
+                                 ok=False, text="", meta={"error": "unreachable"})]
+
+    monkeypatch.setattr(runner, "_read_sources", _none)
+    res = await runner.ingest_connected(EventStream(), "r-bad", store)
+    assert res["questions"] == []
+    assert store.ingest_status == project.CONNECTING

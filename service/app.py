@@ -495,8 +495,9 @@ async def connect_ingest(req: Optional[IngestRequest] = None, sess: Session = De
     _require_not_public_demo(sess.user)
     _require_auth_if_live(sess.user)
     store, stream, user = sess.store, sess.stream, sess.user
-    if not store.is_connected():
-        raise HTTPException(status_code=409, detail="nothing connected yet — add a source first")
+    # No connections is no longer a 409 dead end — manas starts the INTERVIEW
+    # (empty start): clarifying questions open, and every answer folds back as a
+    # cited founder-word fact. A founder without a public repo/site can begin.
     run_id = "ingest_" + os.urandom(4).hex()
     spend_key = "ingest:" + ((req.idem_key or run_id)[:120] if req and req.idem_key else run_id)
     try:
