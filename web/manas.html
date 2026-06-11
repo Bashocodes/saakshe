@@ -249,7 +249,7 @@ ul.b li b{color:var(--ink)}
 
 /* ---- flow: end-to-end pipeline (numbered, neutral connectors) ---- */
 .flow{margin-top:26px;border:1px solid var(--rule);background:var(--panel)}
-.flow .step{display:grid;grid-template-columns:64px 1fr;gap:0;border-bottom:1px solid var(--rule);
+.flow .step{display:grid;grid-template-columns:64px minmax(0,1fr);gap:0;border-bottom:1px solid var(--rule);
   transition:background .3s var(--ease)}
 .flow .step:last-child{border-bottom:none}
 .flow .step .idx{font-family:var(--mono);font-size:13px;color:var(--muted);padding:21px 0 21px 22px;border-right:1px solid var(--rule);
@@ -273,7 +273,7 @@ ul.b li b{color:var(--ink)}
 
 /* ---- agent org ---- */
 .org{margin-top:26px;display:grid;gap:0;border:1px solid var(--rule)}
-.agent{display:grid;grid-template-columns:36px 1fr;gap:0;border-bottom:1px solid var(--rule);background:var(--panel);
+.agent{display:grid;grid-template-columns:36px minmax(0,1fr);gap:0;border-bottom:1px solid var(--rule);background:var(--panel);
   transition:background .3s var(--ease),box-shadow .35s var(--ease)}
 .agent:last-child{border-bottom:none}
 .agent .rail{border-right:1px solid var(--rule);display:flex;align-items:flex-start;justify-content:center;padding-top:24px}
@@ -333,7 +333,7 @@ ul.b li b{color:var(--ink)}
 
 /* ---- stack layers ---- */
 .stack{margin-top:26px;border:1px solid var(--rule)}
-.layer{display:grid;grid-template-columns:208px 1fr;gap:0;border-bottom:1px solid var(--rule);background:var(--panel);
+.layer{display:grid;grid-template-columns:208px minmax(0,1fr);gap:0;border-bottom:1px solid var(--rule);background:var(--panel);
   transition:background .3s var(--ease),box-shadow .35s var(--ease)}
 .layer:last-child{border-bottom:none}
 @media(max-width:680px){.layer{grid-template-columns:1fr}}
@@ -368,6 +368,8 @@ ul.b li b{color:var(--ink)}
 .term .bar .dot{width:9px;height:9px}
 .term .bar .ttl{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-left:6px}
 .term pre{margin:0;padding:18px 18px 20px;font-family:var(--mono);font-size:13px;line-height:1.92;color:var(--ink-2);overflow-x:auto;white-space:pre}
+.agent .pad code,.agent .pad .mono{overflow-wrap:anywhere}
+@media(max-width:740px){.term pre{white-space:pre-wrap;overflow-wrap:anywhere}.mono,code{overflow-wrap:anywhere}}
 .term pre .p{color:var(--accent)}
 .term pre .c{color:var(--muted)}
 .term pre .ok{color:var(--accent)}
@@ -432,7 +434,7 @@ ul.b li b{color:var(--ink)}
 html[data-theme="dark"] .theme-toggle .opt[data-set="dark"],
 html[data-theme="light"] .theme-toggle .opt[data-set="light"]{color:var(--accent);background:var(--panel-2)}
 .theme-toggle .opt .dot{width:6px;height:6px}
-@media(max-width:540px){.theme-toggle .opt{padding:6px 9px}.theme-toggle{top:10px;right:10px}}
+@media(max-width:540px){.theme-toggle .opt{padding:10px 12px}.theme-toggle{top:10px;right:10px}.wrap{padding-top:64px}}
 
 /* ============================================================
    WORKFLOW VIZ — "Run the workflow". Inline SVG agent-flow +
@@ -520,7 +522,7 @@ html:not(.js) .viz .ctl{display:none}
 .viz.mode-imbibed .dayone{display:none}
 
 /* readout: groundedness/density meter + live log */
-.viz .readout{display:grid;grid-template-columns:212px 1fr;gap:0;border-top:1px solid var(--rule)}
+.viz .readout{display:grid;grid-template-columns:212px minmax(0,1fr);gap:0;border-top:1px solid var(--rule)}
 @media(max-width:640px){.viz .readout{grid-template-columns:1fr}}
 .viz .quality{padding:16px 18px;border-right:1px solid var(--rule)}
 @media(max-width:640px){.viz .quality{border-right:none;border-bottom:1px solid var(--rule)}}

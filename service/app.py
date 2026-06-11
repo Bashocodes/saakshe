@@ -461,6 +461,13 @@ def _profile_edit_llm(prompt: str) -> str:
     return out.text or ""
 
 
+@app.options("/api/profile/edit")
+async def profile_edit_probe() -> Response:
+    """grasped.html liveness-probes this route with OPTIONS on load; answer 204
+    instead of Starlette's auto-405 so the browser console stays clean."""
+    return Response(status_code=204)
+
+
 @app.post("/api/profile/edit")
 async def profile_edit(req: ProfileEditRequest, request: Request,
                        sess: Session = Depends(_session_dep)) -> dict[str, Any]:

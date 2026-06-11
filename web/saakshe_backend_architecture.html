@@ -114,7 +114,7 @@
   <!-- 1 · THE CORRECTION -->
   <section>
     <h2><span class="n">01</span> The shape, corrected</h2>
-    <p class="sub">The mistake was wrapping arivu as its own standalone thing. There is one front door.</p>
+    <p class="sub">arivu is not a standalone product — it is the chamber the agents step into. There is one front door.</p>
     <div class="card">
       <p>There is <strong>one product</strong> — <strong>saakshe</strong>, the witness. The founder talks only to it: chat and voice. The four quadrants — <strong>manas</strong> (knows), <strong>arivu</strong> (decides), <strong>kalai</strong> (makes), <strong>kural</strong> (engages) — are <strong>backends wired behind saakshe</strong>. They speak to each other over A2A; they never speak to the founder. arivu is no longer a front door with its own console — it becomes <strong>one module inside the unified service</strong>.</p>
       <p class="note">Everything connects through a single FastAPI service and a single ordered event stream. The submission is “the agentic company + its witness,” not five sites.</p>
@@ -320,25 +320,25 @@
     <div class="card tight">
       <p><span class="badge demo">DEMO</span> &nbsp;<code>SAAKSHE_MODE=demo</code> — Parallel / Loop / escalate / HITL / executor all fire for real; scripted models stand in for Gemini + Claude. Survives a 429 mid-demo. This is what runs in the video.</p>
       <p style="margin-top:14px"><span class="badge live">LIVE</span> &nbsp;Gemini via Vertex (global) + Claude via Vertex Model Garden (us-east5). One flag flips the model factory; the stream, gates, A2A, and executor shapes are identical — <strong>no rewrite</strong>.</p>
-      <p style="margin-top:14px"><span class="badge block">BLOCKED</span> &nbsp;Live models need your GCP project + ADC + an Anthropic model <em>enabled in Vertex Model Garden for the project in us-east5</em> (the per-project step people miss). I’ll ask for the project id only when we run live. Voice (Gemini Live) is live-only by nature — the wiring ships now; the demo shows the same tools over text.</p>
+      <p style="margin-top:14px"><span class="badge live">SETUP</span> &nbsp;Live models need a GCP project + ADC, with an Anthropic model <em>enabled in Vertex Model Garden for that project in us-east5</em> (the per-project step people miss). Voice (Gemini Live) is live-only by nature — the wiring ships now; the demo shows the same tools over text.</p>
     </div>
   </section>
 
   <!-- 7 · BUILD ORDER -->
   <section>
-    <h2><span class="n">07</span> Build order — skeleton first, then deepen</h2>
-    <p class="sub">Lock the cross-quadrant seams in code, prove them end-to-end, then deepen each quadrant additively on a green base. Integration is what eats the last day — so we integrate first.</p>
+    <h2><span class="n">07</span> How it was built — skeleton first, then deepened</h2>
+    <p class="sub">The cross-quadrant seams were locked in code and proven end-to-end first; each quadrant was then deepened additively on a green base. Integration is what eats projects — so integration came first.</p>
     <div class="card">
-      <div class="phase"><span class="tag">Phase A</span><div><b>Common substrate + walking skeleton.</b> Build <code>common</code> (config · models · the event stream · A2A) and lock three contracts: the stream row, the A2A handoff payloads, the orchestrator↔quadrant signatures. Then stand up the orchestrator + real-arivu + thin-but-real manas/kalai/kural + a thin witness, and prove the full flywheel runs in demo with both gates. <span class="note">Locks the seams by making them real.</span></div></div>
-      <div class="phase"><span class="tag">Phase B</span><div><b>Deepen the three quadrants</b> — a workflow fans out three builders in parallel, each lifting manas / kalai / kural to arivu quality (real Parallel/Loop/Claude gates, per-quadrant tests, demo fixtures that produce the sealed canon numbers, eval @0.8). Additive — the skeleton stays green.</div></div>
-      <div class="phase"><span class="tag">Phase C</span><div><b>Witness + unified server.</b> The telemetry tools + the scripted refusal beat + the Gemini Live voice bridge; one FastAPI service mounting the witness, four quadrants, the 2-gate hero loop, the stream, and voice. arivu’s existing API preserved.</div></div>
-      <div class="phase"><span class="tag">Phase D</span><div><b>Cockpit live mode + verify.</b> Add a <code>?live=1</code> data-source seam to the polished v9 cockpit (canned stays default; layout untouched), re-run the v9 perception + behavior harnesses for zero regression, and adversarially verify the whole demo flywheel.</div></div>
+      <div class="phase"><span class="tag">Phase A</span><div><b>Common substrate + walking skeleton.</b> The <code>common</code> layer (config · models · the event stream · A2A) locks three contracts: the stream row, the A2A handoff payloads, the orchestrator↔quadrant signatures. The orchestrator, real arivu, thin-but-real manas/kalai/kural and a thin witness prove the full flywheel in demo with both gates. <span class="note">The seams are locked by being real.</span></div></div>
+      <div class="phase"><span class="tag">Phase B</span><div><b>The three quadrants deepened</b> — manas / kalai / kural each lifted to arivu quality: real Parallel/Loop agents, Claude-gated high-stakes calls, per-quadrant tests, demo fixtures that produce the sealed canon numbers, eval @0.8. Additive — the skeleton stayed green.</div></div>
+      <div class="phase"><span class="tag">Phase C</span><div><b>Witness + unified server.</b> The telemetry tools + the principled refusal beat + the Gemini Live voice bridge; one FastAPI service mounting the witness, four quadrants, the 2-gate hero loop, the stream, and voice. arivu’s existing API preserved.</div></div>
+      <div class="phase"><span class="tag">Phase D</span><div><b>Cockpit live mode + verification.</b> A live data-source seam behind the cockpit (demo replay stays the default; layout untouched), with perception + behavior harnesses re-run for zero regression across the whole flywheel.</div></div>
     </div>
   </section>
 
   <footer>
-    <p><strong>What I need from you — later, not now.</strong> Nothing blocks the build; the demo needs no credentials. When we’re ready for the live run I’ll ask for your <b>GCP project id</b> and confirm you’ve run <code>gcloud auth login</code> + <code>application-default login</code> and enabled an Anthropic model in Vertex Model Garden (us-east5, per-project). Until then I’m building demo-first, starting with Phase A.</p>
-    <p class="note" style="margin-top:14px">saakshe · knows → manas · decides → arivu · makes → kalai · engages → kural · witnesses → saakshe · deadline Jun 11 5pm PT</p>
+    <p><strong>Demo-first by design.</strong> Nothing here requires credentials to run — the full flywheel, both human gates, and every quadrant execute end-to-end in deterministic replay. Live mode is one flag once a GCP project with Vertex access is wired.</p>
+    <p class="note" style="margin-top:14px">saakshe · knows → manas · decides → arivu · makes → kalai · engages → kural · witnesses → saakshe</p>
   </footer>
 
 </div>

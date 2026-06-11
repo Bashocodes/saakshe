@@ -247,7 +247,7 @@ ul.b li b{color:var(--ink)}
 
 /* ---- flow: end-to-end pipeline (numbered, neutral connectors) ---- */
 .flow{margin-top:24px;border:1px solid var(--rule);background:var(--panel)}
-.flow .step{display:grid;grid-template-columns:64px 1fr;gap:0;border-bottom:1px solid var(--rule);
+.flow .step{display:grid;grid-template-columns:64px minmax(0,1fr);gap:0;border-bottom:1px solid var(--rule);
   transition:background .3s var(--ease)}
 .flow .step:last-child{border-bottom:none}
 .flow .step .idx{font-family:var(--mono);font-size:13px;color:var(--muted);padding:20px 0 20px 20px;border-right:1px solid var(--rule);
@@ -272,7 +272,7 @@ ul.b li b{color:var(--ink)}
 
 /* ---- agent chamber roster ---- */
 .org{margin-top:24px;display:grid;gap:0;border:1px solid var(--rule)}
-.agent{display:grid;grid-template-columns:36px 1fr;gap:0;border-bottom:1px solid var(--rule);background:var(--panel);
+.agent{display:grid;grid-template-columns:36px minmax(0,1fr);gap:0;border-bottom:1px solid var(--rule);background:var(--panel);
   transition:background .3s var(--ease),box-shadow .35s var(--ease)}
 .agent:last-child{border-bottom:none}
 .agent .rail{border-right:1px solid var(--rule);display:flex;align-items:flex-start;justify-content:center;padding-top:23px}
@@ -372,6 +372,8 @@ ul.b li b{color:var(--ink)}
 .term pre .x{color:var(--flare)}      /* the churn-cliff catch — accent TEXT only, never a band */
 .term pre b{color:var(--ink);font-weight:600}
 .term pre .ln{display:block}
+.agent .pad code,.agent .pad .mono{overflow-wrap:anywhere}
+@media(max-width:740px){.term pre{white-space:pre-wrap;overflow-wrap:anywhere}.mono,code{overflow-wrap:anywhere}}
 .js .term .live .ln{opacity:0}
 .js .term .live .ln.typed{opacity:1;animation:lineType .42s steps(40,end) both}
 @keyframes lineType{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 0 0 0)}}
@@ -421,6 +423,7 @@ ul.b li b{color:var(--ink)}
 
 /* ---- THE SEAM LINE — the five verb→system bindings, plain styled text (no container, no edge band). Accent appears only as the verb words + thin → glyphs. ---- */
 .seam{margin-top:26px;font-family:var(--mono);font-size:13px;letter-spacing:.05em;color:var(--muted);line-height:1.9;max-width:74ch}
+.seam .v,.seam .s,.seam .ar,.seam .sep{display:inline-block}
 .seam .v{color:var(--accent)}
 .seam .s{color:var(--ink-2);font-weight:600}
 .seam .ar{color:var(--muted);margin:0 5px}
@@ -444,7 +447,7 @@ ul.b li b{color:var(--ink)}
 html[data-theme="dark"] .theme-toggle .opt[data-set="dark"],
 html[data-theme="light"] .theme-toggle .opt[data-set="light"]{color:var(--accent);background:var(--panel-2)}
 .theme-toggle .opt .dot{width:6px;height:6px}
-@media(max-width:540px){.theme-toggle .opt{padding:6px 9px}.theme-toggle{top:10px;right:10px}}
+@media(max-width:540px){.theme-toggle .opt{padding:10px 12px}.theme-toggle{top:10px;right:10px}.wrap{padding-top:64px}}
 
 /* ============================================================
    THE DELIBERATION VIZ — "run the chamber, live". A round sabha:
@@ -617,15 +620,14 @@ html:not(.js) .viz .team .node .ndot{fill:var(--accent)}
 </head>
 <body>
 <!-- ● LIVE — arivu is a backend behind saakshe; the live experience runs through the
-     saakshe cockpit (the single front door), where this chamber is step 1 of the flywheel.
-     Start the unified backend: cd saakshe && uvicorn service.app:app --port 8000 -->
-<a href="http://localhost:8000/" target="_blank" rel="noopener" id="arivuLiveLink"
-   title="Open saakshe — the cockpit. arivu runs as the decide-step of the live flywheel inside it. (cd saakshe && uvicorn service.app:app --port 8000)"
+     saakshe cockpit (the single front door), where this chamber is step 1 of the flywheel. -->
+<a href="/cockpit" id="arivuLiveLink"
+   title="Open saakshe — the cockpit. arivu runs as the decide-step of the live flywheel inside it."
    style="position:fixed;top:14px;left:14px;z-index:60;display:inline-flex;align-items:center;gap:7px;
    padding:7px 13px;border-radius:999px;font:600 12px/1 ui-sans-serif,system-ui,sans-serif;text-decoration:none;
-   color:#e8eef7;background:rgba(20,24,33,.72);border:1px solid rgba(150,170,200,.28);
-   backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);box-shadow:0 2px 14px rgba(0,0,0,.3)">
-   <span style="width:8px;height:8px;border-radius:50%;background:#34d399;box-shadow:0 0 8px #34d399;
+   color:var(--ink);background:var(--panel);border:1px solid var(--rule-2);
+   backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)">
+   <span style="width:8px;height:8px;border-radius:50%;background:var(--accent);
    animation:arivuLivePulse 1.8s ease-in-out infinite"></span>live · in saakshe</a>
 <style>@keyframes arivuLivePulse{0%,100%{opacity:1}50%{opacity:.35}}</style>
 <div class="field" aria-hidden="true"><canvas id="annealField"></canvas></div>

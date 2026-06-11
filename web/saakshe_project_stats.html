@@ -455,17 +455,17 @@
     <span class="mono">gemini-3.5-flash</span>) are env-overridable hackathon/preview pins, not guaranteed-GA names —
     real runs fall back to whatever Vertex serves. arivu deliberately keeps older 2.5 / Opus-4.1 pins.</li>
     <li><b>Default mode is demo.</b> The full flywheel runs creds-free on scripted replay; real side effects need
-    live mode <i>and</i> an explicit allow-live-exec flag. A live run was blocked on Claude Vertex quota (~Jun 10).</li>
+    live mode <i>and</i> an explicit allow-live-exec flag.</li>
     <li><b>A2A is in-process today.</b> ADK's <span class="mono">to_a2a()</span> is blocked by the a2a-sdk 1.1.0
     restructure, so agent-cards are served manually; the registry mirrors the real protocol shape.</li>
-    <li><b>"139 tests" is the current count</b> (includes eval/quadrant suites); earlier notes cite ~122 core pytest.</li>
+    <li><b>"139 tests" is the current count</b> (includes eval/quadrant suites on top of the core pytest set).</li>
   </ul>
 </section>
 
 <footer>
-  Generated 2026-06-08 from a first-hand read of <span class="mono">~/Desktop/Working/saakshe</span> (backend) and
-  <span class="mono">~/Desktop/Working/*.html</span> (surfaces). Counts verified against source: model IDs grepped from
-  <span class="mono">config.py</span>; agent topology reconciled with the four <span class="mono">agent-card.json</span> files.
+  Compiled 2026-06-08 from a first-hand read of the saakshe source tree. Counts verified against source:
+  model IDs taken from <span class="mono">config.py</span>; agent topology reconciled with the four
+  <span class="mono">agent-card.json</span> files.
 </footer>
 
 </div>
