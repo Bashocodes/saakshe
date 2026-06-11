@@ -25,7 +25,7 @@ from typing import Any, Optional
 from uuid import uuid4
 
 import common  # noqa: F401  (bootstraps arivu onto sys.path)
-from common import a2a, config, project
+from common import a2a, config, project, taste
 from common.stream import STREAM, EventStream
 
 import manas.runner as manas
@@ -189,6 +189,7 @@ async def _start(question, org, stream, store, user_id="", spend_idem_key="", ch
         state.step = "rolled_back"
         stream.emit(run_id, "arivu", "gate", "no safe decision — verdict did not survive prosecution",
                     span="invocation", kind="note")
+        _ask_founder(taste.no_safe_path(run_id, q), store, stream, run_id)
         _persist_run(state)
         return _summary(state, stream)
 
@@ -203,11 +204,25 @@ async def _start(question, org, stream, store, user_id="", spend_idem_key="", ch
     )
     stream.gate(run_id, "arivu", "Prosecutor", gate.gate_id, gate.proposal,
                 gate_kind="decision", reversible=True, defensibility=defens, confidence=conf)
+    _ask_founder(taste.close_call(run_id, q, state.verdict, defens), store, stream, run_id)
     state.open_gate = gate.as_dict()
     state.status = "awaiting_approval"
     state.step = "gate1"
     _persist_run(state)
     return _summary(state, stream)
+
+
+def _ask_founder(questions: list[a2a.ClarifyingQuestion], store, stream: EventStream, run_id: str) -> None:
+    """Lift the chamber's founder-taste asks onto the questions surface, signed by
+    the asking agent. Never a gate, never blocking — the founder answers through
+    the same chat the doubts ride, whenever they like."""
+    for q in questions:
+        try:
+            store.add_question(q)
+            stream.emit(run_id, "arivu", q.asked_by.split("·")[-1].strip() or "Verdict Chair",
+                        f"question for the founder — {q.text}", span="invocation", kind="note")
+        except Exception:  # noqa: BLE001 — asking must never sink the run
+            pass
 
 
 # ─── approve: advance the flywheel one tap ───────────────────────────────────

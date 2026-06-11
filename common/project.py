@@ -321,10 +321,25 @@ class ProjectStore:
             for qid, q in answered.items():
                 if not any(m.id == qid for m in merged):
                     merged.append(q)
+            # founder-taste questions are raised by the chamber, not by ingest —
+            # a manas re-detection must never drop one that's still open
+            for q in self.questions:
+                if (q.trigger == "founder_taste" and q.status == "open"
+                        and not any(m.id == q.id for m in merged)):
+                    merged.append(q)
             self.questions = merged
             # Only a contradiction blocks grounding; missing-field doubts are enrichment.
             if self.blocking_questions() and self.ingest_status in (INGESTING, CONNECTING, GROUNDED):
                 self.ingest_status = NEEDS_ANSWERS
+        self._save()
+
+    def add_question(self, question: a2a.ClarifyingQuestion) -> None:
+        """Append a single question (the chamber's founder-taste asks ride this;
+        ingest re-detection uses set_questions). Idempotent on id."""
+        with self._lock:
+            if any(q.id == question.id for q in self.questions):
+                return
+            self.questions.append(question)
         self._save()
 
     def open_questions(self) -> list[a2a.ClarifyingQuestion]:

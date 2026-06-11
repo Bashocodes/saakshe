@@ -229,3 +229,20 @@ MAX_FIDELITY_ROUNDS = _int("SAAKSHE_MAX_FIDELITY_ROUNDS", 3)
 # manas curator verify loop:
 GROUNDING_THRESHOLD = _num("SAAKSHE_GROUNDING_THRESHOLD", 0.80)
 MAX_CURATE_ROUNDS = _int("SAAKSHE_MAX_CURATE_ROUNDS", 3)
+# arivu founder-taste asks: a verdict that survives prosecution but lands below
+# the comfort bar is close enough that the FOUNDER's taste decides — the chamber
+# asks instead of pretending certainty.
+TASTE_COMFORT = _num("SAAKSHE_TASTE_COMFORT", 0.90)
+
+
+def taste_questions_enabled() -> bool:
+    """Whether the chamber raises founder-taste questions alongside its gate.
+
+    Default ON in live (the always-asking company), OFF in creds-free demo/CI so
+    the scripted day stays byte-identical. SAAKSHE_TASTE_QUESTIONS=1/0 overrides."""
+    v = os.environ.get("SAAKSHE_TASTE_QUESTIONS", "").strip().lower()
+    if v in ("1", "true", "on", "yes"):
+        return True
+    if v in ("0", "false", "off", "no"):
+        return False
+    return is_live()

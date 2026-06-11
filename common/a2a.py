@@ -136,12 +136,14 @@ class ClarifyingQuestion:
     answer: str = ""                # the founder's answer (folded back into corpus)
     options: list[str] = field(default_factory=list)  # for a contradiction: the candidate values
     sources: list[str] = field(default_factory=list)  # provenance of the clashing/missing evidence
+    asked_by: str = ""              # the agent signing the question (e.g. "arivu · Verdict Chair")
 
     def as_dict(self) -> dict:
         return {
             "id": self.id, "text": self.text, "why": self.why, "trigger": self.trigger,
             "blocks": self.blocks, "status": self.status, "answer": self.answer,
             "options": list(self.options), "sources": list(self.sources),
+            "asked_by": self.asked_by,
         }
 
 
