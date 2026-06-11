@@ -137,6 +137,20 @@ html[data-theme="dark"] .botlogo .skbot{border-width:2px;box-shadow:none}
 .botlogo .skbot .skeye{animation:skcurious 6.4s ease-in-out infinite;transform-origin:50% 100%}
 @keyframes skcurious{0%,18%{transform:translateX(0) scaleY(1)}26%,42%{transform:translateX(-21%) scaleY(1)}46%{transform:translateX(0) scaleY(.1)}50%,66%{transform:translateX(21%) scaleY(1)}74%,100%{transform:translateX(0) scaleY(1)}}
 @media(prefers-reduced-motion:reduce){.botlogo .skbot .skeye{animation:none}}
+/* once a day the nav logo wakes as the BOX: full SΛΛKSHE badge → swallowed into the bot */
+.botlogo .skbot{position:relative;overflow:hidden}
+.botlogo .skwd{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-family:'Syncopate',var(--word);font-weight:900;font-size:13px;letter-spacing:.295em;
+  text-indent:.295em;color:#F4EEE2;white-space:nowrap;opacity:0;pointer-events:none}
+html[data-theme="dark"] .botlogo .skwd{color:#D4F5DE}
+.botlogo.wake .skbot{animation:skboxwake 1.45s cubic-bezier(.6,.05,.3,1) .5s both}
+.botlogo.wake .skwd{animation:skwdwake 1.45s cubic-bezier(.6,.05,.3,1) .5s both}
+.botlogo.wake .skbot .skeye{animation:skpartin 1.45s cubic-bezier(.6,.05,.3,1) .5s both,skcurious 6.4s ease-in-out 2.2s infinite}
+.botlogo.wake .skbot .skmouth{animation:skpartin 1.45s cubic-bezier(.6,.05,.3,1) .5s both}
+@keyframes skboxwake{0%,28%{width:168px;border-radius:10px}100%{width:46px;border-radius:13px}}
+@keyframes skwdwake{0%,34%{opacity:1}72%,100%{opacity:0}}
+@keyframes skpartin{0%,58%{opacity:0}88%,100%{opacity:1}}
+@media(prefers-reduced-motion:reduce){.botlogo.wake .skbot,.botlogo.wake .skwd,.botlogo.wake .skbot .skeye,.botlogo.wake .skbot .skmouth{animation:none}}
 
 /* topbar + toggle */
 .bar{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
@@ -365,7 +379,7 @@ a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var
   <!-- ═══ TOPBAR: logo → home + theme toggle ═══ -->
   <div class="bar">
     <a class="botlogo" href="/" aria-label="saakshe home">
-      <span class="skbot" aria-hidden="true"><span class="skeye L"></span><span class="skeye R"></span><span class="skmouth"></span></span>
+      <span class="skbot" aria-hidden="true"><span class="skwd">SΛΛKSHE</span><span class="skeye L"></span><span class="skeye R"></span><span class="skmouth"></span></span>
     </a>
     <div class="toggle" role="group" aria-label="Theme">
       <button id="tg-light" type="button" aria-pressed="true"><span class="dot"></span>Brut</button>
@@ -513,6 +527,19 @@ a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var
   } else {
     revealAll();
   }
+})();
+</script>
+<script>
+/* the box wake — once a day, the badge contracts into the bot */
+(function(){
+  try{
+    var k='sk-boxwake-day', d=new Date().toISOString().slice(0,10);
+    if(localStorage.getItem(k)!==d){
+      localStorage.setItem(k,d);
+      var b=document.querySelector('.botlogo');
+      if(b) b.classList.add('wake');
+    }
+  }catch(e){}
 })();
 </script>
 </body>

@@ -52,7 +52,7 @@
 :root{
   --hair: 1px;
   --ease: cubic-bezier(.22,.61,.36,1);
-  --topbar: 52px;
+  --topbar: 58px;
   --sb: 200px;
   --sb-rail: 56px;
   --rail: 380px;
@@ -236,6 +236,19 @@ html[data-bot="joy"] .skbot .skeye.R{ animation-delay:.07s; }
 @keyframes skcurious{ 0%,18%{ transform:translateX(0) scaleY(1); } 26%,42%{ transform:translateX(-21%) scaleY(1); }
   46%{ transform:translateX(0) scaleY(.1); } 50%,66%{ transform:translateX(21%) scaleY(1); }
   74%,100%{ transform:translateX(0) scaleY(1); } }
+/* once a day the logo wakes as the BOX: full SΛΛKSHE badge → swallowed into the bot */
+.tb-brand .skbot{ position:relative; overflow:hidden; }
+.tb-brand .skwd{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+  font-family:var(--word); font-weight:900; font-size:11.5px; letter-spacing:.295em; text-indent:.295em;
+  color:var(--bot-eye,#F4EEE2); white-space:nowrap; opacity:0; pointer-events:none; }
+.tb-brand.wake .skbot{ animation:tbboxwake 1.45s cubic-bezier(.6,.05,.3,1) .5s both; }
+.tb-brand.wake .skwd{ animation:tbwdwake 1.45s cubic-bezier(.6,.05,.3,1) .5s both; }
+.tb-brand.wake .skbot .skeye{ animation:tbpartin 1.45s cubic-bezier(.6,.05,.3,1) .5s both, skcurious 6.4s ease-in-out 2.2s infinite; }
+.tb-brand.wake .skbot .skmouth{ animation:tbpartin 1.45s cubic-bezier(.6,.05,.3,1) .5s both; }
+@keyframes tbboxwake{ 0%,28%{ width:150px; border-radius:9px; } 100%{ width:40px; border-radius:11px; } }
+@keyframes tbwdwake{ 0%,34%{ opacity:1; } 72%,100%{ opacity:0; } }
+@keyframes tbpartin{ 0%,58%{ opacity:0; } 88%,100%{ opacity:1; } }
+@media (prefers-reduced-motion: reduce){ .tb-brand.wake .skbot,.tb-brand.wake .skwd{ animation:none; } }
 
 /* signal text */
 .t-red{ color:var(--sig-red); } .t-green{ color:var(--sig-green); }
@@ -1370,7 +1383,7 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
 
   <!-- ============================== TOPBAR ============================== -->
   <header class="topbar">
-    <div class="tb-brand"><a class="tb-logo" href="/" aria-label="saakshe home"><span class="skbot" aria-hidden="true"><span class="skeye L"></span><span class="skeye R"></span><span class="skmouth"></span></span></a></div>
+    <div class="tb-brand"><a class="tb-logo" href="/" aria-label="saakshe home"><span class="skbot" aria-hidden="true"><span class="skwd">SΛΛKSHE</span><span class="skeye L"></span><span class="skeye R"></span><span class="skmouth"></span></span></a></div>
     <div class="tb-spacer"></div>
     <div class="pills">
       <button class="pill" id="pillConnect" data-tip="connect a project — sources are granted over setu" type="button" onclick="window.cockpitOpenGate&&cockpitOpenGate()"><svg class="ic"><use href="#i-database"/></svg><span>connect</span></button>
@@ -4215,5 +4228,18 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
 </script>
 <div id="sa-chatpane"></div>
 <script src="chat-panel.js"></script>
+<script>
+/* the box wake — once a day, the badge contracts into the bot */
+(function(){
+  try{
+    var k='sk-boxwake-day', d=new Date().toISOString().slice(0,10);
+    if(localStorage.getItem(k)!==d){
+      localStorage.setItem(k,d);
+      var b=document.querySelector('.tb-brand');
+      if(b) b.classList.add('wake');
+    }
+  }catch(e){}
+})();
+</script>
 </body>
 </html>
