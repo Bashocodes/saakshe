@@ -1,0 +1,23 @@
+# Cached container build for saakshe — repeat deploys reuse the apt(git+ffmpeg)
+# and pip layers because the Dockerfile is cache-ordered (deps install before
+# COPY . .). A code-only change rebuilds in roughly a minute instead of seven;
+# only a requirements.txt or Dockerfile change pays the full price again.
+steps:
+  # Warm the layer cache from the last successful build (first run: no image yet, fine).
+  - name: gcr.io/cloud-builders/docker
+    entrypoint: bash
+    args: ["-c", "docker pull ${_IMAGE}:latest || true"]
+  - name: gcr.io/cloud-builders/docker
+    args: ["build",
+           "--cache-from", "${_IMAGE}:latest",
+           "-t", "${_IMAGE}:${_TAG}",
+           "-t", "${_IMAGE}:latest",
+           "."]
+images:
+  - "${_IMAGE}:${_TAG}"
+  - "${_IMAGE}:latest"
+substitutions:
+  _IMAGE: ""
+  _TAG: "latest"
+options:
+  logging: CLOUD_LOGGING_ONLY

@@ -1,0 +1,21 @@
+# What `gcloud builds submit` uploads — keep the build context lean (mirrors
+# .dockerignore, plus repo-only noise). deploy/seed/ stays: the Dockerfile bakes it.
+.git/
+.venv/
+.claude/
+__pycache__/
+**/__pycache__/
+*.pyc
+.pytest_cache/
+**/.pytest_cache/
+.env
+.env.local
+.DS_Store
+*.log
+tests/
+**/tests/
+**/eval/
+deployment/
+**/deployment/
+docs/
+arivu/arivu_live.html

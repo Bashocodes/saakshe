@@ -104,17 +104,52 @@ done
 
 echo "→ profile: $PROFILE"
 
-echo "→ enabling APIs (Run · Build · Artifact Registry · Vertex)…"
-gcloud services enable run.googleapis.com cloudbuild.googleapis.com \
-  artifactregistry.googleapis.com aiplatform.googleapis.com --project "$PROJECT"
+# ── one-time project setup, OFF the hot path (≈30s of ceremony every deploy) ──
+# Run once per project with SAAKSHE_DEPLOY_BOOTSTRAP=1; every later deploy skips it.
+if [ -n "${SAAKSHE_DEPLOY_BOOTSTRAP:-}" ]; then
+  echo "→ bootstrap: enabling APIs (Run · Build · Artifact Registry · Vertex)…"
+  gcloud services enable run.googleapis.com cloudbuild.googleapis.com \
+    artifactregistry.googleapis.com aiplatform.googleapis.com --project "$PROJECT"
+  echo "→ bootstrap: granting the compute SA its roles (Vertex runtime + Cloud Build)…"
+  PN=$(gcloud projects describe "$PROJECT" --format="value(projectNumber)")
+  SA="${PN}-compute@developer.gserviceaccount.com"
+  for ROLE in roles/aiplatform.user roles/cloudbuild.builds.builder; do
+    gcloud projects add-iam-policy-binding "$PROJECT" \
+      --member="serviceAccount:${SA}" --role="$ROLE" --condition=None >/dev/null
+  done
+fi
 
-echo "→ granting the compute SA the roles it needs (Vertex at runtime + Cloud Build at deploy)…"
-PN=$(gcloud projects describe "$PROJECT" --format="value(projectNumber)")
-SA="${PN}-compute@developer.gserviceaccount.com"
-for ROLE in roles/aiplatform.user roles/cloudbuild.builds.builder; do
-  gcloud projects add-iam-policy-binding "$PROJECT" \
-    --member="serviceAccount:${SA}" --role="$ROLE" --condition=None >/dev/null
-done
+# ── the cached image build (the actual speed-up) ──────────────────────────────
+# Build via cloudbuild.yaml with --cache-from the previous image, then deploy by
+# image ref. Repeat deploys reuse the apt/pip layers: ~1 min instead of ~7.
+# Escape hatch: SAAKSHE_DEPLOY_SOURCE=1 restores the old --source path.
+AR_REPO="${AR_REPO:-saakshe}"
+IMAGE="${REGION}-docker.pkg.dev/${PROJECT}/${AR_REPO}/app"
+TAG="$(git rev-parse --short HEAD 2>/dev/null || date +%s)"
+
+if [ -z "${SAAKSHE_DEPLOY_SOURCE:-}" ]; then
+  # The AR repo is auto-created when missing (cheap describe; no bootstrap needed).
+  gcloud artifacts repositories describe "$AR_REPO" --location "$REGION" \
+    --project "$PROJECT" >/dev/null 2>&1 || \
+    gcloud artifacts repositories create "$AR_REPO" --repository-format=docker \
+      --location "$REGION" --project "$PROJECT" \
+      --description "saakshe service images (cached deploys)"
+  echo "→ building ${IMAGE}:${TAG} (layer cache from :latest)…"
+  gcloud builds submit --config cloudbuild.yaml \
+    --substitutions "_IMAGE=${IMAGE},_TAG=${TAG}" \
+    --project "$PROJECT" --quiet .
+fi
+
+if [ -z "${SAAKSHE_DEPLOY_SOURCE:-}" ]; then
+  echo "→ deploying $SERVICE to Cloud Run ($REGION) from ${IMAGE}:${TAG}…"
+  gcloud run deploy "$SERVICE" --quiet \
+    --image "${IMAGE}:${TAG}" --region "$REGION" --allow-unauthenticated \
+    --memory 2Gi --cpu 2 --timeout 300 --max-instances 1 --min-instances 1 --project "$PROJECT" \
+    --set-env-vars "$ENV_VARS"
+  echo "→ live at:"
+  gcloud run services describe "$SERVICE" --region "$REGION" --project "$PROJECT" --format="value(status.url)"
+  exit 0
+fi
 
 echo "→ deploying $SERVICE to Cloud Run ($REGION) — Cloud Build runs server-side…"
 # NOTE: --allow-unauthenticated needs allUsers run.invoker, which the aikizi.com

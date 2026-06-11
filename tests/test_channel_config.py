@@ -36,3 +36,20 @@ def test_startup_registers_webhook_client_when_configured(monkeypatch):
     monkeypatch.setattr(channels, "_channel_call", None)
     channels.set_channel_client(fn)
     assert channels.has_channel_client()
+
+
+# ─── the fast deploy: cached image path is the default ────────────────────────
+def test_deploy_uses_cached_image_path_by_default():
+    """Repeat deploys build via cloudbuild.yaml with --cache-from and deploy by
+    image ref; --source is the explicit escape hatch (SAAKSHE_DEPLOY_SOURCE=1)."""
+    assert "cloudbuild.yaml" in SCRIPT
+    assert "--image" in SCRIPT
+    assert "SAAKSHE_DEPLOY_SOURCE" in SCRIPT          # the fallback stays reachable
+    assert "SAAKSHE_DEPLOY_BOOTSTRAP" in SCRIPT       # API/IAM ceremony off the hot path
+
+
+def test_cloudbuild_caches_from_latest():
+    from pathlib import Path
+
+    cb = (Path(__file__).parents[1] / "cloudbuild.yaml").read_text()
+    assert "--cache-from" in cb and "${_IMAGE}:latest" in cb
