@@ -44,6 +44,7 @@ from common.stream import STREAM
 from common.supastream import SupabaseEventStream
 import orchestrator
 import manas.runner as manas_runner
+import manas.sources as manas_sources
 from kalai import media_crew, media_pipeline
 from service import presenter
 from witness import agent as witness
@@ -482,6 +483,33 @@ def connect_source(req: ConnectRequest, sess: Session = Depends(_session_dep)) -
             meta["token"] = req.token
     conn = sess.store.add_connection(kind, req.ref.strip(), meta)
     return _redact_secrets({"ok": True, "connection": conn.as_dict(), "status": sess.store.status_dict()})
+
+
+class ProbeRequest(BaseModel):
+    ref: str
+
+
+_PROBE_HINTS = {
+    "public": "public — manas reads it anonymously, zero setup",
+    "private": "private (or not found) — paste a fine-grained token "
+               "(read-only Contents), or run saakshe locally over your git SSH",
+    "ssh": "an ssh ref — works where your key lives (a local run); "
+           "in the cloud paste a token instead",
+    "unknown": "can't read that ref — use owner/repo or a full https URL",
+}
+
+
+@app.post("/api/connect/probe")
+def connect_probe(req: ProbeRequest, sess: Session = Depends(_session_dep)) -> dict[str, Any]:
+    """The gate's pre-grant visibility check: tell the founder NOW whether a repo
+    reads anonymously (public/open-source), needs a token (private), or needs a
+    local SSH run — instead of failing later inside a chargeable imbibe. Sealed
+    like its mutating siblings so the shared demo never becomes a probe proxy."""
+    _require_not_public_demo(sess.user)
+    _require_auth_if_live(sess.user)
+    verdict = manas_sources.probe_repo_visibility(req.ref)
+    visibility = verdict.get("visibility", "unknown")
+    return {"ok": True, "visibility": visibility, "hint": _PROBE_HINTS[visibility]}
 
 
 class IngestRequest(BaseModel):

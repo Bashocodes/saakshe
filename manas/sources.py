@@ -69,8 +69,14 @@ def normalize_repo_ref(ref: str, *, mechanism: str = "ssh", token: Optional[str]
     """Turn 'owner/repo', a github URL, or an ssh ref into a clone URL for the
     chosen mechanism."""
     ref = (ref or "").strip()
-    # Already a full clone URL?
-    if ref.startswith(("git@", "ssh://", "https://", "http://")):
+    # An ssh ref carries its own credential (the key) — never rewrite it.
+    if ref.startswith(("git@", "ssh://")):
+        return ref
+    # A full https URL: clone as pasted, but a PAT must ride along — the
+    # founder's natural input for a private repo IS the browser URL.
+    if ref.startswith(("https://", "http://")):
+        if mechanism == "pat" and token:
+            return re.sub(r"^https?://", f"https://x-access-token:{token}@", ref, count=1)
         return ref
     m = re.match(r"^(?:github\.com[:/])?([\w.-]+)/([\w.-]+?)(?:\.git)?$", ref)
     owner_repo = f"{m.group(1)}/{m.group(2)}" if m else ref
@@ -79,6 +85,40 @@ def normalize_repo_ref(ref: str, *, mechanism: str = "ssh", token: Optional[str]
     if mechanism == "public":
         return f"https://github.com/{owner_repo}.git"
     return f"git@github.com:{owner_repo}.git"
+
+
+def probe_repo_visibility(ref: str, *, timeout: int = 10) -> dict:
+    """Anonymously classify a repo ref BEFORE it is granted: 'public' (a stranger
+    can clone it — any open-source repo, zero setup), 'private' (anonymous access
+    refused; GitHub deliberately answers private and nonexistent the same),
+    'ssh' (a git@/ssh:// ref — works where the founder's key lives, a local run),
+    or 'unknown' (unparseable). Two hard rules: the raw ref is never handed to
+    git (the URL is built here, https-only — no ext:: transports), and no
+    credential helper is consulted — the verdict is what a stranger sees."""
+    ref = (ref or "").strip()
+    if ref.startswith(("git@", "ssh://")):
+        return {"visibility": "ssh", "ref": ref}
+    url = ""
+    if " " not in ref:
+        if ref.startswith("https://"):
+            url = ref                      # probe exactly what the reader would clone
+        else:
+            m = re.match(r"^(?:github\.com[:/])?([\w.-]+)/([\w.-]+?)(?:\.git)?/?$", ref)
+            if m:
+                url = f"https://github.com/{m.group(1)}/{m.group(2)}.git"
+    if not url:
+        return {"visibility": "unknown", "ref": ref}
+    env = dict(os.environ, GIT_TERMINAL_PROMPT="0")
+    try:
+        subprocess.run(
+            ["git", "-c", "credential.helper=", "ls-remote", url, "HEAD"],
+            check=True, capture_output=True, text=True, timeout=timeout, env=env,
+        )
+        return {"visibility": "public", "ref": ref}
+    except subprocess.CalledProcessError:
+        return {"visibility": "private", "ref": ref}
+    except (subprocess.TimeoutExpired, OSError):
+        return {"visibility": "unknown", "ref": ref}
 
 
 class GitHubSource:

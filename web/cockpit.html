@@ -2886,9 +2886,14 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
       </div>
       <div class="cg-form">
         <label class="cg-field">
-          <span class="cg-lbl">GitHub repo</span>
-          <input id="cgGithub" type="text" autocomplete="off" placeholder="git@github.com:you/repo.git  or  owner/repo">
-          <span class="cg-help">uses your git SSH — reads private repos</span>
+          <span class="cg-lbl">Git repo</span>
+          <input id="cgGithub" type="text" autocomplete="off" placeholder="owner/repo  or  any https git URL">
+          <span class="cg-help" id="cgGhHelp">public/open-source — read anonymously, zero setup · private — paste a token below</span>
+        </label>
+        <label class="cg-field" id="cgTokenField" hidden>
+          <span class="cg-lbl">Access token <span class="cg-opt">private repos only</span></span>
+          <input id="cgToken" type="password" autocomplete="off" placeholder="github_pat_…  fine-grained · read-only Contents">
+          <span class="cg-help">held server-side for the read, never echoed back by any API</span>
         </label>
         <label class="cg-field">
           <span class="cg-lbl">Website URL</span>
@@ -3101,12 +3106,43 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
 
   /* ---- CONNECT step ---- */
   function connectHint(html){ var h=$("cgConnectHint"); h.innerHTML=html; h.hidden=false; }
+  /* pre-grant visibility probe — the field itself tells the founder which path
+     they're on: public reads anonymously, private reveals the token field, an
+     ssh ref is named as local-only. Debounced; the verdict line is the server's. */
+  var probeTimer=null, GH_HELP_DEFAULT=($("cgGhHelp")&&$("cgGhHelp").textContent)||"";
+  async function probeRepo(){
+    var help=$("cgGhHelp"), tokField=$("cgTokenField");
+    if(!help || base===null) return;
+    var gh=$("cgGithub").value.trim();
+    if(!gh){ help.textContent=GH_HELP_DEFAULT;
+      if(tokField && !($("cgToken").value.trim())) tokField.hidden=true; return; }
+    help.textContent="checking who can read it…";
+    try{
+      var r=await fetch(base+"/api/connect/probe",{method:"POST",headers:(window.SA_HEADERS||Object)({"content-type":"application/json"}),body:JSON.stringify({ref:gh})});
+      var j=await cgJson(r);
+      if(!j.ok){ help.textContent=(j.data&&(j.data.detail||j.data.error))||GH_HELP_DEFAULT; return; }
+      help.textContent=(j.data.visibility==="public"?"✓ ":"")+j.data.hint;
+      if(tokField) tokField.hidden=!(j.data.visibility==="private"||j.data.visibility==="ssh");
+    }catch(e){ help.textContent=GH_HELP_DEFAULT; }
+  }
+  (function(){ var ghIn=$("cgGithub"); if(!ghIn) return;
+    ghIn.addEventListener("input",function(){ clearTimeout(probeTimer); probeTimer=setTimeout(probeRepo,650); });
+    ghIn.addEventListener("blur",function(){ clearTimeout(probeTimer); probeRepo(); });
+  })();
   async function doConnect(){
     var gh=$("cgGithub").value.trim(), web=$("cgWebsite").value.trim(),
         docs=$("cgDocs").value.trim(), soc=$("cgSocial").value.trim();
     if(!gh && !web && !docs && !soc){ $("cgConnectStatus").textContent="add at least a repo or a website"; return; }
     var sources=[];
-    if(gh){ var mech = /^git@|^ssh:\/\//.test(gh) ? "ssh" : "public"; sources.push({kind:"github", ref:gh, mechanism:mech}); }
+    if(gh){
+      /* mechanism is the backend's call (pat when a token rides, public otherwise);
+         only an ssh ref is named explicitly — it carries its own credential */
+      var s0={kind:"github", ref:gh};
+      if(/^git@|^ssh:\/\//.test(gh)){ s0.mechanism="ssh"; }
+      var tok=($("cgToken")&&$("cgToken").value.trim())||"";
+      if(tok){ s0.token=tok; }
+      sources.push(s0);
+    }
     if(web) sources.push({kind:"website", ref:web, mechanism:"public"});
     if(docs) sources.push({kind:"docs", ref:docs});
     if(soc) sources.push({kind:"social", ref:soc});
