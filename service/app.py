@@ -37,6 +37,7 @@ from fastapi import (Depends, FastAPI, File, Form, HTTPException, Request,
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, Response
 from pydantic import BaseModel
+from starlette.websockets import WebSocketDisconnect
 
 import common  # noqa: F401 — bootstraps arivu onto sys.path
 from common import a2a, auth, config, credits, models, project
@@ -120,11 +121,13 @@ async def _security_headers(request: Request, call_next):
 @app.exception_handler(Exception)
 async def _json_error_handler(request: Request, exc: Exception) -> JSONResponse:
     """Never return a plain-text 500. A live model call can raise mid-flywheel;
-    the cockpit calls r.json(), so an unhandled exception MUST still be valid JSON."""
+    the cockpit calls r.json(), so an unhandled exception MUST still be valid JSON.
+    The traceback stays server-side — clients get a generic detail, never str(exc)
+    (exception text can leak paths, keys and SQL)."""
     print("saakshe error @", request.url.path, "\n", traceback.format_exc())
     return JSONResponse(
         status_code=500,
-        content={"error": type(exc).__name__, "detail": str(exc)[:600], "where": request.url.path},
+        content={"error": type(exc).__name__, "detail": "internal error", "where": request.url.path},
     )
 
 
@@ -1117,9 +1120,41 @@ def _voice_user(token: str):
                      is_owner=email.lower() in auth.owner_emails())
 
 
+class _AcceptedWS:
+    """Wraps an already-accepted WebSocket so witness_voice.handle_ws's own
+    accept() becomes a no-op (first-frame auth must accept early to read the
+    auth frame). Everything else delegates to the real socket."""
+
+    def __init__(self, ws: WebSocket) -> None:
+        self._ws = ws
+
+    async def accept(self, *args: Any, **kwargs: Any) -> None:
+        return None
+
+    def __getattr__(self, name: str) -> Any:
+        return getattr(self._ws, name)
+
+
 @app.websocket("/ws/voice")
 async def voice(websocket: WebSocket) -> None:
     token = websocket.query_params.get("token", "")
+    ws: Any = websocket
+    if not token and _require_signin():
+        # First-frame auth: browsers can't set WS headers, and a JWT in the
+        # query string leaks into access logs — so the gated prod accepts the
+        # socket, then expects {"type":"auth","token":...} as the opening
+        # frame. ?token= stays honoured above for back-compat, and the open
+        # demo (no gate) keeps today's accept-and-hello flow untouched.
+        await websocket.accept()
+        try:
+            frame = json.loads(await websocket.receive_text())
+        except WebSocketDisconnect:
+            return
+        except Exception:  # noqa: BLE001 — malformed opening frame = unauthenticated
+            frame = None
+        if isinstance(frame, dict) and frame.get("type") == "auth":
+            token = str(frame.get("token") or "")
+        ws = _AcceptedWS(websocket)
     try:
         user = _voice_user(token)
     except auth.AuthError:
@@ -1136,7 +1171,7 @@ async def voice(websocket: WebSocket) -> None:
         if payer is not None and turn_cost > 0:   # COST_VOICE_TURN=0 → free voice
             credits.spend(payer.user_id, turn_cost, "voice turn", "voice:" + uuid4().hex)
 
-    await witness_voice.handle_ws(websocket, bill_turn=bill_turn)
+    await witness_voice.handle_ws(ws, bill_turn=bill_turn)
 
 
 # ─── serve the site ───────────────────────────────────────────────────────────
@@ -1158,6 +1193,8 @@ def _serve_page(name: str) -> Any:
     ext = os.path.splitext(name)[1].lower()
     if ext in _ASSET_TYPES:
         asset = _WEB / name
+        if not asset.resolve().is_relative_to(_WEB.resolve()):  # belt-and-braces
+            raise HTTPException(status_code=404, detail="not found")
         if asset.exists():
             return FileResponse(asset, media_type=_ASSET_TYPES[ext],
                                 headers={"Cache-Control": "public, max-age=86400"})
@@ -1166,6 +1203,8 @@ def _serve_page(name: str) -> Any:
         name += ".html"
     _html_headers = {"Cache-Control": "no-cache"}
     page = _WEB / name
+    if not page.resolve().is_relative_to(_WEB.resolve()):  # belt-and-braces
+        raise HTTPException(status_code=404, detail="not found")
     if page.exists():
         return FileResponse(page, headers=_html_headers)
     if name == "cockpit.html" and _LEGACY_COCKPIT.exists():

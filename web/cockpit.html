@@ -752,39 +752,10 @@ html[data-bot="joy"] .skbot .skeye.R{ animation-delay:.07s; }
 .railpane{ flex:1 1 auto; min-height:0; display:none; flex-direction:column; }
 .railpane.on{ display:flex; }
 
-/* chat */
-.chatlog{ flex:1 1 auto; overflow-y:auto; padding:13px; display:flex; flex-direction:column; gap:10px; min-height:0; }
-.msg{ max-width:92%; }
-.msg .role{ font-family:var(--font-mono); font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-3); margin-bottom:3px; }
-.msg .bub{ border:var(--hair) solid var(--hairline); border-radius:var(--r6); padding:9px 11px; font-size:13px; line-height:1.5; }
-.msg.user{ align-self:flex-end; text-align:right; }
-.msg.user .bub{ background:var(--wash); }
-/* structured saakshe reply: lead line + fact pills + action chips */
-.msg.saksi .bub{ background:var(--plate); }
-.msg .lead{ font-size:13px; line-height:1.5; }
-.msg .fpills{ display:flex; gap:6px; flex-wrap:wrap; margin-top:9px; }
-.msg .fpill{ font-family:var(--font-body); font-size:11px; font-weight:600; color:var(--ink);
-  background:var(--wash); border:var(--hair) solid var(--hairline); border-radius:var(--radius-pill); padding:2px 9px; display:inline-flex; align-items:center; gap:5px; white-space:nowrap; }
-.msg .fpill .pdot{ width:6px;height:6px;border-radius:50%; flex:0 0 auto; }
-.msg .achips{ display:flex; gap:6px; flex-wrap:wrap; margin-top:9px; }
-.msg .achip{ font-family:var(--font-body); font-size:11.5px; font-weight:500; color:var(--ink);
-  background:var(--plate); border:var(--hair) solid var(--hairline); border-radius:var(--radius-pill); padding:5px 11px; cursor:pointer;
-  display:inline-flex; align-items:center; gap:6px; white-space:nowrap; text-align:left; }
-.msg .achip:hover{ border-color:var(--accent); }
-.msg .achip .ic{ width:13px; height:13px; color:var(--accent); }
-.msg .achip.go{ color:var(--sig-green); border-color:color-mix(in srgb,var(--sig-green) 45%,var(--hairline)); }
-.msg .achip.go .ic{ color:var(--sig-green); }
-.msg .achip.done{ color:var(--sig-green); cursor:default; opacity:.85; }
-.chips{ display:flex; gap:6px; flex-wrap:wrap; padding:9px 12px 0; flex:0 0 auto; border-top:var(--hair) solid var(--hairsoft); }
-.chip{ font-family:var(--font-body); font-size:11.5px; color:var(--ink); background:var(--plate); border:var(--hair) solid var(--hairline); border-radius:var(--radius-pill); padding:5px 11px; cursor:pointer; white-space:nowrap; }
-.chip:hover{ border-color:var(--accent); }
-.chatin{ flex:0 0 auto; padding:9px 12px; display:flex; gap:7px; align-items:center; }
-.chatin .mic{ background:transparent; border:var(--hair) solid var(--hairline); border-radius:var(--r); width:34px;height:34px; cursor:pointer; color:var(--muted); flex:0 0 auto; display:flex;align-items:center;justify-content:center; }
-.chatin .mic:hover{ border-color:var(--accent); color:var(--ink); }
-.chatin input{ flex:1; min-width:0; font-family:var(--font-body); font-size:13px; color:var(--ink); background:var(--page); border:var(--hair) solid var(--hairline); border-radius:var(--r); padding:8px 11px; }
-.chatin input:focus{ outline:none; border-color:var(--accent); }
-.chatin .send{ font-family:var(--font-body); font-size:12px; font-weight:600; color:var(--ink); background:var(--plate); border:var(--hair) solid var(--hairline); border-radius:var(--r); padding:8px 12px; cursor:pointer; flex:0 0 auto; }
-.chatin .send:hover{ border-color:var(--accent); }
+/* chat lives in the company chat panel (chat-panel.css). The one bare .msg rule
+   kept below intentionally reaches the panel's user bubbles (it has no
+   text-align of its own); everything else from the old in-rail chat is gone. */
+.msg.user{ text-align:right; }
 
 /* taps + today panes */
 .panepad{ padding:12px; overflow:hidden; flex:1 1 auto; min-height:0; display:flex; flex-direction:column; gap:11px; }
@@ -832,8 +803,6 @@ html[data-bot="joy"] .skbot .skeye.R{ animation-delay:.07s; }
   .topbar{ overflow-x:auto; overflow-y:hidden; -webkit-overflow-scrolling:touch; }
   .topbar > *{ flex:0 0 auto; }
   .tb-spacer{ flex:0 0 6px; }
-  /* home-bar clearance on the bottom chat input row */
-  .chatin{ padding-bottom:calc(9px + env(safe-area-inset-bottom)); }
 }
 @media (min-width:1900px){
   :root{ --rail:404px; }
@@ -898,46 +867,34 @@ html[data-theme="dark"] .constrip:hover, html[data-theme="dark"] .projhdr:hover{
 .conchip:focus-visible{ outline:none; box-shadow:0 0 0 2px var(--accent); }
 
 /* --- SECONDARY BUTTONS / CHIPS / NAV: visible 1px line, warm hover --- */
-.btn, .chip, .qbtn, .pill, .theme-toggle, .qp, .ovpill, .reimbibe .rbtn,
-.loop .step, .sb-toggle, .railhead .cx, .chatin .mic, .chatin .send,
+.btn, .qbtn, .pill, .theme-toggle, .qp, .ovpill, .reimbibe .rbtn,
+.loop .step, .sb-toggle, .railhead .cx,
 .seg, .badge, .seg button{
   border-color:var(--line);
 }
-.btn:hover, .reimbibe .rbtn:hover, .chip:hover, .pill:hover, .theme-toggle:hover,
-.sb-toggle:hover, .railhead .cx:hover, .chatin .mic:hover, .chatin .send:hover,
+.btn:hover, .reimbibe .rbtn:hover, .pill:hover, .theme-toggle:hover,
+.sb-toggle:hover, .railhead .cx:hover,
 .backchip:hover, .conline a:hover{
   border-color:var(--ink-3);
 }
 
-/* --- INPUTS --- */
-.chatin input{ background:var(--surface); border-color:var(--line); }
-.chatin input:focus{ outline:none; border-color:var(--accent);
-  box-shadow:0 0 0 2px color-mix(in srgb, var(--accent) 35%, transparent); }
-
 /* --- TAGS / PILLS / STATUS CHIPS: rgba-white wash, no border, pill radius --- */
-.pill, .qp, .ovpill, .badge, .msg .fpill, .loop .step{
+.pill, .qp, .ovpill, .badge, .loop .step{
   background:rgba(255,255,255,.6); border-color:transparent; border-radius:var(--radius-pill);
 }
 html[data-theme="dark"] .pill, html[data-theme="dark"] .qp,
 html[data-theme="dark"] .ovpill, html[data-theme="dark"] .badge,
-html[data-theme="dark"] .msg .fpill, html[data-theme="dark"] .loop .step{
+html[data-theme="dark"] .loop .step{
   background:rgba(255,255,255,.06);
 }
 .pill:hover, .qp:hover{ border-color:transparent; box-shadow:0 0 0 1.5px var(--line); }
 
-/* --- PRIMARY ACTIONS: the one sanctioned primary — Brut RED / Obsidian PHOSPHOR
-   (driven by --act/--on-act, same source of truth as .cg-primary and .lc-primary) --- */
-.chatin .send{ background:var(--act); color:var(--on-act); border-color:transparent; }
-.chatin .send:hover{ border-color:transparent; filter:brightness(1.06); }
 /* gate APPROVE = positive-confirm GREEN (--ok), not the forward-CTA red (--act) —
    approve is a sanction, not a danger; green reads correctly + matches .lc-approve */
 .gate .btn:not(.done), .panepad .gate .btn:not(.done){
   background:var(--ok); color:var(--on-act); border-color:transparent;
 }
 .gate .btn:not(.done):hover{ border-color:transparent; filter:brightness(1.06); box-shadow:none; }
-.msg .achip.go{ background:var(--act); color:var(--on-act); border-color:transparent; }
-.msg .achip.go .ic{ color:var(--on-act); }
-.msg .achip.go:hover{ border-color:transparent; filter:brightness(1.06); }
 /* dark: primary actions read by phosphor FILL, not glow (OBSIDIAN v2 flat) */
 
 /* --- NAV active: soft fill, no hairline outline --- */
@@ -1087,12 +1044,6 @@ html[data-theme="dark"] .sdoss .sdfoot{ border-top-color:var(--line); box-shadow
 .daystrip b{ color:var(--ink); font-weight:600; }
 .daystrip .sep{ color:var(--ink-3); }
 
-/* ---- CHAT provenance line (muted, between pills and chips) ---- */
-.msg .rprov{ font-family:var(--font-body); font-size:11px; color:var(--ink-3); margin-top:8px; line-height:1.4;
-  display:flex; align-items:flex-start; gap:5px; }
-.msg .rprov .ic{ width:12px; height:12px; color:var(--accent); margin-top:1px; flex:0 0 auto; }
-.msg .rprov .arr{ color:var(--accent); }
-
 /* ---- TAPS / TODAY rail enrichments ---- */
 .tapprov{ font-family:var(--font-body); font-size:10.5px; color:var(--ink-3); margin-top:6px; line-height:1.4; display:flex; align-items:flex-start; gap:5px; }
 .tapprov .ic{ width:12px;height:12px; color:var(--accent); margin-top:1px; flex:0 0 auto; }
@@ -1144,16 +1095,13 @@ html[data-theme="dark"] :is(.panel,.ovcard,.dcard,.constrip,.gate,.projhdr,
 }
 
 /* 2 ── interactive microcopy: mono UPPERCASE tracked (landing control idiom) */
-.btn, .chip, .qbtn, .pill, .qp, .ovpill, .badge, .backchip, .railtab,
-.seg button, .chatin .send, .reimbibe .rbtn, .loop .step, .theme-toggle,
-.msg .achip{
+.btn, .qbtn, .pill, .qp, .ovpill, .badge, .backchip, .railtab,
+.seg button, .reimbibe .rbtn, .loop .step, .theme-toggle{
   font-family:var(--font-mono); font-weight:600;
   letter-spacing:.07em; text-transform:uppercase;
 }
-.btn{ font-size:11.5px; } .chip, .qp, .msg .achip{ font-size:11px; }
+.btn{ font-size:11.5px; } .qp{ font-size:11px; }
 .pill, .ovpill, .badge, .reimbibe .rbtn, .loop .step{ font-size:10.5px; }
-.msg .fpill{ font-family:var(--font-mono); font-size:10.5px; font-weight:600;
-  background:var(--tint-green); border:1.2px solid color-mix(in srgb, var(--kural) 55%, var(--line)); }
 [data-tip]::after{ font-family:var(--font-mono); font-size:10px;
   letter-spacing:.05em; text-transform:uppercase; }
 
@@ -2591,227 +2539,20 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
     b.addEventListener('click', function(){ switchTab(b.getAttribute('data-tab')); });
   });
 
-  /* ================= SMART CHAT (structured renderer) =================
-     saakshe replies are STRUCTURED: a short lead line + fact pills + action chips
-     that DRIVE the router and share the ONE state (approve-from-chat flips the
-     gate everywhere). Same canonical content/numbers as the v1 chatScript
-     (kept verbatim in QDATA.chatScript for the noscript reading), tightened.
-     User bubbles stay plain. Action chips dispatch through go/switchTab/approveGate. */
-  var log=document.getElementById('chatlog');
-  var input=document.getElementById('chatInput');
-  var sendBtn=document.getElementById('chatSend');
-  var micBtn=document.getElementById('micBtn');
-
-  /* fact pill: {t:text, c:hue-or-signal} ; action chip: {l:label, a:act-id, ic:icon, go:bool} */
-  function fp(t,c){ return {t:t,c:c||null}; }
-  function ac(l,a,ic,go){ return {l:l,a:a,ic:ic||null,go:!!go}; }
-
-  /* held-reply question options — only when a real run raises one (empty by default) */
-  var _kq0 = Q.kural.questions[0];
-  var REPLY_OPTS = _kq0 ? { q:_kq0.q, A:_kq0.optionA, B:_kq0.optionB } : { q:'', A:'', B:'' };
-  function qansAct(opt){ return 'qans:'+REPLY_OPTS.q+'|'+opt; }
-
-  /* canonical structured replies — numbers identical to QDATA.chatScript.
-     prov (optional) renders as a muted .rprov line between pills and chips. */
-  /* EMPTY-STATE replies — no flywheel has run, no project is grounded, so saakshe
-     answers honestly and points you to connect + the live run. The real flywheel
-     runs through the ● live console (/api/saakshe/ask). No fabricated numbers. */
-  var R_WHY = {
-    lead:"No decision on the record yet — nothing has run. Ask a real decision (a question with a change, ending in \"?\") and arivu convenes five lenses, then seals a verdict — defensibility, confidence, any dissent — for your tap.",
-    pills:[ fp("no verdict yet","amber"), fp("five lenses standing by","arivu") ],
-    chips:[ ac("→ arivu","nav:arivu","seal") ]
-  };
-  var R_COST = {
-    lead:"No spend yet — nothing has run. Once you ask a decision, the work runs on your own keys — priced up front, refunded on failure; watch it land line-by-line in the live console.",
-    pills:[ fp("— no spend yet —","orange") ],
-    chips:[ ac("→ today tab","tab:today","ledger") ]
-  };
-  var R_MEMORY = {
-    lead:"Memory grounds the moment you connect. manas imbibes your granted sources over setu and commits a versioned Context Pack of cited facts — nothing invented. No project connected yet, so memory is empty.",
-    pills:[ fp("Context Pack v0","manas"), fp("8 buckets","manas") ],
-    chips:[ ac("open memory","nav:manas/memory","database"), ac("→ manas","nav:manas","database") ]
-  };
-  var R_BANNER = {
-    lead:"No make yet — kalai produces only when a verdict asks. It runs the brand-fidelity loop until the master looks like us, then hands it to kural for the publish gate.",
-    pills:[ fp("no make yet","amber"), fp("brand-fidelity loop","kalai") ],
-    chips:[ ac("→ kalai","nav:kalai","palette"), ac("the studio","nav:kalai/studio","spark") ]
-  };
-  var R_DISSENT = {
-    lead:"No verdict sealed yet, so no dissent to show. When arivu decides, any lens that disagrees stays on the record — the decision is never laundered clean.",
-    pills:[ fp("no verdict yet","amber"), fp("dissent goes on the record","arivu") ],
-    chips:[ ac("→ arivu","nav:arivu","seal") ]
-  };
-  var R_OUTREACH = {
-    lead:"No outreach yet — kural speaks only on an approved make, after your tap. kalai already cleared every word; kural carries that master untouched and never re-authors.",
-    pills:[ fp("no engage yet","amber"), fp("cleared-before-send","kural") ],
-    chips:[ ac("→ kural","nav:kural","handoff"), ac("the outreach surface","nav:kural/outreach","mail") ]
-  };
-  var R_CHANNELS = {
-    lead:"kural is the only mouth, but no channels are connected yet. Connect a handle over setu to grant scopes; until then nothing posts, and nothing leaves without your tap.",
-    pills:[ fp("no channels connected","faint"), fp("granted, never taken","kural") ],
-    chips:[ ac("channels × scopes","nav:kural/connections","social"), ac("→ kural","nav:kural","handoff") ]
-  };
-  var R_HELP = {
-    lead:"saakshe is the witness — you speak only to me, and three agents do the work: manas knows, kalai creates, kural engages. Connect a project over setu, then ask what's waiting, what today cost, or what's in memory.",
-    pills:[ fp("the witness","saksi"), fp("three agents","saksi") ],
-    chips:[ ac("manas knows","nav:manas","database"), ac("kalai creates","nav:kalai","palette"), ac("kural engages","nav:kural","handoff") ]
-  };
-
-  /* ---- state-aware replies (empty state until a real run) ---- */
-  function build_R_WAITING(){
-    return { lead:"Nothing waiting on you yet — no flywheel has run. Connect a project and ask a real decision; if an agent proposes a change, a gate lands in your queue for your tap.",
-      pills:[ fp("0 taps","green"), fp("no run yet","faint") ],
-      chips:[ ac("the day's activity","nav:activity","activity") ] };
-  }
-  function build_R_STATUS(){
-    return { lead:"Empty state — no project connected, no run. Connect a repo and your site over setu, let manas ground the company, then ask a real decision to start the flywheel.",
-      pills:[ fp("not connected","faint"), fp("Pack v0","manas") ],
-      chips:[ ac("the day's activity","nav:activity","activity") ] };
-  }
-  function build_R_REPLY(){
-    return { lead:"Nothing held — kural hasn't been asked to say anything yet. When a make is approved, the publish gate and any held reply land here for your tap.",
-      pills:[ fp("nothing held","faint"), fp("your tap holds the gate","kural") ],
-      chips:[ ac("open in kural","nav:kural","handoff") ] };
-  }
-  function build_R_QUESTIONS(){
-    var n=STATE.openQ;
-    var lead = n>0
-      ? n+" question"+(n===1?"":"s")+" "+(n===1?"is":"are")+" open from grounding — answering teaches: the answer commits with source: you."
-      : "No open questions yet. When imbibing or deciding hits a gap, I'll ask, and your answer commits with source: you.";
-    return { lead:lead, pills:[ fp((n>0?n+" open":"0 open"),(n>0?"red":"green")), fp("source: you","saksi") ],
-      chips:[ ac("the questions view","nav:questions","question") ] };
-  }
-  function build_R_FALLBACK(){
-    if(ORG.grounded) return {
-      lead:"I answer from the live stream for "+orgName()+" (Context Pack "+orgPack()+"). Try: anyone waiting on me? · what did today cost? · what's reversible? · what did manas learn?",
-      pills:[ fp("grounded · "+orgPack(),"green") ],
-      chips:[ ac("anyone waiting?","ask:anyone waiting on me?","hand"), ac("what did today cost?","ask:what did today cost?","database"), ac("what's reversible?","ask:what's reversible?","compass") ]
-    };
-    return {
-      lead:"No project connected yet, so I only know the empty state. Connect over setu and ask a real decision to begin — or try one of these:",
-      pills:[],
-      chips:[ ac("anyone waiting?","ask:anyone waiting on me?","hand"), ac("what's in memory?","ask:what's in memory?","database"), ac("what is saakshe?","ask:what is saakshe?","compass") ]
-    };
-  }
-
-  /* seed: one honest opening line. The connect gate appends the real open_questions
-     line via window.cockpitSeedChat(...) after the cockpit is revealed. */
-  var SEED = [
-    {who:"user", text:"what is saakshe?"},
-    {who:"saksi", r:R_HELP}
-  ];
-
-
-  function userBubble(text){
-    if(!log) return;
-    var w=document.createElement('div'); w.className='msg user';
-    w.innerHTML='<div class="role">you</div><div class="bub"></div>';
-    w.querySelector('.bub').textContent=text;
-    log.appendChild(w); log.scrollTop=log.scrollHeight;
-  }
-  var PHUE={manas:'var(--manas)',arivu:'var(--arivu)',kalai:'var(--kalai)',kural:'var(--kural)',saksi:'var(--saksi)',
-    amber:'var(--sig-amber)',green:'var(--sig-green)',red:'var(--sig-red)',orange:'var(--sig-orange)',faint:'var(--faint)'};
-  function saksiBubble(r){
-    if(!log) return;
-    var w=document.createElement('div'); w.className='msg saksi';
-    var pills = (r.pills&&r.pills.length) ? '<div class="fpills">'+r.pills.map(function(p){
-      var dot = p.c ? '<span class="pdot" style="background:'+(PHUE[p.c]||'var(--accent)')+'"></span>' : '';
-      return '<span class="fpill">'+dot+esc(p.t)+'</span>';
-    }).join('')+'</div>' : '';
-    var prov = r.prov ? '<div class="rprov">'+icon('arrowleft')+'<span>'+esc(r.prov)+'</span></div>' : '';
-    var chips = (r.chips&&r.chips.length) ? '<div class="achips">'+r.chips.map(function(c){
-      var i = c.ic ? icon(c.ic) : '';
-      return '<button class="achip'+(c.go?' go':'')+'" type="button" data-act="'+esc(c.a)+'">'+i+esc(c.l)+'</button>';
-    }).join('')+'</div>' : '';
-    w.innerHTML='<div class="role">saakshe</div><div class="bub"><div class="lead">'+esc(r.lead)+'</div>'+pills+prov+chips+'</div>';
-    log.appendChild(w); log.scrollTop=log.scrollHeight;
-    syncChatChips();
-  }
-  if(log){ SEED.forEach(function(s){ if(s.who==='user') userBubble(s.text); else saksiBubble(s.r); }); }
-
-  /* keyword respond — SPECIFIC before BROAD. Each ask: chip label carries its own trigger. */
-  function respond(q){
-    var s=(q||'').toLowerCase();
-    if(s.indexOf('help')!==-1 || s.indexOf('what is saakshe')!==-1 || s.indexOf("what's saakshe")!==-1) return R_HELP;
-    if(s.indexOf('memory')!==-1 || s.indexOf('pack')!==-1 || s.indexOf('imbibe')!==-1) return R_MEMORY;
-    if(s.indexOf('banner')!==-1 || s.indexOf('brand')!==-1 || s.indexOf('fidelity')!==-1 || s.indexOf('master')!==-1) return R_BANNER;
-    if(s.indexOf('dissent')!==-1 || s.indexOf('growth')!==-1 || s.indexOf('29')!==-1) return R_DISSENT;
-    if(s.indexOf('reporter')!==-1 || s.indexOf('reply')!==-1 || s.indexOf('held')!==-1) return build_R_REPLY();
-    if(s.indexOf('outreach')!==-1 || s.indexOf('cafe')!==-1 || s.indexOf('café')!==-1 || s.indexOf('wholesale')!==-1 || s.indexOf('meeting')!==-1) return R_OUTREACH;
-    if(s.indexOf('channel')!==-1 || s.indexOf('linkedin')!==-1 || s.indexOf('instagram')!==-1 || s.indexOf(' dm')!==-1 || s.indexOf('key')!==-1) return R_CHANNELS;
-    if(s.indexOf('question')!==-1 || s.indexOf('decide')!==-1) return build_R_QUESTIONS();
-    if(s.indexOf('waiting')!==-1) return build_R_WAITING();
-    if(s.indexOf('cost')!==-1) return R_COST;
-    if(s.indexOf('why')!==-1 || s.indexOf('verdict')!==-1 || s.indexOf('decision')!==-1 || s.indexOf('arivu')!==-1) return R_WHY;
-    if(s.indexOf('status')!==-1) return build_R_STATUS();
-    return build_R_FALLBACK();
-  }
-  /* the REAL witness first: same-origin /api/saakshe/ask (Gemini in live, the
-     deterministic router in demo). The keyword respond() above survives only as
-     the offline fallback for a file:// open or a dead backend. */
-  async function askBackend(v){
-    var r=await fetch('/api/saakshe/ask',{method:'POST',headers:(window.SA_HEADERS||Object)({'content-type':'application/json'}),
-      body:JSON.stringify({text:v, idem_key:'ask:'+Date.now()+':'+Math.random().toString(36).slice(2)})});
-    if(!r.ok){
-      /* an HTTP answer is an ANSWER — only a dead network falls back to the
-         canned responder. 401/402/429 must never read as fake telemetry. */
-      var body=null; try{ body=await r.json(); }catch(e){}
-      if(r.status===401) return {
-        lead:'Your session has expired — sign in again to keep asking.',
-        pills:[ fp('signed out','red') ], prov:'live · POST /api/saakshe/ask · 401',
-        chips:[ ac('sign in','auth:signin','key',true) ] };
-      if(r.status===402) return {
-        lead:'Out of credits — this ask needs more'+((body&&body.balance!=null)?(' (balance '+body.balance+')'):'')+'.',
-        pills:[ fp('out of credits','red') ], prov:'live · POST /api/saakshe/ask · 402',
-        chips:[ ac('see pricing','open:pricing','tag',true) ] };
-      if(r.status===429) return {
-        lead:'Rate limited — give it a few seconds, then ask again.',
-        pills:[ fp('429 — slow down','red') ], prov:'live · POST /api/saakshe/ask · 429' };
-      return {
-        lead:'The backend refused that ask — '+(((body&&(body.detail||body.error))||('HTTP '+r.status))),
-        pills:[ fp('HTTP '+r.status,'red') ], prov:'live · POST /api/saakshe/ask' };
-    }
-    var d=await r.json();
-    if(d.kind==='flywheel_started'){
-      var rid=(d.flywheel&&d.flywheel.run_id)||'run';
-      return { lead:(d.text||'Starting the day — arivu is deliberating. Tap 1 is the decision, tap 2 the publish.'),
-               pills:[ fp('flywheel · '+rid,'arivu'), fp('live backend','green') ],
-               prov:'live · POST /api/saakshe/ask',
-               chips:[ ac('open the live console','live:open','compass',true) ] };
-    }
-    var pills=[ fp('live backend','green') ];
-    if(d.refused) pills.unshift(fp('refused — beyond telemetry','red'));
-    else if(d.tool) pills.unshift(fp('tool: '+d.tool,'saksi'));
-    return { lead:(d.text||'(no reply)'), pills:pills, prov:'live · POST /api/saakshe/ask' };
-  }
+  /* ================= SMART CHAT routing =================
+     ONE chat (founder, 2026-06-10): asking lives in the company chat panel
+     (chat-panel.js · window.SK_CHAT). The old in-rail chat log, its markup and
+     the structured-bubble renderer are gone; submit/chipAct/syncChatChips
+     survive because cockpit surfaces (answerQuestion, approveGate, ask: chips)
+     still route through them. */
   function submit(v){
-    v=(v!==undefined?v:(input?input.value:'')).trim(); if(!v) return;
-    /* ONE chat (founder, 2026-06-10): asking lives in the company chat panel */
-    if(window.SK_CHAT){ SK_CHAT.open(); SK_CHAT.ask(v); return; }
-    if(!log || !input) return;
-    userBubble(v); input.value='';
-    if(window.SK_BOT) SK_BOT.think();
-    askBackend(v).then(function(r){ if(window.SK_BOT) SK_BOT.joy(); saksiBubble(r); })
-      .catch(function(){
-        if(window.SK_BOT) SK_BOT.idle();
-        var r=respond(v);
-        if(reduced){ saksiBubble(r); } else { setTimeout(function(){ saksiBubble(r); }, 320); }
-      });
+    v = String(v === undefined ? '' : v).trim(); if(!v) return;
+    if(window.SK_CHAT){ SK_CHAT.open(); SK_CHAT.ask(v); }
   }
-  /* reflect live state into already-rendered chat action chips (publish approved +
-     held-reply answered). Checks STATE so NEW bubbles render already-resolved correctly. */
-  function syncChatChips(){
-    if(!log) return;
-    Array.prototype.forEach.call(log.querySelectorAll('.achip[data-act="approve:publish"]'), function(b){
-      if(STATE.gates.publish && !b.classList.contains('done')){ b.classList.remove('go'); b.classList.add('done'); b.innerHTML=icon('check')+'published — live'; }
-    });
-    if(STATE.gates.reply){
-      Array.prototype.forEach.call(log.querySelectorAll('.achip[data-act^="qans:"]'), function(b){
-        if(!b.classList.contains('done')){ b.classList.add('done'); b.innerHTML=icon('check')+'reply answered'; }
-      });
-    }
-  }
-  /* action chip dispatch — shares the ONE state */
+  /* the rail chat log is gone — nothing to mirror into bubbles. Kept as a
+     no-op so the guarded answerQuestion/approveGate calls and chipAct stay valid. */
+  function syncChatChips(){}
+  /* action chip dispatch — shares the ONE state (ask: routes into the panel) */
   function chipAct(act){
     if(!act) return;
     if(act.indexOf('qans:')===0){ var pp=act.slice(5).split('|'); answerQuestion(pp[0], pp[1]); syncChatChips(); return; }
@@ -2826,15 +2567,6 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
     if(act==='auth:signin'){ if(window.SAAKSHE_AUTH) SAAKSHE_AUTH.signIn(); return; }
     if(act==='open:pricing'){ window.open('/pricing','_blank','noopener'); return; }
   }
-  if(log){ log.addEventListener('click', function(e){
-    var a=e.target.closest('.achip'); if(a && !a.classList.contains('done')){ chipAct(a.getAttribute('data-act')); }
-  }); }
-  if(sendBtn) sendBtn.addEventListener('click', function(){ submit(); });
-  if(input) input.addEventListener('keydown', function(e){ if(e.key==='Enter'){ submit(); } });
-  if(micBtn) micBtn.addEventListener('click', function(){ submit(); });
-  Array.prototype.forEach.call(document.querySelectorAll('.chips .chip'), function(c){
-    c.addEventListener('click', function(){ submit(c.getAttribute('data-chip')); });
-  });
 
   /* ================= KEYBOARD ================= */
   document.addEventListener('keydown', function(e){ if(e.key==='Escape' && STATE.sub){ back(); } });
@@ -2909,7 +2641,7 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
   };
   /* chat-panel action chips navigate the cockpit through this */
   window.cockpitGo = go;
-  /* req 5 — surface the real clarifying questions in the rail chat after reveal.
+  /* req 5 — surface the real clarifying questions in the chat panel after reveal.
      reveal() fires on EVERY load and the feed persists in sessionStorage, so the
      same question set must seed exactly once per session — and as a structured
      payload the panel formats (one row per question + a jump chip), never one
@@ -2925,7 +2657,9 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
       : 'your company';
     var lead = 'manas hit '+n+' gap'+(n===1?'':'s')+' while grounding '+who+' \u2014 each one blocks part of the memory. Answer on the Questions page, on the manas page, or in the connect panel.';
     /* ONE chat: the seed lands in the company chat panel (poll briefly — its
-       script loads after this one), falling back to the legacy bubble if absent */
+       script loads after this one). The legacy rail bubble is gone, so if the
+       panel never loads the seed is simply dropped (sessionStorage un-marks
+       nothing — same as before, where the bubble rendered into a null log). */
     (function toPanel(tries){
       if(window.SK_CHAT && SK_CHAT.questions){
         SK_CHAT.questions({ lead:lead,
@@ -2933,7 +2667,7 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
           cta:'OPEN THE QUESTIONS PAGE' });
         return;
       }
-      if(tries > 20){ saksiBubble({ lead:lead, pills:[], chips:[] }); return; }
+      if(tries > 20){ return; }
       setTimeout(function(){ toPanel(tries+1); }, 250);
     })(0);
   };
@@ -3239,7 +2973,7 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
   var HUE={saakshe:"var(--saksi)",manas:"var(--manas)",arivu:"var(--arivu)",kalai:"var(--kalai)",kural:"var(--kural)"};
   var base=null, runId=null, cursor=0, lastStatus=null, ingesting=false, feedPoll=null;
   var $=function(id){return document.getElementById(id);};
-  function esc(s){return String(s==null?"":s).replace(/[&<>]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;"}[c];});}
+  function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c];});}
 
   async function detectBase(){
     var cands=["", "http://localhost:8000", "http://localhost:8011"];
@@ -3969,7 +3703,7 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
     }
     return null;
   }
-  function esc(s){return String(s==null?"":s).replace(/[&<>]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;"}[c];});}
+  function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c];});}
   // Safe parse — the backend always returns JSON now, but if a proxy/old server
   // ever returns plain text, surface it instead of throwing 'Unexpected token'.
   async function lcJson(r){

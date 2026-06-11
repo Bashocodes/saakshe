@@ -882,7 +882,7 @@ html:not(.js) .viz .team .node .ndot{fill:var(--accent)}
   <section class="sec" id="problem">
     <div class="sec__big">01</div>
     <div class="sec__n reveal">The business problem · who it's for</div>
-    <h2 class="sec__t reveal">The Business Problem.</h2>
+    <h2 class="sec__t reveal">A loaded call, and no board to put it to.</h2>
     <p class="sec__lead reveal"><b>Sundara Coffee Co.</b> — a four-person DTC coffee brand — has to make a real strategic call this quarter: <b>"Should we raise our Pro subscription to $39?"</b> A real company would put this to a board, a fractional CFO, a growth lead, and a brand head, fight it out, pressure-test the downside, decide, and then make every team act on the decision in lockstep. Sundara has none of those people and can't afford a single one of those hires.</p>
     <p class="sec__lead reveal" style="margin-top:14px">So the call either gets made on a founder's gut at 1am — or, worse, never gets made, and the question rots. The gap isn't <i>"give me an opinion."</i> Any chatbot does that, badly, from model memory. The gap is the whole apparatus: independent expert lenses arguing from the company's <b>own live numbers</b>, a chair that reconciles them into one verdict, an adversary that tries to kill that verdict before it ships, a single human sign-off, and then real execution across every team — all on the record.</p>
 
@@ -1422,7 +1422,13 @@ html:not(.js) .viz .team .node .ndot{fill:var(--accent)}
   function schedule(){ if(!raf && vis) raf = requestAnimationFrame(frame); }
 
   readColors(); resize(); schedule();
-  window.addEventListener('resize', function(){ resize(); }, {passive:true});
+  // Debounced: mobile URL-bar show/hide fires resize storms — regenerating all
+  // particles on every event makes the field "pop". Settle ~150ms first.
+  var rsTimer = null;
+  window.addEventListener('resize', function(){
+    if(rsTimer) clearTimeout(rsTimer);
+    rsTimer = setTimeout(function(){ rsTimer = null; resize(); }, 150);
+  }, {passive:true});
   document.addEventListener('visibilitychange', function(){
     vis = !document.hidden; if(vis) schedule(); else if(raf){ cancelAnimationFrame(raf); raf=null; }
   });

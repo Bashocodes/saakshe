@@ -17,11 +17,11 @@
      faculty-tabs row, just above the ask box. Collapsed = just the bot, big. */
   pane.innerHTML =
     '<div class="ch-feed" id="sa-ch-feed" aria-live="polite"></div>' +
-    '<div class="ch-tabs" role="tablist" aria-label="filter by faculty">' +
-    '<button class="ch-tab on" type="button" data-q="saakshe" role="tab" aria-selected="true">saakshe</button>' +
-    '<button class="ch-tab" type="button" data-q="manas" role="tab" aria-selected="false"><span class="fdot"></span>manas</button>' +
-    '<button class="ch-tab" type="button" data-q="kalai" role="tab" aria-selected="false"><span class="fdot"></span>kalai</button>' +
-    '<button class="ch-tab" type="button" data-q="kural" role="tab" aria-selected="false"><span class="fdot"></span>kural</button>' +
+    '<div class="ch-tabs" role="group" aria-label="filter by faculty">' +
+    '<button class="ch-tab on" type="button" data-q="saakshe" aria-pressed="true">saakshe</button>' +
+    '<button class="ch-tab" type="button" data-q="manas" aria-pressed="false"><span class="fdot"></span>manas</button>' +
+    '<button class="ch-tab" type="button" data-q="kalai" aria-pressed="false"><span class="fdot"></span>kalai</button>' +
+    '<button class="ch-tab" type="button" data-q="kural" aria-pressed="false"><span class="fdot"></span>kural</button>' +
     '<span class="live" id="sa-ch-live"></span>' +
     '<button class="ch-collapse" id="sa-ch-clps" type="button" title="collapse the chat pane" aria-label="collapse chat">' +
     '<svg class="ic" aria-hidden="true"><use href="#i-handoff"/></svg></button></div>' +
@@ -81,17 +81,30 @@
   }
   feed.addEventListener('scroll', function () { if (nearBottom() && newBtn) { newBtn.remove(); newBtn = null; } });
 
-  /* ── feed persistence: a refresh must not amnesia the conversation ── */
-  function persist() {
+  /* ── feed persistence: a refresh must not amnesia the conversation ──
+     structured JSON (v2) re-rendered through msg() on restore — never raw
+     innerHTML re-injection. persist() is debounced (~1s trailing) because it
+     fires on every message AND every 1.5s poll tick. */
+  var log = [];
+  var persistTimer = null;
+  function persistNow() {
+    persistTimer = null;
     try {
-      var keep = feed.innerHTML;
+      var keep = JSON.stringify({ v: 2, items: log.slice(-200) });
       if (keep.length < 200000) sessionStorage.setItem('sk-chat-feed', keep);
     } catch (e) {}
   }
-  function msg(who, html, user) {
+  function persist() {
+    if (persistTimer) clearTimeout(persistTimer);
+    persistTimer = setTimeout(persistNow, 1000);
+  }
+  window.addEventListener('pagehide', persistNow);
+  function msg(who, html, user, stamp) {
     /* every non-user message wears the bot mark — the witness is the one talking */
+    var when = stamp || ts();
+    log.push({ who: String(who), html: String(html), user: !!user, ts: when });
     var m = el('<div class="msg' + (user ? ' user' : '') + '" data-fac="' + esc(facOf(who)) + '"><div class="who">' +
-               (user ? '' : BOT) + esc(who) + '<span class="ts">' + ts() + '</span></div><p>' + html + '</p></div>');
+               (user ? '' : BOT) + esc(who) + '<span class="ts">' + esc(when) + '</span></div><p>' + html + '</p></div>');
     applyFacFilter(m);
     feed.appendChild(m); down(); persist(); return m;
   }
@@ -226,7 +239,12 @@
     dot('busy');
     fetch('/api/kalai/media/file/' + state.job, { headers: hdrs({}) })
       .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.blob(); })
-      .then(function (bl) { dot(''); window.open(URL.createObjectURL(bl), '_blank', 'noopener'); })
+      .then(function (bl) {
+        dot('');
+        var u = URL.createObjectURL(bl);
+        window.open(u, '_blank', 'noopener');
+        setTimeout(function () { URL.revokeObjectURL(u); }, 60000);
+      })
       .catch(function () { dot('err'); msg('▲ KALAI', 'could not fetch the file — are you signed in?'); });
   }
 
@@ -387,7 +405,9 @@
   /* ── voice: /ws/voice — Gemini Live native-audio bridge ──
      demo mode: text frames through the same witness tools.
      live mode: mic PCM16@16k up (hex), PCM16@24k down, replies as messages.
-     The gated prod REQUIRES ?token=<jwt> — and answers 4401 when it's missing. */
+     The gated prod REQUIRES auth — the JWT rides the FIRST FRAME
+     ({type:'auth', token}) so it never lands in access logs via the query
+     string; the server answers 4401 when it's missing or bad. */
   var voice = { ws: null, on: false, mode: null, ctx: null, src: null, proc: null,
                 stream: null, playCtx: null, playAt: 0, sawHello: false };
 
@@ -428,10 +448,14 @@
     var proto = location.protocol === 'https:' ? 'wss://' : 'ws://';
     var A = window.SAAKSHE_AUTH;
     var tok = (A && A.token && A.token()) || '';
-    var ws = new WebSocket(proto + location.host + '/ws/voice' +
-                           (tok ? '?token=' + encodeURIComponent(tok) : ''));
+    var ws = new WebSocket(proto + location.host + '/ws/voice');
     voice.ws = ws; voice.on = true; voice.sawHello = false;
     micBtn.classList.add('loading');
+    ws.onopen = function () {
+      /* first-frame auth — the gated server awaits this before its hello;
+         the open demo just ignores it */
+      ws.send(JSON.stringify({ type: 'auth', token: tok }));
+    };
     ws.onmessage = function (ev) {
       var m = JSON.parse(ev.data);
       if (m.type === 'hello') {
@@ -520,9 +544,9 @@
   pane.querySelectorAll('.ch-tab').forEach(function (t) {
     t.onclick = function () {
       pane.querySelectorAll('.ch-tab').forEach(function (x) {
-        x.classList.remove('on'); x.setAttribute('aria-selected', 'false');
+        x.classList.remove('on'); x.setAttribute('aria-pressed', 'false');
       });
-      t.classList.add('on'); t.setAttribute('aria-selected', 'true');
+      t.classList.add('on'); t.setAttribute('aria-pressed', 'true');
       state.fac = t.dataset.q;
       feed.querySelectorAll('.msg').forEach(applyFacFilter);
       down(true);
@@ -583,15 +607,18 @@
     }
   };
 
-  /* ── first paint: restore the session's feed, or seed the witness greeting ── */
-  var restored = '';
-  try { restored = sessionStorage.getItem('sk-chat-feed') || ''; } catch (e) {}
-  if (restored) {
-    feed.innerHTML = restored;
-    /* dead chrome must not resurrect: an inert "new messages ↓" pill or a
-       typing row persisted mid-feed renders as stuck UI after a reload */
-    feed.querySelectorAll('.newmsgs,.typing').forEach(function (n) { n.remove(); });
-    feed.querySelectorAll('.msg').forEach(applyFacFilter);
+  /* ── first paint: restore the session's feed, or seed the witness greeting ──
+     stored shape is {v:2, items:[{who, html, user, ts}]} re-rendered through
+     msg(); anything else (the old raw-innerHTML format, garbage) is discarded */
+  var restored = null;
+  try { restored = JSON.parse(sessionStorage.getItem('sk-chat-feed') || 'null'); }
+  catch (e) { restored = null; }
+  if (restored && restored.v === 2 && Array.isArray(restored.items) && restored.items.length) {
+    restored.items.forEach(function (it) {
+      if (it && typeof it.html === 'string') {
+        msg(String(it.who || 'SΛΛKSHE'), it.html, !!it.user, String(it.ts || ''));
+      }
+    });
     down(true);
   } else {
     var g = msg('SΛΛKSHE · WITNESS',

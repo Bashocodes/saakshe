@@ -52,10 +52,25 @@ def test_valid_token_unlocks_the_seeded_demo(monkeypatch):
 
 
 def test_voice_ws_rejected_without_token(monkeypatch):
+    """First-frame auth: the gated server accepts, reads {"type":"auth",...}
+    as the opening frame, and closes 4401 when the token is missing/bad —
+    while a valid first-frame token unlocks the same socket (no ?token= in
+    access logs)."""
+    import json
+
     _gate_on(monkeypatch)
-    with pytest.raises(WebSocketDisconnect):
-        with client.websocket_connect("/ws/voice"):
-            pass
+    with pytest.raises(WebSocketDisconnect) as exc:
+        with client.websocket_connect("/ws/voice") as ws:
+            ws.send_text(json.dumps({"type": "auth", "token": ""}))
+            ws.receive_text()
+    assert exc.value.code == 4401
+
+    monkeypatch.setattr(auth, "verify_token",
+                        lambda tok: {"sub": "judge-1", "email": "judge@saakshe.com"})
+    with client.websocket_connect("/ws/voice") as ws:
+        ws.send_text(json.dumps({"type": "auth", "token": "judge-token"}))
+        hello = json.loads(ws.receive_text())
+        assert hello["type"] == "hello"
 
 
 def test_flag_off_is_todays_open_demo(monkeypatch):

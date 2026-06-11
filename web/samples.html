@@ -142,6 +142,9 @@ a.btn-ghost{color:var(--ink-2)} .btn-ghost:hover{color:var(--ink);background:var
 .siblings a:hover{color:var(--acc);border-color:var(--rule-2)}
 .siblings a.self{color:var(--acc);border-color:var(--acc-ring)}
 .footmeta{font-family:"Martian Mono",monospace;font-size:13px;letter-spacing:0.03em;color:var(--muted-s);line-height:1.8}
+.legal{font-family:"Martian Mono",monospace;font-size:13px;letter-spacing:0.06em;color:var(--muted-s);margin:0 0 24px}
+.legal a{color:var(--muted-s);text-decoration:none;border-bottom:1px solid var(--rule-2)}
+.legal a:hover{color:var(--acc)}
 /* keyboard focus */
 a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--arivu, #3551C8);outline-offset:2px}
 </style>
@@ -164,7 +167,7 @@ a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var
     <span class="sec-no">00 — receipts, not claims</span>
     <div class="sec-head">
       <h1>Products the company had never seen.</h1>
-      <p class="lead">Each product below was patched in over <a href="setu.html">setu</a> exactly the way a
+      <p class="lead">Each product below was patched in over <a href="/setu">setu</a> exactly the way a
       founder would — a public repo jack and a website jack, read-only. <span class="acc">manas</span>'s
       imbibers read the real sources with live Gemini, committed a versioned Context Pack where
       <strong>every line carries the file or URL it came from</strong>, and asked back what the sources
@@ -286,7 +289,7 @@ a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var
       then the rest of the company (arivu decides · kalai creates · kural engages) works only from that
       cited memory, behind your two gates.</p>
       <div class="flex">
-        <a class="btn" href="setu.html">how connection works →</a>
+        <a class="btn" href="/setu">how connection works →</a>
         <a class="btn-ghost btn" href="/">about saakshe</a>
       </div>
     </div>
@@ -299,13 +302,14 @@ a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var
   <div class="wrap">
     <p class="seam">knows → manas &nbsp;·&nbsp; decides → arivu &nbsp;·&nbsp; creates → kalai &nbsp;·&nbsp; engages → kural &nbsp;·&nbsp; witnesses → saakshe</p>
     <div class="siblings">
-      <a href="setu.html">setu</a>
-      <a href="manas.html">manas</a>
-      <a href="kalai.html">kalai</a>
-      <a href="kural.html">kural</a>
-      <a href="arivu.html">arivu — the chamber</a>
-      <a href="cockpit.html">cockpit</a>
+      <a href="/setu">setu</a>
+      <a href="/manas">manas</a>
+      <a href="/kalai">kalai</a>
+      <a href="/kural">kural</a>
+      <a href="/arivu">arivu — the chamber</a>
+      <a href="/cockpit">cockpit</a>
     </div>
+    <p class="legal"><a href="/privacy">Privacy</a> &nbsp;&middot;&nbsp; <a href="/terms">Terms</a> &nbsp;&middot;&nbsp; <a href="/pricing">Pricing</a> &nbsp;&middot;&nbsp; <a href="/faq">FAQ</a></p>
     <p class="footmeta">samples — three real ingestion captures, verbatim. Excalidraw Whiteboard · Cal.com · Plausible Analytics.<br>
     read-only sources · every fact cited · the questions are what manas actually asked &nbsp;·&nbsp;
     built on ADK &nbsp;·&nbsp; Gemini + Claude via Vertex AI.</p>

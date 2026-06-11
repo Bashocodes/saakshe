@@ -180,7 +180,6 @@
 
   /* ---- hero ---- */
   .hero{padding:90px 0 64px;}
-  .hero .deva-big{font-family:'Newsreader',serif;font-weight:500;font-size:clamp(2.2rem,7vw,4rem);color:var(--muted);line-height:1;will-change:transform;}
   .hero h1{font-family:'Newsreader',serif;font-weight:700;font-size:clamp(4rem,16vw,11rem);line-height:.86;letter-spacing:-.035em;margin:6px 0 0;}
   /* clip-reveal mask for the serif headline */
   .hero h1 .clip{display:inline-block;overflow:hidden;vertical-align:top;}
@@ -1073,32 +1072,6 @@
         });
       }, {threshold:0.6});
       nums.forEach(function(el){ nio.observe(el); });
-    }
-  }
-
-  // ---- Very subtle hero parallax on the kalai mark (transform only) ----
-  // Attached only AFTER the hero entrance finishes, so the inline transform
-  // never clobbers the .h-rise translateY entrance mid-animation.
-  if(!reduce){
-    var par = document.querySelector('[data-parallax]');
-    if(par){
-      var ticking = false;
-      function onScroll(){
-        if(ticking) return;
-        ticking = true;
-        requestAnimationFrame(function(){
-          var y = window.scrollY || window.pageYOffset || 0;
-          if(y < 700){ par.style.transform = 'translateY(' + (y * 0.06) + 'px)'; }
-          ticking = false;
-        });
-      }
-      // ~1.3s covers the longest hero entrance (delay + duration) before we take over transform.
-      // Drop the entrance transition first so parallax tracks scroll tightly (no 1s ease-drift on stop).
-      setTimeout(function(){
-        par.style.transition = 'none';
-        window.addEventListener('scroll', onScroll, {passive:true});
-        onScroll();
-      }, 1300);
     }
   }
 

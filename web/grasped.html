@@ -590,8 +590,13 @@ ul.b.tight li::before{top:15px;width:9px;height:9px}
 
   /* the gated deploy needs the founder's JWT — reuse the cockpit's persisted
      Supabase session straight from localStorage (no SDK on this page) */
-  function authHeaders(h){
+  function authHeaders(h, base){
     h = h || {};
+    // SECURITY: only attach the founder's JWT when the resolved backend base is
+    // same-origin (base === ''). The detectBase/live-pack probes also try
+    // localhost:8000/8791 fallbacks — those must go UNAUTHENTICATED so the token
+    // is never handed to whatever happens to be listening on a local port.
+    if(base !== '') return h;
     try{
       for(var i=0;i<localStorage.length;i++){
         var k = localStorage.key(i);
@@ -972,7 +977,7 @@ ul.b.tight li::before{top:15px;width:9px;height:9px}
     var to = setTimeout(function(){ ctrl.abort(); }, 17000);  // >= server's 15s Flash timeout
     fetch(baseUrl + '/api/profile/edit', {
       method:'POST',
-      headers:authHeaders({'Content-Type':'application/json'}),
+      headers:authHeaders({'Content-Type':'application/json'}, baseUrl),
       body: JSON.stringify(payload),
       signal: ctrl.signal
     }).then(function(r){
@@ -1121,7 +1126,7 @@ ul.b.tight li::before{top:15px;width:9px;height:9px}
       return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
     });
   }
-  function hdrs(){ return (window.__meAuthHeaders||function(h){return h||{};})({}); }
+  function hdrs(base){ return (window.__meAuthHeaders||function(h){return h||{};})({}, base); }
 
   /* a claim like "Decode-first — upload anything and get its DNA" carries its own
      editorial lead; bold it, exactly like the hand-set showcase bullets. */
@@ -1250,7 +1255,7 @@ ul.b.tight li::before{top:15px;width:9px;height:9px}
   function tryFetch(base, cb){
     var ctrl = new AbortController();
     var to = setTimeout(function(){ ctrl.abort(); }, 4000);
-    fetch(base+'/api/connect/grasped', {cache:'no-store', headers:hdrs(), signal:ctrl.signal})
+    fetch(base+'/api/connect/grasped', {cache:'no-store', headers:hdrs(base), signal:ctrl.signal})
       .then(function(r){ clearTimeout(to); return r.ok ? r.json() : null; })
       .then(function(d){ cb(d); })
       .catch(function(){ clearTimeout(to); cb(null); });

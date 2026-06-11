@@ -38,6 +38,9 @@ def test_chat_seed_is_structured_and_seeds_once():
     assert "nav.questions" in CHAT
 
 
-def test_restored_feed_drops_dead_chrome():
-    # the persisted feed used to re-inject an inert "new messages ↓" pill mid-feed
-    assert ".newmsgs,.typing" in CHAT
+def test_restored_feed_is_structured_not_raw_html():
+    # persistence is structured JSON re-rendered through msg() — dead chrome
+    # (the "new messages ↓" pill, the typing row) is never persisted at all,
+    # and the feed is never rebuilt via a raw innerHTML re-injection
+    assert "JSON.stringify({ v: 2" in CHAT
+    assert "feed.innerHTML = restored" not in CHAT
