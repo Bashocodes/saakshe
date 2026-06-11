@@ -3,7 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#F4EEE2" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0A0D0A" media="(prefers-color-scheme: dark)">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="canonical" href="https://saakshe.com/pricing">
 <title>saakshe &mdash; pricing &amp; credits</title>
 <meta name="description" content="saakshe pricing: start free with 100 credits. Every AI action spends credits; you're never charged for a run that fails. Indicative costs, tuned during launch.">
 <meta property="og:title" content="saakshe — pricing &amp; credits">
@@ -295,9 +298,9 @@ html[data-theme="dark"] .prose h3::before{content:'// ';color:var(--ink-3)}
 
 /* token-native pricing table */
 .ptable{margin-top:24px;border:var(--line-w) solid var(--line);border-radius:var(--radius);background:var(--card);
-  overflow:hidden;box-shadow:var(--shadow)}
+  overflow-x:auto;box-shadow:var(--shadow)}
 html[data-theme="dark"] .ptable{border-color:var(--line);box-shadow:none}
-.ptable table{width:100%;border-collapse:collapse}
+.ptable table{width:100%;min-width:640px;border-collapse:collapse}
 .ptable th,.ptable td{text-align:left;padding:14px 18px;border-bottom:var(--line-w) solid var(--line);vertical-align:top}
 html[data-theme="dark"] .ptable th,html[data-theme="dark"] .ptable td{border-bottom:1px solid var(--line)}
 .ptable tr:last-child td{border-bottom:0}
@@ -337,9 +340,13 @@ html[data-theme="dark"] .qa>summary{font-weight:500}
 .fourkick{font-family:var(--mono);font-size:clamp(64px,16vw,150px);font-weight:700;line-height:.9;letter-spacing:-.05em;color:var(--ink)}
 html[data-theme="dark"] .fourkick{color:var(--act)}
 
+/* keyboard focus */
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--c-arivu);outline-offset:2px}
+
 @media(max-width:560px){
   body{font-size:16px}
   .phero h1{font-size:clamp(30px,10vw,48px)}
+  .foot-nav a{display:inline-block;padding:8px 4px}
 }
 </style>
 <noscript><style>.reveal{opacity:1!important;transform:none!important}</style></noscript>
@@ -457,12 +464,10 @@ html[data-theme="dark"] .fourkick{color:var(--act)}
   var root=document.documentElement;
   var bL=document.getElementById('tg-light');
   var bD=document.getElementById('tg-dark');
-  var chip=document.getElementById('cp-theme-chip');
   function sync(t){
     var dark=t==='dark';
     bL.setAttribute('aria-pressed',String(!dark));
     bD.setAttribute('aria-pressed',String(dark));
-    if(chip) chip.textContent=dark?'obsidian':'brut';
   }
   function setTheme(t){
     root.setAttribute('data-theme',t);

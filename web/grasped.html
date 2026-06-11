@@ -3,7 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#F4EEE2" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0A0D0A" media="(prefers-color-scheme: dark)">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="canonical" href="https://saakshe.com/grasped">
 <title>manas · what we grasped — point &amp; edit</title>
 <meta name="description" content="aikizi, extracted: an AI visual-intelligence platform that reverse-engineers any image, video, or audio into its creative DNA — and a production-ready prompt. Grasped by manas from the code and the site, every fact cited.">
 <meta name="color-scheme" content="light">
@@ -22,7 +25,7 @@
 <style>
 :root{
   --paper:#F4EEE2;--paper-2:#ECE4D3;--card:#FBF7EE;
-  --ink:#161410;--ink-2:#45413A;--ink-3:#7A7466;--line:#161410;
+  --ink:#161410;--ink-2:#45413A;--ink-3:#6B6557;--line:#161410;
   --c-amber:#E3A52B;--c-blue:#3551C8;--c-red:#CC4632;--c-black:#161410;
   --t-amber:#F1DC95;--t-blue:#C6CFF2;--t-red:#EBBAAC;--t-black:#DAD3C3;
   --disp:'Space Grotesk',system-ui,sans-serif;--body:'Inter',system-ui,sans-serif;
@@ -491,6 +494,7 @@ ul.b.tight li::before{top:15px;width:9px;height:9px}
   var hint   = document.getElementById('meHint');
 
   var current = null;     // currently selected .ed element
+  var invoker = null;     // element that opened the panel — gets focus back on close
   var baseUrl = null;     // resolved backend base, or null = offline
   var LIVE = false;
 
@@ -550,16 +554,23 @@ ul.b.tight li::before{top:15px;width:9px;height:9px}
     el.setAttribute('data-edit-id', nextId(type));
     el.setAttribute('data-edit-type', type);
     el.setAttribute('data-edit-label', label);
-    el.setAttribute('tabindex','0');
+    // Tab order: only block-level editables are tab stops. The inline leaves
+    // (keyword / citation — every <b>/<strong>/.mono/.src on the page) would
+    // add 200+ stops; tabindex='-1' keeps them click-editable and
+    // programmatically focusable without flooding the keyboard path.
+    var inline = (type === 'keyword' || type === 'citation');
+    el.setAttribute('tabindex', inline ? '-1' : '0');
     // ARIA: only the inline LEAF editables (keyword / citation) carry
     // role='button'. Containers (sections, boxes, leads, bullets…) nest other
     // editables, and role=button inside role=button is invalid ARIA and makes
-    // a screen reader announce a whole section as one button. Containers get an
-    // editable aria-label instead, while staying keyboard-activatable via the
-    // tabindex + Enter/Space handler.
-    if(type === 'keyword' || type === 'citation'){
+    // a screen reader announce a whole section as one button. Containers get
+    // role='group' + an editable aria-label instead (a bare aria-label on a
+    // generic element is ignored by most AT), while staying
+    // keyboard-activatable via the tabindex + Enter/Space handler.
+    if(inline){
       el.setAttribute('role','button');
     } else {
+      el.setAttribute('role','group');
       el.setAttribute('aria-label', 'Edit: ' + label);
     }
     // mark elements that already own a ::before so the bracket pseudo doesn't fight them
@@ -647,6 +658,7 @@ ul.b.tight li::before{top:15px;width:9px;height:9px}
   }
 
   function openPanel(el){
+    invoker = el;           // remember who opened the dialog for focus return
     panel.hidden = false;
     elLabel.textContent = shortLabel(el);
     refreshSnip(el, true);
@@ -664,6 +676,12 @@ ul.b.tight li::before{top:15px;width:9px;height:9px}
   function closePanel(){
     panel.hidden = true;
     clearSelection();
+    // a11y: return focus to the element that opened the dialog — otherwise
+    // focus is stranded inside a hidden panel after Esc / Close.
+    if(invoker && document.contains(invoker)){
+      try{ invoker.focus({preventScroll:true}); }catch(e){ try{ invoker.focus(); }catch(e2){} }
+    }
+    invoker = null;
   }
 
   function refreshSnip(el, force){

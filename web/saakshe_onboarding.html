@@ -3,7 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#F4EEE2" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0A0D0A" media="(prefers-color-scheme: dark)">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="canonical" href="https://saakshe.com/saakshe_onboarding">
 <title>saakshe — welcome aboard</title>
 <meta name="description" content="Post-sign-in onboarding for saakshe: meet your company. saakshe is the witness; manas knows, arivu decides, kalai creates, kural engages. Connect your project, keep your keys, hold the two gates.">
 <meta property="og:title" content="saakshe — welcome aboard">
@@ -189,7 +192,8 @@ html[data-theme="dark"] .signin-chip::before{background:var(--ink-3);box-shadow:
 html[data-theme="dark"] .signin-chip .sb{opacity:.55}
 .signin-chip .sb{color:var(--ink-3)}
 @media(max-width:560px){.signin-chip{font-size:9.5px;padding:6px 9px}}
-@media(max-width:430px){.signin-chip{display:none}}
+/* compact variant on narrow phones: keep the dot + 'founder' as the signed-in confirmation */
+@media(max-width:430px){.signin-chip{padding:5px 8px;gap:6px}.signin-chip .si{display:none}}
 
 /* ── DECK: exactly 8 slides, only .is-active shown ── */
 .deck{flex:1 1 auto;position:relative;display:flex;flex-direction:column;min-height:0}
@@ -405,6 +409,9 @@ html[data-theme="dark"] .nav-count .num{color:var(--ink-2);text-shadow:none}
 @media(max-width:380px){
   .s-head{font-size:clamp(26px,9vw,34px)}
 }
+
+/* keyboard focus */
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--c-arivu);outline-offset:2px}
 </style>
 </head>
 <body>
@@ -416,7 +423,7 @@ html[data-theme="dark"] .nav-count .num{color:var(--ink-2);text-shadow:none}
       <span class="skbot" aria-hidden="true"><span class="skeye L"></span><span class="skeye R"></span><span class="skmouth"></span></span><span class="dv"></span><span class="wd">SΛΛKSHE</span>
     </a>
     <div class="tb-mid">
-      <span id="signin-chip" class="signin-chip">● signed in <span class="sb">·</span> founder</span>
+      <span id="signin-chip" class="signin-chip"><span class="si">● signed in <span class="sb">·</span> </span>founder</span>
       <div class="toggle" role="group" aria-label="Theme">
         <button id="tg-light" type="button" aria-pressed="true"><span class="swatch"></span>Brut</button>
         <button id="tg-dark" type="button" aria-pressed="false"><span class="swatch"></span>Obsidian</button>

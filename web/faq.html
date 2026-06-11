@@ -3,7 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#F4EEE2" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0A0D0A" media="(prefers-color-scheme: dark)">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="canonical" href="https://saakshe.com/faq">
 <title>saakshe &mdash; FAQ &amp; how it works</title>
 <meta name="description" content="How saakshe works: the witness, the four-faculty company, the two-gate flywheel, credits, privacy, connecting your project, and how arivu decides.">
 <meta property="og:title" content="saakshe — FAQ &amp; how it works">
@@ -332,14 +335,20 @@ html[data-theme="dark"] .qa>summary{font-weight:500}
 .qa__b b{color:var(--ink)}
 .qa__b a{color:var(--act-text);text-decoration:underline;text-underline-offset:2px}
 .qa__b p+p{margin-top:11px}
+/* question text is a real heading (rotor-visible) but renders inline inside the summary */
+.qa>summary h3{font:inherit;display:inline;margin:0}
 
 /* 404 glyph */
 .fourkick{font-family:var(--mono);font-size:clamp(64px,16vw,150px);font-weight:700;line-height:.9;letter-spacing:-.05em;color:var(--ink)}
 html[data-theme="dark"] .fourkick{color:var(--act)}
 
+/* keyboard focus */
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--c-arivu);outline-offset:2px}
+
 @media(max-width:560px){
   body{font-size:16px}
   .phero h1{font-size:clamp(30px,10vw,48px)}
+  .foot-nav a{display:inline-block;padding:8px 4px}
 }
 </style>
 <noscript><style>.reveal{opacity:1!important;transform:none!important}</style></noscript>
@@ -370,14 +379,14 @@ html[data-theme="dark"] .fourkick{color:var(--act)}
     <h2 class="sec__t">How it works, in six questions.</h2>
 
     <details class="qa" open>
-      <summary>What is saakshe?</summary>
+      <summary><h3>What is saakshe?</h3></summary>
       <div class="qa__b">
         <p>saakshe is <b>the agentic company you talk to.</b> You speak only to one witness &mdash; <b>saakshe</b> &mdash; in chat and voice. Behind that single front door, a four-faculty agentic company runs the work: <b>manas</b> knows (memory &amp; grounding), <b>arivu</b> decides (five lenses debate, a Claude bench seals and stress-tests the verdict), <b>kalai</b> makes (brand-checked creative), and <b>kural</b> engages (the only mouth, holding the publish gate).</p>
       </div>
     </details>
 
     <details class="qa">
-      <summary>How does the flywheel work?</summary>
+      <summary><h3>How does the flywheel work?</h3></summary>
       <div class="qa__b">
         <p>It's one resumable, two-gate loop: <b>connect</b> your project &rarr; manas <b>grounds</b> it in your own memory &rarr; you ask a real decision and arivu <b>decides</b> at <b>GATE 1</b> (your tap) &rarr; kalai <b>makes</b> and kural <b>drafts</b> &rarr; you <b>publish</b> at <b>GATE 2</b> (your tap) &rarr; manas <b>learns</b> the outcome and the wheel turns again.</p>
         <p><b>Nothing irreversible happens without your tap.</b> Resumable means the run carries its state forward, so when you approve a gate it continues exactly where it paused.</p>
@@ -385,28 +394,28 @@ html[data-theme="dark"] .fourkick{color:var(--act)}
     </details>
 
     <details class="qa">
-      <summary>What do credits buy &mdash; and how many are free?</summary>
+      <summary><h3>What do credits buy &mdash; and how many are free?</h3></summary>
       <div class="qa__b">
         <p>Every AI action spends <b>credits</b>: a flywheel run is about 20, connect + ingest about 20, a manas edit about 10, a kalai make about 15, a kural engage about 15 (indicative, tuned during launch). You get <b>100 free credits</b> on sign-up &mdash; roughly <b>5 full decision runs</b> on the house. You're never charged for a run that fails. See the <a href="/pricing">pricing page</a> for the full table.</p>
       </div>
     </details>
 
     <details class="qa">
-      <summary>Is my data private?</summary>
+      <summary><h3>Is my data private?</h3></summary>
       <div class="qa__b">
         <p>Yes. Your connected sources are <b>read-only</b> &mdash; granted, never taken &mdash; and we don't sell your data or train public models on it. AI processing runs on Google Gemini via Vertex AI; auth and storage are on Supabase. Full detail, retention, and deletion-on-request are in the <a href="/privacy">Privacy Policy</a>.</p>
       </div>
     </details>
 
     <details class="qa">
-      <summary>How do I connect my project?</summary>
+      <summary><h3>How do I connect my project?</h3></summary>
       <div class="qa__b">
         <p><b>Sign in</b> with Google, then <b>connect a repo and a site</b> you control over <b>setu</b> &mdash; saakshe's read-only connector. manas ingests them into a cited Context Pack, and from that moment the witness can answer from your own memory. You bring your own keys; saakshe never holds the credentials that move money or post for you.</p>
       </div>
     </details>
 
     <details class="qa">
-      <summary>Does the AI really decide?</summary>
+      <summary><h3>Does the AI really decide?</h3></summary>
       <div class="qa__b">
         <p>It deliberates, then waits for you. In <b>arivu</b>, <b>five lenses</b> (econ, growth, brand, risk, ops) argue the question, then a <b>Claude bench</b> seals the verdict and an adversarial prosecutor tries to defeat it against a defensibility bar. But the chain <b>halts at your tap</b> &mdash; <b>nothing irreversible happens without you</b>. The witness only reports what it can see, and refuses beyond it.</p>
       </div>
@@ -446,12 +455,10 @@ html[data-theme="dark"] .fourkick{color:var(--act)}
   var root=document.documentElement;
   var bL=document.getElementById('tg-light');
   var bD=document.getElementById('tg-dark');
-  var chip=document.getElementById('cp-theme-chip');
   function sync(t){
     var dark=t==='dark';
     bL.setAttribute('aria-pressed',String(!dark));
     bD.setAttribute('aria-pressed',String(dark));
-    if(chip) chip.textContent=dark?'obsidian':'brut';
   }
   function setTheme(t){
     root.setAttribute('data-theme',t);

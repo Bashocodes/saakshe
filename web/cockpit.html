@@ -3,7 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#F4EEE2" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0A0D0A" media="(prefers-color-scheme: dark)">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="canonical" href="https://saakshe.com/cockpit">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Archivo+Black&family=Archivo:wght@500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Michroma&family=Syncopate:wght@700&display=swap">
@@ -657,7 +660,7 @@ html[data-bot="joy"] .skbot .skeye.R{ animation-delay:.07s; }
 .seam-foot .flinks .sep{ padding:0; }
 
 /* questions view — 2×2 panel grid that stretches edge-to-edge */
-.qgroups{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); grid-auto-rows:minmax(0,1fr); gap:14px; flex:1 1 auto; min-height:0; }
+.qgroups{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); grid-auto-rows:auto; align-content:start; gap:14px; flex:1 1 auto; min-height:0; }
 .qgroups .phead h3{ text-transform:lowercase; }
 .qgroups .ct .t-red{ display:inline-flex; align-items:center; gap:5px; }
 .qgroups .ct .t-green{ display:inline-flex; align-items:center; gap:5px; }
@@ -840,6 +843,13 @@ html[data-bot="joy"] .skbot .skeye.R{ animation-delay:.07s; }
   .sdot.working{ box-shadow:none !important; }
   .fadein{ animation:none !important; }
 }
+/* Touch devices: 40px-min tap targets (desktop pointer keeps the tight visuals) */
+@media (pointer:coarse){
+  .pill, .railtab, #sa-chatpane .ch-collapse{ min-height:40px; align-items:center; }
+  #sa-chatpane .ch-collapse{ min-width:40px; }
+  .pill{ padding-top:4px; padding-bottom:4px; }
+  .railtab{ padding-top:5px; padding-bottom:5px; }
+}
 /* noscript: drop the cockpit chrome, show readable doc */
 html:not(.js) .app{ display:block; height:auto; }
 html:not(.js) .sidebar,html:not(.js) .rail,html:not(.js) .topbar{ display:none; }
@@ -863,7 +873,7 @@ html:not(.js) .stage{ height:auto; overflow:visible; display:block; }
 .panel, .ovcard, .constrip, .constrip.panel, .projhdr, .gate, .desk{
   border-color:var(--line);
 }
-.qgroups.three{ grid-template-columns:repeat(3,minmax(0,1fr)); grid-auto-rows:minmax(0,1fr); }
+.qgroups.three{ grid-template-columns:repeat(3,minmax(0,1fr)); grid-auto-rows:auto; }
 /* warm top highlight on raised cards in dark (per spec) */
 html[data-theme="dark"] .panel, html[data-theme="dark"] .ovcard,
 html[data-theme="dark"] .dcard, html[data-theme="dark"] .constrip,
@@ -2523,6 +2533,22 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
     if(inp){ e.preventDefault(); commitLiveAnswer(inp.closest('.qcard'), inp.value); }
   });
 
+  /* keyboard activation for NON-NATIVE [role=button] surfaces (.conchip, .constrip,
+     [data-drill] panels) — Enter/Space act like click, routed through the same
+     delegated click handler above. Native buttons/links/inputs are skipped; the
+     .projhdr inline shim preventDefaults first, so defaultPrevented avoids doubles. */
+  document.addEventListener('keydown', function(e){
+    if(e.key!=='Enter' && e.key!==' ') return;
+    if(e.defaultPrevented || e.isComposing) return;
+    var t = e.target;
+    if(!t || !t.closest) return;
+    if(t.closest('input, textarea, select, button, a, [contenteditable="true"]')) return;
+    var rb = t.closest('[role="button"]');
+    if(!rb) return;
+    e.preventDefault();
+    rb.click();
+  });
+
   /* ================= TOPBAR PILLS NAV ================= */
   document.getElementById('pillCost').addEventListener('click', function(){ openRail(); switchTab('today'); });
   document.getElementById('pillWork').addEventListener('click', function(){ go('activity', null); });
@@ -3084,7 +3110,7 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
       </div>
       <div class="cg-actions">
         <button type="button" class="cg-btn cg-primary" id="cgConnectBtn">Connect &amp; let manas read it</button>
-        <span class="cg-status" id="cgConnectStatus"></span>
+        <span class="cg-status" id="cgConnectStatus" role="status"></span>
       </div>
       <div class="cg-hint" id="cgConnectHint" hidden></div>
     </section>
@@ -3095,7 +3121,7 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
         <h2>manas is reading your company.</h2>
         <p>Live ingestion over setu — the readers imbibe your sources, the Memory Curator verifies every citation, and any honest clarifying question is raised. This can take a moment.</p>
       </div>
-      <div class="cg-feed" id="cgFeed"><div class="cg-empty">imbibing… <span class="cg-spin" aria-hidden="true"></span></div></div>
+      <div class="cg-feed" id="cgFeed" aria-live="polite" aria-relevant="additions"><div class="cg-empty">imbibing… <span class="cg-spin" aria-hidden="true"></span></div></div>
     </section>
 
     <!-- STEP: RESULT -->
@@ -3673,9 +3699,9 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
       <section class="lc-left">
         <div class="lc-controls">
           <button type="button" class="lc-btn lc-primary" id="lcRun">▶ run the day</button>
-          <span class="lc-status" id="lcStatus"></span>
+          <span class="lc-status" id="lcStatus" role="status"></span>
         </div>
-        <div class="lc-feed" id="lcFeed"><div class="lc-empty">Press <b>run the day</b> — manas grounds → arivu decides → tap → kalai creates → kural publishes → manas learns. Every line is a real event from the backend stream.</div></div>
+        <div class="lc-feed" id="lcFeed" aria-live="polite" aria-relevant="additions"><div class="lc-empty">Press <b>run the day</b> — manas grounds → arivu decides → tap → kalai creates → kural publishes → manas learns. Every line is a real event from the backend stream.</div></div>
       </section>
       <aside class="lc-right">
         <div class="lc-card">
@@ -3975,9 +4001,13 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
     $("lcMode").textContent="mode "+(h.mode||"?")+" · "+m.seats+" seats · "+m.claude_seats+" Claude·Vertex · "+(m.high_stakes||"");
     $("liveDot").style.background="var(--ok)"; $("liveDot").style.boxShadow="none";
   }
+  /* per-gate creative blob URLs — renderGates re-runs every poll tick, so the
+     previous object URL must be revoked or each tick leaks the blob */
+  var GIMG_URLS={};
+  function revokeGimg(id){ if(GIMG_URLS[id]){ try{ URL.revokeObjectURL(GIMG_URLS[id]); }catch(e){} delete GIMG_URLS[id]; } }
   function renderGates(gates){
     var g=$("lcGates");
-    if(!gates||!gates.length){ g.innerHTML='<div class="lc-empty sm">'+(status==="completed"?"Day closed — both gates tapped.":"No gate waiting.")+'</div>'; return; }
+    if(!gates||!gates.length){ Object.keys(GIMG_URLS).forEach(revokeGimg); g.innerHTML='<div class="lc-empty sm">'+(status==="completed"?"Day closed — both gates tapped.":"No gate waiting.")+'</div>'; return; }
     g.innerHTML="";
     gates.forEach(function(gt){
       var c=document.createElement("div"); c.className="lc-gatecard";
@@ -3989,7 +4019,7 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
         var im=document.createElement("img"); im.className="gimg"; im.alt="the rendered creative";
         fetch(base+'/api/vault/asset?uri='+encodeURIComponent(gt.image_uri),{headers:AH()})
           .then(function(r){ return r.ok ? r.blob() : null; })
-          .then(function(bl){ if(bl){ im.src=URL.createObjectURL(bl); c.appendChild(im); } })
+          .then(function(bl){ if(bl){ revokeGimg(gt.gate_id); GIMG_URLS[gt.gate_id]=URL.createObjectURL(bl); im.src=GIMG_URLS[gt.gate_id]; c.appendChild(im); } })
           .catch(function(){});
       }
       var armed=false;

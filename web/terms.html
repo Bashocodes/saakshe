@@ -3,7 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#F4EEE2" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0A0D0A" media="(prefers-color-scheme: dark)">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="canonical" href="https://saakshe.com/terms">
 <title>saakshe &mdash; terms of service</title>
 <meta name="description" content="saakshe terms of service: accounts, credits, acceptable use, AI-output disclaimer, intellectual property, liability, and governing law (India). Effective June 10, 2026.">
 <meta property="og:title" content="saakshe — terms of service">
@@ -323,9 +326,13 @@ html[data-theme="dark"] .qa>summary{font-weight:500}
 .fourkick{font-family:var(--mono);font-size:clamp(64px,16vw,150px);font-weight:700;line-height:.9;letter-spacing:-.05em;color:var(--ink)}
 html[data-theme="dark"] .fourkick{color:var(--act)}
 
+/* keyboard focus */
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--c-arivu);outline-offset:2px}
+
 @media(max-width:560px){
   body{font-size:16px}
   .phero h1{font-size:clamp(30px,10vw,48px)}
+  .foot-nav a{display:inline-block;padding:8px 4px}
 }
 </style>
 </head>
@@ -417,12 +424,10 @@ html[data-theme="dark"] .fourkick{color:var(--act)}
   var root=document.documentElement;
   var bL=document.getElementById('tg-light');
   var bD=document.getElementById('tg-dark');
-  var chip=document.getElementById('cp-theme-chip');
   function sync(t){
     var dark=t==='dark';
     bL.setAttribute('aria-pressed',String(!dark));
     bD.setAttribute('aria-pressed',String(dark));
-    if(chip) chip.textContent=dark?'obsidian':'brut';
   }
   function setTheme(t){
     root.setAttribute('data-theme',t);

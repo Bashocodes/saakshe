@@ -2,7 +2,10 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<meta name="theme-color" content="#F4EEE2" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0A0D0A" media="(prefers-color-scheme: dark)">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="canonical" href="https://saakshe.com/manas">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>manas — the company's mind</title>
 <meta name="description" content="manas (Sanskrit, the mind) is the UNDERSTAND layer of an agentic company. A multi-agent mind that imbibes the founder — vision, voice, history, the living pulse of what people say — synthesises it into one canonical, versioned, source-cited company memory, and publishes it over A2A so kalai and kural are bound by who the company actually is. Built on ADK with Gemini and Claude via Vertex AI.">
@@ -148,8 +151,7 @@ body::after{
    transform+opacity only; tiny, low-glare; pure ambient. JS-off = they sit still & faint. */
 .driftfield{position:fixed;inset:0;z-index:-1;pointer-events:none;overflow:hidden}
 .frag{position:absolute;font-family:var(--mono);font-size:11px;color:var(--muted);opacity:.0;letter-spacing:.04em;user-select:none;white-space:nowrap}
-.js .frag{opacity:.16}
-.js .frag{animation:fragDrift 26s ease-in-out infinite}
+.js .frag{opacity:.16;animation:fragDrift 26s ease-in-out infinite}
 @keyframes fragDrift{
   0%{transform:translate(0,0) scale(1);opacity:.04}
   50%{opacity:.2}
@@ -158,7 +160,6 @@ body::after{
 /* ---- status dot: the ONLY place accent becomes a shape (<=10px) ---- */
 .dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--accent);vertical-align:middle}
 .dot.sq{border-radius:1px}
-.dot.warm{background:var(--accent)}
 .dot.pend{background:transparent;box-shadow:inset 0 0 0 1.5px var(--muted)}
 .dot.dim{background:var(--muted)}
 .js .dot.warm{animation:dotPulse 3.6s ease-in-out infinite}
@@ -468,6 +469,7 @@ html:not(.js) .viz .ctl{display:none}
 /* stage holds the SVG; the ONLY color mass is the centre core radial in the SVG itself */
 .viz .stage{position:relative;background:var(--bg-2)}
 .viz svg{display:block;width:100%;height:auto}
+@media(max-width:640px){.viz .stage{overflow-x:auto;-webkit-overflow-scrolling:touch}.viz .stage svg{min-width:640px}}
 .viz .conn{stroke:var(--rule-2);stroke-width:1.4;fill:none}
 .viz .conn.dim{stroke:var(--rule);opacity:.55}
 .viz .thread{stroke:var(--thread);stroke-width:1;fill:none;opacity:.45}      /* knowledge-graph lilac threads (1px) */
@@ -604,15 +606,15 @@ html:not(.js) .viz .ctl{display:none}
 
 <!-- THEME TOGGLE — control only, neutral pill, accent appears as active label text + <=10px dot. -->
 <div class="theme-toggle" role="group" aria-label="Color theme">
-  <button type="button" class="opt" data-set="dark" aria-label="Dark theme"><span class="dot" aria-hidden="true"></span><span class="gl" aria-hidden="true">☾</span> Dark</button>
-  <button type="button" class="opt" data-set="light" aria-label="Light theme"><span class="dot" aria-hidden="true"></span><span class="gl" aria-hidden="true">☀</span> Light</button>
+  <button type="button" class="opt" data-set="dark" aria-label="Dark theme" aria-pressed="true"><span class="dot" aria-hidden="true"></span><span class="gl" aria-hidden="true">☾</span> Dark</button>
+  <button type="button" class="opt" data-set="light" aria-label="Light theme" aria-pressed="false"><span class="dot" aria-hidden="true"></span><span class="gl" aria-hidden="true">☀</span> Light</button>
 </div>
 
 <div class="wrap">
 
   <!-- ===================== HERO ===================== -->
   <header class="mast">
-    <div class="statusbar hero-anim" style="--d:0ms" role="status" aria-label="mind status">
+    <div class="statusbar hero-anim" style="--d:0ms" role="group" aria-label="mind status">
       <span class="seg"><span class="dot warm"></span><span>MIND</span> <span class="v">awake</span></span>
       <span class="seg"><span class="dot dim"></span>memory core <span class="v">growing</span></span>
       <span class="seg"><span class="dot"></span>artifacts imbibed <span class="v"><span class="ct" data-count-to="2148">2,148</span></span></span>
@@ -873,7 +875,7 @@ html:not(.js) .viz .ctl{display:none}
             <span class="ln c"># press Run (JS) to watch the mind imbibe step by step</span>
           </div>
           <!-- JS-on live log fills here -->
-          <div class="vlog vlog-live" id="vizLog" aria-live="polite"></div>
+          <div class="vlog vlog-live" id="vizLog" aria-live="off"></div>
         </div>
       </div>
     </div>
@@ -1342,12 +1344,19 @@ html:not(.js) .viz .ctl{display:none}
    ============================================================ */
 (function(){
   var root = document.documentElement;
+  var opts = document.querySelectorAll('.theme-toggle .opt');
+  function syncPressed(){
+    var cur = root.getAttribute('data-theme')==='light' ? 'light' : 'dark';
+    for(var j=0;j<opts.length;j++){
+      opts[j].setAttribute('aria-pressed', opts[j].getAttribute('data-set')===cur ? 'true' : 'false');
+    }
+  }
   function set(t){
     if(t!=='light'&&t!=='dark') t='dark';
     root.setAttribute('data-theme', t);
     try{ localStorage.setItem('saakshe-theme', t); }catch(e){}
+    syncPressed();
   }
-  var opts = document.querySelectorAll('.theme-toggle .opt');
   for(var i=0;i<opts.length;i++){
     opts[i].addEventListener('click', function(){ set(this.getAttribute('data-set')); });
   }
@@ -1356,10 +1365,12 @@ html:not(.js) .viz .ctl{display:none}
     var onChange = function(e){
       var saved; try{ saved = localStorage.getItem('saakshe-theme'); }catch(err){}
       if(saved!=='light'&&saved!=='dark') root.setAttribute('data-theme', e.matches?'light':'dark');
+      syncPressed();
     };
     if(mq.addEventListener) mq.addEventListener('change', onChange);
     else if(mq.addListener) mq.addListener(onChange);
   }
+  syncPressed();
 })();
 
 /* ============================================================
@@ -1559,7 +1570,10 @@ html:not(.js) .viz .ctl{display:none}
     if(reduce){ if(m==='imbibed') finalImbibed(); else finalDayone(); finish(); }
   }
 
-  runBtn.addEventListener('click', play);
+  runBtn.addEventListener('click', function(){
+    if(logEl) logEl.setAttribute('aria-live','polite'); // user asked — narrate the log
+    play();
+  });
   bImb.addEventListener('click', function(){ setMode('imbibed'); });
   bDay.addEventListener('click', function(){ setMode('dayone'); });
 

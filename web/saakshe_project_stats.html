@@ -3,7 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#F4EEE2" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0A0D0A" media="(prefers-color-scheme: dark)">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="canonical" href="https://saakshe.com/saakshe_project_stats">
 <title>saakshe — project stats &amp; agent architecture</title>
 <meta name="description" content="A deep-dive into the saakshe codebase: ~30.6k lines of code, 27 LLM-backed agents across four ADK quadrants, the two-gate flywheel, the Gemini + Claude-via-Vertex model stack, the witness's telemetry tools, the shared substrate, the frontend surfaces, and honest caveats.">
 <meta property="og:title" content="saakshe — project stats &amp; agent architecture">
@@ -106,7 +109,8 @@
   th{font-size:13px; text-transform:uppercase; letter-spacing:.08em; color:var(--ink3); font-weight:600}
   td .mono{font-size:14.5px; color:var(--ink2)}
   tr:last-child td{border-bottom:none}
-  .tbl{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); overflow:hidden}
+  .tbl{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); overflow-x:auto}
+  .tbl table{min-width:640px}
 
   /* flywheel */
   .flow{display:flex; flex-direction:column; gap:0; margin:8px 0}
@@ -119,7 +123,7 @@
   .step .body .d{color:var(--ink2); font-size:16.5px}
   .rail{margin-left:22px; width:2px; height:14px; background:var(--line2)}
 
-  .note{background:var(--panel2); border:1px solid var(--line); border-left:3px solid var(--accent);
+  .note{background:var(--panel2); border:1px solid var(--line);
     border-radius:12px; padding:16px 18px; color:var(--ink2); font-size:16.5px; margin:18px 0 4px}
   .note b{color:var(--ink)}
   ul.clean{margin:10px 0; padding-left:0; list-style:none}
@@ -130,7 +134,7 @@
   .toc{display:flex; flex-wrap:wrap; gap:10px; margin:26px 0 2px}
   .toc a{font-size:15px; color:var(--ink2); text-decoration:none; border:1px solid var(--line2); padding:7px 13px; border-radius:999px}
   .toc a:hover{color:var(--ink); border-color:var(--accent)}
-  a:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+  a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--accent); outline-offset:2px}
 
   /* theme toggle — same two-button BRUT/OBSIDIAN pattern as the landing */
   .themetg{display:flex; width:max-content; margin:26px 0 -34px; border:1px solid var(--line2);
@@ -138,7 +142,6 @@
   .themetg button{appearance:none; border:0; background:transparent; color:var(--ink2); cursor:pointer;
     font:600 12px/1 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; letter-spacing:.12em; padding:8px 14px}
   .themetg button[aria-pressed="true"]{background:var(--accent); color:var(--bg)}
-  .themetg button:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
 
   footer{padding:44px 0 0; color:var(--ink3); font-size:15px}
   .big{font-size:21px; color:var(--ink)}

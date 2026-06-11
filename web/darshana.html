@@ -2,7 +2,10 @@
 <html lang="en" data-theme="light">
 <head>
 <meta charset="utf-8">
+<meta name="theme-color" content="#F4EEE2" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0A0D0A" media="(prefers-color-scheme: dark)">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="canonical" href="https://saakshe.com/darshana">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>darshana — see the whole company</title>
 <meta name="description" content="Your whole company, on one page, in five minutes — a naturalist's plate of three agents, one decision chamber (arivu), and one witness.">
@@ -453,6 +456,10 @@ footer .fnote{ text-align:center; color:var(--muted); font-size:13.5px; margin-t
   .count{ grid-template-columns:1fr; }
   .legendtable .lr{ grid-template-columns:80px 1fr; }
   .legendtable .lr .rng{ display:none; }
+  /* the plate's in-SVG micro-captions (9.5–11 SVG units ≈ 7px on a phone) are
+     illegible at this width — lift them to 14 units. CSS font-size outranks the
+     presentation attribute; geometry has clearance for 14u at every caption. */
+  .plateframe svg text.sans{ font-size:14px; }
 }
 
 /* =============================== MOTION ================================= */

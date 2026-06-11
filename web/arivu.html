@@ -2,7 +2,10 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<meta name="theme-color" content="#F4EEE2" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0A0D0A" media="(prefers-color-scheme: dark)">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="canonical" href="https://saakshe.com/arivu">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>arivu — the company's faculty of judgment</title>
 <meta name="description" content="arivu (Tamil: intellect, wisdom — the determining mind) is a company's DECIDE faculty made operational — a chamber of grounded advisors that deliberate from the org's own live numbers, survive their own prosecution at defensibility ≥ 0.8, halt at one founder approval, and then EXECUTE the decision: commit a live change, dispatch A2A commands, and publish a signed board resolution. It commits and commands; it never merely recommends. Built on ADK with Gemini + Claude via Vertex AI.">
@@ -368,7 +371,6 @@ ul.b li b{color:var(--ink)}
 .term pre .p{color:var(--accent)}
 .term pre .c{color:var(--muted)}
 .term pre .ok{color:var(--accent)}
-.term pre .w{color:var(--muted)}
 .term pre .x{color:var(--flare)}      /* the churn-cliff catch — accent TEXT only, never a band */
 .term pre b{color:var(--ink);font-weight:600}
 .term pre .ln{display:block}
@@ -489,6 +491,7 @@ html:not(.js) .viz .ctl{display:none}
 
 .viz .stage{position:relative;background:var(--bg-2)}
 .viz svg{display:block;width:100%;height:auto}
+@media(max-width:640px){.viz .stage{overflow-x:auto;-webkit-overflow-scrolling:touch}.viz .stage svg{min-width:640px}}
 /* SVG primitives — everything driven by tokens so both themes work */
 .viz .conn{stroke:var(--rule-2);stroke-width:1.4;fill:none}
 .viz .conn.dim{stroke:var(--rule);opacity:.55}
@@ -567,7 +570,7 @@ html:not(.js) .viz .team .node .ndot{fill:var(--accent)}
 .viz .qnum .qlab{font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
 .viz .qnum .qscore{font-family:var(--disp);font-weight:700;font-size:38px;line-height:1;letter-spacing:-.02em;color:var(--ink);margin-top:6px;font-variant-numeric:tabular-nums}
 .viz .qnum .qscore.low{color:var(--muted)}     /* low reads muted (dim), never red */
-.viz .qnum .qscore .bar{font-size:15px;color:var(--muted);font-weight:400}
+.viz .qnum .qlab .bar{font-size:15px;color:var(--muted);font-weight:400}
 .viz .qverdict{font-family:var(--mono);font-size:11px;letter-spacing:.05em;color:var(--muted);margin-top:12px;line-height:1.5}
 .viz .qverdict.good{color:var(--accent)}
 .viz .meter{display:flex;gap:5px;margin-top:11px}
@@ -637,15 +640,15 @@ html:not(.js) .viz .team .node .ndot{fill:var(--accent)}
 
 <!-- THEME TOGGLE — control only, neutral pill, accent appears as active label text + <=10px dot. -->
 <div class="theme-toggle" role="group" aria-label="Color theme">
-  <button type="button" class="opt" data-set="dark" aria-label="Dark theme"><span class="dot" aria-hidden="true"></span><span class="gl" aria-hidden="true">☾</span> Dark</button>
-  <button type="button" class="opt" data-set="light" aria-label="Light theme"><span class="dot" aria-hidden="true"></span><span class="gl" aria-hidden="true">☀</span> Light</button>
+  <button type="button" class="opt" data-set="dark" aria-label="Dark theme" aria-pressed="true"><span class="dot" aria-hidden="true"></span><span class="gl" aria-hidden="true">☾</span> Dark</button>
+  <button type="button" class="opt" data-set="light" aria-label="Light theme" aria-pressed="false"><span class="dot" aria-hidden="true"></span><span class="gl" aria-hidden="true">☀</span> Light</button>
 </div>
 
 <div class="wrap">
 
   <!-- ===================== HERO ===================== -->
   <header class="mast">
-    <div class="statusbar hero-anim" style="--d:0ms" role="status" aria-label="chamber status">
+    <div class="statusbar hero-anim" style="--d:0ms" role="group" aria-label="chamber status">
       <span class="seg"><span class="dot ok"></span><span>SABHA</span> <span class="v">in session</span></span>
       <span class="seg"><span class="dot dim"></span>advisors <span class="v">5 grounded</span></span>
       <span class="seg"><span class="dot"></span>decisions filed <span class="v"><span class="ct" data-count-to="46">46</span></span></span>
@@ -869,7 +872,7 @@ html:not(.js) .viz .team .node .ndot{fill:var(--accent)}
             <span class="ln c"># press Run (JS) to watch doubt crystallize · then Approve to execute</span>
           </div>
           <!-- JS-on live log fills here -->
-          <div class="vlog vlog-live" id="vizLog" aria-live="polite"></div>
+          <div class="vlog vlog-live" id="vizLog" aria-live="off"></div>
         </div>
       </div>
     </div>
@@ -1437,12 +1440,19 @@ html:not(.js) .viz .team .node .ndot{fill:var(--accent)}
    ============================================================ */
 (function(){
   var root = document.documentElement;
+  var opts = document.querySelectorAll('.theme-toggle .opt');
+  function syncPressed(){
+    var cur = root.getAttribute('data-theme')==='light' ? 'light' : 'dark';
+    for(var j=0;j<opts.length;j++){
+      opts[j].setAttribute('aria-pressed', opts[j].getAttribute('data-set')===cur ? 'true' : 'false');
+    }
+  }
   function set(t){
     if(t!=='light'&&t!=='dark') t='dark';
     root.setAttribute('data-theme', t);
     try{ localStorage.setItem('saakshe-theme', t); }catch(e){}
+    syncPressed();
   }
-  var opts = document.querySelectorAll('.theme-toggle .opt');
   for(var i=0;i<opts.length;i++){
     opts[i].addEventListener('click', function(){ set(this.getAttribute('data-set')); });
   }
@@ -1451,10 +1461,12 @@ html:not(.js) .viz .team .node .ndot{fill:var(--accent)}
     var onChange = function(e){
       var saved; try{ saved = localStorage.getItem('saakshe-theme'); }catch(err){}
       if(saved!=='light'&&saved!=='dark') root.setAttribute('data-theme', e.matches?'light':'dark');
+      syncPressed();
     };
     if(mq.addEventListener) mq.addEventListener('change', onChange);
     else if(mq.addListener) mq.addListener(onChange);
   }
+  syncPressed();
 })();
 
 /* ============================================================
@@ -1680,6 +1692,7 @@ html:not(.js) .viz .team .node .ndot{fill:var(--accent)}
       dispatchIds.forEach(function(id){ show(id,.85); });
       verdEl.textContent='EXECUTED · resolution published';
       clearLog(); finalTeam();
+      armApprove(false); // finalTeam() re-arms the gate — keep the Executed button disabled
       verdEl.textContent='EXECUTED · resolution published'; verdEl.classList.add('good');
       logLine('<span class="p">approved»</span> <span class="ok">flag flipped · A2A → kural/kalai · resolution published</span>');
       return;
@@ -1729,8 +1742,14 @@ html:not(.js) .viz .team .node .ndot{fill:var(--accent)}
     if(reduce){ if(m==='team') finalTeam(); else finalSingle(); finish(); }
   }
 
-  runBtn.addEventListener('click', play);
-  appBtn.addEventListener('click', execute);
+  runBtn.addEventListener('click', function(){
+    if(logEl) logEl.setAttribute('aria-live','polite'); // user asked — narrate the log
+    play();
+  });
+  appBtn.addEventListener('click', function(){
+    if(logEl) logEl.setAttribute('aria-live','polite');
+    execute();
+  });
   bTeam.addEventListener('click', function(){ setMode('team'); });
   bSingle.addEventListener('click', function(){ setMode('single'); });
 

@@ -2,7 +2,10 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<meta name="theme-color" content="#F4EEE2" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0A0D0A" media="(prefers-color-scheme: dark)">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="canonical" href="https://saakshe.com/kural">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>kural — the autonomous growth team · finds them, researches them, reaches them</title>
 <meta name="description" content="kural (Tamil: voice, as in the Thirukkural) is a B2B multi-agent growth team you buy on Google Cloud Marketplace — and hire over A2A. It finds prospects, researches them in parallel, drafts and fact-checks personalised outreach, then actually sends it AS THE BUYER and books the meeting — a real, OAuth-authenticated, safe-by-construction irreversible action.">
@@ -65,7 +68,7 @@
   --lift-hi:0 14px 34px -18px rgba(20,22,27,.30), 0 2px 8px -4px rgba(20,22,27,.10);
 }
 *{box-sizing:border-box}
-html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;color-scheme:var(--cs,light)}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;color-scheme:light}
 html[data-theme="dark"]{color-scheme:dark}
 
 /* ===================================================================
@@ -1370,7 +1373,6 @@ html:not(.js) .viz__controls{display:none}
 <script>
 (function(){
   "use strict";
-  var docEl = document.documentElement;
   var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   // ---- helper: mark element revealed ----
@@ -1566,8 +1568,12 @@ html:not(.js) .viz__controls{display:none}
   var mode = 'team';        // default = team (the winning, complete state)
   var running = false;
   var raf = [];
+  var timers = [];          // setTimeout handles from the run scripts — cancelled with the rAFs
 
-  function clearRaf(){ raf.forEach(function(h){ cancelAnimationFrame(h); }); raf = []; }
+  function clearRaf(){
+    raf.forEach(function(h){ cancelAnimationFrame(h); }); raf = [];
+    timers.forEach(function(t){ clearTimeout(t); }); timers = [];
+  }
   function setActive(node, cls){ if(node){ node.classList.remove('active','done'); if(cls) node.classList.add(cls); } }
 
   // ---- reset visual state (used before each run / mode change) ----
@@ -1689,7 +1695,7 @@ html:not(.js) .viz__controls{display:none}
       // token stays hidden while Market Intel "thinks", then re-enters at the
       // intel->writer path start (860,250) so there is NO positional jump.
       tok.style.opacity='0'; tok.setAttribute('cx',860); tok.setAttribute('cy',250);
-      setTimeout(function(){
+      timers.push(setTimeout(function(){
         $('n-intel').classList.add('done'); pulse($('n-intel'), false);
         pulse($('n-write'), true); renderLog(4);
         travel(tok, pathOf('c-intel-write'), 700, function(){
@@ -1709,7 +1715,7 @@ html:not(.js) .viz__controls{display:none}
             });
           });
         });
-      }, 520);
+      }, 520));
     }
   }
 
@@ -1730,7 +1736,7 @@ html:not(.js) .viz__controls{display:none}
         renderLog(seq);
         seq++;
         if (seq <= 6){
-          raf.push(requestAnimationFrame(function(){ setTimeout(step, 720); }));
+          raf.push(requestAnimationFrame(function(){ timers.push(setTimeout(step, 720)); }));
         } else {
           // 2: it ships — generalist -> action (no gate, no second read)
           $('l-gen').classList.add('done'); pulse($('l-gen'), false);
@@ -1747,7 +1753,7 @@ html:not(.js) .viz__controls{display:none}
           });
         }
       }
-      raf.push(requestAnimationFrame(function(){ setTimeout(step, 720); }));
+      raf.push(requestAnimationFrame(function(){ timers.push(setTimeout(step, 720)); }));
     });
   }
 
