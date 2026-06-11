@@ -839,13 +839,15 @@ async def media_render(request: Request,
     # The RENDER is the chargeable compute act (the quote stays free) — spend
     # before the job starts, refund from the worker if the render dies.
     payer = sess.user if _billing_active(sess.user) else None
+    render_cost = credits.cost("kalai_make")
     render_key = "kalai:" + uuid4().hex
-    if payer is not None:
+    if payer is not None and render_cost > 0:   # COST_KALAI_MAKE=0 → free render
         try:
-            credits.spend(payer.user_id, credits.cost("kalai_make"),
-                          "kalai media render", render_key)
+            credits.spend(payer.user_id, render_cost, "kalai media render", render_key)
         except credits.OutOfCredits as exc:
             return JSONResponse(status_code=402, content=credits.out_of_credits_payload(exc.balance))
+    else:
+        payer = None   # nothing spent → the worker must not try to refund
     jid = uuid4().hex
     src = tempfile.NamedTemporaryFile(suffix=".png", delete=False)
     src.write(await image.read())
@@ -1072,9 +1074,9 @@ async def voice(websocket: WebSocket) -> None:
     payer = user if _billing_active(user) else None
 
     def bill_turn() -> None:
-        if payer is not None:
-            credits.spend(payer.user_id, credits.cost("voice_turn"), "voice turn",
-                          "voice:" + uuid4().hex)
+        turn_cost = credits.cost("voice_turn")
+        if payer is not None and turn_cost > 0:   # COST_VOICE_TURN=0 → free voice
+            credits.spend(payer.user_id, turn_cost, "voice turn", "voice:" + uuid4().hex)
 
     await witness_voice.handle_ws(websocket, bill_turn=bill_turn)
 

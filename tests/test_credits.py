@@ -260,3 +260,14 @@ def test_temporary_failure_msg_present():
 
 def test_out_of_credits_payload_shape():
     assert credits.out_of_credits_payload(7) == {"error": "out of credits", "balance": 7}
+
+
+def test_charge_is_a_noop_when_the_cost_is_zeroed(live_supabase):
+    """COST_<X>=0 must mean FREE, not broken: saakshe_spend raises invalid_amount
+    on 0, so a zeroed price-card entry must skip the RPC entirely."""
+    live_supabase.setenv("COST_SAAKSHE_ASK", "0")
+    rec = RecordingRpc()
+    live_supabase.setattr(credits, "_rpc", rec)
+    with credits.charge(_User(), "saakshe_ask", idem_key="k0", reason="free turn") as r:
+        assert r["charged"] is False
+    assert rec.calls == []

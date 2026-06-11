@@ -257,11 +257,15 @@ def charge(user, cost_key: str, *, idem_key: str, reason: str) -> Iterator[dict]
     "temporary, not charged" promise, classified by the spend's error code, never
     by blaming the founder for an internal failure.
     """
-    if user is None or getattr(user, "is_owner", False) or not billing_enabled():
+    amount = cost(cost_key)
+    if (user is None or getattr(user, "is_owner", False)
+            or not billing_enabled() or amount <= 0):
+        # amount<=0 = the price card zeroed this action (COST_<X>=0): free, not
+        # broken — saakshe_spend rejects a 0 amount, so skip the RPC entirely.
         yield {"charged": False}
         return
 
-    spend(user.user_id, cost(cost_key), reason, idem_key)
+    spend(user.user_id, amount, reason, idem_key)
     try:
         yield {"charged": True}
     except Exception:
