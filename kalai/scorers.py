@@ -35,7 +35,7 @@ from google.adk.agents.readonly_context import ReadonlyContext
 from common import config, models
 from . import prompts
 from .state import NS, SCORERS, StateKeys
-from .util import parse_json
+from .util import brand_block, parse_json
 
 # ─── the documented weighted mean (a partition of unity) ──────────────────────
 # brand-consistency is the heaviest lens (the master lives or dies on the asset
@@ -97,7 +97,16 @@ def _org_name(ctx: ReadonlyContext) -> str:
 
 
 def _brand(ctx: ReadonlyContext) -> str:
-    return ctx.state.get(StateKeys.BRAND_BLOCK, "(brand canon pending)")
+    blk = ctx.state.get(StateKeys.BRAND_BLOCK)
+    if blk:
+        return blk
+    # Same re-fetch as sub_agents._brand: scorers must grade against the real
+    # canon, never a "(brand canon pending)" placeholder, whenever the Context
+    # Pack is in state.
+    pack = ctx.state.get(StateKeys.CONTEXT_PACK)
+    if isinstance(pack, dict) and pack:
+        return brand_block(pack)
+    return "(brand canon pending)"
 
 
 def _scorer_instruction(lens: str, display: str, focus: str):

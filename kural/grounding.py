@@ -26,24 +26,121 @@ def _read_secret() -> str | None:
         return None
 
 
-def _mcp_funnel_market_fetch(url: str, secret: str) -> dict | None:
-    """The single seam the real funnel/market read lands in (and the test mocks).
+def _jsonrpc_from_response(resp) -> dict | None:
+    """Parse one streamable-HTTP MCP response — plain JSON or a one-shot SSE body.
+    (Same shape as arivu's grounding client — the two surfaces speak one dialect.)"""
+    import json
 
-    The example MCP StreamableHTTP transport is unverified, so this is isolated as
-    one mockable call. Until the transport is confirmed live, it returns None — so a
-    live run grounds via the passed Context Pack plus the seed funnel/market, never
-    an ungrounded position. Wire the real list/consent + feed read here once the
-    transport is confirmed; it must return ``{"funnel": {...}, "market": {...}}``.
-    """
+    ctype = (resp.headers.get("content-type") or "").lower()
+    if "text/event-stream" in ctype:
+        for line in resp.text.splitlines():
+            if not line.startswith("data:"):
+                continue
+            try:
+                obj = json.loads(line[5:].strip())
+            except ValueError:
+                continue
+            if isinstance(obj, dict) and ("result" in obj or "error" in obj):
+                return obj
+        return None
+    try:
+        obj = resp.json()
+    except ValueError:
+        return None
+    return obj if isinstance(obj, dict) else None
+
+
+def _tool_result_dict(rpc: dict | None) -> dict | None:
+    """Unwrap an MCP tools/call result into a plain dict — structuredContent
+    first, else the first JSON text block. isError / non-dict / empty → None."""
+    import json
+
+    if not isinstance(rpc, dict):
+        return None
+    result = rpc.get("result")
+    if not isinstance(result, dict) or result.get("isError"):
+        return None
+    sc = result.get("structuredContent")
+    if isinstance(sc, dict) and sc:
+        return sc
+    for block in result.get("content") or []:
+        if isinstance(block, dict) and block.get("type") == "text":
+            try:
+                obj = json.loads(block.get("text") or "")
+            except ValueError:
+                continue
+            if isinstance(obj, dict) and obj:
+                return obj
     return None
+
+
+# tool calls → bundle keys: the mouth's own list/consent numbers ride "funnel",
+# the feed/timing signals ride "market".
+_FUNNEL_MARKET_CALLS: tuple[tuple[str, str, dict], ...] = (
+    ("funnel", "admin_stats", {}),
+    ("market", "admin_analytics", {"report": "activity"}),
+)
+
+
+def _mcp_funnel_market_fetch(url: str, secret: str) -> dict | None:
+    """The real funnel/market read — a minimal streamable-HTTP JSON-RPC client
+    (initialize → tools/call), normalized into ``{"funnel": {...}, "market": {...}}``.
+
+    Every step fails SOFT: a flaky or unreachable surface yields a partial bundle
+    or None, never an exception — and ``fetch_grounding``'s live branch simply
+    omits the funnel/market sections rather than quoting a canned number
+    ("grounded or silent"). Still the single mockable seam the tests patch.
+    """
+    import httpx
+
+    headers = {
+        "authorization": f"Bearer {secret}",
+        "content-type": "application/json",
+        "accept": "application/json, text/event-stream",
+    }
+
+    def _post(client, payload):
+        resp = client.post(url, json=payload, headers=headers, timeout=15.0)
+        resp.raise_for_status()
+        sid = resp.headers.get("mcp-session-id")
+        if sid:
+            headers["mcp-session-id"] = sid   # streamable-HTTP session, if served
+        return _jsonrpc_from_response(resp)
+
+    bundle: dict = {}
+    try:
+        with httpx.Client() as client:
+            _post(client, {
+                "jsonrpc": "2.0", "id": 0, "method": "initialize",
+                "params": {"protocolVersion": "2025-03-26",
+                           "clientInfo": {"name": "saakshe-kural", "version": "1"},
+                           "capabilities": {}},
+            })
+            try:   # some servers require the initialized notification, some 4xx it
+                client.post(url, json={"jsonrpc": "2.0",
+                                       "method": "notifications/initialized"},
+                            headers=headers, timeout=15.0)
+            except Exception:  # noqa: BLE001
+                pass
+            for ident, (key, tool, args) in enumerate(_FUNNEL_MARKET_CALLS, start=1):
+                rpc = _post(client, {"jsonrpc": "2.0", "id": ident,
+                                     "method": "tools/call",
+                                     "params": {"name": tool, "arguments": args}})
+                out = _tool_result_dict(rpc)
+                if out:
+                    bundle[key] = out
+    except Exception:  # noqa: BLE001 — partial is fine; reads fail soft
+        pass
+    return bundle or None
 
 
 def _live_funnel_market() -> dict | None:
     """Best-effort live fetch of the org's REAL funnel/market numbers (the mouth's
     own list/consent + feed signals), in the grounding-bundle shape. Gated on
     EXAMPLE_MCP_ENABLE + a secret (opt-in, exactly like arivu's ``_live_admin_bundle``);
-    returns None when not enabled or on any failure, so ``fetch_grounding`` falls
-    back to the seed funnel/market.
+    returns None when not enabled or on any failure, in which case the live bundle
+    simply OMITS funnel/market — readers with nothing real to cite say so
+    ("grounded or silent"), they never quote the demo seed.
 
     Mockable: the live-branch tests patch this to prove real numbers flow at frame
     time instead of the fixture. Returns ``{"funnel": {...}, "market": {...}}``.

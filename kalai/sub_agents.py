@@ -52,7 +52,16 @@ def _brief(ctx: ReadonlyContext) -> str:
 
 
 def _brand(ctx: ReadonlyContext) -> str:
-    return ctx.state.get(StateKeys.BRAND_BLOCK, "(brand canon pending)")
+    blk = ctx.state.get(StateKeys.BRAND_BLOCK)
+    if blk:
+        return blk
+    # Re-fetch, don't placeholder: prime_studio normally renders the brand bank,
+    # but if BRAND_BLOCK is missing (callback skipped/raced) derive it from the
+    # Context Pack in state so a desk never works from "(brand canon pending)".
+    pack = ctx.state.get(StateKeys.CONTEXT_PACK)
+    if isinstance(pack, dict) and pack:
+        return brand_block(pack)
+    return "(brand canon pending)"
 
 
 def render_brand_block(assets) -> str:

@@ -125,6 +125,16 @@ class SupabaseStore:
         params = {k: f"eq.{v}" for k, v in match.items()}
         self._client.delete(f"{self._rest}/{table}", params=params).raise_for_status()
 
+    def _rpc(self, fn: str, args: dict):
+        """Call a Postgres function (one transaction server-side). Raises on HTTP
+        error — callers decide whether to fall back."""
+        r = self._client.post(f"{self._rest}/rpc/{fn}", json=args)
+        r.raise_for_status()
+        try:
+            return r.json()
+        except ValueError:
+            return None
+
     # ── the project row (one per user) ───────────────────────────────────────
     def _project(self) -> dict:
         rows = self._get("projects", user_id=f"eq.{self.user_id}", select="*", limit=1)
@@ -233,11 +243,6 @@ class SupabaseStore:
         new_v = self._next_version()
         has_facts = bool(facts)
         blocking = bool(self.blocking_questions())
-        self._insert("context_packs", {
-            "project_id": self.pid, "version": new_v,
-            "facts": [dict(f) for f in facts],
-            "voice_rules": list(voice_rules), "brand_rules": list(brand_rules),
-            "grounded": has_facts})
         grounded = has_facts and not blocking
         if grounded:
             status = GROUNDED
@@ -245,14 +250,62 @@ class SupabaseStore:
             status = NEEDS_ANSWERS
         else:
             status = self.ingest_status
+        pack_row = {
+            "project_id": self.pid, "version": new_v,
+            "facts": [dict(f) for f in facts],
+            "voice_rules": list(voice_rules), "brand_rules": list(brand_rules),
+            "grounded": has_facts}
+        # One transaction server-side: the pack insert and the project manifest
+        # tick commit or roll back TOGETHER (a crash between two REST calls used
+        # to orphan the pack — written but invisible to every subsequent read).
+        try:
+            self._rpc("saakshe_commit_pack", {
+                "p_project_id": self.pid, "p_version": new_v,
+                "p_facts": pack_row["facts"],
+                "p_voice_rules": pack_row["voice_rules"],
+                "p_brand_rules": pack_row["brand_rules"],
+                "p_pack_grounded": has_facts,
+                "p_grounded": grounded, "p_status": status})
+            return new_v
+        except Exception:  # noqa: BLE001 — RPC absent/older DB: two-step + heal-on-read
+            pass
+        self._insert("context_packs", pack_row)
         self._patch("projects", {"id": self.pid},
                     {"version": new_v, "grounded": grounded, "status": status})
         return new_v
 
     def latest_pack(self) -> Optional[dict]:
+        # id.desc tiebreak: two packs committed in the same timestamp tick must
+        # resolve deterministically, never by row-return luck.
         rows = self._get("context_packs", project_id=f"eq.{self.pid}", select="*",
-                         order="created_at.desc", limit=1)
-        return rows[0] if rows else None
+                         order="created_at.desc,id.desc", limit=5)
+        if not rows:
+            return None
+
+        def _vnum(row: dict) -> int:
+            try:
+                return int(str(row.get("version", "")).lstrip("v") or "0")
+            except ValueError:
+                return 0
+        # Among the newest rows the highest numeric version wins (created_at ties
+        # from parallel learns can't make a stale pack shadow a newer one).
+        row = max(rows, key=lambda r: (str(r.get("created_at", "")), _vnum(r)))
+        self._heal_pack_drift(row)
+        return row
+
+    def _heal_pack_drift(self, pack_row: dict) -> None:
+        """Self-heal the fallback two-step commit: if the newest pack's version is
+        ahead of the project manifest (crash between insert and patch), re-point
+        the manifest so the committed memory becomes visible again."""
+        try:
+            v_pack = int(str(pack_row.get("version", "")).lstrip("v") or "0")
+            v_proj = int(str(self.version).lstrip("v") or "0")
+            if v_pack > v_proj:
+                grounded = bool(pack_row.get("facts")) and not self.blocking_questions()
+                self._patch("projects", {"id": self.pid},
+                            {"version": pack_row.get("version"), "grounded": grounded})
+        except Exception:  # noqa: BLE001 — healing is best-effort, reads never break
+            pass
 
     def pack(self, topic: str = TOPIC) -> a2a.ContextPack:
         """The versioned, source-cited Context Pack — empty/ungrounded when nothing

@@ -147,9 +147,19 @@ def build_witness_agent(stream: EventStream = STREAM, run_id: Optional[str] = No
 
 async def respond(question: str, run_id: Optional[str] = None, stream: EventStream = STREAM) -> dict:
     """Witness chat entrypoint. Demo → the deterministic router (same tools).
-    Live → the Gemini agent calls the tools and obeys the refusal contract."""
+    Live → the Gemini agent calls the tools and obeys the refusal contract.
+
+    The refusal beat is ENFORCED, not prompted: the same out-of-telemetry guard
+    that gates the demo router runs BEFORE the live model is ever invoked, so a
+    drifting model or edited prompt can never smuggle out an invented number for
+    a question the stream has no bucket for."""
     if not config.is_live():
         return answer(question, run_id, stream)
+    q = (question or "").lower().strip()
+    if _OUT_OF_TELEMETRY_RE.search(q):
+        out = answer(question, run_id, stream)   # the deterministic refusal, verbatim
+        out["live"] = True
+        return out
     try:
         from google.adk.runners import InMemoryRunner
         from google.genai import types

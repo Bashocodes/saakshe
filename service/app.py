@@ -257,8 +257,17 @@ def _rate_limit(request, route: str, capacity: float, per_seconds: float) -> Non
     deploy (max-instances=1) makes in-process state authoritative."""
     import time as _time
 
-    ip = (request.headers.get("x-forwarded-for", "").split(",")[0].strip()
-          or (request.client.host if request.client else "?"))
+    import ipaddress
+
+    # Trust x-forwarded-for only when it parses as a real IP — a forged header
+    # ("Bob", a fresh string per request) must not mint unlimited buckets or
+    # impersonate another client's bucket. Cloud Run sets the header itself;
+    # this guards the local/direct case.
+    fwd = request.headers.get("x-forwarded-for", "").split(",")[0].strip()
+    try:
+        ip = str(ipaddress.ip_address(fwd))
+    except ValueError:
+        ip = request.client.host if request.client else "?"
     key = f"{ip}:{route}"
     now = _time.monotonic()
     tokens, last = _BUCKETS.get(key, (capacity, now))
@@ -757,8 +766,12 @@ async def hero_approve(req: ApproveRequest, sess: Session = Depends(_session_dep
         raise HTTPException(status_code=404, detail=f"unknown flywheel run_id {req.run_id!r}")
     # Run ownership: a tenant may only advance its OWN run (don't reveal existence).
     # Holds on EVERY auth-enabled profile — gated file-store judges included.
-    if auth.auth_enabled() and run.user_id and (sess.user is None or run.user_id != sess.user.user_id):
-        raise HTTPException(status_code=404, detail=f"unknown flywheel run_id {req.run_id!r}")
+    # Ownerless runs (user_id == "") are tappable ONLY by anonymous sessions in an
+    # open-demo profile — a signed-in user must own the run, so an empty owner can
+    # never bypass the check (legacy/orphan runs are not a free tap).
+    if auth.auth_enabled() and (sess.user is not None or run.user_id):
+        if sess.user is None or not run.user_id or run.user_id != sess.user.user_id:
+            raise HTTPException(status_code=404, detail=f"unknown flywheel run_id {req.run_id!r}")
     # An ARMED tap on a deploy that can really send is the kural engagement —
     # the one extra credit on the price card. Unarmed taps and dry-run deploys
     # ride the run's own spend. charge() refunds on any raise below; a
@@ -854,7 +867,10 @@ async def media_render(request: Request,
     src.close()
     out = src.name.replace(".png", "_hdr.mp4")
     _media_jobs[jid] = {"status": "rendering", "frame": 0,
-                        "frames": q["seconds"] * fps, "quote": q}
+                        "frames": q["seconds"] * fps, "quote": q,
+                        # Tenancy: jobs are keyed by jid for lookup but OWNED by the
+                        # creating user — retrieval must not be guessable cross-tenant.
+                        "user_id": sess.user.user_id if sess.user else ""}
 
     def _run() -> None:
         job = _media_jobs[jid]
@@ -883,9 +899,23 @@ async def media_render(request: Request,
     return {"job_id": jid, "quote": q}
 
 
+def _owned_media_job(jid: str, sess: Session) -> Optional[dict]:
+    """A media job is visible only to its creator — a guessed/enumerated jid from
+    another tenant reads as unknown (don't reveal existence). Mirrors the run-
+    ownership rule on /api/hero/approve."""
+    job = _media_jobs.get(jid)
+    if not job:
+        return None
+    owner = job.get("user_id", "")
+    caller = sess.user.user_id if sess.user else ""
+    if owner != caller:
+        return None
+    return job
+
+
 @app.get("/api/kalai/media/job/{jid}")
 def media_job(jid: str, sess: Session = Depends(_session_dep)) -> Any:
-    job = _media_jobs.get(jid)
+    job = _owned_media_job(jid, sess)
     if not job:
         return JSONResponse(status_code=404, content={"error": "unknown job"})
     return job
@@ -893,7 +923,7 @@ def media_job(jid: str, sess: Session = Depends(_session_dep)) -> Any:
 
 @app.get("/api/kalai/media/file/{jid}")
 def media_file(jid: str, sess: Session = Depends(_session_dep)) -> Any:
-    job = _media_jobs.get(jid)
+    job = _owned_media_job(jid, sess)
     if not job or job.get("status") != "done":
         return JSONResponse(status_code=404, content={"error": "not ready"})
     return FileResponse(job["out_path"], media_type="video/mp4",

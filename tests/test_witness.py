@@ -95,3 +95,26 @@ def test_live_witness_tools_read_the_passed_stream_not_the_global():
     empty_built = wagent.build_witness_agent(EventStream(), "run-t")
     empty_tools = {t.func.__name__: t.func for t in empty_built.tools}
     assert not empty_tools["anyone_waiting"]()["waiting"]
+
+
+# ── audit fix: the live refusal is ENFORCED, not prompt-only ──────────────────
+def test_live_out_of_telemetry_refuses_before_the_model(monkeypatch):
+    """In live mode an out-of-telemetry question must hit the deterministic
+    refusal guard BEFORE any model is invoked — a drifting Gemini or an edited
+    prompt can never smuggle out an invented number."""
+    import asyncio
+
+    from common import config
+
+    monkeypatch.setattr(config, "is_live", lambda: True)
+
+    # If the live agent were built, this would blow up — proving the guard ran first.
+    def boom(*a, **k):
+        raise AssertionError("model invoked for an out-of-telemetry question")
+    monkeypatch.setattr(witness, "build_witness_agent", boom)
+
+    s = _seed(EventStream())
+    out = asyncio.run(witness.respond("what's our ad spend this month?", "fw_test", s))
+    assert out["refused"] is True
+    assert out.get("live") is True
+    assert "won't invent" in out["text"]

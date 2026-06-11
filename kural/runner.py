@@ -93,6 +93,12 @@ def _build_post(state: dict, master: dict, context_pack: dict) -> dict:
     media = master.get("media")
     if isinstance(media, dict) and media:
         post["media"] = dict(media)
+    elif config.is_live():
+        # Never ship a creative-less post SILENTLY in live: kalai's render died
+        # (Imagen 404, Veo timeout) and the founder approving this gate must see
+        # that the channel will receive words only. Demo stays byte-identical.
+        post["media_missing"] = True
+        post["media_note"] = "kalai's rendered creative is missing — this publishes as text-only"
     return post
 
 

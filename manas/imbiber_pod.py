@@ -108,6 +108,21 @@ class ImbiberReducer(BaseAgent):
                     "source": d.get("source", d.get("citation", "")),
                 }
 
+        # Rollback guard: if the PRIMARY sub-read failed to parse (corrupted state,
+        # truncated model output), do NOT overwrite a previously-consolidated blob
+        # with empties — keep the last good roll-up and mark the pass degraded, so
+        # the curator grades real claims instead of silently committing nothing.
+        if not (isinstance(primary, dict) and primary.get("claims")):
+            prior = state.get(self.ingest_key)
+            if isinstance(prior, dict) and prior.get("claims"):
+                consolidated = dict(prior)
+                consolidated["by_lens"] = by_lens
+                consolidated["degraded"] = True
+                delta = {self.ingest_key: consolidated}
+                state.update(delta)
+                yield Event(author=self.name, actions=EventActions(state_delta=delta))
+                return
+
         # The consolidated blob: claims + voice_rules + brand_rules lifted VERBATIM
         # from the primary sub-reader (byte-identical roll-up), plus the disjoint
         # sub-reads as a cited by_lens evidence map.

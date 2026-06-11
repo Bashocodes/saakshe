@@ -89,7 +89,9 @@ html[data-theme="dark"]{
   --ink:#d2ecd9; --ink-2:#7fa089; --ink-3:#54695b; --faint:#36473c;
   --line:#16201b; --line-2:#16201b;
   --line-w:1px;
-  --accent:#4fb6ff; --amber:#e7bb4a; --terracotta:#ff5d76; --green:#3ce791; --ok:#3ce791;
+  /* OBSIDIAN rule: green is the ONLY chrome accent in dark — arivu keeps its
+     blue agent mark below, but hover/focus/accents are phosphor, never blue. */
+  --accent:#3ce791; --amber:#e7bb4a; --terracotta:#ff5d76; --green:#3ce791; --ok:#3ce791;
   --tint-amber:#19170f; --tint-blue:#10131f; --tint-rose:#1a1310; --tint-green:#0e1a11;
   --radius:10px; --radius-sm:8px; --radius-pill:999px;
   --shadow:none; --shadow-sm:none;
@@ -3934,12 +3936,12 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
   }
   async function refreshGates(){
     try{ var r=await fetch(base+"/api/gates?run_id="+encodeURIComponent(runId),{cache:"no-store",headers:AH()});
-      var d=await r.json(); renderGates(d.gates); }catch(e){}
+      var d=await r.json(); renderGates(d.gates); }catch(e){ console.warn("saakshe: gate poll failed", e); }
   }
   async function pumpStream(){
     if(!runId) return;
     try{ var r=await fetch(base+"/api/stream?run_id="+encodeURIComponent(runId)+"&cursor="+cursor,{cache:"no-store",headers:AH()});
-      var d=await r.json(); (d.rows||[]).forEach(function(row){ feedRow(row); cursor=Math.max(cursor,row.seq+1); }); }catch(e){}
+      var d=await r.json(); (d.rows||[]).forEach(function(row){ feedRow(row); cursor=Math.max(cursor,row.seq+1); }); }catch(e){ console.warn("saakshe: stream poll failed", e); }
   }
   async function poll(){
     if(!open||!runId){ polling=false; return; }

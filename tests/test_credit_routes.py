@@ -561,3 +561,42 @@ def test_manas_edit_bills_and_persists_on_gated_filestore(gated_client):
     assert gated_client.ledger.get_balance("u_alice") == \
         credits.SIGNUP_GRANT - credits.cost("manas_edit")
     assert len(gated_client.pend.rows) == 1
+
+
+# ─── audit fixes: ownerless runs + media-job tenancy ──────────────────────────
+def test_ownerless_run_is_404_for_signed_in_users(client):
+    """A run with an empty user_id (legacy/orphan) must NOT be a free tap when
+    auth is enabled — the empty-owner bypass the audit flagged."""
+    client.get("/api/me", headers=_auth("alice"))
+    _ground(client.stores["u_alice"])
+    started = client.post("/api/hero/run", json={"idem_key": "run-own"},
+                          headers=_auth("alice")).json()
+    rid = started["run_id"]
+
+    import orchestrator
+    orchestrator.get_run(rid).user_id = ""    # simulate the legacy orphan
+
+    r = client.post("/api/hero/approve", json={"run_id": rid, "gate_id": "g1"},
+                    headers=_auth("alice"))
+    assert r.status_code == 404
+
+
+def test_media_job_is_invisible_cross_tenant(client):
+    """A guessed/enumerated media job id from another tenant reads as unknown —
+    same don't-reveal-existence rule as run ownership."""
+    import service.app as appmod
+
+    appmod._media_jobs["jid_alice"] = {
+        "status": "done", "out_path": "/tmp/never_served.mp4",
+        "user_id": "u_alice"}
+    try:
+        # the owner sees it
+        assert client.get("/api/kalai/media/job/jid_alice",
+                          headers=_auth("alice")).status_code == 200
+        # another tenant gets 404 on both the job and the file
+        assert client.get("/api/kalai/media/job/jid_alice",
+                          headers=_auth("mallory")).status_code == 404
+        assert client.get("/api/kalai/media/file/jid_alice",
+                          headers=_auth("mallory")).status_code == 404
+    finally:
+        appmod._media_jobs.pop("jid_alice", None)
