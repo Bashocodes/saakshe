@@ -34,6 +34,10 @@ COMMON_ENV+="|GOOGLE_CLOUD_PROJECT=${PROJECT}|GOOGLE_CLOUD_LOCATION=global"
 COMMON_ENV+="|SAAKSHE_CLAUDE_LOCATION=global|ARIVU_CLAUDE_LOCATION=global|GOOGLE_GENAI_USE_VERTEXAI=TRUE"
 COMMON_ENV+="|SAAKSHE_MODEL_PRO=gemini-3.1-pro-preview|SAAKSHE_MODEL_FLASH=gemini-3.5-flash"
 COMMON_ENV+="|ARIVU_MODEL_CHAIR=gemini-3.1-pro-preview|ARIVU_MODEL_MANTRI=gemini-3.5-flash"
+# Deep grasp ON in prod (founder call, 2026-06-11): connects interview at Brand-Pack
+# depth (manas/grasp_schema.py tier-1, capped at 8) instead of the classic 4 dims.
+# CI/pytest stay classic (env unset there) — demo determinism intact.
+COMMON_ENV+="|SAAKSHE_DEEP_GRASP=1"
 # Deploy provenance — surfaced by /api/public-config + the cockpit sidebar, so
 # "is the latest deployed?" is answerable at a glance (the Workers-dashboard itch).
 COMMON_ENV+="|SAAKSHE_GIT_SHA=$(git rev-parse --short HEAD 2>/dev/null || echo unknown)"
