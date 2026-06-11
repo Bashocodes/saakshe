@@ -52,6 +52,8 @@ class Ledger:
     def __init__(self) -> None:
         self.bal: dict[str, int] = {}
         self.calls: list[str] = []
+        self.spends: list[dict] = []          # every spend's params, for key assertions
+        self.claimed: set[tuple[str, str]] = set()  # (user, idem_key) — mirrors the SQL claim
 
     def rpc(self, fn: str, params: dict) -> int:
         self.calls.append(fn)
@@ -60,12 +62,20 @@ class Ledger:
             self.bal.setdefault(u, params["p_grant"])
             return self.bal[u]
         if fn == "saakshe_spend":
+            self.spends.append(dict(params))
+            # claim-first idempotency, like the real saakshe_spend: a replayed
+            # key short-circuits to the current balance — no second charge.
+            if (u, params["p_idem_key"]) in self.claimed:
+                return self.bal.get(u, 0)
             cur = self.bal.get(u, 0)
             if cur < params["p_amount"]:
                 raise credits.CreditError("INSUFFICIENT_CREDITS", code="P0001")
+            self.claimed.add((u, params["p_idem_key"]))
             self.bal[u] = cur - params["p_amount"]
             return self.bal[u]
         if fn == "saakshe_refund":
+            # release the spend claim (the SQL renames it) so a real retry re-charges
+            self.claimed.discard((u, params.get("p_spend_idem_key", "")))
             self.bal[u] = self.bal.get(u, 0) + params["p_amount"]
             return self.bal[u]
         raise AssertionError(f"unexpected rpc {fn}")
@@ -301,3 +311,253 @@ def test_ask_402_when_out_of_credits(client):
                     headers=_auth("broke"))
     assert r.status_code == 402
     assert r.json()["error"] == "out of credits"
+
+
+# ─── server-side idem-key namespacing (the cross-route collision fix) ─────────
+def test_spend_keys_are_server_namespaced(client):
+    """The server, not the client, owns the spend-key namespace: hero runs land
+    under run:, manas edits under edit: — a client key can't pick its prefix."""
+    client.get("/api/me", headers=_auth("alice"))
+    _ground(client.stores["u_alice"])
+    client.post("/api/hero/run", json={"idem_key": "k1"}, headers=_auth("alice"))
+    client.post("/api/manas/edit",
+                json={"instruction": "punchier", "target": {"tagline": "old"}, "idem_key": "k2"},
+                headers=_auth("alice"))
+    keys = [p["p_idem_key"] for p in client.ledger.spends]
+    assert "run:k1" in keys and "edit:k2" in keys
+
+
+def test_crafted_run_key_cannot_preclaim_the_grasp_spend(client, monkeypatch):
+    """The 100-for-1 exploit: a 1-credit run squatting on 'ingest:<k>' must NOT
+    make the later 100-credit grasp replay free."""
+    import service.app as appmod
+    client.get("/api/me", headers=_auth("alice"))
+    _ground(client.stores["u_alice"])
+    client.post("/api/hero/run", json={"idem_key": "ingest:steal"}, headers=_auth("alice"))
+    after_run = client.ledger.get_balance("u_alice")
+
+    async def fake_ingest(stream, run_id, store):
+        return {"status": "ok", "facts": 3}
+    monkeypatch.setattr(appmod.manas_runner, "ingest_connected", fake_ingest)
+    r = client.post("/api/connect/ingest", json={"idem_key": "steal"}, headers=_auth("alice"))
+    assert r.status_code == 200
+    assert client.ledger.get_balance("u_alice") == after_run - credits.cost("connect_ingest")
+
+
+# ─── kalai render bills kalai_make (priced-but-never-charged fix) ─────────────
+def _render_and_wait(client, monkeypatch, render_fn):
+    import time
+
+    import service.app as appmod
+    monkeypatch.setattr(appmod.media_pipeline, "render", render_fn)
+    r = client.post("/api/kalai/media/render",
+                    files={"image": ("a.png", b"\x89PNGfake", "image/png")},
+                    data={"fx": "sat_sort"}, headers=_auth("alice"))
+    if r.status_code != 200:
+        return r, None
+    jid = r.json()["job_id"]
+    for _ in range(200):
+        job = client.get(f"/api/kalai/media/job/{jid}", headers=_auth("alice")).json()
+        if job["status"] != "rendering":
+            return r, job
+        time.sleep(0.01)
+    raise AssertionError("render job never finished")
+
+
+def test_media_render_debits_kalai_make(client, monkeypatch):
+    client.get("/api/me", headers=_auth("alice"))
+    r, job = _render_and_wait(client, monkeypatch, lambda **kw: {
+        "out_path": kw["out_path"], "verify": {"ok": True}, "vcpu_sec_estimate": 1.0})
+    assert r.status_code == 200 and job["status"] == "done"
+    assert client.ledger.get_balance("u_alice") == \
+        credits.SIGNUP_GRANT - credits.cost("kalai_make")
+
+
+def test_media_render_refunds_when_the_job_fails(client, monkeypatch):
+    def boom(**kw):
+        raise RuntimeError("render died")
+    client.get("/api/me", headers=_auth("alice"))
+    r, job = _render_and_wait(client, monkeypatch, boom)
+    assert r.status_code == 200 and job["status"] == "error"
+    assert client.ledger.get_balance("u_alice") == credits.SIGNUP_GRANT
+    assert "saakshe_refund" in client.ledger.calls
+
+
+def test_media_render_402_when_out_of_credits(client, monkeypatch):
+    client.get("/api/me", headers=_auth("alice"))
+    client.ledger.bal["u_alice"] = 0
+    r, _ = _render_and_wait(client, monkeypatch, lambda **kw: {})
+    assert r.status_code == 402
+    assert r.json()["error"] == "out of credits"
+
+
+# ─── kural engage bills the ARMED publish tap only ────────────────────────────
+def _arm_live_send(monkeypatch):
+    from kural.tools import channels
+    monkeypatch.setenv("SAAKSHE_ALLOW_LIVE_SEND", "1")
+    monkeypatch.setenv("SAAKSHE_CHANNEL_WEBHOOK_URL", "https://example.com/intake")
+    monkeypatch.setattr(channels, "_channel_call", lambda action, args: {"ok": True})
+
+
+def test_armed_publish_tap_debits_kural_engage(client, monkeypatch):
+    _arm_live_send(monkeypatch)
+    client.get("/api/me", headers=_auth("alice"))
+    _ground(client.stores["u_alice"])
+    rid = client.post("/api/hero/run", json={"idem_key": "run-e"}, headers=_auth("alice")).json()["run_id"]
+    client.post("/api/hero/approve", json={"run_id": rid, "gate_id": "g1"}, headers=_auth("alice"))
+    g2 = client.post("/api/hero/approve",
+                     json={"run_id": rid, "gate_id": "g2", "arm_real_send": True},
+                     headers=_auth("alice")).json()
+    assert g2["status"] == "completed"
+    assert client.ledger.get_balance("u_alice") == \
+        credits.SIGNUP_GRANT - credits.cost("flywheel_run") - credits.cost("kural_engage")
+
+
+def test_unarmed_approve_never_debits_engage(client, monkeypatch):
+    _arm_live_send(monkeypatch)   # deploy CAN send — but the founder didn't arm the tap
+    client.get("/api/me", headers=_auth("alice"))
+    _ground(client.stores["u_alice"])
+    rid = client.post("/api/hero/run", json={"idem_key": "run-u"}, headers=_auth("alice")).json()["run_id"]
+    client.post("/api/hero/approve", json={"run_id": rid, "gate_id": "g1"}, headers=_auth("alice"))
+    client.post("/api/hero/approve", json={"run_id": rid, "gate_id": "g2"}, headers=_auth("alice"))
+    assert client.ledger.get_balance("u_alice") == \
+        credits.SIGNUP_GRANT - credits.cost("flywheel_run")
+
+
+def test_armed_tap_on_sendless_deploy_is_free(client):
+    """No env / no channel client → the publish dry-runs → no engage charge."""
+    client.get("/api/me", headers=_auth("alice"))
+    _ground(client.stores["u_alice"])
+    rid = client.post("/api/hero/run", json={"idem_key": "run-d"}, headers=_auth("alice")).json()["run_id"]
+    client.post("/api/hero/approve", json={"run_id": rid, "gate_id": "g1"}, headers=_auth("alice"))
+    client.post("/api/hero/approve",
+                json={"run_id": rid, "gate_id": "g2", "arm_real_send": True},
+                headers=_auth("alice"))
+    assert client.ledger.get_balance("u_alice") == \
+        credits.SIGNUP_GRANT - credits.cost("flywheel_run")
+
+
+# ─── profile point-and-edit bills one credit ──────────────────────────────────
+def test_profile_edit_debits_one_credit(client, monkeypatch):
+    import service.app as appmod
+    from common import config
+    monkeypatch.setattr(config, "is_live", lambda: True)
+    monkeypatch.setattr(appmod, "_profile_edit_llm", lambda prompt: "Sharper tagline.",
+                        raising=False)
+    client.get("/api/me", headers=_auth("alice"))
+    r = client.post("/api/profile/edit",
+                    json={"label": "Tagline", "current_text": "old", "instruction": "sharper",
+                          "provenance": "README"},
+                    headers=_auth("alice"))
+    assert r.status_code == 200 and r.json()["text"] == "Sharper tagline."
+    assert client.ledger.get_balance("u_alice") == \
+        credits.SIGNUP_GRANT - credits.cost("profile_edit")
+
+
+def test_profile_edit_refunds_when_the_model_dies(client, monkeypatch):
+    import service.app as appmod
+    from common import config
+    monkeypatch.setattr(config, "is_live", lambda: True)
+
+    def boom(prompt):
+        raise RuntimeError("vertex down")
+    monkeypatch.setattr(appmod, "_profile_edit_llm", boom, raising=False)
+    client.get("/api/me", headers=_auth("alice"))
+    r = client.post("/api/profile/edit",
+                    json={"label": "Tagline", "current_text": "old", "instruction": "sharper"},
+                    headers=_auth("alice"))
+    assert r.status_code == 502
+    assert client.ledger.get_balance("u_alice") == credits.SIGNUP_GRANT
+
+
+# ─── empty-start interview costs 1, not the 100-credit grasp ─────────────────
+def test_empty_start_ingest_charges_interview_not_grasp(client, monkeypatch):
+    import service.app as appmod
+    client.get("/api/me", headers=_auth("alice"))   # no _ground → zero connections
+
+    async def fake_interview(stream, run_id, store):
+        return {"status": "NEEDS_ANSWERS", "questions": ["what do you sell?"]}
+    monkeypatch.setattr(appmod.manas_runner, "ingest_connected", fake_interview)
+    r = client.post("/api/connect/ingest", json={"idem_key": "i1"}, headers=_auth("alice"))
+    assert r.status_code == 200
+    assert client.ledger.get_balance("u_alice") == credits.SIGNUP_GRANT - 1
+
+
+# ─── voice turns bill like chat turns ─────────────────────────────────────────
+def test_voice_text_turn_debits_one_credit(client):
+    import json as _json
+    client.get("/api/me", headers=_auth("alice"))
+    with client.websocket_connect("/ws/voice?token=tok_alice") as ws:
+        hello = _json.loads(ws.receive_text())
+        assert hello["type"] == "hello"
+        ws.send_text(_json.dumps({"type": "text", "text": "anyone waiting on me?"}))
+        reply = _json.loads(ws.receive_text())
+    assert reply["type"] == "reply"
+    assert client.ledger.get_balance("u_alice") == \
+        credits.SIGNUP_GRANT - credits.cost("voice_turn")
+
+
+def test_voice_turn_out_of_credits_sends_error_frame(client):
+    import json as _json
+    client.get("/api/me", headers=_auth("broke"))
+    client.ledger.bal["u_broke"] = 0
+    with client.websocket_connect("/ws/voice?token=tok_broke") as ws:
+        _json.loads(ws.receive_text())          # hello
+        ws.send_text(_json.dumps({"type": "text", "text": "anyone waiting?"}))
+        frame = _json.loads(ws.receive_text())
+    assert frame["type"] == "error" and frame["error"] == "out of credits"
+
+
+# ─── manas edit bills on the file-store gated profile too ────────────────────
+@pytest.fixture
+def gated_client(monkeypatch):
+    """The GATED prod shape: file store (no SAAKSHE_STORE=supabase), billing
+    armed via SAAKSHE_BILLING=1, Supabase auth configured."""
+    import service.app as appmod
+
+    monkeypatch.delenv("SAAKSHE_STORE", raising=False)
+    monkeypatch.setenv("SAAKSHE_BILLING", "1")
+    monkeypatch.setenv("SAAKSHE_SUPABASE_URL", "https://ref.supabase.co")
+    monkeypatch.delenv("OWNER_EMAILS", raising=False)
+
+    def fake_verify(token: str) -> dict:
+        uid = token.replace("tok_", "u_")
+        return {"sub": uid, "email": f"{uid}@example.com", "aud": "authenticated"}
+    monkeypatch.setattr(auth, "verify_token", fake_verify)
+
+    stores: dict[str, project.ProjectStore] = {}
+
+    def fake_store_for(uid: str):
+        s = stores.get(uid)
+        if s is None:
+            s = project.ProjectStore(user=uid)
+            s.reset()
+            stores[uid] = s
+        return s
+    monkeypatch.setattr(project, "store_for", fake_store_for)
+
+    ledger = Ledger()
+    monkeypatch.setattr(credits, "_rpc", ledger.rpc)
+    monkeypatch.setattr(credits, "_get_balance", ledger.get_balance)
+    appmod._GRANTED.clear()
+
+    pend = PendFake()
+    monkeypatch.setattr(appmod, "_pending_factory", lambda uid: PendingChanges(uid, client=pend))
+
+    c = TestClient(appmod.app)
+    c.ledger = ledger          # type: ignore[attr-defined]
+    c.pend = pend              # type: ignore[attr-defined]
+    return c
+
+
+def test_manas_edit_bills_and_persists_on_gated_filestore(gated_client):
+    gated_client.get("/api/me", headers=_auth("alice"))
+    r = gated_client.post("/api/manas/edit",
+                          json={"instruction": "warmer", "target": {"tagline": "old"},
+                                "idem_key": "ge1"},
+                          headers=_auth("alice"))
+    assert r.status_code == 200
+    assert r.json()["persisted"] is True
+    assert gated_client.ledger.get_balance("u_alice") == \
+        credits.SIGNUP_GRANT - credits.cost("manas_edit")
+    assert len(gated_client.pend.rows) == 1

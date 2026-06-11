@@ -219,6 +219,15 @@ def _billing_active(user) -> bool:
             and not getattr(user, "is_owner", False) and not _is_judge(user))
 
 
+def _live_send_armed() -> bool:
+    """The deploy-level half of the publish triple AND-gate: the env opt-in plus
+    a registered channel client. Without both, an armed tap dry-runs — and a
+    dry-run must never bill the kural_engage credit."""
+    from kural.tools import channels
+    return (os.environ.get("SAAKSHE_ALLOW_LIVE_SEND", "") == "1"
+            and channels.has_channel_client())
+
+
 # ─── public-demo lock + per-IP rate limiting ──────────────────────────────────
 # The public deploy is ONE shared file-store any visitor can reach. With
 # SAAKSHE_PUBLIC_DEMO=1 the mutating connect/vault surface is sealed (a visitor
@@ -423,20 +432,38 @@ def _profile_edit_sanitize(text: str) -> str:
     return re.sub(r"\s+", " ", t).strip()
 
 
+def _profile_edit_llm(prompt: str) -> str:
+    """The Vertex Gemini-Flash call behind /api/profile/edit — a module-level
+    seam so tests fake the model without faking Vertex."""
+    from google import genai
+    from google.genai import types as gtypes
+
+    client = genai.Client(vertexai=True, project=config.GOOGLE_CLOUD_PROJECT or None,
+                          location=config.GEMINI_LOCATION)
+    cfg = dict(system_instruction=_PROFILE_EDIT_SYSTEM, temperature=0.4,
+               max_output_tokens=1200)
+    try:  # flash is a THINKING model — keep thoughts from eating the output budget
+        cfg["thinking_config"] = gtypes.ThinkingConfig(thinking_level="low")
+        gen = gtypes.GenerateContentConfig(**cfg)
+    except Exception:  # noqa: BLE001 — older SDK: drop the knob, not the call
+        cfg.pop("thinking_config", None)
+        gen = gtypes.GenerateContentConfig(**cfg)
+    out = client.models.generate_content(model=config.MODEL_FLASH, contents=prompt, config=gen)
+    return out.text or ""
+
+
 @app.post("/api/profile/edit")
 async def profile_edit(req: ProfileEditRequest, request: Request,
                        sess: Session = Depends(_session_dep)) -> dict[str, Any]:
     """The grasped page's point-and-edit chat (web/grasped.html): rewrite ONE
-    element's text with Gemini Flash, grounded in its cited source. Demo mode
-    503s so the page falls back to its own deterministic local engine."""
+    element's text with Gemini Flash, grounded in its cited source — a 1-credit
+    move on the price card. Demo mode 503s so the page falls back to its own
+    deterministic local engine."""
     _require_auth_if_live(sess.user)
     _rate_limit(request, "profile_edit", capacity=10, per_seconds=60)
     if not config.is_live():
         raise HTTPException(status_code=503, detail="live edit runs in live mode — the page's local engine covers demo")
     import asyncio as _asyncio
-
-    from google import genai
-    from google.genai import types as gtypes
 
     prompt = (
         f"ELEMENT ROLE: {req.label or 'Element'}\n"
@@ -446,25 +473,17 @@ async def profile_edit(req: ProfileEditRequest, request: Request,
         f"Return ONLY the new text for this element."
     )
 
-    def _call() -> str:
-        client = genai.Client(vertexai=True, project=config.GOOGLE_CLOUD_PROJECT or None,
-                              location=config.GEMINI_LOCATION)
-        cfg = dict(system_instruction=_PROFILE_EDIT_SYSTEM, temperature=0.4,
-                   max_output_tokens=1200)
-        try:  # flash is a THINKING model — keep thoughts from eating the output budget
-            cfg["thinking_config"] = gtypes.ThinkingConfig(thinking_level="low")
-            gen = gtypes.GenerateContentConfig(**cfg)
-        except Exception:  # noqa: BLE001 — older SDK: drop the knob, not the call
-            cfg.pop("thinking_config", None)
-            gen = gtypes.GenerateContentConfig(**cfg)
-        out = client.models.generate_content(model=config.MODEL_FLASH, contents=prompt, config=gen)
-        return out.text or ""
-
+    payer = sess.user if _billing_active(sess.user) else None
+    pe_key = "pedit:" + uuid4().hex
     try:
-        text = _profile_edit_sanitize(await _asyncio.to_thread(_call))
-        if not text:
-            raise RuntimeError("empty reply")
-    except Exception as exc:  # noqa: BLE001 — the page falls back to its local engine
+        with credits.charge(payer, "profile_edit", idem_key=pe_key, reason="profile edit"):
+            text = _profile_edit_sanitize(await _asyncio.to_thread(_profile_edit_llm, prompt))
+            if not text:
+                raise RuntimeError("empty reply")
+    except credits.OutOfCredits as exc:
+        return JSONResponse(status_code=402, content=credits.out_of_credits_payload(exc.balance))
+    except Exception as exc:  # noqa: BLE001 — charge() already refunded; the page
+        # falls back to its local engine
         raise HTTPException(status_code=502, detail=f"edit model unavailable: {str(exc)[:200]}")
     return {"text": text, "message": "Applied your change (live manas).",
             "engine": config.MODEL_FLASH}
@@ -558,8 +577,14 @@ async def connect_ingest(req: Optional[IngestRequest] = None, sess: Session = De
     # cited founder-word fact. A founder without a public repo/site can begin.
     run_id = "ingest_" + os.urandom(4).hex()
     spend_key = "ingest:" + ((req.idem_key or run_id)[:120] if req and req.idem_key else run_id)
+    # Grasping a CONNECTED repo is the big-ticket action; an empty start (zero
+    # connections) only opens the interview — that's "a move", priced 1, not 100.
+    cost_key = "connect_ingest" if store.is_connected() else "interview_open"
+    payer = user if _billing_active(user) else None
     try:
-        with credits.charge(user, "connect_ingest", idem_key=spend_key, reason="connect ingest"):
+        with credits.charge(payer, cost_key, idem_key=spend_key,
+                            reason=("connect ingest" if cost_key == "connect_ingest"
+                                    else "interview open")):
             result = await manas_runner.ingest_connected(stream, run_id, store)
     except credits.OutOfCredits as exc:
         return JSONResponse(status_code=402, content=credits.out_of_credits_payload(exc.balance))
@@ -683,7 +708,10 @@ async def _start_flywheel(sess: Session, *, question: Optional[str], idem_key: O
     is refunded by /api/hero/approve too, since the run spans three requests."""
     store, stream, user = sess.store, sess.stream, sess.user
     billing = _billing_active(user)
-    spend_key = idem_key or ("run:" + uuid4().hex)
+    # The SERVER owns the spend-key namespace ("run:") — a client-chosen key must
+    # never be able to squat on another action's claim (e.g. "ingest:<k>", which
+    # would make the later 100-credit grasp replay as already-spent).
+    spend_key = "run:" + (idem_key or uuid4().hex)
     if billing:
         try:
             credits.spend(user.user_id, credits.cost("flywheel_run"), "flywheel run", spend_key)
@@ -731,10 +759,22 @@ async def hero_approve(req: ApproveRequest, sess: Session = Depends(_session_dep
     # Holds on EVERY auth-enabled profile — gated file-store judges included.
     if auth.auth_enabled() and run.user_id and (sess.user is None or run.user_id != sess.user.user_id):
         raise HTTPException(status_code=404, detail=f"unknown flywheel run_id {req.run_id!r}")
+    # An ARMED tap on a deploy that can really send is the kural engagement —
+    # the one extra credit on the price card. Unarmed taps and dry-run deploys
+    # ride the run's own spend. charge() refunds on any raise below; a
+    # no-safe-decision refund follows the run's, and the key is stable per
+    # (run, gate) so a retried tap never double-bills.
+    engage_payer = (sess.user if (req.arm_real_send and _live_send_armed()
+                                  and _billing_active(sess.user)) else None)
+    engage_key = f"engage:{req.run_id}:{req.gate_id or 'tap'}"
     try:
-        summary = await orchestrator.approve(req.run_id, req.gate_id,
-                                             stream=sess.stream, store=run.store or sess.store,
-                                             arm_real_send=req.arm_real_send)
+        with credits.charge(engage_payer, "kural_engage", idem_key=engage_key,
+                            reason="kural engage (armed publish)"):
+            summary = await orchestrator.approve(req.run_id, req.gate_id,
+                                                 stream=sess.stream, store=run.store or sess.store,
+                                                 arm_real_send=req.arm_real_send)
+    except credits.OutOfCredits as exc:
+        return JSONResponse(status_code=402, content=credits.out_of_credits_payload(exc.balance))
     except KeyError as exc:
         raise HTTPException(status_code=404, detail=str(exc))
     except RuntimeError as exc:
@@ -751,6 +791,13 @@ async def hero_approve(req: ApproveRequest, sess: Session = Depends(_session_dep
     if summary.get("status") == "no_safe_decision":
         if _refund_run(run, sess.user, "no safe decision — not charged"):
             summary["refunded"] = True
+        if engage_payer is not None:    # nothing shipped → the engage credit too
+            try:
+                credits.refund(engage_payer.user_id, credits.cost("kural_engage"),
+                               "no safe decision — not charged",
+                               engage_key, engage_key + ":refund")
+            except Exception:  # noqa: BLE001 — idempotent key; ops can replay
+                print(f"REFUND FAILED — replay refund for spend key {engage_key!r}")
     return summary
 
 
@@ -789,6 +836,16 @@ async def media_render(request: Request,
                          has_source_image=True, wants_hdr=True)
     if not q["fits_budget"]:
         return JSONResponse(status_code=409, content={"error": "over budget", "quote": q})
+    # The RENDER is the chargeable compute act (the quote stays free) — spend
+    # before the job starts, refund from the worker if the render dies.
+    payer = sess.user if _billing_active(sess.user) else None
+    render_key = "kalai:" + uuid4().hex
+    if payer is not None:
+        try:
+            credits.spend(payer.user_id, credits.cost("kalai_make"),
+                          "kalai media render", render_key)
+        except credits.OutOfCredits as exc:
+            return JSONResponse(status_code=402, content=credits.out_of_credits_payload(exc.balance))
     jid = uuid4().hex
     src = tempfile.NamedTemporaryFile(suffix=".png", delete=False)
     src.write(await image.read())
@@ -809,6 +866,14 @@ async def media_render(request: Request,
                            q, measured_vcpu_sec=res["vcpu_sec_estimate"], vertex_usd=0.0))
         except Exception as exc:  # noqa: BLE001 — job surface reports, never raises
             job.update(status="error", error=str(exc)[:300])
+            if payer is not None:   # the render died on OUR side — make them whole
+                try:
+                    credits.refund(payer.user_id, credits.cost("kalai_make"),
+                                   credits.TEMPORARY_FAILURE_MSG,
+                                   render_key, render_key + ":refund")
+                    job["refunded"] = True
+                except Exception:  # noqa: BLE001 — idempotent key; ops can replay
+                    print(f"REFUND FAILED — replay refund for spend key {render_key!r}")
         finally:
             os.unlink(src.name)
 
@@ -895,16 +960,22 @@ async def manas_edit(req: ManasEditRequest, sess: Session = Depends(_session_dep
     _require_auth_if_live(sess.user)
     target = req.target or {}
     new_json, diff_json, changed, model = _generate_edit(req.entity_type, req.instruction, target)
-    if not _supabase_backend():
+    # The edit persists (and bills) wherever Supabase can hold the pending row:
+    # the full supabase-store profile OR a billing-armed deploy (the gated prod
+    # runs the file store but ships the service key) — a creds-free local demo
+    # and an anonymous visitor still get the free preview.
+    if (not (_supabase_backend() or credits.billing_enabled())) or sess.user is None:
         # Demo preview — the edit is generated but neither charged nor persisted.
         return {"persisted": False, "entity_type": req.entity_type, "diff": diff_json,
                 "changed_fields": changed, "new_json": new_json}
     user = sess.user
     billing = _billing_active(user)
-    edit_key = req.idem_key or ("edit:" + uuid4().hex)
+    payer = user if billing else None        # judges/owners edit free
+    # Server-owned key namespace — see _start_flywheel's note on key squatting.
+    edit_key = "edit:" + (req.idem_key or uuid4().hex)
     cost = credits.cost("manas_edit")
     try:
-        with credits.charge(user, "manas_edit", idem_key=edit_key, reason="manas edit"):
+        with credits.charge(payer, "manas_edit", idem_key=edit_key, reason="manas edit"):
             row = _pending_factory(user.user_id).create(
                 entity_type=req.entity_type, old_json=target, new_json=new_json,
                 diff_json=diff_json, changed_fields=changed, idem_key=edit_key,
@@ -975,16 +1046,37 @@ def agent_card(quadrant: str) -> Any:
 
 
 # ─── voice (Gemini Live; text-over-WS in demo) ───────────────────────────────
+def _voice_user(token: str):
+    """Resolve the founder from the WS ?token= (browsers can't set WS headers).
+    Raises auth.AuthError on a bad token; '' resolves to None (anonymous)."""
+    if not token:
+        return None
+    claims = auth.verify_token(token)
+    email = claims.get("email", "")
+    return auth.User(user_id=claims["sub"], email=email,
+                     is_owner=email.lower() in auth.owner_emails())
+
+
 @app.websocket("/ws/voice")
 async def voice(websocket: WebSocket) -> None:
-    if _require_signin():
-        # Browsers can't set WS headers, so the gated demo passes ?token=<jwt>.
-        try:
-            auth.verify_token(websocket.query_params.get("token", ""))
-        except auth.AuthError:
-            await websocket.close(code=4401)
-            return
-    await witness_voice.handle_ws(websocket)
+    token = websocket.query_params.get("token", "")
+    try:
+        user = _voice_user(token)
+    except auth.AuthError:
+        user = None
+    if _require_signin() and user is None:
+        await websocket.close(code=4401)
+        return
+    # A voice turn is a chat turn (1 credit on the price card) — billed whenever
+    # a real founder is on the line, free for the open demo / owners / judges.
+    payer = user if _billing_active(user) else None
+
+    def bill_turn() -> None:
+        if payer is not None:
+            credits.spend(payer.user_id, credits.cost("voice_turn"), "voice turn",
+                          "voice:" + uuid4().hex)
+
+    await witness_voice.handle_ws(websocket, bill_turn=bill_turn)
 
 
 # ─── serve the site ───────────────────────────────────────────────────────────

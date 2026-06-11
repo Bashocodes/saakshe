@@ -57,10 +57,13 @@ def test_cost_defaults():
     assert credits.COSTS == {
         "flywheel_run": 1,
         "connect_ingest": 100,   # grasping a repository, questions included
+        "interview_open": 1,     # empty start: no repo yet, just the questions
         "manas_edit": 1,
+        "profile_edit": 1,       # the grasped page's point-and-edit
         "kalai_make": 1,
         "kural_engage": 1,
         "saakshe_ask": 1,        # a chat turn is an action too
+        "voice_turn": 1,         # a spoken turn is a chat turn
     }
     assert credits.SIGNUP_GRANT == 500
 

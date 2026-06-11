@@ -28,6 +28,7 @@ import json
 from typing import Any
 
 from common import config
+from common.credits import CreditError, OutOfCredits
 from common.stream import STREAM
 from . import agent as witness
 from . import telemetry as tel
@@ -39,8 +40,29 @@ from . import telemetry as tel
 _TOOL_NAMES = ["anyone_waiting", "cost_today", "whats_reversible", "what_learned", "whos_acting_now"]
 
 
-async def handle_ws(websocket: Any) -> None:
-    """FastAPI WebSocket handler. Accepts, greets, then serves the witness."""
+async def _bill(websocket: Any, bill_turn) -> bool:
+    """Bill ONE voice turn. Returns False when the founder is out of credits
+    (an error frame has been sent). Our own billing outage serves the turn
+    unbilled — the founder is never blamed for our side dying."""
+    if bill_turn is None:
+        return True
+    try:
+        bill_turn()
+        return True
+    except OutOfCredits as exc:
+        await websocket.send_text(json.dumps(
+            {"type": "error", "error": "out of credits", "balance": exc.balance}))
+        return False
+    except CreditError:
+        print("voice: turn billing failed — turn served unbilled (our outage)")
+        return True
+
+
+async def handle_ws(websocket: Any, bill_turn=None) -> None:
+    """FastAPI WebSocket handler. Accepts, greets, then serves the witness.
+
+    ``bill_turn`` (optional, injected by the route) spends one voice-turn credit
+    for the paying founder; it raises OutOfCredits when the balance is gone."""
     await websocket.accept()
     live = config.is_live()
     await websocket.send_text(json.dumps({
@@ -53,7 +75,7 @@ async def handle_ws(websocket: Any) -> None:
 
     if live:
         try:
-            await _run_live(websocket)
+            await _run_live(websocket, bill_turn)
             return
         except Exception as exc:  # noqa: BLE001 — degrade to text rather than drop the socket
             import traceback
@@ -63,10 +85,10 @@ async def handle_ws(websocket: Any) -> None:
             except Exception:  # noqa: BLE001 — socket already gone
                 return
 
-    await _run_text(websocket)
+    await _run_text(websocket, bill_turn)
 
 
-async def _run_text(websocket: Any) -> None:
+async def _run_text(websocket: Any, bill_turn=None) -> None:
     """Demo path: text over the socket through the witness tools (incl. the refusal)."""
     from starlette.websockets import WebSocketDisconnect
 
@@ -79,6 +101,8 @@ async def _run_text(websocket: Any) -> None:
                 msg = {"type": "text", "text": raw}
             if msg.get("type") not in (None, "text"):
                 continue
+            if not await _bill(websocket, bill_turn):
+                continue   # broke: error frame sent; keep listening, re-check next turn
             run_id = msg.get("run_id")
             reply = await witness.respond(msg.get("text", ""), run_id, STREAM)
             await websocket.send_text(json.dumps({"type": "reply", **reply}))
@@ -110,7 +134,7 @@ async def _connect_live(client_factory, live_config):
     raise last_exc or RuntimeError("no Live model candidate connected")
 
 
-async def _run_live(websocket: Any) -> None:
+async def _run_live(websocket: Any, bill_turn=None) -> None:
     """Live path: bridge the WebSocket to a Gemini Live session whose only tools
     are the witness's telemetry readers. Audio in → Gemini → audio out; tool calls
     resolved against the live stream. (Activates with Vertex/Gemini creds.)"""
@@ -191,6 +215,9 @@ async def _run_live(websocket: Any) -> None:
                     if text:
                         await websocket.send_text(json.dumps({"type": "reply", "text": text, "live": True}))
                 if not got_any:   # an empty turn = the Gemini session itself closed
+                    break
+                # one completed model turn = one voice turn on the price card
+                if not await _bill(websocket, bill_turn):
                     break
         finally:
             pump.cancel()

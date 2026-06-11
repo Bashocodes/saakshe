@@ -48,13 +48,17 @@ from common import supastore
 _COST_ENV: dict[str, tuple[str, int]] = {
     # The founder's price card (2026-06-11): grasping a repository — the ingest
     # with its questions and everything that follows — is the one big-ticket
-    # action; every other move (a chat turn, an edit, a run) costs ONE credit.
+    # action; every other move (a chat turn, an edit, a run, a render, a voice
+    # turn, an empty-start interview) costs ONE credit.
     "flywheel_run": ("COST_FLYWHEEL_RUN", 1),
     "connect_ingest": ("COST_CONNECT_INGEST", 100),
+    "interview_open": ("COST_INTERVIEW_OPEN", 1),
     "manas_edit": ("COST_MANAS_EDIT", 1),
+    "profile_edit": ("COST_PROFILE_EDIT", 1),
     "kalai_make": ("COST_KALAI_MAKE", 1),
     "kural_engage": ("COST_KURAL_ENGAGE", 1),
     "saakshe_ask": ("COST_SAAKSHE_ASK", 1),
+    "voice_turn": ("COST_VOICE_TURN", 1),
 }
 
 COSTS: dict[str, int] = {key: _int(env, default) for key, (env, default) in _COST_ENV.items()}
