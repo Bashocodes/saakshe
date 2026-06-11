@@ -464,9 +464,14 @@ html[data-bot="joy"] .skbot .skeye.R{ animation-delay:.07s; }
    2 question cards GROW EQUALLY to fill the taller track (each card centers its own
    content) instead of leaving one mid-panel void — the outputs list below stays at
    content height. "Fill, don't fit": two spacious cards, never a hole between them. */
-.qopen > .pbody{ display:flex; flex-direction:column; gap:10px; }
+.qopen > .pbody{ display:flex; flex-direction:column; gap:10px; overflow-y:auto; }
 .qopen > .pbody.tight > .qcard + .qcard{ margin-top:0; }
 .qopen .qcard{ flex:1 1 0; display:flex; flex-direction:column; justify-content:center; }
+/* long question cards keep natural height and the panel body SCROLLS — they must
+   never paint past the panel into the outputs card below (manas 3-question bug) */
+.qopen .qcard{ flex-shrink:0; min-height:min-content; }
+/* outputs panel: same guard if its list ever outgrows the leftover track */
+.col > .panel:not(.flex) > .pbody{ overflow-y:auto; }
 
 /* connection icon row */
 .conrow{ display:flex; gap:9px; flex-wrap:wrap; align-items:center; }
