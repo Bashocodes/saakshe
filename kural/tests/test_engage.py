@@ -177,3 +177,25 @@ def test_a2a_launch_campaign_holds_at_gate():
     out = a2a.dispatch("kural", "launch_campaign", "launch the Pro pricing change")
     assert out["accepted"] is True
     assert "publish gate" in out["held_at"]
+
+
+# ─── the rendered creative rides the publish payload, verbatim ────────────────
+def test_build_post_carries_media_untouched():
+    """The gate card showed master.media but _build_post dropped it — the channel
+    never received the creative the founder approved. Now it rides, byte-equal."""
+    from kural.runner import _build_post
+
+    media = {"image_ref": "vertex://imagen/abc", "video_ref": "",
+             "image_uri": "/api/vault/asset?id=blob123"}
+    master = {"caption": "c", "formats": {"x": "t"}, "media": dict(media)}
+    post = _build_post({}, master, {"version": "v3"})
+    assert post["media"] == media                    # carried, not rewritten
+    assert post["caption"] == "c" and post["drafts"] == {"x": "t"}
+
+
+def test_build_post_no_media_no_key():
+    """Pixel-free masters (demo) add no key — the payload stays byte-identical."""
+    from kural.runner import _build_post
+
+    post = _build_post({}, {"caption": "c", "formats": {}}, {})
+    assert "media" not in post

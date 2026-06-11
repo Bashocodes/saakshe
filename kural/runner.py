@@ -77,7 +77,7 @@ def _build_post(state: dict, master: dict, context_pack: dict) -> dict:
     master = master if isinstance(master, dict) else {}
     plan = state.get(StateKeys.DELIVERY_PLAN, {})
     plan = plan if isinstance(plan, dict) else parse_json(plan)
-    return {
+    post = {
         "channel": "x+ig+linkedin",
         "as_voice": "founder · plain, warm, names the trade-off",
         "grounded_in": pack_v,
@@ -87,6 +87,13 @@ def _build_post(state: dict, master: dict, context_pack: dict) -> dict:
         # is kalai's own formats[variant], VERBATIM (kural authors nothing).
         "delivery": plan,
     }
+    # kalai's rendered creative rides the post UNTOUCHED — same verbatim doctrine
+    # as the words. Until this key the gate card showed the image but the publish
+    # payload dropped it: the channel never received the creative it approved.
+    media = master.get("media")
+    if isinstance(media, dict) and media:
+        post["media"] = dict(media)
+    return post
 
 
 # ─── engage: the orchestrator-facing entry (LOCKED) ───────────────────────────
