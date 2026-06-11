@@ -142,29 +142,25 @@ html[data-theme="dark"] .logo .wd{color:var(--ink)}
 .botlogo .skbot::after{content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;
   background:linear-gradient(122deg,rgba(255,255,255,.15) 0%,rgba(255,255,255,.04) 26%,transparent 44%)}
 .botlogo .skbot .skeye{width:31%;height:29%;top:19%;
-  background:linear-gradient(180deg,#fffdf6 0%,#f4eee2 55%,#e7dcc4 100%);
-  filter:drop-shadow(0 0 3px rgba(255,248,228,.55))}
+  background:linear-gradient(180deg,#fffdf6 0%,#f4eee2 55%,#e7dcc4 100%)}
 .botlogo .skbot .skeye.L{left:10.5%}.botlogo .skbot .skeye.R{right:10.5%}
-.botlogo .skbot .skmouth{background:linear-gradient(180deg,#fffdf6,#e7dcc4);border-radius:2px;
-  filter:drop-shadow(0 0 2px rgba(255,248,228,.4))}
+.botlogo .skbot .skmouth{background:linear-gradient(180deg,#fffdf6,#e7dcc4);border-radius:2px}
 html[data-theme="dark"] .botlogo .skbot{
   background:radial-gradient(130% 100% at 30% 10%,#13251a 0%,#0b150e 45%,#050a07 85%);
   box-shadow:inset 0 0 0 1.5px rgba(94,240,138,.16),inset 0 2px 2px rgba(212,245,222,.08),
-    inset 0 -4px 8px rgba(0,0,0,.6),0 0 14px rgba(94,240,138,.10)}
+    inset 0 -4px 8px rgba(0,0,0,.6)}
 html[data-theme="dark"] .botlogo .skbot .skeye{
-  background:linear-gradient(180deg,#eafff1 0%,#d4f5de 55%,#a8e8bd 100%);
-  filter:drop-shadow(0 0 3px rgba(94,240,138,.5))}
-html[data-theme="dark"] .botlogo .skbot .skmouth{background:linear-gradient(180deg,#eafff1,#a8e8bd);
-  filter:drop-shadow(0 0 2px rgba(94,240,138,.4))}
+  background:linear-gradient(180deg,#eafff1 0%,#d4f5de 55%,#a8e8bd 100%)}
+html[data-theme="dark"] .botlogo .skbot .skmouth{background:linear-gradient(180deg,#eafff1,#a8e8bd)}
 /* the mouth cycles moods — bar → smirk → bar → open smile → cursor → smirk → bar · 14s */
 .botlogo .skbot .skmouth{width:40%;height:24%;bottom:9%;background:none;border-radius:0}
 .botlogo .skbot .skmouth .m{position:absolute;inset:0;width:100%;height:100%;opacity:0}
 .botlogo .skbot .skmouth .m *{fill:#f4eee2}
 html[data-theme="dark"] .botlogo .skbot .skmouth .m *{fill:#d4f5de}
-.botlogo .skbot .skmouth .m1{opacity:1;animation:skmBar 14s linear infinite}
-.botlogo .skbot .skmouth .m9{animation:skmSmirk 14s linear infinite}
-.botlogo .skbot .skmouth .m4{animation:skmOpen 14s linear infinite}
-.botlogo .skbot .skmouth .m7{animation:skmCursor 14s linear infinite}
+.botlogo .skbot .skmouth .m1{opacity:1;animation:skmBar 24s linear infinite}
+.botlogo .skbot .skmouth .m9{animation:skmSmirk 24s linear infinite}
+.botlogo .skbot .skmouth .m4{animation:skmOpen 24s linear infinite}
+.botlogo .skbot .skmouth .m7{animation:skmCursor 24s linear infinite}
 @keyframes skmBar{0%,19%{opacity:1}21%,32%{opacity:0}34%,46%{opacity:1}48%,84%{opacity:0}86%,100%{opacity:1}}
 @keyframes skmSmirk{0%,19%{opacity:0}21%,32%{opacity:1}34%,71%{opacity:0}73%,84%{opacity:1}86%,100%{opacity:0}}
 @keyframes skmOpen{0%,46%{opacity:0}48%,58%{opacity:1}60%,100%{opacity:0}}
