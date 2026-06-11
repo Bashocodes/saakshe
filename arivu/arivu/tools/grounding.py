@@ -202,15 +202,26 @@ def _real_memory_section() -> dict | None:
         return None
     voice = "; ".join(pack.get("voice_rules") or [])
     brand = "; ".join(pack.get("brand_rules") or [])
-    facts = "; ".join(
-        f.get("claim", "") for f in (pack.get("facts") or [])[:8]
-        if isinstance(f, dict) and f.get("claim")
-    )
-    if not (voice or brand or facts):
+    fact_rows = [f for f in (pack.get("facts") or []) if isinstance(f, dict)]
+    # smriti: the evidence seats are recency-weighted (fresh outcomes first) and
+    # CURRENT rulings ride a dedicated precedents line — a superseded decision
+    # can never be cited as current. Fail-soft to the plain top-8 slice.
+    precedents = ""
+    try:
+        from common import smriti
+
+        chosen = smriti.select_facts(fact_rows, limit=8)
+        precedents = smriti.precedents_text(fact_rows)
+    except Exception:  # noqa: BLE001 — smriti must never break a grounding fetch
+        chosen = fact_rows[:8]
+    facts = "; ".join(f.get("claim", "") for f in chosen if f.get("claim"))
+    if not (voice or brand or facts or precedents):
         return None
     section = {"brand_canon": brand, "voice": voice}
     if facts:
         section["facts"] = facts
+    if precedents:
+        section["precedents"] = precedents
     return section
 
 

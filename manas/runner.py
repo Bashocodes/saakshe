@@ -325,17 +325,31 @@ async def learn(stream: EventStream, run_id: str, outcome: dict) -> a2a.Quadrant
     # published RESULTS read back from the channels (kural.measure) — the part
     # that makes tomorrow's grounding stand on what actually happened.
     decision = (outcome or {}).get("decision", "")
+    question = (outcome or {}).get("question", "")
     results = [r for r in ((outcome or {}).get("results") or [])
                if isinstance(r, dict) and r.get("claim") and r.get("source")]
+    # smriti: temporal memory rides the SAME cited-fact dicts — outcomes carry an
+    # observation stamp (recency-weighted selection later), decisions chain
+    # (same-question ruling closes the old one with valid_until + superseded_by;
+    # nothing is ever deleted). Fail-soft: a smriti error falls back to the flat
+    # write rather than sinking the learn beat.
+    from common import smriti
     if results:
-        new_facts = results
+        try:
+            all_new = store.all_facts() + smriti.stamp_outcomes(results)
+        except Exception:  # noqa: BLE001
+            all_new = store.all_facts() + results
         note = "learned the published results"
     else:
-        new_facts = [{"claim": f"Decided: {decision}" if decision else "A decision was committed today.",
-                      "source": "founder decision · today"}]
+        claim = f"Decided: {decision}" if decision else "A decision was committed today."
+        try:
+            all_new = smriti.fold_decision(store.all_facts(), claim, question=question,
+                                           source="founder decision · today")
+        except Exception:  # noqa: BLE001
+            all_new = store.all_facts() + [{"claim": claim, "source": "founder decision · today"}]
         note = "remembered the day's decision"
     pack = store.pack(project.TOPIC)
-    to = store.commit_pack(store.all_facts() + new_facts, pack.voice_rules, pack.brand_rules,
+    to = store.commit_pack(all_new, pack.voice_rules, pack.brand_rules,
                            groundedness=final_groundedness, note=note)
 
     stream.emit(run_id, NS, "Mind Keeper",

@@ -330,7 +330,10 @@ async def _after_publish(state: FlywheelState, stream: EventStream, *, dry_run: 
     state.actions.append({"quadrant": "kural", "text": f"{label} to x · ig · linkedin"})
 
     # manas learns — the closing beat, Context Pack ticks.
-    learn = await manas.learn(stream, run_id, {"decision": state.verdict.get("decision", "")})
+    # the question rides along as smriti's deterministic supersede subject —
+    # a re-decided question closes the old ruling instead of contradicting it
+    learn = await manas.learn(stream, run_id, {"decision": state.verdict.get("decision", ""),
+                                               "question": state.question})
     state.actions.append({"quadrant": "manas", "text": "remember the decision · " + learn.output.get("context_pack_to", "")})
 
     stream.emit(run_id, "saakshe", "witness",
