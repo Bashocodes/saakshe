@@ -11,25 +11,26 @@
   var BOT = '<span class="skbot sm" aria-hidden="true"><span class="skface">' +
             '<span class="skeye L"></span><span class="skeye R"></span>' +
             '<span class="skmouth"></span></span></span>';
-  /* no header bar — the cockpit's single topbar crowns the pane. The ONE bot
-     mark floats top-right inside the chat (its Λ-eyes animate while saakshe
-     thinks/replies via the global html[data-bot] states), with the live dot +
-     collapse beside it. Faculty tabs sit just ABOVE the ask box. */
+  /* the chat has NO top chrome at all — messages flow from under the cockpit's
+     single topbar. The bot mark rides every witness reply (and the typing row),
+     black bezel always; collapse + live dot sit at the far right of the
+     faculty-tabs row, just above the ask box. Collapsed = just the bot, big. */
   pane.innerHTML =
-    '<div class="ch-float">' + BOT + '<span class="live" id="sa-ch-live"></span>' +
-    '<button class="ch-collapse" id="sa-ch-clps" type="button" title="collapse the chat pane" aria-label="collapse chat">⇥</button></div>' +
     '<div class="ch-feed" id="sa-ch-feed" aria-live="polite"></div>' +
     '<div class="ch-tabs" role="tablist" aria-label="filter by faculty">' +
     '<button class="ch-tab on" type="button" data-q="saakshe" role="tab" aria-selected="true">saakshe</button>' +
     '<button class="ch-tab" type="button" data-q="manas" role="tab" aria-selected="false"><span class="fdot"></span>manas</button>' +
     '<button class="ch-tab" type="button" data-q="kalai" role="tab" aria-selected="false"><span class="fdot"></span>kalai</button>' +
-    '<button class="ch-tab" type="button" data-q="kural" role="tab" aria-selected="false"><span class="fdot"></span>kural</button></div>' +
+    '<button class="ch-tab" type="button" data-q="kural" role="tab" aria-selected="false"><span class="fdot"></span>kural</button>' +
+    '<span class="live" id="sa-ch-live"></span>' +
+    '<button class="ch-collapse" id="sa-ch-clps" type="button" title="collapse the chat pane" aria-label="collapse chat">' +
+    '<svg class="ic" aria-hidden="true"><use href="#i-handoff"/></svg></button></div>' +
     '<div class="ch-input"><input id="sa-ch-inp" placeholder="ask saakshe…" aria-label="ask saakshe">' +
     '<button id="sa-ch-mic" type="button" title="voice — Gemini Live" aria-label="voice">' +
     '<svg class="ic" aria-hidden="true"><use href="#i-mic"/></svg><span class="recdot"></span></button>' +
     '<button id="sa-ch-send" type="button">SEND</button></div>' +
     '<button class="ch-rail" id="sa-ch-rail" type="button" title="open the chat pane" aria-label="open chat">' +
-    BOT + '<span class="rlbl">company chat</span></button>';
+    BOT + '</button>';
 
   var feed = document.getElementById('sa-ch-feed');
   var input = document.getElementById('sa-ch-inp');
@@ -88,8 +89,9 @@
     } catch (e) {}
   }
   function msg(who, html, user) {
+    /* every non-user message wears the bot mark — the witness is the one talking */
     var m = el('<div class="msg' + (user ? ' user' : '') + '" data-fac="' + esc(facOf(who)) + '"><div class="who">' +
-               esc(who) + '<span class="ts">' + ts() + '</span></div><p>' + html + '</p></div>');
+               (user ? '' : BOT) + esc(who) + '<span class="ts">' + ts() + '</span></div><p>' + html + '</p></div>');
     applyFacFilter(m);
     feed.appendChild(m); down(); persist(); return m;
   }
@@ -97,7 +99,8 @@
   var typingEl = null;
   function showTyping() {
     if (typingEl) return;
-    typingEl = el('<div class="typing" aria-label="saakshe is thinking"><span></span><span></span><span></span></div>');
+    typingEl = el('<div class="typing" aria-label="saakshe is thinking">' + BOT +
+                  '<span class="td"></span><span class="td"></span><span class="td"></span></div>');
     feed.appendChild(typingEl); down(); bot('think'); dot('busy');
   }
   function hideTyping(ok) {

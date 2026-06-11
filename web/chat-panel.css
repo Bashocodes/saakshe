@@ -13,30 +13,31 @@
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)'/%3E%3C/svg%3E")}
 html[data-theme="dark"] #sa-chatpane::after{display:none}
 
-/* ── the float cluster: the ONE witness mark, top-right over the feed.
-   No header bar — the cockpit's single topbar crowns the pane. The bot's
-   Λ-eyes animate while saakshe thinks/replies (global html[data-bot]). ── */
-#sa-chatpane .ch-float{position:absolute;top:10px;right:12px;z-index:6;
-  display:flex;align-items:center;gap:8px;color:var(--ink,#141118)}
-#sa-chatpane .ch-float .live{width:9px;height:9px;border-radius:50%;
-  background:var(--ok,#0a8a4a)}
-#sa-chatpane .ch-float .live.busy{background:var(--sig-amber,#795309)}
-#sa-chatpane .ch-float .live.err{background:var(--sig-red,#A33321)}
-#sa-chatpane .ch-collapse{border:1.5px solid var(--line,#141118);border-radius:var(--radius-sm,10px);
-  background:var(--surface,#fff);color:var(--ink,#141118);font-family:var(--font-mono);font-size:10px;
-  padding:3px 8px;cursor:pointer;letter-spacing:.08em}
+/* ── no top chrome. The bot mark wears a BLACK (ink) bezel in the chat, ALWAYS —
+   the faculty quad-tint (html[data-quad] → yellow/red/…) never recolors it here.
+   Its Λ-eyes still animate through the global html[data-bot] reply states. ── */
+#sa-chatpane .skbot{color:var(--ink,#141118)}
+/* the live dot + collapse live at the far right of the tabs row */
+#sa-chatpane .ch-tabs .live{margin-left:auto;width:9px;height:9px;border-radius:50%;
+  align-self:center;background:var(--ok,#0a8a4a)}
+#sa-chatpane .ch-tabs .live.busy{background:var(--sig-amber,#795309)}
+#sa-chatpane .ch-tabs .live.err{background:var(--sig-red,#A33321)}
+#sa-chatpane .ch-collapse{border:1.5px solid var(--line,#141118);border-radius:var(--radius-pill,999px);
+  background:var(--surface,#fff);color:var(--ink,#141118);width:26px;height:26px;
+  display:inline-flex;align-items:center;justify-content:center;cursor:pointer;flex:0 0 auto}
+#sa-chatpane .ch-collapse .ic{width:13px;height:13px;stroke:currentColor;fill:none;
+  stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 #sa-chatpane .ch-collapse:hover{background:var(--surface-2,#e7e6e0)}
 #sa-chatpane .ch-collapse:focus-visible{outline:none;box-shadow:0 0 0 2px var(--accent,#0a39ff)}
 
-/* ── collapsed desktop rail: just the witness, standing by ── */
+/* ── collapsed desktop rail: ONLY the witness mark, big, black bezel ── */
 #sa-chatpane .ch-rail{display:none}
 html.sk-chat-collapsed #sa-chatpane > *{display:none}
 html.sk-chat-collapsed #sa-chatpane::after{display:none}
 html.sk-chat-collapsed #sa-chatpane .ch-rail{display:flex;flex-direction:column;align-items:center;
-  gap:14px;padding:14px 0;width:100%;height:100%;cursor:pointer;background:transparent;border:0}
-#sa-chatpane .ch-rail .rlbl{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.22em;
-  color:var(--ink-3);writing-mode:vertical-rl;text-transform:uppercase}
-html.sk-chat-collapsed #sa-chatpane .ch-rail:hover .rlbl{color:var(--ink)}
+  padding:14px 0;width:100%;height:100%;cursor:pointer;background:transparent;border:0}
+html.sk-chat-collapsed #sa-chatpane .ch-rail .skbot{width:38px;height:38px;border-width:2.5px;border-radius:11px}
+html.sk-chat-collapsed #sa-chatpane .ch-rail:hover .skbot{transform:translateY(-1px)}
 
 /* ── faculty tabs: bordered mono chips, just ABOVE the ask box ── */
 #sa-chatpane .ch-tabs{display:flex;gap:6px;padding:9px 12px;
@@ -58,7 +59,7 @@ html[data-theme="dark"] #sa-chatpane .ch-tab.on{background:var(--act);color:var(
 #sa-chatpane .ch-tab:focus-visible{outline:none;box-shadow:0 0 0 2px var(--accent,#2A41A0)}
 
 /* ── feed ── */
-#sa-chatpane .ch-feed{flex:1;overflow-y:auto;padding:48px 14px 14px;display:flex;
+#sa-chatpane .ch-feed{flex:1;overflow-y:auto;padding:14px;display:flex;
   flex-direction:column;gap:11px;background:var(--bg,#F4EEE2)}
 #sa-chatpane .msg{max-width:94%;border:var(--line-w,2.5px) solid var(--line,#161410);
   border-radius:var(--radius,14px);padding:10px 13px;font-size:12.5px;
@@ -70,10 +71,12 @@ html[data-theme="dark"] #sa-chatpane .ch-tab.on{background:var(--act);color:var(
 }
 #sa-chatpane .msg.user{align-self:flex-end;background:var(--ink,#161410);color:var(--bg,#F4EEE2);box-shadow:none}
 html[data-theme="dark"] #sa-chatpane .msg.user{background:var(--surface-2);color:var(--ink);border-color:var(--ink-2)}
-#sa-chatpane .msg .who{display:flex;align-items:baseline;gap:8px;font:700 9.5px var(--font-mono);
+#sa-chatpane .msg .who{display:flex;align-items:center;gap:8px;font:700 9.5px var(--font-mono);
   text-transform:uppercase;letter-spacing:.12em;margin-bottom:5px;color:var(--ink-3,#6B6557)}
 #sa-chatpane .msg.user .who{color:var(--faint,#B7AE9C)}
 #sa-chatpane .msg .who .ts{font-weight:400;letter-spacing:.04em;opacity:.7;margin-left:auto}
+/* the message avatar — the bot speaks every witness reply */
+#sa-chatpane .msg .who .skbot{width:18px;height:18px;border-width:1.8px;border-radius:5px;flex:0 0 auto}
 #sa-chatpane .msg p{margin:0;white-space:pre-wrap;overflow-wrap:break-word}
 #sa-chatpane .msg p code{font-family:var(--font-mono);font-size:11px;background:var(--surface-2);
   border:1px solid var(--line);border-radius:4px;padding:0 4px}
@@ -142,12 +145,13 @@ html[data-theme="dark"] #sa-chatpane .filechip{color:var(--ink)}
 #sa-chatpane .filechip button{border:0;background:transparent;cursor:pointer;font:inherit;color:inherit;padding:0 3px}
 
 /* typing — the witness thinking */
-#sa-chatpane .typing{display:flex;gap:4px;padding:8px 12px;align-self:flex-start}
-#sa-chatpane .typing span{width:7px;height:7px;border-radius:50%;background:var(--ink-3,#6B6557)}
+#sa-chatpane .typing{display:flex;gap:4px;padding:8px 12px;align-self:flex-start;align-items:center}
+#sa-chatpane .typing .skbot{width:22px;height:22px;border-width:2px;border-radius:6px;margin-right:6px}
+#sa-chatpane .typing .td{width:7px;height:7px;border-radius:50%;background:var(--ink-3,#6B6557)}
 @media (prefers-reduced-motion: no-preference){
-  #sa-chatpane .typing span{animation:sa-bnc 1s infinite}
-  #sa-chatpane .typing span:nth-child(2){animation-delay:.15s}
-  #sa-chatpane .typing span:nth-child(3){animation-delay:.3s}
+  #sa-chatpane .typing .td{animation:sa-bnc 1s infinite}
+  #sa-chatpane .typing .td:nth-of-type(2){animation-delay:.15s}
+  #sa-chatpane .typing .td:nth-of-type(3){animation-delay:.3s}
   @keyframes sa-bnc{0%,100%{transform:none;opacity:.4}50%{transform:translateY(-5px);opacity:1}}
 }
 
