@@ -209,6 +209,7 @@
     if (action === 'noop') return;                    // a blocked chip must not kill its siblings
     if (action === 'auth.signin') { if (window.SAAKSHE_AUTH) SAAKSHE_AUTH.signIn(); return; }
     if (action === 'open.pricing') { window.open('/pricing.html', '_blank', 'noopener'); return; }
+    if (action === 'nav.questions') { if (window.cockpitGo) window.cockpitGo('questions', null); return; }
     lockActs(b.closest('.acts'));
     if (action === 'media.render') startRender();
     else if (action === 'media.requote') { if (args.seconds) state.seconds = args.seconds; requote(); }
@@ -551,7 +552,22 @@
       if (!text) return;
       input.value = String(text); syncSend(); send();
     },
-    note: function (who, text) { msg(String(who || 'SΛΛKSHE').toUpperCase(), fmt(String(text || ''))); }
+    note: function (who, text) { msg(String(who || 'SΛΛKSHE').toUpperCase(), fmt(String(text || ''))); },
+    /* the reveal seed: each clarifying question is its OWN row plus a chip
+       that jumps to the Questions view — never one concatenated paragraph */
+    questions: function (p) {
+      p = p || {};
+      var m = msg('WITNESS', fmt(String(p.lead || '')));
+      (p.items || []).forEach(function (q, i) {
+        m.appendChild(el('<div class="qseed"><span class="qn">' + (i + 1) + '</span><span class="qt">' +
+          fmt(String(q.text || '')) +
+          (q.why ? '<i class="qw">' + fmt(String(q.why)) + '</i>' : '') + '</span></div>'));
+      });
+      var acts = el('<div class="acts"></div>');
+      acts.appendChild(actBtn({ label: p.cta || 'OPEN THE QUESTIONS PAGE', kind: 'primary',
+                                action: 'nav.questions', args: {} }));
+      m.appendChild(acts); down(); persist();
+    }
   };
 
   /* ── first paint: restore the session's feed, or seed the witness greeting ── */
@@ -559,6 +575,9 @@
   try { restored = sessionStorage.getItem('sk-chat-feed') || ''; } catch (e) {}
   if (restored) {
     feed.innerHTML = restored;
+    /* dead chrome must not resurrect: an inert "new messages ↓" pill or a
+       typing row persisted mid-feed renders as stuck UI after a reload */
+    feed.querySelectorAll('.newmsgs,.typing').forEach(function (n) { n.remove(); });
     feed.querySelectorAll('.msg').forEach(applyFacFilter);
     down(true);
   } else {

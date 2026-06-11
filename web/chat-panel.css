@@ -87,6 +87,15 @@ html[data-theme="dark"] #sa-chatpane .msg.user{background:var(--surface-2);color
   padding:7px 10px;font:11px var(--font-mono)}
 #sa-chatpane .msg .data .row{display:flex;justify-content:space-between;gap:10px;padding:1.5px 0}
 
+/* seeded clarifying questions — one plate per question, numbered */
+#sa-chatpane .msg .qseed{display:flex;gap:9px;margin-top:8px;background:var(--surface-2,#ECE4D3);
+  border:1.5px solid var(--line,#161410);border-radius:var(--radius-sm,10px);padding:8px 10px}
+#sa-chatpane .msg .qseed .qn{flex:0 0 auto;font:700 10px var(--font-mono);color:var(--ink-3,#6B6557);
+  border:1.5px solid var(--line,#161410);border-radius:6px;width:18px;height:18px;
+  display:inline-flex;align-items:center;justify-content:center;background:var(--surface,#FBF7EE)}
+#sa-chatpane .msg .qseed .qt{font-size:12px;line-height:1.5;overflow-wrap:break-word;min-width:0}
+#sa-chatpane .msg .qseed .qw{display:block;font-size:11px;color:var(--ink-3,#6B6557);margin-top:3px}
+
 /* suggestion chips (empty state) */
 #sa-chatpane .sugs{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}
 #sa-chatpane .sug{border:1.5px solid var(--line);border-radius:var(--radius-pill,999px);

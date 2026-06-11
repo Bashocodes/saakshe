@@ -512,6 +512,17 @@ html[data-bot="joy"] .skbot .skeye.R{ animation-delay:.07s; }
 .qcard.answered .qresolved{ display:flex; }
 .qcard .qresolved .src{ color:var(--accent); font-weight:600; }
 .qcard .qresolved .chk{ color:var(--sig-green); display:inline-flex; }
+/* live ClarifyingQuestion cards — the why-line, contradiction candidates and a
+   free-text commit row; answered/busy states mirror the demo qcard */
+.qcard .qwhy{ font-family:var(--font-body); font-style:italic; font-size:12px; color:var(--muted); margin-top:4px; line-height:1.4; }
+.qcard .qfree{ display:flex; gap:8px; margin-top:8px; }
+.qcard .qfree input{ flex:1 1 auto; min-width:0; font-family:var(--font-body); font-size:12.5px; color:var(--ink);
+  background:var(--bg); border:var(--hair) solid var(--hairline); border-radius:var(--r); padding:6px 10px; }
+.qcard .qfree input:focus{ outline:none; border-color:var(--accent); }
+.qcard .qfree .qgo{ flex:0 0 auto; min-width:0; }
+.qcard.answered .qfree{ display:none; }
+.qcard.busy{ opacity:.55; pointer-events:none; }
+.qcard .qerr{ font-family:var(--font-mono); font-size:11px; letter-spacing:.04em; color:var(--sig-red); margin-top:6px; }
 
 /* outputs */
 .outs{ list-style:none; margin:0; padding:0; }
@@ -1438,6 +1449,7 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
   }
 
   function questionHTML(quad, q){
+    if(q.live){ return liveQuestionHTML(q); }
     var resolved = STATE.qResolved[q.q];
     var cls = resolved ? ' answered' : '';
     var chosen = resolved ? esc(resolved) : '';
@@ -1448,6 +1460,23 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
       +   '<button class="qbtn" type="button" data-ans="'+esc(q.optionB)+'">'+esc(q.optionB)+'</button>'
       + '</div>'
       + '<div class="qresolved"><span class="chk">'+icon('check','sm')+'</span><span>committed — <span class="src">source: you</span> · <span class="achosen">'+chosen+'</span></span></div>'
+      + '</div>';
+  }
+  /* a LIVE ClarifyingQuestion (raised by manas while grounding) — answered
+     free-text or by tapping a contradiction candidate; commits over
+     /api/connect/answer with source: you, same as the connect panel. */
+  function liveQuestionHTML(q){
+    var resolved = STATE.qResolved[q.q];
+    var opts = (q.options||[]).map(function(o){
+      return '<button class="qbtn" type="button" data-liveans="'+esc(o)+'">'+esc(o)+'</button>';
+    }).join('');
+    return '<div class="qcard'+(resolved?' answered':'')+'" data-qid="'+esc(q.id)+'" data-qtext="'+esc(q.q)+'">'
+      + '<div class="qq">'+esc(q.q)+'</div>'
+      + (q.why ? '<div class="qwhy">'+esc(q.why)+(q.blocks?' · blocks '+esc(q.blocks):'')+'</div>' : '')
+      + (opts ? '<div class="qopts">'+opts+'</div>' : '')
+      + '<div class="qfree"><input type="text" placeholder="your answer…" aria-label="your answer"><button class="qbtn qgo" type="button">commit</button></div>'
+      + '<div class="qerr" hidden></div>'
+      + '<div class="qresolved"><span class="chk">'+icon('check','sm')+'</span><span>committed — <span class="src">source: you</span> · <span class="achosen">'+esc(resolved||'')+'</span></span></div>'
       + '</div>';
   }
   function questionsHTML(quad){ return Q[quad].questions.map(function(q){ return questionHTML(quad,q); }).join(''); }
@@ -1599,15 +1628,9 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
         + OVWORK[q]
         +'<span class="ovpill" data-tip="questions waiting"><span class="pdot" style="background:var(--sig-red)"></span>? '+qn+'</span>'+tapbit+'</div>'
         +'<span class="ovmark s-'+q+'" aria-hidden="true"></span></button>';
+      /* the live ClarifyingQuestions hydrate Q[quad].questions in cockpitSetOrg,
+         so openQuestionsList already carries them — no special case needed */
       var rows = allQ.filter(function(o){ return o.quad===q; });
-      if(q==='manas'){
-        /* manas raises the grounding ClarifyingQuestions — they live on ORG,
-           not Q[quad].questions, so fold them in here where the founder looks */
-        (ORG.openQuestions||[]).forEach(function(oq){
-          var s=String(oq.text||''); rows.push({quad:'manas',
-            short:(s.length>72?s.slice(0,70)+'…':s), meta:oq.why||'raised while grounding'});
-        });
-      }
       var items = rows.map(function(o){
         return '<li data-jumpq><b class="c-'+o.quad+'">'+o.quad+'</b> · '+esc(o.short)+'<div class="qmeta">'+esc(o.meta)+'</div></li>';
       }).join('');
@@ -2316,6 +2339,19 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
         var slot=c.querySelector('.achosen'); if(slot) slot.textContent=ans;
       }
     });
+    syncQuestionBadges();
+    /* making the reply resolves the held-reply tap (gates ✋ 2→1) */
+    var replyResolved = (qtext===REPLY_Q && !STATE.gates.reply);
+    if(replyResolved){ STATE.gates.reply = true; syncGateCards(); }
+    refreshMirrors();
+    /* flip any open qans: chips in the chat log to "reply answered" */
+    if(replyResolved && typeof syncChatChips==='function'){ syncChatChips(); }
+    if(STATE.view==='overview' || STATE.view==='questions'){ render(); }
+  }
+
+  /* every in-view question counter, in one pass — shared by the demo answer
+     path and the live-answer refresh (cockpitSyncOrg) */
+  function syncQuestionBadges(){
     Array.prototype.forEach.call(document.querySelectorAll('[data-qpill]'), function(p){
       var quad=p.getAttribute('data-qpill');
       var color = quadQ[quad]===0 ? 'var(--sig-green)' : 'var(--sig-red)';
@@ -2331,13 +2367,32 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
       p.innerHTML = qn>0 ? '<span class="t-red"><svg class="ic sm"><use href="#i-alert"/></svg> '+qn+' needs you</span>'
                           : '<span class="t-green"><svg class="ic sm"><use href="#i-check"/></svg> clear</span>';
     });
-    /* making the reply resolves the held-reply tap (gates ✋ 2→1) */
-    var replyResolved = (qtext===REPLY_Q && !STATE.gates.reply);
-    if(replyResolved){ STATE.gates.reply = true; syncGateCards(); }
-    refreshMirrors();
-    /* flip any open qans: chips in the chat log to "reply answered" */
-    if(replyResolved && typeof syncChatChips==='function'){ syncChatChips(); }
-    if(STATE.view==='overview' || STATE.view==='questions'){ render(); }
+  }
+
+  /* live ClarifyingQuestions commit over /api/connect/answer — the connect gate
+     exposes the bridge (it owns the detected base + auth headers). On success
+     the bridge re-reads status and cockpitSyncOrg refreshes every count QUIETLY:
+     the committed card stays in view instead of vanishing under a full re-render. */
+  function commitLiveAnswer(card, answer){
+    if(!card || card.classList.contains('answered') || card.classList.contains('busy')) return;
+    answer = String(answer||'').trim(); if(!answer) return;
+    var qid = card.getAttribute('data-qid'), qtext = card.getAttribute('data-qtext');
+    var err = card.querySelector('.qerr'); if(err) err.hidden = true;
+    card.classList.add('busy');
+    var bridge = window.cockpitAnswerQuestion
+      ? window.cockpitAnswerQuestion(qid, answer)
+      : Promise.resolve({ok:false, error:'the connect bridge is not loaded'});
+    bridge.then(function(res){
+      card.classList.remove('busy');
+      if(res && res.ok){
+        STATE.qResolved[qtext] = answer;
+        card.classList.add('answered');
+        var slot=card.querySelector('.achosen'); if(slot) slot.textContent=answer;
+      } else if(err){
+        err.textContent = (res && res.error) || 'answer failed — try again';
+        err.hidden = false;
+      }
+    });
   }
 
   function syncGateCards(){
@@ -2364,7 +2419,16 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
   document.addEventListener('click', function(e){
     var t = e.target;
     var qb = t.closest('.qbtn');
-    if(qb){ var card=qb.closest('.qcard'); if(card){ answerQuestion(card.getAttribute('data-qtext'), qb.getAttribute('data-ans')); } return; }
+    if(qb){
+      var card=qb.closest('.qcard');
+      if(card && card.hasAttribute('data-qid')){
+        /* live ClarifyingQuestion — candidate tap or free-text commit */
+        if(qb.hasAttribute('data-liveans')){ commitLiveAnswer(card, qb.getAttribute('data-liveans')); }
+        else if(qb.classList.contains('qgo')){ var li=card.querySelector('.qfree input'); commitLiveAnswer(card, li?li.value:''); }
+      }
+      else if(card){ answerQuestion(card.getAttribute('data-qtext'), qb.getAttribute('data-ans')); }
+      return;
+    }
     /* re-imbibe prompt — presentational only: acknowledges, never touches openQ/badges/QDATA */
     var rb = t.closest('[data-rack]');
     if(rb){ var rcard=rb.closest('[data-reimbibe]'); if(rcard && !rcard.classList.contains('acked')){
@@ -2396,6 +2460,13 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
     if(sw){ var on=sw.classList.toggle('on'); sw.setAttribute('aria-checked', on?'true':'false'); return; }
     var seg = t.closest('#gateSeg button[data-g]');
     if(seg){ Array.prototype.forEach.call(seg.parentNode.querySelectorAll('button'), function(x){ x.setAttribute('aria-pressed','false'); }); seg.setAttribute('aria-pressed','true'); return; }
+  });
+
+  /* Enter inside a live qcard's free-text input commits it */
+  document.addEventListener('keydown', function(e){
+    if(e.key!=='Enter' || e.isComposing) return;
+    var inp = (e.target && e.target.closest) ? e.target.closest('.qcard .qfree input') : null;
+    if(inp){ e.preventDefault(); commitLiveAnswer(inp.closest('.qcard'), inp.value); }
   });
 
   /* ================= TOPBAR PILLS NAV ================= */
@@ -2701,7 +2772,7 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
   /* ===== CROSS-IIFE BRIDGE — the connect gate (a separate IIFE) drives identity.
      It calls these to set the real org name/version/day everywhere and re-render. ===== */
   function setText(id, txt){ var el=document.getElementById(id); if(el) el.textContent=txt; }
-  window.cockpitSetOrg = function(status){
+  function syncOrgState(status){
     status = status || {};
     var org = status.org || {};
     ORG.name = (org.name && String(org.name).trim()) || '— connect a project —';
@@ -2731,26 +2802,57 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
       sp.innerHTML = rows.length ? rows.join('')
         : '<button class="sb-proj" type="button"><span class="pll"></span><span class="pname">— connect a project —</span></button>';
     })();
+    /* hydrate the per-agent question store — the Questions view, the agent
+       pages and the overview ALL render from Q/quadQ. Live ClarifyingQuestions
+       landing only on ORG was the empty-Questions-tab bug. */
+    Q.manas.questions = (ORG.openQuestions||[]).filter(function(oq){
+      return (oq.status||'open')!=='answered';
+    }).map(function(oq){
+      return { id:oq.id, q:String(oq.text||oq.q||''), why:oq.why||'', blocks:oq.blocks||'',
+               options:oq.options||[], live:true };
+    });
+    quadQ.manas = Q.manas.questions.length;
     /* questions are the one live number that survives into the empty cockpit */
-    var qn = ORG.openQuestions.length;
-    STATE.openQ = qn;
+    STATE.openQ = quadQ.manas + quadQ.arivu + quadQ.kalai + quadQ.kural;
+  }
+  window.cockpitSetOrg = function(status){
+    syncOrgState(status);
     /* re-render the current view so every interpolated ORG/version refreshes */
     if(typeof fromHash==='function') fromHash();
   };
-  /* req 5 — surface the real clarifying questions in the rail chat after reveal */
+  /* the quiet variant — refresh state + every counter WITHOUT rebuilding the
+     stage (used after an in-cockpit answer so the committed card stays in view) */
+  window.cockpitSyncOrg = function(status){
+    syncOrgState(status);
+    syncQuestionBadges();
+    refreshMirrors();
+  };
+  /* chat-panel action chips navigate the cockpit through this */
+  window.cockpitGo = go;
+  /* req 5 — surface the real clarifying questions in the rail chat after reveal.
+     reveal() fires on EVERY load and the feed persists in sessionStorage, so the
+     same question set must seed exactly once per session — and as a structured
+     payload the panel formats (one row per question + a jump chip), never one
+     concatenated paragraph. */
   window.cockpitSeedChat = function(questions){
-    questions = questions || [];
+    questions = (questions||[]).filter(function(q){ return (q.status||'open')!=='answered'; });
     if(!questions.length) return;
+    var key = 'sk-seeded:' + questions.map(function(q){ return q.id||q.text||q.q||''; }).join('|');
+    try{ if(sessionStorage.getItem(key)) return; sessionStorage.setItem(key,'1'); }catch(e){}
     var n = questions.length;
-    var list = questions.map(function(q){ return '\u201c'+(q.text||q.q||'')+'\u201d'; }).join('  \u00b7  ');
     var who = (ORG.relationship==='public')
       ? ((ORG.name && ORG.name!=='\u2014 connect a project \u2014') ? ORG.name : 'the project')
       : 'your company';
-    var lead = 'manas has '+n+' question'+(n===1?'':'s')+' about '+who+': '+list+'  Answer in the connect panel \u2014 or tell me here.';
+    var lead = 'manas hit '+n+' gap'+(n===1?'':'s')+' while grounding '+who+' \u2014 each one blocks part of the memory. Answer on the Questions page, on the manas page, or in the connect panel.';
     /* ONE chat: the seed lands in the company chat panel (poll briefly — its
        script loads after this one), falling back to the legacy bubble if absent */
     (function toPanel(tries){
-      if(window.SK_CHAT){ SK_CHAT.note('WITNESS', lead); return; }
+      if(window.SK_CHAT && SK_CHAT.questions){
+        SK_CHAT.questions({ lead:lead,
+          items: questions.map(function(q){ return { text:String(q.text||q.q||''), why:q.why||'' }; }),
+          cta:'OPEN THE QUESTIONS PAGE' });
+        return;
+      }
       if(tries > 20){ saksiBubble({ lead:lead, pills:[], chips:[] }); return; }
       setTimeout(function(){ toPanel(tries+1); }, 250);
     })(0);
@@ -3323,6 +3425,22 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
       else { syncEnter({grounded:(typeof d.remaining==="number" ? d.remaining===0 && d.grounded : d.grounded)}, 0); }
     }catch(e){ btn.disabled=false; btn.textContent="answer"; $("cgResultStatus").textContent="answer error: "+e; }
   }
+
+  /* the cockpit's in-view qcards (Questions page, agent pages) commit through
+     this bridge — the gate owns the detected base + auth headers. Re-reads
+     status so every cockpit counter refreshes quietly (no stage rebuild). */
+  window.cockpitAnswerQuestion = async function(qid, answer){
+    /* base==="" is the same-origin happy path — only null means undetected */
+    if(base===null) return {ok:false, error:"backend not detected yet"};
+    try{
+      var r=await fetch(base+"/api/connect/answer",{method:"POST",headers:(window.SA_HEADERS||Object)({"content-type":"application/json"}),body:JSON.stringify({qid:qid, answer:answer})});
+      var j=await cgJson(r);
+      if(!j.ok) return {ok:false, error:(j.data&&(j.data.detail||j.data.error))||j.error||("HTTP "+j.status)};
+      var st=await getStatus();
+      if(st){ lastStatus=st; if(window.cockpitSyncOrg) window.cockpitSyncOrg(st); }
+      return {ok:true};
+    }catch(e){ return {ok:false, error:String(e)}; }
+  };
 
   async function doReset(){
     $("cgResultStatus").textContent="disconnecting…";
