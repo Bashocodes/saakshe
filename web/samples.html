@@ -30,7 +30,7 @@
     if(s!=='light'&&s!=='dark'){ var lg=localStorage.getItem('setu-theme'); if(lg==='light'||lg==='dark'){ localStorage.setItem('saakshe-theme',lg); s=lg; } }
     t=s;
   }catch(e2){} }
-  if(t!=='light'&&t!=='dark'){ t=(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light'; }
+  if(t!=='light'&&t!=='dark'){ t='light'; }
   d.setAttribute('data-theme',t);
 })();</script>
 

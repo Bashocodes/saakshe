@@ -29,7 +29,7 @@
       try{localStorage.removeItem('sk-arch-theme');}catch(e){}
     }
     if(t!=='dark'&&t!=='light'){
-      t=(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light';
+      t='light';
     }
     document.documentElement.dataset.theme=t;
   }catch(e){}

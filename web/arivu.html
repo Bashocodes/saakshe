@@ -20,7 +20,7 @@
 <meta name="twitter:image" content="https://saakshe.com/og.png">
 <!-- add .js BEFORE paint so initial-hidden states only exist when JS is alive -->
 <!-- also resolve theme BEFORE paint (localStorage -> prefers-color-scheme -> default dark) so there is no flash -->
-<script>(function(){var d=document.documentElement;d.className='js';var t;try{t=localStorage.getItem('saakshe-theme');if(t!=='light'&&t!=='dark'){var legacy=localStorage.getItem('arivu-theme');if(legacy==='light'||legacy==='dark'){t=legacy;localStorage.setItem('saakshe-theme',legacy);}}}catch(e){}if(t!=='light'&&t!=='dark'){t=(window.matchMedia&&window.matchMedia('(prefers-color-scheme: light)').matches)?'light':'dark';}d.setAttribute('data-theme',t);})();</script>
+<script>(function(){var d=document.documentElement;d.className='js';var t;try{t=localStorage.getItem('saakshe-theme');if(t!=='light'&&t!=='dark'){var legacy=localStorage.getItem('arivu-theme');if(legacy==='light'||legacy==='dark'){t=legacy;localStorage.setItem('saakshe-theme',legacy);}}}catch(e){}if(t!=='light'&&t!=='dark'){t='light';}d.setAttribute('data-theme',t);})();</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;0,6..72,700;1,6..72,400;1,6..72,500&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap">

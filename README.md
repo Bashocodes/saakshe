@@ -1,14 +1,15 @@
 # saakshe — one founder, a whole company, one witness
 
-**Live demo: [https://saakshe.com](https://saakshe.com)** — open access, no sign-in. The demo boots already grounded on **AIKIZI**, a real company, connected through the product's own ingest flow: live Gemini read its GitHub repo and website and extracted cited facts. Ask saakshe questions, run the day, approve the two gates.
+**Live: [https://saakshe.com](https://saakshe.com)** — gated for judging; judges get a one-click access link in the Devpost testing instructions (no account needed). It boots already grounded on **AIKIZI**, a real company, connected through the product's own ingest flow: live Gemini read its GitHub repo and website and extracted cited facts. Ask saakshe questions, run the day, approve what matters. Or run it locally, creds-free, in sixty seconds (see Quickstart).
 
-saakshe is a startup-buddy agent system for companies that already exist (a repo plus a website). The founder talks only to **saakshe**, the witness. Behind it, three faculties do the work:
+saakshe is a startup-buddy agent system for companies that already exist (a repo plus a website). The founder talks only to **saakshe**, the witness. Behind it, a staff of **42 agents across four realms** does the work:
 
-- ⬤ **manas** *knows* — versioned, source-cited memory of the company; grounds everyone; refuses out-of-corpus.
-- ▲ **kalai** *makes* — all media and every word of copy.
-- ◼ **kural** *engages* — carries kalai's cleared work out verbatim; authors nothing.
+- ⬤ **manas** *Memory · knows* — versioned, source-cited memory of the company; grounds everyone; refuses out-of-corpus.
+- ◆ **arivu** *Intellect · decides* — the adversarial deliberation chamber every realm routes hard calls through.
+- ▲ **kalai** *Imagination · makes* — all media and every word of copy.
+- ◼ **kural** *Communication · engages* — carries kalai's cleared work out verbatim; authors nothing.
 
-All three call **arivu**, the shared decision chamber. The whole day runs on exactly **two human taps**: approve the decision, approve the publish. Nothing irreversible happens without a tap.
+The founder is asked wherever taste is needed — any agent can raise a question, signed with its name (manas when sources contradict, arivu's chamber when a verdict is defensible but close). Nothing irreversible happens without the founder's approval, and publishing is dry-run by default.
 
 ---
 
@@ -21,9 +22,9 @@ The witness sits on top. It holds no static knowledge — it answers from live t
 Below it, the flywheel (`orchestrator.py`) runs the day:
 
 1. **Ground** — manas builds a versioned Context Pack from the company's real repo + website: cited facts, voice, brand rules.
-2. **Deliberate** — arivu's chamber argues the company decision and seals a verdict. **Gate 1: the founder taps.**
+2. **Deliberate** — arivu's chamber argues the company decision and seals a verdict — and when it's close, it raises a signed question to the founder instead of pretending certainty. **Gate 1: the founder approves.**
 3. **Execute + make** — arivu's executor fires only after approval (dry-run is the hardcoded default); kalai renders the asset and authors the copy under a brand-fidelity panel and a fail-closed compliance gate.
-4. **Engage** — kural plans delivery and holds the publish. **Gate 2: the founder taps.** Then kural carries kalai's text out byte-for-byte and manas `learn()` commits the day's decision back as a cited fact, ticking the pack version.
+4. **Engage** — kural plans delivery and holds the publish. **Gate 2: the founder approves.** Then kural carries kalai's text out byte-for-byte and manas `learn()` commits the day's decision back as a cited fact, ticking the pack version.
 
 Errors never sink a connect, a render, or the flywheel — the run degrades and continues (fail-soft). Safety gates fail closed.
 
@@ -46,14 +47,14 @@ One primitive, one place to audit, and the same shape echoed in every faculty.
 
 ## Agent, not chatbot
 
-**Real actions.** Token spend is metered per run (`cost_today` reads the real stream). kalai renders actual stills via Nano Banana Pro — Gemini 3 Pro Image on Vertex — in live mode (the Veo reel wrapper is shipped but the flywheel doesn't call it yet — stills are the proven path). kural's publish is a real outbound action behind a triple lock — the founder's per-tap arm flag, a deploy-level env, and a registered channel adapter must ALL be present, or it dry-runs; auto-publish is deliberately not a feature.
+**Real actions.** Token spend is metered per run (`cost_today` reads the real stream). kalai renders actual stills via Nano Banana Pro — Gemini 3 Pro Image on Vertex — in live mode (the Veo reel wrapper is shipped but the flywheel doesn't call it yet — stills are the proven path). kural's publish is a real outbound action behind a triple lock — the founder's per-approval arm flag, a deploy-level env, and a registered channel adapter must ALL be present, or it dry-runs; auto-publish is deliberately not a feature.
 
 **Self-checking.** The debate loop forces advisors to confront each other before a verdict. The graduated prosecutor adversarially attacks the sealed verdict. kalai's brand-fidelity panel scores work against the vault's brand block. Claims are verified upstream of the mouth: manas's curator enforces no-citation-no-fact and kalai's fail-closed compliance gate clears the copy — kural carries it verbatim.
 
 **Structural safety.** The separation contract is enforced in code, not in prompts:
 
 - kural's delivery planner schema has **no text field** — it picks, it cannot author ([`kural/delivery.py`](kural/delivery.py)), and its assembler copies kalai's variant byte-for-byte.
-- `dry_run=True` is hardcoded at both execution sites in `orchestrator.py`; a real side effect requires a human tap *and* an explicit flag.
+- `dry_run=True` is hardcoded at both execution sites in `orchestrator.py`; a real side effect requires founder approval *and* an explicit flag.
 - Compliance and publish gates fail closed; everything else fails soft.
 
 ---
@@ -102,7 +103,7 @@ Or run the flywheel end-to-end in the terminal:
 PYTHONPATH=. ./.venv/bin/python run_flywheel.py
 ```
 
-**Tests — 316 pass, 6 skipped, no credentials needed:**
+**Tests — 531 pass, 6 skipped, no credentials needed:**
 
 ```bash
 for d in common manas kalai kural arivu; do PYTHONPATH=. ./.venv/bin/python -m pytest "$d" -q; done
@@ -130,13 +131,13 @@ cp .env.local.example .env.local   # set GOOGLE_CLOUD_PROJECT (git-ignored)
 ```
 saakshe/
 ├── service/app.py        # the ONE FastAPI service — site + /api + /ws/voice on one port
-├── orchestrator.py       # the resumable two-tap flywheel
+├── orchestrator.py       # the resumable approval-gate flywheel
 ├── common/               # shared substrate: chamber.py · config · models · a2a ·
 │                         #   project store · event stream · vault · auth · credits
 ├── manas/                # ⬤ knows — imbiber pods, cited Context Pack, founder voice, vault extraction
 ├── kalai/                # ▲ makes — creative direction, brand-fidelity panel, Nano Banana/Veo media
 ├── kural/                # ◼ engages — envoy lead, no-text-field delivery planner, publish gate
-├── arivu/                # the shared decision chamber all three faculties call
+├── arivu/                # ◆ decides — the deliberation chamber every realm calls
 ├── witness/              # tools-over-telemetry + refusal + Gemini Live voice bridge
 ├── web/                  # landing · onboarding · cockpit · faculty pages
 ├── tests/                # cross-faculty integration + witness regression tests
@@ -174,7 +175,7 @@ Auth and the per-user store are Supabase-backed and opt-in (`SAAKSHE_STORE=supab
 
 ## Why this is a business
 
-The founder built saakshe to run his own company. He runs **AIKIZI** — a real AI image platform with an iOS app — alone, and wants to run it while traveling. He is customer zero, proudly. The live demo being grounded on AIKIZI is not a demo trick: it is the actual use, connected through the product's own ingest flow. What saakshe replaces is his own day — the historian keeping facts straight, the strategist arguing the decision, the designer-copywriter producing the asset, the channel manager carrying it out — compressed into two taps. Pricing: SaaS at $200–500/mo, with BYOK (your own Gemini, Claude-on-Vertex, and channel keys) on the roadmap.
+The founder built saakshe to run his own company. He runs **AIKIZI** — a real AI image platform with an iOS app — alone, and wants to run it while traveling. He is customer zero, proudly. The live demo being grounded on AIKIZI is not a demo trick: it is the actual use, connected through the product's own ingest flow. What saakshe replaces is his own day — the historian keeping facts straight, the strategist arguing the decision, the designer-copywriter producing the asset, the channel manager carrying it out — compressed into reviewed approvals and signed questions answered on his schedule. Pricing: SaaS at $200–500/mo, with BYOK (your own Gemini, Claude-on-Vertex, and channel keys) on the roadmap.
 
 ---
 

@@ -21,7 +21,7 @@
 <!-- add .js before paint so initial-hidden states only exist when JS can reveal them -->
 <script>document.documentElement.className+=' js';</script>
 <!-- set the theme BEFORE first paint (no flash): localStorage -> prefers-color-scheme -> page default (light) -->
-<script>(function(){try{var t=localStorage.getItem('saakshe-theme');if(t!=='light'&&t!=='dark'){var lg=localStorage.getItem('kalai-theme');if(lg==='light'||lg==='dark'){localStorage.setItem('saakshe-theme',lg);t=lg;}}if(t!=='light'&&t!=='dark'){t=(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light';}if(t==='dark'){document.documentElement.setAttribute('data-theme','dark');}}catch(e){}})();</script>
+<script>(function(){try{var t=localStorage.getItem('saakshe-theme');if(t!=='light'&&t!=='dark'){var lg=localStorage.getItem('kalai-theme');if(lg==='light'||lg==='dark'){localStorage.setItem('saakshe-theme',lg);t=lg;}}if(t!=='light'&&t!=='dark'){t='light';}if(t==='dark'){document.documentElement.setAttribute('data-theme','dark');}}catch(e){}})();</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;0,6..72,700;1,6..72,400;1,6..72,500&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">

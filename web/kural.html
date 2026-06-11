@@ -19,7 +19,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://saakshe.com/og.png">
 <!-- adds .js + resolves theme BEFORE paint (no flash): localStorage -> prefers-color-scheme -> default(light) -->
-<script>(function(){var d=document.documentElement;d.className+=' js';try{var t=localStorage.getItem('saakshe-theme');if(t!=='light'&&t!=='dark'){var legacy=localStorage.getItem('kural-theme');if(legacy==='light'||legacy==='dark'){t=legacy;localStorage.setItem('saakshe-theme',legacy);}else{t=null;}}if(!t){t=(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light';}d.setAttribute('data-theme',t);}catch(e){d.setAttribute('data-theme','light');}})();</script>
+<script>(function(){var d=document.documentElement;d.className+=' js';try{var t=localStorage.getItem('saakshe-theme');if(t!=='light'&&t!=='dark'){var legacy=localStorage.getItem('kural-theme');if(legacy==='light'||legacy==='dark'){t=legacy;localStorage.setItem('saakshe-theme',legacy);}else{t=null;}}if(!t){t='light';}d.setAttribute('data-theme',t);}catch(e){d.setAttribute('data-theme','light');}})();</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap">
