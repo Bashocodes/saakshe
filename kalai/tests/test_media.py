@@ -145,6 +145,60 @@ def test_vertex_imagen_imagen_pin_still_uses_generate_images(monkeypatch):
 
 # ─── the new config ids are wired (not dead constants) ───────────────────────
 def test_vertex_model_ids_present():
-    assert config.MODEL_IMAGEN and config.MODEL_VEO
-    assert "imagen" in config.MODEL_IMAGEN
+    assert config.MODEL_IMAGEN and config.MODEL_IMAGE_FALLBACK and config.MODEL_VEO
     assert "veo" in config.MODEL_VEO
+
+
+def test_nano_banana_aliases_resolve():
+    """The env accepts aikizi's production aliases; defaults ARE the aliases."""
+    assert config._image_model("SAAKSHE_NOPE", "nano-banana-pro") == "gemini-3-pro-image-preview"
+    assert config._image_model("SAAKSHE_NOPE", "nano-banana-2") == "gemini-3.1-flash-image-preview"
+    assert config.MODEL_IMAGEN == "gemini-3-pro-image-preview"
+    assert config.MODEL_IMAGE_FALLBACK == "gemini-3.1-flash-image-preview"
+
+
+def test_still_falls_back_to_nano_banana_2(monkeypatch):
+    """Primary model erroring → the fallback renders, and the ref records the
+    model that ACTUALLY produced the still (aikizi's production chain)."""
+    import google.genai as genai_mod
+
+    calls: list = []
+
+    class _Models:
+        def generate_content(self, **kw):
+            calls.append(kw["model"])
+            if kw["model"] == "gemini-3-pro-image-preview":
+                raise RuntimeError("429 quota")
+            return type("R", (), {"candidates": [_FakeCandidate(b"nb2-png")]})()
+
+    class _Client:
+        def __init__(self, **kw):
+            self.models = _Models()
+
+    monkeypatch.setattr(genai_mod, "Client", _Client)
+    monkeypatch.setattr(config, "MODEL_IMAGEN", "gemini-3-pro-image-preview")
+    monkeypatch.setattr(config, "MODEL_IMAGE_FALLBACK", "gemini-3.1-flash-image-preview")
+    out = media._vertex_imagen(prompt="p")
+    assert calls == ["gemini-3-pro-image-preview", "gemini-3.1-flash-image-preview"]
+    assert out["bytes"] == b"nb2-png"
+    assert out["image_ref"] == "vertex://imagen/gemini-3.1-flash-image-preview"
+
+
+def test_still_chain_exhausted_raises(monkeypatch):
+    """Both models failing must surface the real error, never a silent None."""
+    import google.genai as genai_mod
+
+    class _Models:
+        def generate_content(self, **kw):
+            raise RuntimeError("503 unavailable")
+
+    class _Client:
+        def __init__(self, **kw):
+            self.models = _Models()
+
+    monkeypatch.setattr(genai_mod, "Client", _Client)
+    monkeypatch.setattr(config, "MODEL_IMAGEN", "gemini-3-pro-image-preview")
+    monkeypatch.setattr(config, "MODEL_IMAGE_FALLBACK", "gemini-3.1-flash-image-preview")
+    import pytest as _pytest
+    with _pytest.raises(RuntimeError):
+        media._vertex_imagen(prompt="p")

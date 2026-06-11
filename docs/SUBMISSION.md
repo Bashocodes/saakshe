@@ -11,7 +11,7 @@ Paste each section into the matching Devpost field. Track 1 (Build), Google for 
 **Project name:** saakshe
 
 **Tagline (85 chars):**
-One founder, a whole company, one witness. Three faculties work; you tap twice a day.
+One founder, a whole company, one witness. The staff works; you approve what matters.
 
 ---
 
@@ -19,7 +19,7 @@ One founder, a whole company, one witness. Three faculties work; you tap twice a
 
 I am that founder. I run **AIKIZI** — an AI image platform, live for about five months, with an iOS app — alone. I am the company's memory (what did we promise users, what does the brand actually say), its decision-maker (should we change the price), its maker (write the announcement, design the creative), and its mouth (post it, reply, follow up). Every hour spent in one role is stolen from the others. When I am deep in a pricing decision I am not making the launch graphic. When I am making the graphic I am not remembering the grandfathering promise I wrote into a doc months ago. And I want to run the company from anywhere — I travel.
 
-The existing answer is "hire," which I can't, or "use AI tools," which means ten disconnected chat windows with no shared memory, no deliberation, and no governance — a copy tool that doesn't know your brand promises, a scheduler that will happily post whatever you paste into it. I built saakshe for myself first: a one-person company gets the faculties of a whole one — grounded memory, an adversarial decision chamber, a maker, and a mouth — with me still holding the only two switches that touch the real world. The demo runs on AIKIZI because that is the actual use, not a staging trick.
+The existing answer is "hire," which I can't, or "use AI tools," which means ten disconnected chat windows with no shared memory, no deliberation, and no governance — a copy tool that doesn't know your brand promises, a scheduler that will happily post whatever you paste into it. I built saakshe for myself first: a one-person company gets the faculties of a whole one — grounded memory, an adversarial decision chamber, a maker, and a mouth — with my taste asked for wherever it matters, and nothing irreversible happening without my sign-off. The demo runs on AIKIZI because that is the actual use, not a staging trick.
 
 ---
 
@@ -28,7 +28,7 @@ The existing answer is "hire," which I can't, or "use AI tools," which means ten
 saakshe is a startup-buddy agent system for companies that already exist — it connects to your real repo and website. The founder talks only to **saakshe, the witness**. Under the witness, three shapes do the work:
 
 - ⬤ **manas (knows)** — versioned, source-cited memory of your company. It grounds everyone, and it refuses to answer beyond its corpus rather than guess.
-- ▲ **kalai (makes)** — all media and every word of copy. Stills via Vertex Imagen in live mode (the Veo reel wrapper is shipped; wiring it into the flywheel is roadmap).
+- ▲ **kalai (makes)** — all media and every word of copy. Stills via Nano Banana Pro — Gemini 3 Pro Image on Vertex, with a Nano Banana 2 fallback, the same pair our production platform aikizi runs (the Veo reel wrapper is shipped; wiring it into the flywheel is roadmap).
 - ◼ **kural (engages)** — carries kalai's cleared work out to channels verbatim. It authors nothing, by construction.
 
 All three call **arivu, the shared decision chamber** — not a fourth peer, but the room where decisions get fought over before they're made.
@@ -37,13 +37,13 @@ All three call **arivu, the shared decision chamber** — not a fourth peer, but
 
 1. **manas grounds it.** It pulls cited facts it extracted from the founder's own repo and website at connect time — current list price, the grandfathering promise in the brand canon, the churn data — each fact carrying its source. It verifies: no citation, no fact.
 2. **arivu's chamber deliberates.** A parallel advisor panel argues (Gemini seats), a debate loop sharpens the disagreement, a Claude verdict seat synthesizes, and then a Claude prosecutor attacks the verdict's weakest reason. If the prosecutor lands a hit, the chamber revises only the faulted reason — graduated, never a full reset. The output is a decision with its reasoning and its survived objections attached.
-3. **Tap 1.** The founder approves the company decision at arivu's gate. Nothing acts before this.
-4. **kalai makes the announcement.** Creative brief through its own chamber (deciding factor: brand fit), copy in the founder's extracted voice, the still rendered with Imagen, brand assets pulled from the vault that was auto-extracted at connect. Every variant is verified against the brand block before it clears.
+3. **The founder approves the decision** at arivu's gate. Nothing acts before this — and when a verdict is defensible but close, the chamber raises a signed question to the founder instead of pretending certainty.
+4. **kalai makes the announcement.** Creative brief through its own chamber (deciding factor: brand fit), copy in the founder's extracted voice, the still rendered with Nano Banana Pro, brand assets pulled from the vault that was auto-extracted at connect. Every variant is verified against the brand block before it clears.
 5. **kural carries it out.** Its delivery planner picks channels and timing — but its schema has no text field. The assembler copies kalai's cleared variant byte-for-byte. The mouth structurally cannot rewrite the words.
-6. **Tap 2.** The founder approves at kural's publish gate. The executor fires only after approval, and dry-run is the hardcoded default.
+6. **The founder approves the publish** at kural's gate. The executor fires only after approval, and dry-run is the hardcoded default.
 7. **manas learns.** The day's outcome is committed back as a new cited fact and the Context Pack ticks a version. Tomorrow's decisions stand on today's.
 
-At every step the pattern is the same: an agent **acts**, then something **verifies** — a citation check, a prosecutor, a schema, a human tap. Errors never sink the day (a failed render or connect degrades soft); safety gates fail closed.
+At every step the pattern is the same: an agent **acts**, then something **verifies** — a citation check, a prosecutor, a schema, founder approval. Errors never sink the day (a failed render or connect degrades soft); safety gates fail closed.
 
 Throughout, the witness answers the founder from tools, not vibes: `anyone_waiting`, `cost_today`, `whats_reversible`, `what_learned`, `whos_acting_now`. Asked beyond its data, it refuses by default.
 
@@ -57,7 +57,7 @@ Throughout, the witness answers the founder from tools, not vibes: `anyone_waiti
 
 **Gemini-many, Claude-few — all via Vertex.** The many routine and panel seats run Gemini on Vertex (gemini-3.1-pro-preview, gemini-3.5-flash). The 7 highest-stakes seats — verdict, prosecutor, founder voice, memory curator, creative director, compliance, envoy lead (the prosecutor's reviser and kural's delivery planner ride the same model) — run Claude (claude-sonnet-4-6) through Vertex Model Garden. Every third-party LLM call goes through Vertex.
 
-**Three modes, honestly separated.** `demo` runs the entire orchestration creds-free with scripted model output — deterministic and byte-identical, so judges and CI see the same day. `hybrid` runs every seat live — the Claude seats on a live Gemini understudy until our Model Garden quota clears. `live` is all real, including Imagen still renders and the witness's Gemini Live voice.
+**Three modes, honestly separated.** `demo` runs the entire orchestration creds-free with scripted model output — deterministic and byte-identical, so judges and CI see the same day. `hybrid` runs every seat live — the Claude seats on a live Gemini understudy until our Model Garden quota clears. `live` is all real, including Nano Banana Pro still renders and the witness's Gemini Live voice.
 
 **Tested.** 316 tests pass (6 skipped), creds-free. Per-faculty ADK evalsets are checked in at the 0.8 bar — they require live credentials and have not yet been run live; we say so plainly. Supabase provides auth and an opt-in per-user store; OTel span callbacks trace every seat; each faculty serves an A2A agent card at `/api/{faculty}/agent-card`.
 
@@ -88,7 +88,7 @@ Throughout, the witness answers the founder from tools, not vibes: `anyone_waiti
 ## 7. Accomplishments we're proud of
 
 - **Deployed and grounded on a real company.** saakshe.com runs on Cloud Run and boots already connected to AIKIZI — a real company, ingested through the product's own connect flow: live Gemini read its GitHub repo and website and extracted cited facts, voice, and brand rules into a versioned Context Pack.
-- **kalai's hands are proven live.** A real Vertex Imagen render (`imagen-4.0-generate-001`), generated from a brand-grounded prompt, is checked into the repo at `docs/first_creation.png`.
+- **kalai's hands are proven live.** A real Vertex still render, generated from a brand-grounded prompt, is checked into the repo at `docs/first_creation.png`.
 - **316 tests pass (6 skipped), creds-free.** The full flywheel — both gates, fail-soft error paths, the separation contract — runs under test with no credentials.
 - **Safety as tested structure.** The byte-for-byte copy in kural, the schema with no text field, gates that fail closed, dry-run as the hardcoded executor default — these are properties under test, not promises in a prompt.
 - **Honest modes.** Demo, hybrid, and live share one codebase; what's real and what's replayed is explicit in every run.
@@ -113,7 +113,7 @@ Throughout, the witness answers the founder from tools, not vibes: `anyone_waiti
 
 ## 9. Built with
 
-Google ADK, Vertex AI, Gemini, Claude (via Vertex Model Garden), Imagen, Veo, Cloud Run, FastAPI, Supabase, OpenTelemetry, Python
+Google ADK, Vertex AI, Gemini, Claude (via Vertex Model Garden), Nano Banana Pro (Gemini 3 Pro Image), Veo, Cloud Run, FastAPI, Supabase, OpenTelemetry, Python
 
 ---
 

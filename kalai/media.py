@@ -40,24 +40,11 @@ def _placeholder_ref(kind: str, prompt: str) -> str:
 
 
 # ─── live Vertex clients (the ONLY network/creds path — mock these in tests) ──
-def _vertex_imagen(*, prompt: str, palette: str = "", **kwargs: Any) -> dict:
-    """Live Vertex still-render call. Lazy genai import so the module is creds-free
-    until this function actually runs. Returns {image_ref, bytes, spend_usd}.
-
-    The whole Imagen model family EOLs 2026-06-24, so the SAAKSHE_MODEL_IMAGEN pin
-    must be a REAL escape hatch: a ``gemini-*`` pin (e.g. gemini-2.5-flash-image)
-    is driven through ``generate_content`` (image bytes arrive as ``inline_data``),
-    while an ``imagen-*`` pin keeps the classic ``generate_images`` path."""
-    from google import genai  # lazy — no import/client at module load or in demo
-
-    client = genai.Client(
-        vertexai=True,
-        project=config.GOOGLE_CLOUD_PROJECT,
-        location=config.GEMINI_LOCATION,
-    )
-    model = config.MODEL_IMAGEN
-    full_prompt = prompt if not palette else f"{prompt}\nPalette: {palette}"
-    img_bytes: Optional[bytes] = None
+def _gen_image_bytes(client: Any, model: str, full_prompt: str) -> Optional[bytes]:
+    """One still attempt on one model. A ``gemini-*`` id (the Nano Banana family)
+    drives ``generate_content`` (bytes arrive as ``inline_data``); an ``imagen-*``
+    pin keeps the classic ``generate_images`` path (family EOLs 2026-06-24 — an
+    escape hatch, not the default)."""
     if model.startswith("gemini"):
         resp = client.models.generate_content(
             model=model,
@@ -69,22 +56,56 @@ def _vertex_imagen(*, prompt: str, palette: str = "", **kwargs: Any) -> dict:
             for part in parts:
                 data = getattr(getattr(part, "inline_data", None), "data", None)
                 if data:
-                    img_bytes = data
-                    break
-            if img_bytes:
-                break
-    else:
-        resp = client.models.generate_images(
-            model=model,
-            prompt=full_prompt,
-            config={"number_of_images": 1},
-        )
-        images = getattr(resp, "generated_images", None) or []
-        if images:
-            img = getattr(images[0], "image", None)
-            img_bytes = getattr(img, "image_bytes", None)
+                    return data
+        return None
+    resp = client.models.generate_images(
+        model=model,
+        prompt=full_prompt,
+        config={"number_of_images": 1},
+    )
+    images = getattr(resp, "generated_images", None) or []
+    if images:
+        img = getattr(images[0], "image", None)
+        return getattr(img, "image_bytes", None)
+    return None
+
+
+def _vertex_imagen(*, prompt: str, palette: str = "", **kwargs: Any) -> dict:
+    """Live Vertex still-render call. Lazy genai import so the module is creds-free
+    until this function actually runs. Returns {image_ref, bytes, spend_usd}.
+
+    Model chain mirrors aikizi production: primary ``MODEL_IMAGEN`` (default
+    nano-banana-pro → gemini-3-pro-image-preview), then ``MODEL_IMAGE_FALLBACK``
+    (default nano-banana-2 → gemini-3.1-flash-image-preview). First model that
+    yields bytes wins; the ref records WHICH model actually rendered."""
+    from google import genai  # lazy — no import/client at module load or in demo
+
+    client = genai.Client(
+        vertexai=True,
+        project=config.GOOGLE_CLOUD_PROJECT,
+        location=config.GEMINI_LOCATION,
+    )
+    full_prompt = prompt if not palette else f"{prompt}\nPalette: {palette}"
+    chain = [config.MODEL_IMAGEN]
+    if config.MODEL_IMAGE_FALLBACK and config.MODEL_IMAGE_FALLBACK not in chain:
+        chain.append(config.MODEL_IMAGE_FALLBACK)
+    img_bytes: Optional[bytes] = None
+    used = chain[0]
+    last_err: Optional[Exception] = None
+    for model in chain:
+        try:
+            img_bytes = _gen_image_bytes(client, model, full_prompt)
+        except Exception as exc:  # noqa: BLE001 — fall to the next model in the chain
+            last_err = exc
+            img_bytes = None
+        if img_bytes:
+            used = model
+            break
+    if img_bytes is None and last_err is not None and len(chain) > 1:
+        # every model in the chain failed — surface the last real error
+        raise last_err
     return {
-        "image_ref": f"vertex://imagen/{model}",
+        "image_ref": f"vertex://imagen/{used}",
         "bytes": img_bytes,
         "spend_usd": 0.0,  # real cost is metered by the spend executor, not estimated here
     }

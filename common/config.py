@@ -71,10 +71,26 @@ VOICE_CANDIDATES = [
     (os.environ.get("GOOGLE_CLOUD_LOCATION", "global"), "gemini-live-2.5-flash"),
 ]
 
-# kalai real media on Vertex (stills = Imagen, video = Veo). Wired live/hybrid only;
-# demo returns a deterministic placeholder ref (no network, no creds). Ids verified
-# against Vertex docs (June 2026) — env-overridable so a newer id needs no code change.
-MODEL_IMAGEN = os.environ.get("SAAKSHE_MODEL_IMAGEN", "imagen-4.0-generate-001")
+# kalai real media on Vertex (stills = Nano Banana / Gemini image, video = Veo).
+# Wired live/hybrid only; demo returns a deterministic placeholder ref (no network,
+# no creds). The still default is the SAME pair aikizi runs in production:
+# nano-banana-pro → gemini-3-pro-image-preview, falling back to
+# nano-banana-2 → gemini-3.1-flash-image-preview. Aliases accepted in the env;
+# an imagen-* pin still drives the classic generate_images path (family EOLs
+# 2026-06-24, so it's an escape hatch, not the default).
+_IMAGE_ALIASES = {
+    "nano-banana-pro": "gemini-3-pro-image-preview",
+    "nano-banana-2": "gemini-3.1-flash-image-preview",
+}
+
+
+def _image_model(var: str, default: str) -> str:
+    v = os.environ.get(var, default).strip()
+    return _IMAGE_ALIASES.get(v.lower(), v)
+
+
+MODEL_IMAGEN = _image_model("SAAKSHE_MODEL_IMAGEN", "nano-banana-pro")
+MODEL_IMAGE_FALLBACK = _image_model("SAAKSHE_MODEL_IMAGE_FALLBACK", "nano-banana-2")
 MODEL_VEO = os.environ.get("SAAKSHE_MODEL_VEO", "veo-3.1-generate-001")
 
 # ─── Vertex regions ──────────────────────────────────────────────────────────

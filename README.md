@@ -46,7 +46,7 @@ One primitive, one place to audit, and the same shape echoed in every faculty.
 
 ## Agent, not chatbot
 
-**Real actions.** Token spend is metered per run (`cost_today` reads the real stream). kalai renders actual stills via Vertex Imagen in live mode (the Veo reel wrapper is shipped but the flywheel doesn't call it yet — stills are the proven path). kural's publish is a real outbound action behind a triple lock — the founder's per-tap arm flag, a deploy-level env, and a registered channel adapter must ALL be present, or it dry-runs; auto-publish is deliberately not a feature.
+**Real actions.** Token spend is metered per run (`cost_today` reads the real stream). kalai renders actual stills via Nano Banana Pro — Gemini 3 Pro Image on Vertex — in live mode (the Veo reel wrapper is shipped but the flywheel doesn't call it yet — stills are the proven path). kural's publish is a real outbound action behind a triple lock — the founder's per-tap arm flag, a deploy-level env, and a registered channel adapter must ALL be present, or it dry-runs; auto-publish is deliberately not a feature.
 
 **Self-checking.** The debate loop forces advisors to confront each other before a verdict. The graduated prosecutor adversarially attacks the sealed verdict. kalai's brand-fidelity panel scores work against the vault's brand block. Claims are verified upstream of the mouth: manas's curator enforces no-citation-no-fact and kalai's fail-closed compliance gate clears the copy — kural carries it verbatim.
 
@@ -66,7 +66,7 @@ One primitive, one place to audit, and the same shape echoed in every faculty.
 |---|---|---|
 | Routine + panel calls | `gemini-3.1-pro-preview`, `gemini-3.5-flash` | Vertex AI |
 | 8 highest-stakes seats — verdict, prosecutor, founder voice, memory curator, creative director, compliance, envoy lead, delivery planner (the prosecutor's reviser rides the verdict's model) | `claude-sonnet-4-6` | Vertex AI Model Garden |
-| Stills (live) | `imagen-4.0-generate-001` (env-pinned via `SAAKSHE_MODEL_IMAGEN`; Veo reels are wrapped but not yet wired into the flywheel) | Vertex AI |
+| Stills (live) | Nano Banana Pro `gemini-3-pro-image-preview` → Nano Banana 2 `gemini-3.1-flash-image-preview` fallback (aliases accepted via `SAAKSHE_MODEL_IMAGEN`; Veo reels are wrapped but not yet wired into the flywheel) | Vertex AI |
 
 | Mode | Gemini | Claude | Media |
 |---|---|---|---|
@@ -76,7 +76,7 @@ One primitive, one place to audit, and the same shape echoed in every faculty.
 
 Demo mode is creds-free and byte-identical run to run — the entire ADK orchestration executes for real; only model token-generation is replayed, and it exists ONLY for CI and offline runs. The honest note: production today runs **hybrid** — every seat is live; the 8 Claude seats run on a live Gemini Pro understudy (real reasoning over your real question, never a replayed transcript) while our Vertex Model Garden quota resubmission is pending. The moment quota clears, one env flip puts Claude in those seats. We'd rather show you exactly where the line is than blur it. Credibility is a feature.
 
-kalai's hands are already proven live: a real Vertex Imagen render (`imagen-4.0-generate-001`), generated from a brand-grounded prompt, is checked into the repo.
+kalai's hands are already proven live: a real Vertex still render, generated from a brand-grounded prompt, is checked into the repo — the live path now runs Nano Banana Pro (`gemini-3-pro-image-preview`), the same model pair aikizi runs in production.
 
 ![first creation](docs/first_creation.png)
 
@@ -134,7 +134,7 @@ saakshe/
 ├── common/               # shared substrate: chamber.py · config · models · a2a ·
 │                         #   project store · event stream · vault · auth · credits
 ├── manas/                # ⬤ knows — imbiber pods, cited Context Pack, founder voice, vault extraction
-├── kalai/                # ▲ makes — creative direction, brand-fidelity panel, Imagen/Veo media
+├── kalai/                # ▲ makes — creative direction, brand-fidelity panel, Nano Banana/Veo media
 ├── kural/                # ◼ engages — envoy lead, no-text-field delivery planner, publish gate
 ├── arivu/                # the shared decision chamber all three faculties call
 ├── witness/              # tools-over-telemetry + refusal + Gemini Live voice bridge
@@ -181,4 +181,4 @@ The founder built saakshe to run his own company. He runs **AIKIZI** — a real 
 ## Hackathon
 
 Built for the **Google for Startups AI Agents Challenge — Track 1 (Build)**.
-Stack: **Python ADK** (`google-adk`) · **Vertex AI** (Gemini + Claude via Model Garden, Imagen, Veo, Gemini Live) · one FastAPI service on **Cloud Run** · Supabase · OpenTelemetry.
+Stack: **Python ADK** (`google-adk`) · **Vertex AI** (Gemini + Claude via Model Garden, Nano Banana Pro image gen, Veo, Gemini Live) · one FastAPI service on **Cloud Run** · Supabase · OpenTelemetry.
