@@ -140,8 +140,30 @@ html[data-theme="dark"] .logo .wd{color:var(--ink)}
 @media(max-width:480px){.logo{padding:9px 14px}.logo .dv{margin:0 12px 0 11px}}
 /* the topbar logo — the CURIOUS bot alone (nav wordmark text retired 2026-06-11; wordmark lives on in the footer) */
 .botlogo{display:inline-flex;text-decoration:none}
-.botlogo .skbot{width:46px;height:46px;border-radius:13px;border-width:3px;box-shadow:3px 3px 0 var(--line)}
-html[data-theme="dark"] .botlogo .skbot{border-width:2px;box-shadow:none}
+/* vac-grade surface: gradient body + bezel rim light + screen vignette + gloss sweep + eye bloom */
+.botlogo .skbot{width:46px;height:46px;border-radius:14px;border:none;
+  background:radial-gradient(130% 100% at 30% 10%,#36322c 0%,#1f1c18 40%,#0d0b09 80%);
+  box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.07),inset 0 2px 2px rgba(255,255,255,.09),
+    inset 0 -4px 8px rgba(0,0,0,.55),0 6px 16px rgba(22,20,16,.30),0 2px 4px rgba(22,20,16,.25);
+  transition:transform .18s cubic-bezier(.34,1.56,.64,1)}
+.botlogo:hover .skbot{transform:scale(1.05)}
+.botlogo .skbot::after{content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+  background:linear-gradient(122deg,rgba(255,255,255,.15) 0%,rgba(255,255,255,.04) 26%,transparent 44%)}
+.botlogo .skbot .skeye{width:31%;height:29%;top:19%;
+  background:linear-gradient(180deg,#fffdf6 0%,#f4eee2 55%,#e7dcc4 100%);
+  filter:drop-shadow(0 0 3px rgba(255,248,228,.55))}
+.botlogo .skbot .skeye.L{left:10.5%}.botlogo .skbot .skeye.R{right:10.5%}
+.botlogo .skbot .skmouth{background:linear-gradient(180deg,#fffdf6,#e7dcc4);border-radius:2px;
+  filter:drop-shadow(0 0 2px rgba(255,248,228,.4))}
+html[data-theme="dark"] .botlogo .skbot{
+  background:radial-gradient(130% 100% at 30% 10%,#13251a 0%,#0b150e 45%,#050a07 85%);
+  box-shadow:inset 0 0 0 1.5px rgba(94,240,138,.16),inset 0 2px 2px rgba(212,245,222,.08),
+    inset 0 -4px 8px rgba(0,0,0,.6),0 0 14px rgba(94,240,138,.10)}
+html[data-theme="dark"] .botlogo .skbot .skeye{
+  background:linear-gradient(180deg,#eafff1 0%,#d4f5de 55%,#a8e8bd 100%);
+  filter:drop-shadow(0 0 3px rgba(94,240,138,.5))}
+html[data-theme="dark"] .botlogo .skbot .skmouth{background:linear-gradient(180deg,#eafff1,#a8e8bd);
+  filter:drop-shadow(0 0 2px rgba(94,240,138,.4))}
 .botlogo .skbot .skeye{animation:skcurious 6.4s ease-in-out infinite;transform-origin:50% 100%}
 @keyframes skcurious{0%,18%{transform:translateX(0) scaleY(1)}26%,42%{transform:translateX(-21%) scaleY(1)}46%{transform:translateX(0) scaleY(.1)}50%,66%{transform:translateX(21%) scaleY(1)}74%,100%{transform:translateX(0) scaleY(1)}}
 @media(prefers-reduced-motion:reduce){.botlogo .skbot .skeye{animation:none}}
@@ -155,7 +177,7 @@ html[data-theme="dark"] .botlogo .skwd{color:#D4F5DE}
 .botlogo.wake .skwd{animation:skwdwake 1.45s cubic-bezier(.6,.05,.3,1) .5s both}
 .botlogo.wake .skbot .skeye{animation:skpartin 1.45s cubic-bezier(.6,.05,.3,1) .5s both,skcurious 6.4s ease-in-out 2.2s infinite}
 .botlogo.wake .skbot .skmouth{animation:skpartin 1.45s cubic-bezier(.6,.05,.3,1) .5s both}
-@keyframes skboxwake{0%,28%{width:168px;border-radius:10px}100%{width:46px;border-radius:13px}}
+@keyframes skboxwake{0%,28%{width:168px;border-radius:11px}100%{width:46px;border-radius:14px}}
 @keyframes skwdwake{0%,34%{opacity:1}72%,100%{opacity:0}}
 @keyframes skpartin{0%,58%{opacity:0}88%,100%{opacity:1}}
 @media(prefers-reduced-motion:reduce){.botlogo.wake .skbot,.botlogo.wake .skwd,.botlogo.wake .skbot .skeye,.botlogo.wake .skbot .skmouth{animation:none}}
