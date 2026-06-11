@@ -73,7 +73,7 @@
   --shadow:5px 5px 0 var(--ink);
   --shadow-sm:2px 2px 0 var(--ink);
   --glow:none; --glow-soft:none;
-  --grad-ink:linear-gradient(135deg,#161410 0%,#2E2A20 55%,#453E2E 100%);
+  --grad-ink:linear-gradient(135deg,#161410 0%,#2A2238 55%,#43285C 100%);
   --grad-bg:linear-gradient(165deg,#F8F3E8 0%,#F4EEE2 45%,#EFE7D6 100%);
   --grad-surf:linear-gradient(180deg,#FBF7EE 0%,#F7F1E3 100%);
   --font-display:'Archivo Black','Archivo',system-ui,sans-serif; --font-body:'JetBrains Mono',ui-monospace,monospace;
@@ -1359,6 +1359,49 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
 .sk-settings-one{ display:flex; flex-direction:column; min-width:0; }
 .sk-settings-one .grid2{ display:flex; flex-direction:column; gap:9px; margin-top:0 !important; }
 .sk-settings-one .panel{ box-shadow:var(--shadow-sm); }
+
+/* 14 ── CHARM TRANSPLANT (the bliss-and-ruin report vibe, 2026-06-12):
+   color rides DATA, never chrome — realm tints on the staff register and
+   per-realm strips, realm-washed memory buckets, ink-bordered pill meters,
+   the purple whisper actually landing in --grad-ink. Flat theme-aware tint
+   tokens only; no rgba washes, no colored edge bands. */
+
+/* the staff register wears its realms — chip surface = the realm's wash */
+.stf-chip[data-view="manas"]{ background:var(--tint-amber); }
+.stf-chip[data-view="arivu"]{ background:var(--tint-blue); }
+.stf-chip[data-view="kalai"]{ background:var(--tint-rose); }
+.stf-chip[data-view="kural"]{ background:var(--tint-green); }
+.stf-chip .stf-tag{ background:var(--plate); }
+.stf-chip:hover{ transform:translate(-1px,-1px); box-shadow:3px 3px 0 var(--line); }
+html[data-theme="dark"] .stf-chip:hover{ transform:none; box-shadow:none; }
+
+/* per-realm staff strips: call-sign minis take a whisper of their realm hue */
+.stf-strip[data-staffstrip="manas"] .stf-mini{ background:color-mix(in srgb, var(--manas) 13%, var(--plate)); }
+.stf-strip[data-staffstrip="arivu"] .stf-mini{ background:color-mix(in srgb, var(--arivu) 11%, var(--plate)); }
+.stf-strip[data-staffstrip="kalai"] .stf-mini{ background:color-mix(in srgb, var(--kalai) 11%, var(--plate)); }
+.stf-strip[data-staffstrip="kural"] .stf-mini{ background:color-mix(in srgb, var(--kural) 12%, var(--plate)); }
+html[data-theme="dark"] .stf-strip .stf-mini{ background:var(--surface-2); }
+
+/* manas memory buckets: the realm's wash + hue-lit icons (manas pane only —
+   outside a faculty pane --qc falls back to the red accent, so stay scoped) */
+html[data-quad="manas"] .bucket{ background:color-mix(in srgb, var(--manas) 10%, var(--plate)); }
+html[data-quad="manas"] .bucket .bic{ color:var(--manas); }
+html[data-theme="dark"][data-quad="manas"] .bucket{ background:var(--tint-amber); }
+
+/* meters become the report's data bars: ink-bordered pill track, hue fill
+   (fills already carry their faculty hue inline), hard mini-shadow in light */
+.meterbar{ height:11px; border-radius:var(--radius-pill); border:1.5px solid var(--line);
+  box-shadow:2px 2px 0 var(--line); }
+.meterbar i{ border-radius:var(--radius-pill); }
+html[data-theme="dark"] .meterbar{ height:9px; border:1px solid var(--line); box-shadow:none; }
+
+/* chat faculty tabs = the report's legend chips: realm dot + realm wash */
+#sa-chatpane .ch-tab[data-q="manas"]{ background:var(--tint-amber); }
+#sa-chatpane .ch-tab[data-q="arivu"]{ background:var(--tint-blue); }
+#sa-chatpane .ch-tab[data-q="kalai"]{ background:var(--tint-rose); }
+#sa-chatpane .ch-tab[data-q="kural"]{ background:var(--tint-green); }
+#sa-chatpane .ch-tab.on[data-q]{ background:var(--ink); color:var(--bg); }
+html[data-theme="dark"] #sa-chatpane .ch-tab.on[data-q]{ background:var(--act); color:var(--on-act); }
 </style>
 <link rel="stylesheet" href="chat-panel.css">
 </head>
