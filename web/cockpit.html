@@ -229,9 +229,13 @@ html[data-bot="joy"] .skbot .skeye.R{ animation-delay:.07s; }
 @media (prefers-reduced-motion: reduce){
   .skbot, .skbot .skeye{ animation:none !important; }
 }
-/* the locked wordmark — Syncopate 900, .295em tracking, 38px topbar, SΛΛKSHE */
-.tb-word{ font-family:'Syncopate',var(--word); font-weight:900; font-size:38px; letter-spacing:.295em; white-space:nowrap; }
-@media(max-width:760px){ .tb-word{ font-size:24px; } }
+/* the topbar logo — the CURIOUS bot (nav wordmark text retired 2026-06-11) */
+.tb-logo{ display:inline-flex; text-decoration:none; }
+.tb-brand .skbot{ width:40px; height:40px; border-radius:11px; }
+.tb-brand .skbot .skeye{ animation:skcurious 6.4s ease-in-out infinite; transform-origin:50% 100%; }
+@keyframes skcurious{ 0%,18%{ transform:translateX(0) scaleY(1); } 26%,42%{ transform:translateX(-21%) scaleY(1); }
+  46%{ transform:translateX(0) scaleY(.1); } 50%,66%{ transform:translateX(21%) scaleY(1); }
+  74%,100%{ transform:translateX(0) scaleY(1); } }
 
 /* signal text */
 .t-red{ color:var(--sig-red); } .t-green{ color:var(--sig-green); }
@@ -1298,7 +1302,7 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
 
   <!-- ============================== TOPBAR ============================== -->
   <header class="topbar">
-    <div class="tb-brand"><span class="tb-word" aria-label="saakshe">SΛΛKSHE</span></div>
+    <div class="tb-brand"><a class="tb-logo" href="/" aria-label="saakshe home"><span class="skbot" aria-hidden="true"><span class="skeye L"></span><span class="skeye R"></span><span class="skmouth"></span></span></a></div>
     <div class="tb-spacer"></div>
     <div class="pills">
       <button class="pill" id="pillConnect" data-tip="connect a project — sources are granted over setu" type="button" onclick="window.cockpitOpenGate&&cockpitOpenGate()"><svg class="ic"><use href="#i-database"/></svg><span>connect</span></button>

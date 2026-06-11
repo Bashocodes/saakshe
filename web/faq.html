@@ -130,6 +130,13 @@ html[data-theme="dark"] .skbot .skmouth{background:#D4F5DE}
 .logo .wd{font-family:'Syncopate',var(--word);font-weight:900;font-size:clamp(22px,5.5vw,38px);line-height:1;color:var(--ink);letter-spacing:.295em;padding-left:.295em}
 html[data-theme="dark"] .logo .wd{color:var(--ink)}
 @media(max-width:480px){.logo{padding:9px 14px}.logo .dv{margin:0 12px 0 11px}}
+/* the topbar logo — the CURIOUS bot alone (nav wordmark text retired 2026-06-11; wordmark lives on in the footer) */
+.botlogo{display:inline-flex;text-decoration:none}
+.botlogo .skbot{width:46px;height:46px;border-radius:13px;border-width:3px;box-shadow:3px 3px 0 var(--line)}
+html[data-theme="dark"] .botlogo .skbot{border-width:2px;box-shadow:none}
+.botlogo .skbot .skeye{animation:skcurious 6.4s ease-in-out infinite;transform-origin:50% 100%}
+@keyframes skcurious{0%,18%{transform:translateX(0) scaleY(1)}26%,42%{transform:translateX(-21%) scaleY(1)}46%{transform:translateX(0) scaleY(.1)}50%,66%{transform:translateX(21%) scaleY(1)}74%,100%{transform:translateX(0) scaleY(1)}}
+@media(prefers-reduced-motion:reduce){.botlogo .skbot .skeye{animation:none}}
 
 /* topbar + toggle */
 .bar{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
@@ -359,8 +366,8 @@ a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var
 
   <!-- ═══ TOPBAR: logo → home + theme toggle ═══ -->
   <div class="bar">
-    <a class="logo" href="/" aria-label="saakshe home">
-      <span class="skbot" aria-hidden="true"><span class="skeye L"></span><span class="skeye R"></span><span class="skmouth"></span></span><span class="dv"></span><span class="wd">SΛΛKSHE</span>
+    <a class="botlogo" href="/" aria-label="saakshe home">
+      <span class="skbot" aria-hidden="true"><span class="skeye L"></span><span class="skeye R"></span><span class="skmouth"></span></span>
     </a>
     <div class="toggle" role="group" aria-label="Theme">
       <button id="tg-light" type="button" aria-pressed="true"><span class="dot"></span>Brut</button>
