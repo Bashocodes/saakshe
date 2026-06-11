@@ -326,6 +326,19 @@ html[data-theme="dark"] .tb-brand .skbot .skmouth{ background:linear-gradient(18
   border-bottom:var(--hair) solid var(--hairline); background:var(--plate);
 }
 .tb-brand{ display:flex; align-items:center; gap:8px; font-family:var(--word); font-weight:500; font-size:14.5px; letter-spacing:.04em; white-space:nowrap; }
+/* the always-present way home — sidebar is gone, this is the one fixed nav */
+.tb-over{ display:inline-flex; align-items:center; gap:7px; flex:0 0 auto; white-space:nowrap;
+  font-family:var(--font-body); font-size:12.5px; font-weight:600; color:var(--ink); cursor:pointer;
+  background:var(--wash); border:var(--hair) solid var(--hairline); border-radius:var(--radius-pill);
+  padding:5px 13px 5px 11px; }
+.tb-over .ic{ width:15px; height:15px; color:var(--muted); }
+.tb-over:hover{ border-color:var(--accent); }
+.tb-over:hover .ic{ color:var(--ink); }
+/* on the overview, the button reads as the current place */
+html[data-view="overview"] .tb-over{ background:var(--ink); color:var(--surface); border-color:var(--line); }
+html[data-view="overview"] .tb-over .ic{ color:var(--surface); }
+html[data-theme="dark"][data-view="overview"] .tb-over{ background:var(--act); color:var(--on-act); border-color:var(--act); }
+html[data-theme="dark"][data-view="overview"] .tb-over .ic{ color:var(--on-act); }
 .tb-crumb{ font-family:var(--font-body); font-size:12.5px; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .tb-crumb b{ color:var(--ink); font-weight:600; }
 .tb-crumb .sep{ color:var(--ink-3); padding:0 7px; }
@@ -1476,6 +1489,7 @@ html[data-theme="dark"] #sa-chatpane .ch-tab.on[data-q]{ background:var(--act); 
   <!-- ============================== TOPBAR ============================== -->
   <header class="topbar">
     <div class="tb-brand"><a class="tb-logo" href="#overview" aria-label="overview — home" data-tip="overview"><span class="skbot" aria-hidden="true"><span class="skwd">SΛΛKSHE</span><span class="skeye L"></span><span class="skeye R"></span><span class="skmouth"><svg class="m m1" viewBox="0 0 100 60" aria-hidden="true"><rect x="9" y="23" width="82" height="15" rx="7"/></svg><svg class="m m9" viewBox="0 0 100 60" aria-hidden="true"><g transform="rotate(-8 50 30)"><rect x="14" y="24" width="72" height="13" rx="6"/></g></svg><svg class="m m4" viewBox="0 0 100 60" aria-hidden="true"><path d="M16 14 H84 A34 34 0 0 1 16 14 Z"/></svg><svg class="m m7" viewBox="0 0 100 60" aria-hidden="true"><rect x="12" y="26" width="76" height="11"/></svg></span></span></a></div>
+    <button class="tb-over" id="tbOverview" type="button" data-view="overview" data-tip="overview — the three agents at a glance"><svg class="ic"><use href="#i-overview"/></svg><span>overview</span></button>
     <div class="tb-spacer"></div>
     <div class="pills">
       <button class="pill" id="pillConnect" data-tip="connect a project — sources are granted over setu" type="button" onclick="window.cockpitOpenGate&&cockpitOpenGate()"><svg class="ic"><use href="#i-database"/></svg><span>connect</span></button>
@@ -2694,6 +2708,7 @@ html[data-theme="dark"] #sa-chatpane .ch-tab.on[data-q]{ background:var(--act); 
     }
     stage.innerHTML = html;
     if(!reduced){ var f=stage.firstElementChild; if(f) f.classList.add('fadein'); }
+    document.documentElement.setAttribute('data-view', STATE.view);  /* topbar overview active-state */
     syncNav();
     refreshMirrors();
   }
