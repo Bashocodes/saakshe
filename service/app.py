@@ -21,6 +21,7 @@ gates). Owners + the file-store demo are always free.
 from __future__ import annotations
 
 import base64
+import hmac
 import json
 import os
 import re
@@ -35,7 +36,8 @@ from uuid import uuid4
 from fastapi import (Depends, FastAPI, File, Form, HTTPException, Request,
                      UploadFile, WebSocket)
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, Response
+from fastapi.responses import (FileResponse, HTMLResponse, JSONResponse,
+                               RedirectResponse, Response)
 from pydantic import BaseModel
 from starlette.websockets import WebSocketDisconnect
 
@@ -155,6 +157,29 @@ def _is_judge(user) -> bool:
     return (getattr(user, "email", "") or "").lower() in judge_set
 
 
+def _judge_token() -> str:
+    """The judge magic-link secret. Empty (or too short to be a real secret) =
+    the feature is OFF — the link route 404s and the cookie is inert."""
+    t = os.environ.get("SAAKSHE_JUDGE_TOKEN", "").strip()
+    return t if len(t) >= 16 else ""
+
+
+def _judge_link_ok(request) -> bool:
+    """A valid judge-link cookie on this request (constant-time compare)."""
+    expected = _judge_token()
+    presented = request.cookies.get("sk_judge", "")
+    return bool(expected and presented and hmac.compare_digest(presented, expected))
+
+
+def _judge_link_user():
+    """The synthesized judge identity a valid link cookie signs in as — the SAME
+    judge the email credential maps to, so every existing seal applies: shared
+    seeded store, mutations sealed, no billing."""
+    emails = os.environ.get("JUDGE_EMAILS", "judge@saakshe.com")
+    email = next((e.strip() for e in emails.split(",") if e.strip()), "judge@saakshe.com")
+    return auth.User(user_id="judge-link", email=email, is_owner=False)
+
+
 def _require_signin() -> bool:
     """The gated-demo switch: SAAKSHE_REQUIRE_SIGNIN=1 puts the WHOLE API surface
     behind sign-in — judge credentials go in the Devpost testing instructions —
@@ -192,6 +217,8 @@ async def _session_dep(request: Request):
     for the whole request (so every deep read follows the right tenant), and reset
     on the way out. Demo/file-store (no Supabase backend) → no auth, the globals."""
     user = auth.optional_user(request) if auth.auth_enabled() else None
+    if user is None and _judge_link_ok(request):
+        user = _judge_link_user()
     if _require_signin() and user is None:
         raise HTTPException(status_code=401, detail="auth_required")
     if _supabase_backend() and user is not None:
@@ -378,14 +405,20 @@ _DECISION_HINTS = ("should we", "should i", "should the", "run the day", "start 
 
 # ─── public config + identity ─────────────────────────────────────────────────
 @app.get("/api/public-config")
-def public_config() -> dict[str, Any]:
-    """What the cockpit needs to boot Supabase-JS (the anon key is public-safe)."""
+def public_config(request: Request) -> dict[str, Any]:
+    """What the cockpit needs to boot Supabase-JS (the anon key is public-safe).
+
+    A valid judge-link cookie flips require_signin/auth_enabled OFF in this
+    response only — the cockpit then boots exactly like the open demo (no
+    sign-in gate) while every API call resolves to the sealed judge session."""
+    judge = _judge_link_ok(request)
     return {
         "supabase_url": os.environ.get("SAAKSHE_SUPABASE_URL", ""),
         "anon_key": os.environ.get("SUPABASE_ANON_KEY", ""),
         "store": os.environ.get("SAAKSHE_STORE", "file"),
-        "auth_enabled": auth.auth_enabled() and (_supabase_backend() or _require_signin()),
-        "require_signin": _require_signin(),
+        "auth_enabled": (not judge) and auth.auth_enabled() and (_supabase_backend() or _require_signin()),
+        "require_signin": (not judge) and _require_signin(),
+        "judge_link": judge,
         "public_demo": _public_demo(),
         "mode": config.mode(),
         # Deploy provenance: K_REVISION is set by Cloud Run itself; the sha/time
@@ -1267,6 +1300,25 @@ def auth_callback() -> Any:
     """Completes the Supabase OAuth round-trip (supabase-js parses the URL, then we
     bounce to the cockpit). Explicit route since the catch-all is single-segment."""
     return _serve_page("auth-callback.html")
+
+
+@app.get("/judge/{token}", include_in_schema=False)
+def judge_link(token: str) -> Any:
+    """The judge magic link — the capability URL shipped in the Devpost testing
+    field. A matching token sets the HttpOnly judge cookie and lands on the
+    cockpit, signed in as the judging identity (shared seeded store, mutations
+    sealed, free). Feature OFF (no/short SAAKSHE_JUDGE_TOKEN) or a wrong token →
+    the branded 404, indistinguishable from any other missing page."""
+    expected = _judge_token()
+    if expected and hmac.compare_digest(token, expected):
+        resp = RedirectResponse("/cockpit", status_code=303)
+        resp.set_cookie("sk_judge", token, max_age=30 * 24 * 3600, path="/",
+                        httponly=True, secure=True, samesite="lax")
+        return resp
+    branded = _WEB / "404.html"
+    if branded.exists():
+        return FileResponse(branded, status_code=404, headers={"Cache-Control": "no-cache"})
+    raise HTTPException(status_code=404, detail="not found")
 
 
 @app.get("/", response_class=HTMLResponse)

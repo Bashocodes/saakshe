@@ -73,6 +73,13 @@ case "$PROFILE" in
     : "${SAAKSHE_SUPABASE_KEY:?the gated profile needs SAAKSHE_SUPABASE_KEY (or ~/.saakshe_supabase_key) for billing + durable stores}"
     ENV_VARS+="|SAAKSHE_OWNER_STORE=${SAAKSHE_OWNER_STORE}|SAAKSHE_SUPABASE_KEY=${SAAKSHE_SUPABASE_KEY}"
     ENV_VARS+="|SAAKSHE_BILLING=1"
+    # Judge magic link (/judge/<token> — the Devpost testing-access URL). The
+    # secret lives ONLY in ~/.saakshe_judge_token (never committed); absent file
+    # = feature off, the route 404s.
+    SAAKSHE_JUDGE_TOKEN="${SAAKSHE_JUDGE_TOKEN:-$(cat ~/.saakshe_judge_token 2>/dev/null || true)}"
+    if [ -n "${SAAKSHE_JUDGE_TOKEN}" ]; then
+      ENV_VARS+="|SAAKSHE_JUDGE_TOKEN=${SAAKSHE_JUDGE_TOKEN}"
+    fi
     ;;
   billing)
     # ── credit/auth (multi-tenant) config — secrets come from the gitignored .env.local
