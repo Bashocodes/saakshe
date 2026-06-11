@@ -49,9 +49,14 @@ html.sk-chat-collapsed #sa-chatpane .ch-rail{display:flex;flex-direction:column;
 html.sk-chat-collapsed #sa-chatpane .ch-rail .skbot{width:38px;height:38px;border-width:2.5px;border-radius:11px}
 html.sk-chat-collapsed #sa-chatpane .ch-rail:hover .skbot{transform:translateY(-1px)}
 
-/* ── faculty tabs: bordered mono chips, just ABOVE the ask box ── */
-#sa-chatpane .ch-tabs{display:flex;gap:6px;padding:9px 12px;
-  border-top:var(--line-w,2px) solid var(--line,#141118);flex-wrap:wrap;background:var(--surface,#FBF7EE)}
+/* ── faculty chips, just ABOVE the ask box: ONE line always (founder,
+   2026-06-12) — a chip drops its agent's name into the ask; no saakshe chip,
+   we are always talking to saakshe. ── */
+#sa-chatpane .ch-tabs{display:flex;align-items:center;gap:6px;padding:9px 12px;
+  border-top:var(--line-w,2px) solid var(--line,#141118);flex-wrap:nowrap;
+  overflow-x:auto;scrollbar-width:none;background:var(--surface,#FBF7EE)}
+#sa-chatpane .ch-tabs::-webkit-scrollbar{display:none}
+#sa-chatpane .ch-tabs > *{flex:0 0 auto}
 #sa-chatpane .ch-tab{border:1.5px solid var(--line,#161410);border-radius:var(--radius-pill,999px);
   padding:3px 11px;font:600 10px var(--font-mono);letter-spacing:.1em;text-transform:uppercase;
   cursor:pointer;background:var(--surface-2,#ECE4D3);color:var(--ink,#161410);

@@ -302,16 +302,19 @@ html[data-theme="dark"] .tb-brand .skbot .skmouth{ background:linear-gradient(18
 .app{
   display:grid;
   grid-template-rows:var(--topbar) minmax(0,1fr);
-  grid-template-columns:var(--sb) minmax(0,1fr) var(--rail);
-  grid-template-areas:"top top top" "side stage rail";
+  /* sidebar RETIRED (founder, 2026-06-12): the stage owns the full left.
+     Nav lives in the surfaces — overview cards drill in, topbar pills carry
+     questions/activity/rail, settings rides the chat gear, project switch
+     lives in the stage header, the bot logo is home. */
+  grid-template-columns:minmax(0,1fr) var(--rail);
+  grid-template-areas:"top top" "stage rail";
   /* width:100% not 100vw — body carries margin-right:30vw for the chat pane,
      and a 100vw shell under body's overflow:hidden clips the stage at 70vw */
   height:100vh; width:100%;
   transition:grid-template-columns .28s var(--ease);
 }
-.app.sb-collapsed{ grid-template-columns:var(--sb-rail) minmax(0,1fr) var(--rail); }
-.app.rail-collapsed{ grid-template-columns:var(--sb) minmax(0,1fr) 0; }
-.app.sb-collapsed.rail-collapsed{ grid-template-columns:var(--sb-rail) minmax(0,1fr) 0; }
+.app.sb-collapsed{ grid-template-columns:minmax(0,1fr) var(--rail); }
+.app.rail-collapsed, .app.sb-collapsed.rail-collapsed{ grid-template-columns:minmax(0,1fr) 0; }
 
 /* ----------------------------- TOPBAR ----------------------------------- */
 /* ONE bar across the whole window — fixed full-bleed so it also crowns the
@@ -352,13 +355,9 @@ html[data-theme="dark"] .tb-brand .skbot .skmouth{ background:linear-gradient(18
 /* a SHORT floating Brut panel, top-left — content height, not a full column
    (founder, 2026-06-10: "cut it short, keep it to the left, keep it collapsible") */
 .sidebar{
-  grid-area:side; min-height:0; align-self:start;
-  height:auto; max-height:calc(100% - 20px); overflow:auto;
-  margin:10px 0 0 10px;
-  border:var(--line-w) solid var(--line); border-radius:var(--radius);
-  background:var(--plate); background-image:var(--grad-surf);
-  box-shadow:var(--shadow);
-  display:flex; flex-direction:column; padding:10px;
+  /* retired 2026-06-12 — DOM kept (JS still updates #sbOrgName/#staffNavCt
+     etc. harmlessly), never painted */
+  display:none;
 }
 .sb-head{ display:flex; align-items:center; gap:8px; padding:0 2px 8px; }
 .sb-head .plabel{ font-family:var(--font-mono); font-size:10px; font-weight:700;
@@ -821,15 +820,7 @@ html[data-theme="dark"] .tb-brand .skbot .skmouth{ background:linear-gradient(18
 /* Sidebar stays EXPANDED by default at >=1100px (the 1400px auto-collapse is gone —
    the user collapses manually). Below 1100px it falls to the icon rail. */
 @media (max-width:1099px){
-  .app{ grid-template-columns:var(--sb-rail) minmax(0,1fr) var(--rail); }
-  .app.sb-collapsed{ grid-template-columns:var(--sb-rail) minmax(0,1fr) var(--rail); }
-  .sb-head .plabel, .sb-projects, .navlist button.nav .lbl, .navlist button.nav .nstat,
-  .navlist button.nav .badge, .navlist .nsec, .sb-foot{ display:none; }
-  .navlist button.nav{ justify-content:center; padding:8px 6px; }
-  .navlist button.nav .navini{ display:flex; }
-  .sb-head{ justify-content:center; padding:0 0 8px; }
-  .sb-head .sb-toggle{ margin-left:0; }
-  .sidebar{ padding:8px 6px; }
+  .app, .app.sb-collapsed{ grid-template-columns:minmax(0,1fr) var(--rail); }
 }
 /* Under 800px the right rail leaves the grid: it becomes a full-width fixed
    overlay under the topbar. openRail()/railClose still drive .rail-collapsed —
@@ -837,7 +828,7 @@ html[data-theme="dark"] .tb-brand .skbot .skmouth{ background:linear-gradient(18
 @media (max-width:800px){
   .app, .app.sb-collapsed,
   .app.rail-collapsed, .app.sb-collapsed.rail-collapsed{
-    grid-template-columns:var(--sb-rail) minmax(0,1fr) 0;
+    grid-template-columns:minmax(0,1fr) 0;
   }
   .rail{
     position:fixed; top:var(--topbar); right:0; bottom:0; left:0;
@@ -1395,6 +1386,32 @@ html[data-theme="dark"][data-quad="manas"] .bucket{ background:var(--tint-amber)
 .meterbar i{ border-radius:var(--radius-pill); }
 html[data-theme="dark"] .meterbar{ height:9px; border:1px solid var(--line); box-shadow:none; }
 
+/* 15 ── project switcher: the sidebar's project row, rehoused in the stage
+   header (sidebar retired 2026-06-12). One current row + connect-another. */
+.pm-toggle{ font-family:var(--font-body); font-size:12px; font-weight:600; color:var(--ink);
+  background:var(--wash); border:var(--hair) solid var(--hairline); border-radius:var(--r);
+  padding:5px 11px; cursor:pointer; white-space:nowrap; }
+.pm-toggle:hover{ border-color:var(--accent); }
+.projmenu{ position:absolute; top:calc(100% + 9px); left:0; min-width:250px;
+  background:var(--plate); background-image:var(--grad-surf);
+  border:var(--line-w) solid var(--line); border-radius:var(--radius-sm);
+  box-shadow:var(--shadow); padding:6px; z-index:520;
+  display:flex; flex-direction:column; gap:4px; }
+.pm-row{ display:flex; align-items:center; gap:9px; width:100%; text-align:left; cursor:pointer;
+  background:var(--wash); border:var(--hair) solid var(--hairline); border-radius:var(--r);
+  padding:8px 10px; color:var(--ink);
+  font-family:var(--font-mono); font-size:11.5px; font-weight:700; letter-spacing:.02em; }
+.pm-row:hover{ border-color:var(--line); transform:translate(-1px,-1px); box-shadow:var(--shadow-sm); }
+html[data-theme="dark"] .pm-row:hover{ transform:none; box-shadow:none; border-color:var(--ink-3); }
+.pm-row .pll{ width:8px; height:8px; border-radius:50%; background:var(--faint); flex:0 0 auto; }
+.pm-row .pll.on{ background:var(--sig-green); }
+.pm-row .pmn{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.pm-row .pmk{ margin-left:auto; font-family:var(--font-mono); font-size:9.5px; font-weight:600;
+  letter-spacing:.08em; text-transform:uppercase; color:var(--muted); flex:0 0 auto; }
+/* the hover-lift transform makes .projhdr a stacking context, which would trap
+   the open menu under the overview cards — lift the whole header while open */
+.projhdr:has(.projmenu:not([hidden])){ position:relative; z-index:540; }
+
 /* chat faculty tabs = the report's legend chips: realm dot + realm wash */
 #sa-chatpane .ch-tab[data-q="manas"]{ background:var(--tint-amber); }
 #sa-chatpane .ch-tab[data-q="arivu"]{ background:var(--tint-blue); }
@@ -1403,7 +1420,7 @@ html[data-theme="dark"] .meterbar{ height:9px; border:1px solid var(--line); box
 #sa-chatpane .ch-tab.on[data-q]{ background:var(--ink); color:var(--bg); }
 html[data-theme="dark"] #sa-chatpane .ch-tab.on[data-q]{ background:var(--act); color:var(--on-act); }
 </style>
-<link rel="stylesheet" href="chat-panel.css">
+<link rel="stylesheet" href="chat-panel.css?v=oneline1">
 </head>
 
 <body>
@@ -1458,7 +1475,7 @@ html[data-theme="dark"] #sa-chatpane .ch-tab.on[data-q]{ background:var(--act); 
 
   <!-- ============================== TOPBAR ============================== -->
   <header class="topbar">
-    <div class="tb-brand"><a class="tb-logo" href="/" aria-label="saakshe home"><span class="skbot" aria-hidden="true"><span class="skwd">SΛΛKSHE</span><span class="skeye L"></span><span class="skeye R"></span><span class="skmouth"><svg class="m m1" viewBox="0 0 100 60" aria-hidden="true"><rect x="9" y="23" width="82" height="15" rx="7"/></svg><svg class="m m9" viewBox="0 0 100 60" aria-hidden="true"><g transform="rotate(-8 50 30)"><rect x="14" y="24" width="72" height="13" rx="6"/></g></svg><svg class="m m4" viewBox="0 0 100 60" aria-hidden="true"><path d="M16 14 H84 A34 34 0 0 1 16 14 Z"/></svg><svg class="m m7" viewBox="0 0 100 60" aria-hidden="true"><rect x="12" y="26" width="76" height="11"/></svg></span></span></a></div>
+    <div class="tb-brand"><a class="tb-logo" href="#overview" aria-label="overview — home" data-tip="overview"><span class="skbot" aria-hidden="true"><span class="skwd">SΛΛKSHE</span><span class="skeye L"></span><span class="skeye R"></span><span class="skmouth"><svg class="m m1" viewBox="0 0 100 60" aria-hidden="true"><rect x="9" y="23" width="82" height="15" rx="7"/></svg><svg class="m m9" viewBox="0 0 100 60" aria-hidden="true"><g transform="rotate(-8 50 30)"><rect x="14" y="24" width="72" height="13" rx="6"/></g></svg><svg class="m m4" viewBox="0 0 100 60" aria-hidden="true"><path d="M16 14 H84 A34 34 0 0 1 16 14 Z"/></svg><svg class="m m7" viewBox="0 0 100 60" aria-hidden="true"><rect x="12" y="26" width="76" height="11"/></svg></span></span></a></div>
     <div class="tb-spacer"></div>
     <div class="pills">
       <button class="pill" id="pillConnect" data-tip="connect a project — sources are granted over setu" type="button" onclick="window.cockpitOpenGate&&cockpitOpenGate()"><svg class="ic"><use href="#i-database"/></svg><span>connect</span></button>
@@ -2028,6 +2045,13 @@ html[data-theme="dark"] #sa-chatpane .ch-tab.on[data-q]{ background:var(--act); 
       +'><span class="ll"></span><span class="pn">'+esc(orgName())+'</span>'
       +(ORG.grounded
         ?'<button class="qbtn" type="button" style="flex:0 0 auto;width:auto;" onclick="location.href=\'/grasped\'" data-tip="the stored extraction — everything manas grasped, point-and-editable">what manas grasped →</button>'
+         +'<span class="projsw" style="position:relative;flex:0 0 auto;">'
+           +'<button class="pm-toggle" type="button" data-projtoggle aria-haspopup="menu" aria-expanded="false" data-tip="switch project — or connect another">＋ project</button>'
+           +'<div class="projmenu" id="projMenu" hidden role="menu" aria-label="projects">'
+             +'<button class="pm-row" type="button" role="menuitem" onclick="location.href=\'/grasped\'"><span class="pll on"></span><span class="pmn">'+esc(orgName())+'</span><span class="pmk">current</span></button>'
+             +'<button class="pm-row" type="button" role="menuitem" data-projadd><span class="pll"></span><span class="pmn">connect another project…</span></button>'
+           +'</div>'
+         +'</span>'
         :'<span class="pm">connect over setu to begin →</span>')
       +'<span class="pm" style="margin-left:auto;">memory <b>Context Pack '+esc(orgPack())+'</b></span></div>'
     +'<div class="grid3 ovquads" style="margin-top:13px; flex:1 1 auto; min-height:0;">'+ovc+'</div>'
@@ -2849,6 +2873,18 @@ html[data-theme="dark"] #sa-chatpane .ch-tab.on[data-q]{ background:var(--act); 
   /* ================= EVENT DELEGATION ================= */
   document.addEventListener('click', function(e){
     var t = e.target;
+    /* project switcher (stage header) — toggle / connect-another / outside-close */
+    var pjm = document.getElementById('projMenu');
+    var pjt = t.closest('[data-projtoggle]');
+    if(pjt && pjm){ pjm.hidden = !pjm.hidden;
+      pjt.setAttribute('aria-expanded', pjm.hidden ? 'false' : 'true'); return; }
+    if(pjm && !pjm.hidden){
+      if(t.closest('[data-projadd]')){ pjm.hidden = true;
+        if(window.cockpitConnectNew) cockpitConnectNew();
+        else if(window.cockpitOpenGate) cockpitOpenGate();
+        return; }
+      if(!t.closest('.projsw')) pjm.hidden = true;   /* close, then fall through */
+    }
     /* brand-shelf FIRST — its CONFIRM/REPLACE buttons wear .qbtn, so they must
        never fall into the question-answer branch below */
     var lc = t.closest('[data-logoconfirm]');
@@ -3448,6 +3484,9 @@ html[data-theme="dark"] #sa-chatpane .ch-tab.on[data-q]{ background:var(--act); 
     }catch(e){ show("cgStepConnect"); }
   }
   window.cockpitOpenGate = openGrasped;
+  /* the header's "＋ project → connect another" lands on the CONNECT FORM
+     (a new project), never the grasped readout of the current one */
+  window.cockpitConnectNew = function(){ openGate(); show("cgStepConnect"); };
   /* the manas desk's "↻ imbibe now": open the gate and run the REAL ingest over
      whatever is connected — never silently; the click IS the explicit consent.
      An unconnected store lands on the connect form instead of a 409. */
@@ -4302,7 +4341,7 @@ html[data-theme="dark"] #sa-chatpane .ch-tab.on[data-q]{ background:var(--act); 
 })();
 </script>
 <div id="sa-chatpane"></div>
-<script src="chat-panel.js"></script>
+<script src="chat-panel.js?v=oneline1"></script>
 <script>
 /* the box wake — once a day, the badge contracts into the bot */
 (function(){

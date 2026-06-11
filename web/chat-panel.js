@@ -18,12 +18,11 @@
   pane.innerHTML =
     '<div class="ch-feed" id="sa-ch-feed" aria-live="polite"></div>' +
     '<div id="sa-ch-settings" role="region" aria-label="settings"></div>' +
-    '<div class="ch-tabs" role="group" aria-label="filter by faculty">' +
-    '<button class="ch-tab on" type="button" data-q="saakshe" aria-pressed="true">saakshe</button>' +
-    '<button class="ch-tab" type="button" data-q="manas" aria-pressed="false"><span class="fdot"></span>manas</button>' +
-    '<button class="ch-tab" type="button" data-q="arivu" aria-pressed="false"><span class="fdot"></span>arivu</button>' +
-    '<button class="ch-tab" type="button" data-q="kalai" aria-pressed="false"><span class="fdot"></span>kalai</button>' +
-    '<button class="ch-tab" type="button" data-q="kural" aria-pressed="false"><span class="fdot"></span>kural</button>' +
+    '<div class="ch-tabs" role="group" aria-label="mention an agent">' +
+    '<button class="ch-tab" type="button" data-q="manas" title="drop manas into your ask"><span class="fdot"></span>manas</button>' +
+    '<button class="ch-tab" type="button" data-q="arivu" title="drop arivu into your ask"><span class="fdot"></span>arivu</button>' +
+    '<button class="ch-tab" type="button" data-q="kalai" title="drop kalai into your ask"><span class="fdot"></span>kalai</button>' +
+    '<button class="ch-tab" type="button" data-q="kural" title="drop kural into your ask"><span class="fdot"></span>kural</button>' +
     '<span class="live" id="sa-ch-live"></span>' +
     '<button class="ch-gear" id="sa-ch-gear" type="button" title="settings" aria-label="settings" aria-pressed="false">' +
     '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.2"/>' +
@@ -589,7 +588,9 @@
     if (e.key === 'Enter') send();
   });
 
-  /* ── faculty tabs FILTER the feed (your bubbles always stay) ── */
+  /* ── faculty chips DROP the agent's name into the ask (founder, 2026-06-12):
+     we are always talking to saakshe — a chip just tells it who we mean.
+     state.fac stays 'saakshe' forever, so the filter never hides anything. ── */
   function applyFacFilter(m) {
     var f = state.fac;
     var show = f === 'saakshe' || m.classList.contains('user') || m.dataset.fac === f;
@@ -597,14 +598,10 @@
   }
   pane.querySelectorAll('.ch-tab').forEach(function (t) {
     t.onclick = function () {
-      setSettings(false);                     // any faculty tab returns to chat
-      pane.querySelectorAll('.ch-tab').forEach(function (x) {
-        x.classList.remove('on'); x.setAttribute('aria-pressed', 'false');
-      });
-      t.classList.add('on'); t.setAttribute('aria-pressed', 'true');
-      state.fac = t.dataset.q;
-      feed.querySelectorAll('.msg').forEach(applyFacFilter);
-      down(true);
+      setSettings(false);                     // any faculty chip returns to chat
+      var v = input.value;
+      input.value = (v && !/\s$/.test(v) ? v + ' ' : v) + t.dataset.q + ' ';
+      input.focus();
     };
   });
 
