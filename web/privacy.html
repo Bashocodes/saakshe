@@ -126,10 +126,10 @@ html[data-theme="dark"] .skbot .skeye{background:#D4F5DE}
 html[data-theme="dark"] .skbot .skmouth{background:#D4F5DE}
 @keyframes skblink{0%,93.5%,100%{transform:scaleY(1)}96%{transform:scaleY(.12)}}
 @media(prefers-reduced-motion:reduce){.skbot .skeye{animation:none}}
-/* the locked wordmark — Syncopate Bold · .26em tracking · SΛΛKSHE */
-.logo .wd{font-family:'Syncopate',var(--word);font-weight:700;font-size:16px;line-height:1;color:var(--ink);letter-spacing:.26em;padding-left:.26em}
+/* the locked wordmark — Syncopate 900 · .295em tracking · nav 38px / foot 20px · SΛΛKSHE */
+.logo .wd{font-family:'Syncopate',var(--word);font-weight:900;font-size:clamp(22px,5.5vw,38px);line-height:1;color:var(--ink);letter-spacing:.295em;padding-left:.295em}
 html[data-theme="dark"] .logo .wd{color:var(--ink)}
-@media(max-width:480px){.logo .wd{font-size:12.5px;letter-spacing:.2em}.logo{padding:9px 14px}.logo .dv{margin:0 12px 0 11px}}
+@media(max-width:480px){.logo{padding:9px 14px}.logo .dv{margin:0 12px 0 11px}}
 
 /* topbar + toggle */
 .bar{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
@@ -239,6 +239,7 @@ html[data-theme="dark"] .endcta h2{letter-spacing:0;font-size:clamp(21px,4vw,36p
 html[data-theme="dark"] .foot{border-top:1px solid var(--line)}
 .foot .flogo{display:inline-flex;align-items:center}
 .foot .flogo .logo{box-shadow:none;padding:7px 13px}
+.foot .flogo .logo .wd{font-size:20px}
 html[data-theme="dark"] .foot .flogo .logo{box-shadow:none}
 .foot-nav{display:flex;flex-wrap:wrap;gap:8px 18px}
 .foot-nav a{color:var(--ink-2);text-decoration:none;font-family:var(--mono);font-size:12px;letter-spacing:.04em}

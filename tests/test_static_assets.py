@@ -36,3 +36,37 @@ def test_unknown_extension_still_falls_through_to_pages():
     r = client.get("/pricing")
     assert r.status_code == 200
     assert r.headers["content-type"].startswith("text/html")
+
+
+# ─── /assets/{path} — the multi-segment brand-asset route ─────────────────────
+
+def test_brand_wordmark_svg_served():
+    r = client.get("/assets/brand/saakshe-wordmark.svg")
+    assert r.status_code == 200
+    assert r.headers["content-type"].startswith("image/svg+xml")
+
+
+def test_brand_wordmark_css_served():
+    r = client.get("/assets/brand/wordmark.css")
+    assert r.status_code == 200
+    assert r.headers["content-type"].startswith("text/css")
+
+
+def test_assets_unsafe_extension_404s():
+    # the TTF sits in the repo for provenance but is NOT on the serving safelist
+    r = client.get("/assets/brand/fonts/Syncopate-Bold.ttf")
+    assert r.status_code == 404
+
+
+def test_assets_traversal_blocked():
+    # plain /assets/../x is normalized away client-side before routing; the
+    # encoded form is what actually reaches the route's path param
+    r = client.get("/assets/..%2f..%2fservice%2fapp.py")
+    assert r.status_code == 404
+    r = client.get("/assets/brand%2f..%2f..%2fcockpit.html")
+    assert r.status_code == 404
+
+
+def test_assets_missing_file_404s():
+    r = client.get("/assets/brand/nope.svg")
+    assert r.status_code == 404

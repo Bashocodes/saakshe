@@ -229,8 +229,9 @@ html[data-bot="joy"] .skbot .skeye.R{ animation-delay:.07s; }
 @media (prefers-reduced-motion: reduce){
   .skbot, .skbot .skeye{ animation:none !important; }
 }
-/* the locked wordmark — Syncopate Bold, .26em tracking, SΛΛKSHE */
-.tb-word{ font-family:'Syncopate',var(--word); font-weight:700; font-size:23px; letter-spacing:.26em; white-space:nowrap; }
+/* the locked wordmark — Syncopate 900, .295em tracking, 38px topbar, SΛΛKSHE */
+.tb-word{ font-family:'Syncopate',var(--word); font-weight:900; font-size:38px; letter-spacing:.295em; white-space:nowrap; }
+@media(max-width:760px){ .tb-word{ font-size:24px; } }
 
 /* signal text */
 .t-red{ color:var(--sig-red); } .t-green{ color:var(--sig-green); }
@@ -3549,7 +3550,7 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
       GATE.id="saGate";
       GATE.style.cssText="position:fixed;inset:0;z-index:9999;display:none;align-items:center;justify-content:center;background:var(--bg,#faf6f1)";
       GATE.innerHTML='<form id="saGateF" style="width:min(380px,92vw);padding:30px;border:var(--line-w,1px) solid var(--hairline,#e3dad0);border-radius:var(--radius,14px);background:var(--plate,#fff);color:var(--ink,#1c1b1a);box-shadow:var(--shadow,none);font-family:inherit">'
-        +'<div style="font-family:\'Syncopate\',var(--word,sans-serif);font-weight:700;font-size:13px;letter-spacing:.26em" aria-label="saakshe">SΛΛKSHE</div>'
+        +'<div style="font-family:\'Syncopate\',var(--word,sans-serif);font-weight:900;font-size:16px;letter-spacing:.295em" aria-label="saakshe">SΛΛKSHE</div>'
         +'<div style="font-size:13px;opacity:.72;margin:6px 0 18px;line-height:1.45">This demo is gated. Continue with Google, or sign in with the judging credentials from the submission’s testing instructions.</div>'
         +'<button type="button" id="saGateG" style="width:100%;box-sizing:border-box;padding:11px;margin-bottom:14px;border:1px solid var(--line,#e3dad0);border-radius:var(--radius-sm,10px);cursor:pointer;background:transparent;color:inherit;font:inherit;display:flex;align-items:center;justify-content:center;gap:9px">'
         +'<svg width="17" height="17" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.9 6.1C12.4 13.4 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.8 7.2l7.7 6c4.5-4.2 6.9-10.3 6.9-17.7z"/><path fill="#FBBC05" d="M10.5 28.7a14.5 14.5 0 0 1 0-9.4l-7.9-6.1a24 24 0 0 0 0 21.6l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.3 0 11.6-2.1 15.6-5.8l-7.7-6c-2.1 1.4-4.8 2.3-7.9 2.3-6.3 0-11.6-3.9-13.5-9.4l-7.9 6.1C6.5 42.6 14.6 48 24 48z"/></svg>'

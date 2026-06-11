@@ -1215,6 +1215,26 @@ def _serve_page(name: str) -> Any:
     raise HTTPException(status_code=404, detail=f"no page {name!r}")
 
 
+_ASSETS_DIR = _WEB / "assets"
+
+
+@app.get("/assets/{path:path}", include_in_schema=False)
+def asset_file(path: str) -> Any:
+    """Brand/static assets live under web/assets/ (wordmark SVG/PNG, brand css).
+    The only multi-segment web route — same extension safelist + traversal guard
+    as _serve_page, same long-lived cache header."""
+    ext = os.path.splitext(path)[1].lower()
+    if ".." in path or ext not in _ASSET_TYPES:
+        raise HTTPException(status_code=404, detail="not found")
+    asset = _ASSETS_DIR / path
+    if not asset.resolve().is_relative_to(_ASSETS_DIR.resolve()):  # belt-and-braces
+        raise HTTPException(status_code=404, detail="not found")
+    if asset.exists():
+        return FileResponse(asset, media_type=_ASSET_TYPES[ext],
+                            headers={"Cache-Control": "public, max-age=86400"})
+    raise HTTPException(status_code=404, detail=f"no asset {path!r}")
+
+
 @app.get("/favicon.ico", include_in_schema=False)
 def favicon_ico() -> Any:
     """Browsers hit bare /favicon.ico unprompted — serve the SVG witness mark

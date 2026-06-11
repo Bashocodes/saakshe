@@ -1,0 +1,28 @@
+/* ════════════════════════════════════════════════════════════════════
+   saakshe wordmark — LOCKED 2026-06-11 (promoted from design lab v2 tweaker)
+
+   SΛΛKSHE · Syncopate · weight 900 · letter-spacing .295em
+   (Syncopate ships only 400/700 — 900 resolves to the Bold cut; keep 900
+   so a heavier cut is picked up if one ever exists. Λ = U+039B; Syncopate
+   has no Λ glyph, browsers substitute — vector assets draw the witness
+   wedge instead, see saakshe-wordmark.svg.)
+
+   Sizes by position:
+     navbar / topbar   38px desktop · clamp(22px, 5.5vw, 38px) fluid
+     footer            20px
+     mobile floor      22px (tracking stays .295em)
+   ════════════════════════════════════════════════════════════════════ */
+
+.sk-wordmark{
+  font-family:'Syncopate',sans-serif;
+  font-weight:900;
+  font-size:var(--sk-wordmark-size, clamp(22px, 5.5vw, 38px));
+  line-height:1;
+  letter-spacing:.295em;
+  padding-left:.295em;   /* re-centers the trailing letter-space */
+  white-space:nowrap;
+  text-transform:uppercase;
+}
+.sk-wordmark--nav   { --sk-wordmark-size:clamp(22px, 5.5vw, 38px); }
+.sk-wordmark--foot  { --sk-wordmark-size:20px; }
+.sk-wordmark--card  { --sk-wordmark-size:16px; }   /* gates, small plates */
