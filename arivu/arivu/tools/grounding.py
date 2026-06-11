@@ -58,16 +58,110 @@ def example_mcp_toolset():
     )
 
 
-def _mcp_admin_fetch(url: str, secret: str) -> dict | None:
-    """The single seam the real MCP admin read lands in (and the test mocks).
+def _jsonrpc_from_response(resp) -> dict | None:
+    """Parse one streamable-HTTP MCP response — plain JSON or a one-shot SSE body."""
+    import json
 
-    The example MCP StreamableHTTP transport is unverified, so this is isolated as
-    one mockable call. Until the transport is confirmed live, it returns None — so
-    a live run grounds via the agent-held MCP tools plus the seed bundle, never an
-    ungrounded position. Wire the real admin_stats/admin_analytics read here once
-    the transport is confirmed; it must return the DEMO_GROUNDING bundle shape.
-    """
+    ctype = (resp.headers.get("content-type") or "").lower()
+    if "text/event-stream" in ctype:
+        for line in resp.text.splitlines():
+            if not line.startswith("data:"):
+                continue
+            try:
+                obj = json.loads(line[5:].strip())
+            except ValueError:
+                continue
+            if isinstance(obj, dict) and ("result" in obj or "error" in obj):
+                return obj
+        return None
+    try:
+        obj = resp.json()
+    except ValueError:
+        return None
+    return obj if isinstance(obj, dict) else None
+
+
+def _tool_result_dict(rpc: dict | None) -> dict | None:
+    """Unwrap an MCP tools/call result into a plain dict — structuredContent
+    first, else the first JSON text block. isError / non-dict / empty → None."""
+    import json
+
+    if not isinstance(rpc, dict):
+        return None
+    result = rpc.get("result")
+    if not isinstance(result, dict) or result.get("isError"):
+        return None
+    sc = result.get("structuredContent")
+    if isinstance(sc, dict) and sc:
+        return sc
+    for block in result.get("content") or []:
+        if isinstance(block, dict) and block.get("type") == "text":
+            try:
+                obj = json.loads(block.get("text") or "")
+            except ValueError:
+                continue
+            if isinstance(obj, dict) and obj:
+                return obj
     return None
+
+
+# tool calls → bundle keys (the DEMO_GROUNDING shape the chamber prompts expect)
+_ADMIN_CALLS: tuple[tuple[str, str, dict], ...] = (
+    ("admin_stats", "admin_stats", {}),
+    ("admin_analytics_user_growth", "admin_analytics", {"report": "user_growth"}),
+    ("admin_analytics_activity", "admin_analytics", {"report": "activity"}),
+)
+
+
+def _mcp_admin_fetch(url: str, secret: str) -> dict | None:
+    """The real MCP admin read — a minimal streamable-HTTP JSON-RPC client.
+
+    initialize → tools/call admin_stats / admin_analytics(report=…), normalized
+    into the DEMO_GROUNDING bundle shape. Every step fails SOFT — a flaky admin
+    surface yields a partial bundle or None, never an exception (the callers
+    treat None as "no live source resolved" and fall back to the real corpus).
+    """
+    import httpx
+
+    headers = {
+        "authorization": f"Bearer {secret}",
+        "content-type": "application/json",
+        "accept": "application/json, text/event-stream",
+    }
+
+    def _post(client, payload):
+        resp = client.post(url, json=payload, headers=headers, timeout=15.0)
+        resp.raise_for_status()
+        sid = resp.headers.get("mcp-session-id")
+        if sid:
+            headers["mcp-session-id"] = sid   # streamable-HTTP session, if served
+        return _jsonrpc_from_response(resp)
+
+    bundle: dict = {}
+    try:
+        with httpx.Client() as client:
+            _post(client, {
+                "jsonrpc": "2.0", "id": 0, "method": "initialize",
+                "params": {"protocolVersion": "2025-03-26",
+                           "clientInfo": {"name": "saakshe-arivu", "version": "1"},
+                           "capabilities": {}},
+            })
+            try:   # some servers require the initialized notification, some 4xx it
+                client.post(url, json={"jsonrpc": "2.0",
+                                       "method": "notifications/initialized"},
+                            headers=headers, timeout=15.0)
+            except Exception:  # noqa: BLE001
+                pass
+            for ident, (key, tool, args) in enumerate(_ADMIN_CALLS, start=1):
+                rpc = _post(client, {"jsonrpc": "2.0", "id": ident,
+                                     "method": "tools/call",
+                                     "params": {"name": tool, "arguments": args}})
+                out = _tool_result_dict(rpc)
+                if out:
+                    bundle[key] = out
+    except Exception:  # noqa: BLE001 — partial is fine; reads fail soft
+        pass
+    return bundle or None
 
 
 def _live_admin_bundle() -> dict | None:
@@ -134,6 +228,11 @@ def fetch_grounding() -> dict:
     if config.is_live():
         live = _live_admin_bundle()
         if live:
+            # The real numbers AND the real canon: the corpus memory section rides
+            # along (setdefault — never overwrites a server-provided section).
+            real_mem = _real_memory_section()
+            if real_mem:
+                live.setdefault("manas_a2a", real_mem)
             return live
         bundle: dict = {}
         real_mem = _real_memory_section()

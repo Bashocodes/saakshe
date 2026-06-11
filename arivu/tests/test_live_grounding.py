@@ -111,3 +111,102 @@ def test_live_grounding_path_runs_without_error(monkeypatch):
     out = grounding.fetch_grounding()
     assert isinstance(out, dict)
     assert out != DEMO_GROUNDING
+
+
+# ─── the MCP admin fetch is REAL now (was a stub returning None) ──────────────
+class _FakeResp:
+    def __init__(self, body, headers=None):
+        self._body = body
+        self.headers = {"content-type": "application/json", **(headers or {})}
+        self.text = ""
+
+    def raise_for_status(self):
+        return None
+
+    def json(self):
+        return self._body
+
+
+def _rpc_tool_result(payload: dict) -> dict:
+    return {"jsonrpc": "2.0", "id": 1,
+            "result": {"content": [{"type": "text",
+                                    "text": __import__("json").dumps(payload)}]}}
+
+
+def test_mcp_admin_fetch_builds_bundle(monkeypatch):
+    """initialize → 3 tools/call → DEMO_GROUNDING-shaped bundle. The session id
+    header is adopted; per-call failures degrade to a partial bundle."""
+    import httpx
+
+    calls = []
+
+    class _FakeClient:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *a):
+            return False
+
+        def post(self, url, json=None, headers=None, timeout=None):
+            calls.append((json or {}).get("method"))
+            method = (json or {}).get("method")
+            if method == "initialize":
+                return _FakeResp({"jsonrpc": "2.0", "id": 0, "result": {}},
+                                 headers={"mcp-session-id": "s-1"})
+            if method == "notifications/initialized":
+                return _FakeResp({})
+            name = json["params"]["name"]
+            args = json["params"]["arguments"]
+            if name == "admin_stats":
+                return _FakeResp(_rpc_tool_result({"paying_users": 999, "mrr_usd": 21000}))
+            if args.get("report") == "user_growth":
+                return _FakeResp(_rpc_tool_result({"trial_to_paid_pct": 22.1}))
+            return _FakeResp(_rpc_tool_result({"cohort_retention_12mo_pct": 81}))
+
+    monkeypatch.setattr(httpx, "Client", lambda *a, **k: _FakeClient())
+    out = grounding._mcp_admin_fetch("https://mcp.example/mcp", "sek")
+    assert out == {
+        "admin_stats": {"paying_users": 999, "mrr_usd": 21000},
+        "admin_analytics_user_growth": {"trial_to_paid_pct": 22.1},
+        "admin_analytics_activity": {"cohort_retention_12mo_pct": 81},
+    }
+    assert calls.count("tools/call") == 3
+
+
+def test_mcp_admin_fetch_fail_soft(monkeypatch):
+    """A dead admin surface returns None — grounding falls back, never raises."""
+    import httpx
+
+    class _Boom:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *a):
+            return False
+
+        def post(self, *a, **k):
+            raise httpx.ConnectError("down")
+
+    monkeypatch.setattr(httpx, "Client", lambda *a, **k: _Boom())
+    assert grounding._mcp_admin_fetch("https://mcp.example/mcp", "sek") is None
+
+
+def test_tool_result_unwraps_structured_and_text():
+    sc = {"jsonrpc": "2.0", "id": 1, "result": {"structuredContent": {"a": 1}}}
+    assert grounding._tool_result_dict(sc) == {"a": 1}
+    assert grounding._tool_result_dict(_rpc_tool_result({"b": 2})) == {"b": 2}
+    err = {"jsonrpc": "2.0", "id": 1, "result": {"isError": True, "content": []}}
+    assert grounding._tool_result_dict(err) is None
+
+
+def test_live_bundle_gains_real_memory_section(monkeypatch):
+    """When the admin surface resolves, the REAL corpus canon rides along —
+    numbers and memory in one bundle (setdefault: server sections win)."""
+    monkeypatch.setenv("ARIVU_MODE", "live")
+    live_bundle = {"admin_stats": {"paying_users": 999}}
+    monkeypatch.setattr(grounding, "_live_admin_bundle", lambda: live_bundle)
+    monkeypatch.setattr(grounding, "_real_memory_section",
+                        lambda: {"brand_canon": "real promise", "voice": "calm"})
+    out = grounding.fetch_grounding()
+    assert out is live_bundle                       # identity contract holds
+    assert out["manas_a2a"]["brand_canon"] == "real promise"
