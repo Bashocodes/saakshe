@@ -83,3 +83,23 @@ def test_ask_rate_limit_429s_after_burst(monkeypatch, tmp_path):
 def test_public_config_carries_the_lock_flag(monkeypatch, tmp_path):
     _sealed(monkeypatch, tmp_path)
     assert client.get("/api/public-config").json()["public_demo"] is True
+
+
+def test_any_signed_in_founder_bypasses_the_seal_into_a_sandbox(monkeypatch, tmp_path):
+    """Everyone-access (2026-06-11): a signed-in NON-owner, non-judge account gets
+    the seal lifted AND its own sandbox — the shared seeded demo stays pristine.
+    Only anonymous visitors and JUDGE_EMAILS stay sealed."""
+    from common import auth
+
+    _sealed(monkeypatch, tmp_path)
+    monkeypatch.setenv("SAAKSHE_SUPABASE_URL", "https://example.supabase.co")
+    monkeypatch.setenv("SAAKSHE_REQUIRE_SIGNIN", "1")
+    monkeypatch.setenv("OWNER_EMAILS", "founder@example.com")
+    monkeypatch.setattr(auth, "verify_token",
+                        lambda tok: {"sub": "visitor-7", "email": "maker@example.com"})
+    r = client.post("/api/connect/source",
+                    json={"kind": "github", "ref": "octo/repo"},
+                    headers={"Authorization": "Bearer visitor-token"})
+    assert r.status_code == 200
+    assert not project.STORE.is_connected(), \
+        "a visitor's connect must land in their sandbox, never the shared demo"

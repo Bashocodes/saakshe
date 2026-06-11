@@ -119,6 +119,17 @@ def _supabase_backend() -> bool:
     return os.environ.get("SAAKSHE_STORE", "").lower() == "supabase"
 
 
+def _is_judge(user) -> bool:
+    """A judging account (JUDGE_EMAILS, default the Devpost credential) rides the
+    SHARED seeded store read-only — it must always land on the pristine grounded
+    demo company, never an empty sandbox, and never a credit balance."""
+    if user is None:
+        return False
+    emails = os.environ.get("JUDGE_EMAILS", "judge@saakshe.com")
+    judge_set = {e.strip().lower() for e in emails.split(",") if e.strip()}
+    return (getattr(user, "email", "") or "").lower() in judge_set
+
+
 def _require_signin() -> bool:
     """The gated-demo switch: SAAKSHE_REQUIRE_SIGNIN=1 puts the WHOLE API surface
     behind sign-in — judge credentials go in the Devpost testing instructions —
@@ -162,11 +173,14 @@ async def _session_dep(request: Request):
         _ensure_account(user)
         store = project.store_for(user.user_id)
         stream = _stream_factory(user.user_id)
-    elif user is not None and getattr(user, "is_owner", False):
-        # Gated file-store demo, signed-in OWNER: an isolated per-user sandbox
-        # store so the founder can run the real connect→ingest flywheel without
-        # touching the seeded company the judges see. Events ride the global
-        # stream (file mode has no per-user stream; the feed is cursor-seeded).
+    elif user is not None and not _is_judge(user):
+        # Gated file-store demo, ANY signed-in founder (owner or not): an
+        # isolated per-user sandbox store + the first-touch credit grant, so
+        # everyone who signs in can run the real connect→ingest flywheel
+        # without touching the seeded company the judges see. Events ride the
+        # global stream (file mode has no per-user stream; the feed is
+        # cursor-seeded). Judges fall through to the shared seeded store.
+        _ensure_account(user)
         store = project.store_for(user.user_id)
         stream = STREAM
     else:
@@ -198,9 +212,11 @@ def _require_auth_if_live(user) -> None:
 
 
 def _billing_active(user) -> bool:
-    """Billing tracks the persisted backend + a real, non-owner founder (NOT the
-    model-liveness mode) — so the file-store demo is free and owners are free."""
-    return _supabase_backend() and user is not None and not getattr(user, "is_owner", False)
+    """Billing tracks a billing-armed deploy + a real, non-owner, non-judge
+    founder (NOT the model-liveness mode) — the anonymous demo is free, owners
+    are free, and the judging account is free (it is sealed read-only anyway)."""
+    return (credits.billing_enabled() and user is not None
+            and not getattr(user, "is_owner", False) and not _is_judge(user))
 
 
 # ─── public-demo lock + per-IP rate limiting ──────────────────────────────────
@@ -213,13 +229,14 @@ def _public_demo() -> bool:
 
 
 def _require_not_public_demo(user=None) -> None:
-    """Seal mutations on the shared demo — except for a signed-in OWNER, who
-    works in an isolated sandbox store (see _session_dep) and can't hurt it."""
-    if _public_demo() and not getattr(user, "is_owner", False):
+    """Seal mutations on the shared demo for ANONYMOUS visitors and the judging
+    account only — every other signed-in founder works in an isolated sandbox
+    store (see _session_dep) and can't hurt the seeded company."""
+    if _public_demo() and (user is None or _is_judge(user)):
         raise HTTPException(
             status_code=403,
-            detail="the public demo is sealed — its grounded company is shared and read-only; "
-                   "run saakshe locally (or sign in on a billing deploy) to connect your own",
+            detail="the shared demo company is sealed read-only — sign in to connect "
+                   "your own (500 free credits), or run saakshe locally",
         )
 
 
@@ -337,14 +354,18 @@ def public_config() -> dict[str, Any]:
 def me(sess: Session = Depends(_session_dep)) -> dict[str, Any]:
     """The founder's identity + live credit balance (the cockpit's balance pill).
     On the gated file-store demo a signed-in user still gets their identity —
-    the cockpit needs is_owner to decide whether to show sandbox controls."""
+    the cockpit shows sandbox controls (start over) to anyone whose store is
+    their own, and the balance pill whenever billing is armed."""
     if sess.user is not None:
-        if _supabase_backend():
+        sandbox = not _is_judge(sess.user)   # everyone but the judging account
+        if _supabase_backend() or (sandbox and credits.billing_enabled()):
             _ensure_account(sess.user)
         return {
             "user_id": sess.user.user_id, "email": sess.user.email,
-            "is_owner": sess.user.is_owner,
-            "balance": credits.balance(sess.user.user_id) if _supabase_backend() else None,
+            "is_owner": sess.user.is_owner, "sandbox": sandbox,
+            "balance": (credits.balance(sess.user.user_id)
+                        if (_supabase_backend() or credits.billing_enabled()) and sandbox
+                        else None),
             "demo": not _supabase_backend(),
         }
     if not _supabase_backend():
@@ -633,7 +654,15 @@ async def ask(req: AskRequest, request: Request, sess: Session = Depends(_sessio
         return await _start_flywheel(sess, question=text, idem_key=req.idem_key,
                                      ok_text="That's a real decision — routing it to arivu. A gate will land in your queue.",
                                      wrap_key="flywheel")
-    reply = await witness.respond(text, req.run_id, sess.stream)
+    # A witness chat turn is a chargeable action (1 credit) — the decision path
+    # above carries its own flywheel spend, and a media quote is just a price.
+    payer = sess.user if _billing_active(sess.user) else None  # judges/owners chat free
+    ask_key = "ask:" + (req.idem_key or uuid4().hex)
+    try:
+        with credits.charge(payer, "saakshe_ask", idem_key=ask_key, reason="witness chat turn"):
+            reply = await witness.respond(text, req.run_id, sess.stream)
+    except credits.OutOfCredits as exc:
+        return JSONResponse(status_code=402, content=credits.out_of_credits_payload(exc.balance))
     return {"kind": "witness", **reply, "blocks": presenter.to_blocks(reply)}
 
 

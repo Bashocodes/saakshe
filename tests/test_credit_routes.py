@@ -145,7 +145,7 @@ def test_me_grants_and_returns_balance(client):
     assert r.status_code == 200
     body = r.json()
     assert body["user_id"] == "u_alice" and body["email"] == "u_alice@example.com"
-    assert body["balance"] == credits.SIGNUP_GRANT        # first touch granted 100
+    assert body["balance"] == credits.SIGNUP_GRANT        # first touch granted SIGNUP_GRANT
     assert "saakshe_grant_signup" in client.ledger.calls
 
 
@@ -159,21 +159,21 @@ def test_me_401_on_bad_token(client):
 
 # ─── the flywheel debit ───────────────────────────────────────────────────────
 def test_hero_run_debits_flywheel_cost(client):
-    client.get("/api/me", headers=_auth("alice"))          # grant 100
+    client.get("/api/me", headers=_auth("alice"))          # signup grant
     _ground(client.stores["u_alice"])
     r = client.post("/api/hero/run", json={"idem_key": "run-1"}, headers=_auth("alice"))
     assert r.status_code == 200
     assert r.json()["status"] == "awaiting_approval"
-    assert client.ledger.get_balance("u_alice") == 100 - credits.cost("flywheel_run")
+    assert client.ledger.get_balance("u_alice") == credits.SIGNUP_GRANT - credits.cost("flywheel_run")
 
 
 def test_hero_run_402_when_out_of_credits(client):
     client.get("/api/me", headers=_auth("broke"))
-    client.ledger.bal["u_broke"] = 5                       # less than the run cost
+    client.ledger.bal["u_broke"] = 0                       # less than the run cost
     _ground(client.stores["u_broke"])
     r = client.post("/api/hero/run", json={"idem_key": "run-x"}, headers=_auth("broke"))
     assert r.status_code == 402
-    assert r.json() == {"error": "out of credits", "balance": 5}
+    assert r.json() == {"error": "out of credits", "balance": 0}
 
 
 def test_hero_run_requires_auth_in_supabase_mode(client):
@@ -187,7 +187,7 @@ def test_approve_internal_failure_refunds_the_run(client, monkeypatch):
     _ground(client.stores["u_alice"])
     started = client.post("/api/hero/run", json={"idem_key": "run-2"}, headers=_auth("alice")).json()
     rid = started["flywheel"]["run_id"] if "flywheel" in started else started["run_id"]
-    assert client.ledger.get_balance("u_alice") == 80
+    assert client.ledger.get_balance("u_alice") == credits.SIGNUP_GRANT - credits.cost("flywheel_run")
 
     import orchestrator
 
@@ -199,7 +199,7 @@ def test_approve_internal_failure_refunds_the_run(client, monkeypatch):
     assert r.status_code == 200
     assert r.json()["refunded"] is True
     # the spend was returned — the founder is whole again
-    assert client.ledger.get_balance("u_alice") == 100
+    assert client.ledger.get_balance("u_alice") == credits.SIGNUP_GRANT
     assert client.ledger.calls.count("saakshe_refund") == 1
 
 
@@ -214,7 +214,7 @@ def test_cross_tenant_approve_is_404(client):
     r = client.post("/api/hero/approve", json={"run_id": rid, "gate_id": "g1"}, headers=_auth("mallory"))
     assert r.status_code == 404
     # Alice's spend is untouched (no refund, no double charge).
-    assert client.ledger.get_balance("u_alice") == 80
+    assert client.ledger.get_balance("u_alice") == credits.SIGNUP_GRANT - credits.cost("flywheel_run")
 
 
 # ─── the real per-request binding + isolation (no mocked dependency) ─────────
@@ -243,17 +243,17 @@ def test_manas_edit_charges_and_persists(client):
     assert body["persisted"] is True
     assert body["pending"]["status"] == "pending"
     assert body["pending"]["changed_fields"] == ["tagline"]
-    assert client.ledger.get_balance("u_alice") == 100 - credits.cost("manas_edit")
+    assert client.ledger.get_balance("u_alice") == credits.SIGNUP_GRANT - credits.cost("manas_edit")
 
 
 def test_manas_reject_refunds_the_edit(client):
     client.get("/api/me", headers=_auth("alice"))
     pid = client.post("/api/manas/edit", headers=_auth("alice"), json={
         "instruction": "x", "target": {"tagline": "t"}, "idem_key": "edit-2"}).json()["pending"]["id"]
-    assert client.ledger.get_balance("u_alice") == 90
+    assert client.ledger.get_balance("u_alice") == credits.SIGNUP_GRANT - credits.cost("manas_edit")
     r = client.post(f"/api/manas/pending/{pid}/reject", headers=_auth("alice"))
     assert r.json()["refunded"] is True
-    assert client.ledger.get_balance("u_alice") == 100
+    assert client.ledger.get_balance("u_alice") == credits.SIGNUP_GRANT
     # applying after reject is a no-op (status no longer pending)
     client.post(f"/api/manas/pending/{pid}/apply", headers=_auth("alice"))
     assert client.pend.rows[0]["status"] == "rejected"
@@ -279,6 +279,25 @@ def test_full_flywheel_debits_once_and_completes(client):
     assert g1["open_gate"]["gate_id"] == "g2"
     assert g2["status"] == "completed"
     # billed exactly once across the three requests; no refund on success
-    assert client.ledger.get_balance("u_alice") == 80
+    assert client.ledger.get_balance("u_alice") == credits.SIGNUP_GRANT - credits.cost("flywheel_run")
     assert client.ledger.calls.count("saakshe_spend") == 1
     assert client.ledger.calls.count("saakshe_refund") == 0
+
+
+# ─── the witness chat turn debit (everyone-access pricing, 2026-06-11) ───────
+def test_ask_debits_one_credit(client):
+    client.get("/api/me", headers=_auth("alice"))
+    r = client.post("/api/saakshe/ask", json={"text": "anyone waiting on me?"},
+                    headers=_auth("alice"))
+    assert r.status_code == 200
+    assert client.ledger.get_balance("u_alice") == \
+        credits.SIGNUP_GRANT - credits.cost("saakshe_ask")
+
+
+def test_ask_402_when_out_of_credits(client):
+    client.get("/api/me", headers=_auth("broke"))
+    client.ledger.bal["u_broke"] = 0
+    r = client.post("/api/saakshe/ask", json={"text": "anyone waiting on me?"},
+                    headers=_auth("broke"))
+    assert r.status_code == 402
+    assert r.json()["error"] == "out of credits"

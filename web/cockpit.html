@@ -3349,11 +3349,12 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
     (function(){ var sp=$("sbProjects");
       if(sp){ sp.addEventListener("click", function(e){
         if(e.target && e.target.closest && e.target.closest(".sb-proj")) openGrasped(); }); } })();
-    /* the OWNER's sandbox is theirs to wipe — surface "start over" (hidden on
-       the public demo for everyone else, whose store is the shared seed) */
+    /* a sandbox is its founder's to wipe — surface "start over" for any
+       signed-in account on its own store (only the judging account, whose
+       store is the shared seed, keeps it hidden) */
     try{
       var me=await fetch("/api/me",{headers:(window.SA_HEADERS||Object)(),cache:"no-store"}).then(function(r){return r.json();});
-      if(me && me.is_owner){ window.__SK_OWNER=true; $("cgResetBtn").hidden=false; }
+      if(me && (me.is_owner || me.sandbox)){ window.__SK_OWNER=true; $("cgResetBtn").hidden=false; }
     }catch(e){}
     base = await detectBase();
     if(base===null){

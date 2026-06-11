@@ -46,15 +46,29 @@ from common import supastore
 # snapshot every surface can read cheaply; ``cost()`` re-reads env at call time so
 # a per-deploy override (or a test) takes effect without a reimport.
 _COST_ENV: dict[str, tuple[str, int]] = {
-    "flywheel_run": ("COST_FLYWHEEL_RUN", 20),
-    "connect_ingest": ("COST_CONNECT_INGEST", 20),
-    "manas_edit": ("COST_MANAS_EDIT", 10),
-    "kalai_make": ("COST_KALAI_MAKE", 15),
-    "kural_engage": ("COST_KURAL_ENGAGE", 15),
+    # The founder's price card (2026-06-11): grasping a repository — the ingest
+    # with its questions and everything that follows — is the one big-ticket
+    # action; every other move (a chat turn, an edit, a run) costs ONE credit.
+    "flywheel_run": ("COST_FLYWHEEL_RUN", 1),
+    "connect_ingest": ("COST_CONNECT_INGEST", 100),
+    "manas_edit": ("COST_MANAS_EDIT", 1),
+    "kalai_make": ("COST_KALAI_MAKE", 1),
+    "kural_engage": ("COST_KURAL_ENGAGE", 1),
+    "saakshe_ask": ("COST_SAAKSHE_ASK", 1),
 }
 
 COSTS: dict[str, int] = {key: _int(env, default) for key, (env, default) in _COST_ENV.items()}
-SIGNUP_GRANT: int = _int("SIGNUP_GRANT", 100)
+SIGNUP_GRANT: int = _int("SIGNUP_GRANT", 500)
+
+
+def billing_enabled() -> bool:
+    """Whether this deploy moves real credits: the full Supabase-store profile,
+    or any profile that opts in with SAAKSHE_BILLING=1 (the gated demo runs the
+    file store for the seeded company but still bills signed-in founders)."""
+    return (
+        os.environ.get("SAAKSHE_STORE", "").lower() == "supabase"
+        or os.environ.get("SAAKSHE_BILLING", "") == "1"
+    )
 
 
 def cost(key: str) -> int:
@@ -227,22 +241,19 @@ def balance(user_id: str) -> int | None:
 def charge(user, cost_key: str, *, idem_key: str, reason: str) -> Iterator[dict]:
     """Charge ``cost(cost_key)`` around a block of work, refunding on failure.
 
-    NO-OP (yields ``{'charged': False}`` and touches no RPC) when the founder is
-    the owner, or when the Supabase store isn't the active backend — billing tracks
-    the persisted backend + a real signed-in founder, NOT the model-liveness mode.
-    So the public, creds-free demo (file store, no sign-in) is always free, while a
-    real authed user on the Supabase backend is billed even in the hybrid (scripted-
-    Claude) deploy — and the billing path stays testable in scripted mode.
+    NO-OP (yields ``{'charged': False}`` and touches no RPC) when there is no
+    signed-in founder, the founder is the owner, or :func:`billing_enabled` is
+    False — billing tracks a real signed-in founder on a billing-armed deploy,
+    NOT the model-liveness mode. So the public, creds-free demo (file store, no
+    sign-in) is always free, while a real authed user is billed even in the
+    hybrid (scripted-Claude) deploy — and the path stays testable in scripted mode.
 
     Otherwise it spends *before* the work; if the block raises, it refunds (under a
     derived ``:refund`` key so the refund is replay-safe) and re-raises — the
     "temporary, not charged" promise, classified by the spend's error code, never
     by blaming the founder for an internal failure.
     """
-    if (
-        getattr(user, "is_owner", False)
-        or os.environ.get("SAAKSHE_STORE", "").lower() != "supabase"
-    ):
+    if user is None or getattr(user, "is_owner", False) or not billing_enabled():
         yield {"charged": False}
         return
 

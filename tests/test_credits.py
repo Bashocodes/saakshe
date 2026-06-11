@@ -52,29 +52,41 @@ def live_supabase(monkeypatch):
     return monkeypatch
 
 
-# ─── the cost-map defaults ────────────────────────────────────────────────────
+# ─── the cost-map defaults (the founder's price card, 2026-06-11) ─────────────
 def test_cost_defaults():
     assert credits.COSTS == {
-        "flywheel_run": 20,
-        "connect_ingest": 20,
-        "manas_edit": 10,
-        "kalai_make": 15,
-        "kural_engage": 15,
+        "flywheel_run": 1,
+        "connect_ingest": 100,   # grasping a repository, questions included
+        "manas_edit": 1,
+        "kalai_make": 1,
+        "kural_engage": 1,
+        "saakshe_ask": 1,        # a chat turn is an action too
     }
-    assert credits.SIGNUP_GRANT == 100
+    assert credits.SIGNUP_GRANT == 500
 
 
 def test_cost_helper_matches_defaults():
-    assert credits.cost("flywheel_run") == 20
-    assert credits.cost("manas_edit") == 10
-    assert credits.cost("kural_engage") == 15
+    assert credits.cost("connect_ingest") == 100
+    assert credits.cost("manas_edit") == 1
+    assert credits.cost("saakshe_ask") == 1
 
 
 def test_cost_helper_recomputes_from_env(monkeypatch):
     # COSTS is the frozen import-time snapshot; cost() must re-read env at call time.
     monkeypatch.setenv("COST_FLYWHEEL_RUN", "99")
     assert credits.cost("flywheel_run") == 99
-    assert credits.COSTS["flywheel_run"] == 20  # snapshot unchanged
+    assert credits.COSTS["flywheel_run"] == 1  # snapshot unchanged
+
+
+def test_billing_enabled_by_store_or_flag(monkeypatch):
+    monkeypatch.delenv("SAAKSHE_STORE", raising=False)
+    monkeypatch.delenv("SAAKSHE_BILLING", raising=False)
+    assert credits.billing_enabled() is False
+    monkeypatch.setenv("SAAKSHE_BILLING", "1")          # the gated file-store demo
+    assert credits.billing_enabled() is True
+    monkeypatch.delenv("SAAKSHE_BILLING")
+    monkeypatch.setenv("SAAKSHE_STORE", "supabase")     # the full billing profile
+    assert credits.billing_enabled() is True
 
 
 # ─── spend ────────────────────────────────────────────────────────────────────
@@ -210,7 +222,7 @@ def test_charge_live_supabase_nonowner_spends_once(live_supabase):
     assert len(rec.calls) == 1
     fn, params = rec.calls[0]
     assert fn == "saakshe_spend"
-    assert params["p_amount"] == 20
+    assert params["p_amount"] == credits.cost("flywheel_run")
     assert params["p_idem_key"] == "k1"
     assert params["p_reason"] == "flywheel run"
 
@@ -230,7 +242,7 @@ def test_charge_exception_inside_block_refunds_then_reraises(live_supabase):
     # spend, then refund — the work failed so the user is made whole.
     assert [c[0] for c in rec.calls] == ["saakshe_spend", "saakshe_refund"]
     refund_params = rec.calls[1][1]
-    assert refund_params["p_amount"] == 20
+    assert refund_params["p_amount"] == credits.cost("flywheel_run")
     assert refund_params["p_spend_idem_key"] == "k2"
     assert refund_params["p_refund_idem_key"] == "k2:refund"
     assert refund_params["p_reason"] == "internal failure — not charged"

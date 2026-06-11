@@ -9,8 +9,10 @@
 #              Needs NO Supabase config.
 #   gated    — the demo profile EXACTLY, plus SAAKSHE_REQUIRE_SIGNIN=1: every API
 #              route needs a Supabase sign-in (email judge credentials go in the
-#              Devpost testing instructions). Store stays the seeded file store;
-#              no billing. Requires SAAKSHE_SUPABASE_URL + SUPABASE_ANON_KEY only.
+#              Devpost testing instructions). The seeded judge demo stays on the
+#              baked file store; every OTHER signed-in account gets a durable
+#              Supabase sandbox + 500 signup credits, billed per action
+#              (SAAKSHE_BILLING=1). Requires the Supabase URL + anon + service key.
 #   billing  — the multi-tenant SaaS deploy: Supabase store, Google sign-in,
 #              credits. Requires the full Supabase env below.
 #
@@ -53,18 +55,20 @@ case "$PROFILE" in
     # store — the seeded judge demo stays pristine while the founder runs the
     # real connect→ingest flywheel live.
     : "${OWNER_EMAILS:=workzenyogi@gmail.com,hello@aikizi.com}"
+    # JUDGE_EMAILS ride the SHARED seeded store read-only (the Devpost demo);
+    # every OTHER signed-in account gets an isolated sandbox + the signup grant.
+    : "${JUDGE_EMAILS:=judge@saakshe.com}"
     ENV_VARS="^|^${COMMON_ENV}|SAAKSHE_STORE=file|SAAKSHE_PUBLIC_DEMO=1|SAAKSHE_REQUIRE_SIGNIN=1"
     ENV_VARS+="|SAAKSHE_SUPABASE_URL=${SAAKSHE_SUPABASE_URL}|SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}"
-    ENV_VARS+="|OWNER_EMAILS=${OWNER_EMAILS}"
-    # Durable owner store (opt-in, SAAKSHE_OWNER_STORE=supabase): a signed-in
-    # owner's per-user store rides Supabase, so a redeploy no longer wipes their
-    # connections; the seeded judge demo stays on the baked file store. Needs the
-    # service key — falls back to ~/.saakshe_supabase_key like the billing profile.
-    if [ -n "${SAAKSHE_OWNER_STORE:-}" ]; then
-      SAAKSHE_SUPABASE_KEY="${SAAKSHE_SUPABASE_KEY:-$(cat ~/.saakshe_supabase_key 2>/dev/null || true)}"
-      : "${SAAKSHE_SUPABASE_KEY:?SAAKSHE_OWNER_STORE=supabase needs SAAKSHE_SUPABASE_KEY (or ~/.saakshe_supabase_key)}"
-      ENV_VARS+="|SAAKSHE_OWNER_STORE=${SAAKSHE_OWNER_STORE}|SAAKSHE_SUPABASE_KEY=${SAAKSHE_SUPABASE_KEY}"
-    fi
+    ENV_VARS+="|OWNER_EMAILS=${OWNER_EMAILS}|JUDGE_EMAILS=${JUDGE_EMAILS}"
+    # Everyone-access billing (2026-06-11): any signed-in founder works in their
+    # own durable Supabase store with 500 signup credits — grasp a repo 100,
+    # every other action 1. Needs the service key for the money RPCs + stores.
+    : "${SAAKSHE_OWNER_STORE:=supabase}"
+    SAAKSHE_SUPABASE_KEY="${SAAKSHE_SUPABASE_KEY:-$(cat ~/.saakshe_supabase_key 2>/dev/null || true)}"
+    : "${SAAKSHE_SUPABASE_KEY:?the gated profile needs SAAKSHE_SUPABASE_KEY (or ~/.saakshe_supabase_key) for billing + durable stores}"
+    ENV_VARS+="|SAAKSHE_OWNER_STORE=${SAAKSHE_OWNER_STORE}|SAAKSHE_SUPABASE_KEY=${SAAKSHE_SUPABASE_KEY}"
+    ENV_VARS+="|SAAKSHE_BILLING=1"
     ;;
   billing)
     # ── credit/auth (multi-tenant) config — secrets come from the gitignored .env.local
