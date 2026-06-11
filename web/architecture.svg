@@ -7,12 +7,12 @@
   </marker>
 </defs>
 <style>
-  @keyframes d0 { from { transform: translate(0,0) } to { transform: translate(9px,-6px) } }
-  @keyframes d1 { from { transform: translate(0,0) } to { transform: translate(-8px,5px) } }
-  @keyframes d2 { from { transform: translate(0,0) } to { transform: translate(7px,6px) } }
-  @keyframes d3 { from { transform: translate(0,0) } to { transform: translate(-9px,-5px) } }
-  @keyframes d4 { from { transform: translate(0,0) } to { transform: translate(10px,4px) } }
-  @keyframes d5 { from { transform: translate(0,0) } to { transform: translate(-6px,-6px) } }
+  @keyframes d0 { from { transform: translate(0,0) } to { transform: translate(0,-4px) } }
+  @keyframes d1 { from { transform: translate(0,0) } to { transform: translate(0,3px) } }
+  @keyframes d2 { from { transform: translate(0,0) } to { transform: translate(0,-3px) } }
+  @keyframes d3 { from { transform: translate(0,0) } to { transform: translate(0,4px) } }
+  @keyframes d4 { from { transform: translate(0,0) } to { transform: translate(0,-3px) } }
+  @keyframes d5 { from { transform: translate(0,0) } to { transform: translate(0,3px) } }
   .fl { animation-timing-function: ease-in-out; animation-iteration-count: infinite; animation-direction: alternate; }
   @media (prefers-reduced-motion: reduce) { .fl { animation: none !important } }
 </style>
@@ -55,20 +55,20 @@
 <text x="336" y="456.0" font-family="Menlo, Consolas, 'Liberation Mono', monospace" font-size="16" font-weight="normal" fill="#111111" text-anchor="start">Reads Media Files</text>
 </g>
 <g class="fl" style="animation-name:d0;animation-duration:8s;animation-delay:-3.2s">
-<circle cx="564" cy="278.5" r="8.25" fill="#e3a200"/>
-<text x="582" y="284.0" font-family="Menlo, Consolas, 'Liberation Mono', monospace" font-size="16" font-weight="normal" fill="#111111" text-anchor="start">Checks Every Fact</text>
+<circle cx="564" cy="312.9" r="8.25" fill="#e3a200"/>
+<text x="582" y="318.4" font-family="Menlo, Consolas, 'Liberation Mono', monospace" font-size="16" font-weight="normal" fill="#111111" text-anchor="start">Checks Every Fact</text>
 </g>
 <g class="fl" style="animation-name:d1;animation-duration:10.5s;animation-delay:-4.9s">
-<circle cx="564" cy="335.8333333333333" r="8.25" fill="#e3a200"/>
-<text x="582" y="341.3333333333333" font-family="Menlo, Consolas, 'Liberation Mono', monospace" font-size="16" font-weight="normal" fill="#111111" text-anchor="start">Speaks As Founder</text>
+<circle cx="564" cy="347.3" r="8.25" fill="#e3a200"/>
+<text x="582" y="352.8" font-family="Menlo, Consolas, 'Liberation Mono', monospace" font-size="16" font-weight="normal" fill="#111111" text-anchor="start">Speaks As Founder</text>
 </g>
 <g class="fl" style="animation-name:d2;animation-duration:9.5s;animation-delay:-6.6s">
-<circle cx="564" cy="393.1666666666667" r="8.25" fill="#e3a200"/>
-<text x="582" y="398.6666666666667" font-family="Menlo, Consolas, 'Liberation Mono', monospace" font-size="16" font-weight="normal" fill="#111111" text-anchor="start">Keeps Brand Assets</text>
+<circle cx="564" cy="381.7" r="8.25" fill="#e3a200"/>
+<text x="582" y="387.2" font-family="Menlo, Consolas, 'Liberation Mono', monospace" font-size="16" font-weight="normal" fill="#111111" text-anchor="start">Keeps Brand Assets</text>
 </g>
 <g class="fl" style="animation-name:d3;animation-duration:7s;animation-delay:-1.3s">
-<circle cx="564" cy="450.5" r="8.25" fill="#e3a200"/>
-<text x="582" y="456.0" font-family="Menlo, Consolas, 'Liberation Mono', monospace" font-size="16" font-weight="normal" fill="#111111" text-anchor="start">Versions Memory</text>
+<circle cx="564" cy="416.1" r="8.25" fill="#e3a200"/>
+<text x="582" y="421.6" font-family="Menlo, Consolas, 'Liberation Mono', monospace" font-size="16" font-weight="normal" fill="#111111" text-anchor="start">Versions Memory</text>
 </g>
 <text x="306" y="488" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="normal" fill="#555555" text-anchor="start" font-style="italic">no citation, no fact</text>
 <rect x="1052" y="177" width="535" height="330" rx="22" fill="#0a39ff"/>
@@ -101,20 +101,20 @@
 <text x="1101" y="456.0" font-family="Menlo, Consolas, 'Liberation Mono', monospace" font-size="16" font-weight="normal" fill="#111111" text-anchor="start">Checks Feasibility</text>
 </g>
 <g class="fl" style="animation-name:d0;animation-duration:8s;animation-delay:-3.2s">
-<polygon points="1329,269.2 1338.3,278.5 1329,287.8 1319.7,278.5" fill="#0a39ff"/>
-<text x="1347" y="284.0" font-family="Menlo, Consolas, 'Liberation Mono', monospace" font-size="16" font-weight="normal" fill="#111111" text-anchor="start">Runs The Debate</text>
+<polygon points="1329,303.6 1338.3,312.9 1329,322.2 1319.7,312.9" fill="#0a39ff"/>
+<text x="1347" y="318.4" font-family="Menlo, Consolas, 'Liberation Mono', monospace" font-size="16" font-weight="normal" fill="#111111" text-anchor="start">Runs The Debate</text>
 </g>
 <g class="fl" style="animation-name:d1;animation-duration:10.5s;animation-delay:-4.9s">
-<polygon points="1329,326.5333333333333 1338.3,335.8333333333333 1329,345.1333333333333 1319.7,335.8333333333333" fill="#0a39ff"/>
-<text x="1347" y="341.3333333333333" font-family="Menlo, Consolas, 'Liberation Mono', monospace" font-size="16" font-weight="normal" fill="#111111" text-anchor="start">Writes The Verdict</text>
+<polygon points="1329,338.0 1338.3,347.3 1329,356.6 1319.7,347.3" fill="#0a39ff"/>
+<text x="1347" y="352.8" font-family="Menlo, Consolas, 'Liberation Mono', monospace" font-size="16" font-weight="normal" fill="#111111" text-anchor="start">Writes The Verdict</text>
 </g>
 <g class="fl" style="animation-name:d2;animation-duration:9.5s;animation-delay:-6.6s">
-<polygon points="1329,383.8666666666667 1338.3,393.1666666666667 1329,402.4666666666667 1319.7,393.1666666666667" fill="#0a39ff"/>
-<text x="1347" y="398.6666666666667" font-family="Menlo, Consolas, 'Liberation Mono', monospace" font-size="16" font-weight="normal" fill="#111111" text-anchor="start">Tests The Verdict</text>
+<polygon points="1329,372.4 1338.3,381.7 1329,391.0 1319.7,381.7" fill="#0a39ff"/>
+<text x="1347" y="387.2" font-family="Menlo, Consolas, 'Liberation Mono', monospace" font-size="16" font-weight="normal" fill="#111111" text-anchor="start">Tests The Verdict</text>
 </g>
 <g class="fl" style="animation-name:d3;animation-duration:7s;animation-delay:-1.3s">
-<polygon points="1329,441.2 1338.3,450.5 1329,459.8 1319.7,450.5" fill="#0a39ff"/>
-<text x="1347" y="456.0" font-family="Menlo, Consolas, 'Liberation Mono', monospace" font-size="16" font-weight="normal" fill="#111111" text-anchor="start">Ships The Decision</text>
+<polygon points="1329,406.8 1338.3,416.1 1329,425.4 1319.7,416.1" fill="#0a39ff"/>
+<text x="1347" y="421.6" font-family="Menlo, Consolas, 'Liberation Mono', monospace" font-size="16" font-weight="normal" fill="#111111" text-anchor="start">Ships The Decision</text>
 </g>
 <text x="1071" y="488" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="normal" fill="#555555" text-anchor="start" font-style="italic">debates, decides — asks you when it's close</text>
 <rect x="287" y="737" width="535" height="330" rx="22" fill="#00a86b"/>
@@ -151,20 +151,20 @@
 <text x="582" y="844.0" font-family="Menlo, Consolas, 'Liberation Mono', monospace" font-size="16" font-weight="normal" fill="#111111" text-anchor="start">Picks The Moment</text>
 </g>
 <g class="fl" style="animation-name:d1;animation-duration:10.5s;animation-delay:-4.9s">
-<rect x="556.8" y="874.3" width="14.399999999999999" height="14.399999999999999" rx="2" fill="#00a86b"/>
-<text x="582" y="887.0" font-family="Menlo, Consolas, 'Liberation Mono', monospace" font-size="16" font-weight="normal" fill="#111111" text-anchor="start">Plans The Delivery</text>
+<rect x="556.8" y="865.7" width="14.399999999999999" height="14.399999999999999" rx="2" fill="#00a86b"/>
+<text x="582" y="878.4" font-family="Menlo, Consolas, 'Liberation Mono', monospace" font-size="16" font-weight="normal" fill="#111111" text-anchor="start">Plans The Delivery</text>
 </g>
 <g class="fl" style="animation-name:d2;animation-duration:9.5s;animation-delay:-6.6s">
-<rect x="556.8" y="917.3" width="14.399999999999999" height="14.399999999999999" rx="2" fill="#00a86b"/>
-<text x="582" y="930.0" font-family="Menlo, Consolas, 'Liberation Mono', monospace" font-size="16" font-weight="normal" fill="#111111" text-anchor="start">Sends The Emails</text>
+<rect x="556.8" y="900.1" width="14.399999999999999" height="14.399999999999999" rx="2" fill="#00a86b"/>
+<text x="582" y="912.8" font-family="Menlo, Consolas, 'Liberation Mono', monospace" font-size="16" font-weight="normal" fill="#111111" text-anchor="start">Sends The Emails</text>
 </g>
 <g class="fl" style="animation-name:d3;animation-duration:7s;animation-delay:-1.3s">
-<rect x="556.8" y="960.3" width="14.399999999999999" height="14.399999999999999" rx="2" fill="#00a86b"/>
-<text x="582" y="973.0" font-family="Menlo, Consolas, 'Liberation Mono', monospace" font-size="16" font-weight="normal" fill="#111111" text-anchor="start">Posts To Channels</text>
+<rect x="556.8" y="934.5" width="14.399999999999999" height="14.399999999999999" rx="2" fill="#00a86b"/>
+<text x="582" y="947.2" font-family="Menlo, Consolas, 'Liberation Mono', monospace" font-size="16" font-weight="normal" fill="#111111" text-anchor="start">Posts To Channels</text>
 </g>
 <g class="fl" style="animation-name:d4;animation-duration:11.5s;animation-delay:-3.0s">
-<rect x="556.8" y="1003.3" width="14.399999999999999" height="14.399999999999999" rx="2" fill="#00a86b"/>
-<text x="582" y="1016.0" font-family="Menlo, Consolas, 'Liberation Mono', monospace" font-size="16" font-weight="normal" fill="#111111" text-anchor="start">Clears Every Send</text>
+<rect x="556.8" y="968.9" width="14.399999999999999" height="14.399999999999999" rx="2" fill="#00a86b"/>
+<text x="582" y="981.6" font-family="Menlo, Consolas, 'Liberation Mono', monospace" font-size="16" font-weight="normal" fill="#111111" text-anchor="start">Clears Every Send</text>
 </g>
 <text x="306" y="1048" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="normal" fill="#555555" text-anchor="start" font-style="italic">delivers verbatim, never rewrites</text>
 <rect x="1052" y="737" width="535" height="330" rx="22" fill="#ff2d2d"/>
@@ -201,20 +201,20 @@
 <text x="1347" y="844.0" font-family="Menlo, Consolas, 'Liberation Mono', monospace" font-size="16" font-weight="normal" fill="#111111" text-anchor="start">Scores Brand Fit</text>
 </g>
 <g class="fl" style="animation-name:d1;animation-duration:10.5s;animation-delay:-4.9s">
-<polygon points="1329,872.5 1337.7,888.7 1320.3,888.7" fill="#ff2d2d"/>
-<text x="1347" y="887.0" font-family="Menlo, Consolas, 'Liberation Mono', monospace" font-size="16" font-weight="normal" fill="#111111" text-anchor="start">Scores The Voice</text>
+<polygon points="1329,863.9 1337.7,880.1 1320.3,880.1" fill="#ff2d2d"/>
+<text x="1347" y="878.4" font-family="Menlo, Consolas, 'Liberation Mono', monospace" font-size="16" font-weight="normal" fill="#111111" text-anchor="start">Scores The Voice</text>
 </g>
 <g class="fl" style="animation-name:d2;animation-duration:9.5s;animation-delay:-6.6s">
-<polygon points="1329,915.5 1337.7,931.7 1320.3,931.7" fill="#ff2d2d"/>
-<text x="1347" y="930.0" font-family="Menlo, Consolas, 'Liberation Mono', monospace" font-size="16" font-weight="normal" fill="#111111" text-anchor="start">Fits The Platform</text>
+<polygon points="1329,898.3 1337.7,914.5 1320.3,914.5" fill="#ff2d2d"/>
+<text x="1347" y="912.8" font-family="Menlo, Consolas, 'Liberation Mono', monospace" font-size="16" font-weight="normal" fill="#111111" text-anchor="start">Fits The Platform</text>
 </g>
 <g class="fl" style="animation-name:d3;animation-duration:7s;animation-delay:-1.3s">
-<polygon points="1329,958.5 1337.7,974.7 1320.3,974.7" fill="#ff2d2d"/>
-<text x="1347" y="973.0" font-family="Menlo, Consolas, 'Liberation Mono', monospace" font-size="16" font-weight="normal" fill="#111111" text-anchor="start">Spots Legal Edges</text>
+<polygon points="1329,932.7 1337.7,948.9 1320.3,948.9" fill="#ff2d2d"/>
+<text x="1347" y="947.2" font-family="Menlo, Consolas, 'Liberation Mono', monospace" font-size="16" font-weight="normal" fill="#111111" text-anchor="start">Spots Legal Edges</text>
 </g>
 <g class="fl" style="animation-name:d4;animation-duration:11.5s;animation-delay:-3.0s">
-<polygon points="1329,1001.5 1337.7,1017.7 1320.3,1017.7" fill="#ff2d2d"/>
-<text x="1347" y="1016.0" font-family="Menlo, Consolas, 'Liberation Mono', monospace" font-size="16" font-weight="normal" fill="#111111" text-anchor="start">Blocks Violations</text>
+<polygon points="1329,967.1 1337.7,983.3 1320.3,983.3" fill="#ff2d2d"/>
+<text x="1347" y="981.6" font-family="Menlo, Consolas, 'Liberation Mono', monospace" font-size="16" font-weight="normal" fill="#111111" text-anchor="start">Blocks Violations</text>
 </g>
 <text x="1071" y="1048" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="normal" fill="#555555" text-anchor="start" font-style="italic">fail-closed before handoff</text>
 <line x1="857.0" y1="541.0" x2="793" y2="488" stroke="#111111" stroke-width="2.2" stroke-dasharray="4,5"/>
