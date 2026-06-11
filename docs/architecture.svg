@@ -6,6 +6,16 @@
     <path d="M 0 0 L 10 5 L 0 10 z" fill="#111111"/>
   </marker>
 </defs>
+<style>
+  @keyframes d0 { from { transform: translate(0,0) } to { transform: translate(9px,-6px) } }
+  @keyframes d1 { from { transform: translate(0,0) } to { transform: translate(-8px,5px) } }
+  @keyframes d2 { from { transform: translate(0,0) } to { transform: translate(7px,6px) } }
+  @keyframes d3 { from { transform: translate(0,0) } to { transform: translate(-9px,-5px) } }
+  @keyframes d4 { from { transform: translate(0,0) } to { transform: translate(10px,4px) } }
+  @keyframes d5 { from { transform: translate(0,0) } to { transform: translate(-6px,-7px) } }
+  .fl { animation-timing-function: ease-in-out; animation-iteration-count: infinite; animation-direction: alternate; }
+  @media (prefers-reduced-motion: reduce) { .fl { animation: none !important } }
+</style>
 <rect x="0" y="0" width="1860" height="1300" fill="#F4EEE2"/>
 <text x="60" y="56" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="15" font-weight="bold" fill="#111111" text-anchor="start" letter-spacing="6">SΛΛKSHE</text>
 <text x="60" y="96" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="30" font-weight="bold" fill="#111111" text-anchor="start">ARCHITECTURE — WITNESSING AGENTS</text>
@@ -19,109 +29,193 @@
 <text x="306" y="188" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="24" font-weight="bold" fill="#111111" text-anchor="start">manas</text>
 <text x="789" y="192" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="42" font-weight="normal" fill="#111111" text-anchor="end" letter-spacing="2">MEMORY</text>
 <line x1="300" y1="210" x2="795" y2="210" stroke="#111111" stroke-width="1.5"/>
-<text x="304" y="238" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#111111" font-weight="bold">○</tspan> <tspan font-weight="bold">Mind Keeper</tspan><tspan fill="#555555"> — ingest coordinator</tspan></text>
-<text x="304" y="259" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#111111" font-weight="bold">○</tspan> <tspan font-weight="bold">Repo Reader</tspan><tspan fill="#555555"> — repo imbiber</tspan></text>
-<text x="304" y="280" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#111111" font-weight="bold">○</tspan> <tspan font-weight="bold">Web Reader</tspan><tspan fill="#555555"> — website imbiber</tspan></text>
-<text x="304" y="301" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#111111" font-weight="bold">○</tspan> <tspan font-weight="bold">Docs Reader</tspan><tspan fill="#555555"> — docs imbiber</tspan></text>
-<text x="304" y="322" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#111111" font-weight="bold">○</tspan> <tspan font-weight="bold">Social Reader</tspan><tspan fill="#555555"> — social imbiber</tspan></text>
-<text x="304" y="343" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#555555" font-weight="bold">◌</tspan> <tspan font-weight="bold">Media Reader</tspan><tspan fill="#555555"> — pdf · video · image</tspan></text>
-<text x="570" y="238" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#e3a200" font-weight="bold">✦</tspan> <tspan font-weight="bold">Memory Curator</tspan><tspan fill="#555555"> — the verify gate</tspan></text>
-<text x="570" y="259" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#e3a200" font-weight="bold">✦</tspan> <tspan font-weight="bold">Founder Voice</tspan><tspan fill="#555555"> — grounded answers</tspan></text>
-<text x="570" y="280" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#111111" font-weight="bold">▪</tspan> <tspan font-weight="bold">Asset Keeper</tspan><tspan fill="#555555"> — brand vault</tspan></text>
-<text x="570" y="301" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#111111" font-weight="bold">▪</tspan> <tspan font-weight="bold">Pack Binder</tspan><tspan fill="#555555"> — pack versions</tspan></text>
-<circle cx="588.3285906467273" cy="374.017681775341" r="7.084175887423213" fill="#e3a200"/>
-<circle cx="628.7250357616131" cy="378.4507245747044" r="6.980348871742258" fill="#e3a200"/>
-<circle cx="696.8729084414322" cy="378.08551827423923" r="5.630922797793455" fill="#e3a200"/>
-<circle cx="739.1309390227023" cy="370.061709822535" r="6.604462435544129" fill="#e3a200"/>
-<circle cx="572.616970712859" cy="397.177835453552" r="7.189065468035922" fill="#e3a200"/>
-<circle cx="644.8845741864335" cy="403.6231647747614" r="7.769117054524495" fill="#e3a200"/>
-<circle cx="684.1620214173071" cy="399.8782548867467" r="8.167591634574684" fill="#e3a200"/>
-<circle cx="756.9739185218302" cy="398.1945925895147" r="7.154760461461069" fill="#e3a200"/>
-<circle cx="578.952422837249" cy="429.1841771539696" r="7.025339160178729" fill="#e3a200"/>
-<circle cx="635.1647879163743" cy="425.9994027056942" r="5.53871947217869" fill="#e3a200"/>
-<text x="306" y="442" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#555555" text-anchor="start" font-style="italic">no citation, no fact</text>
+<g class="fl" style="animation-name:d0;animation-duration:8.5s;animation-delay:-0.0s">
+<circle cx="321" cy="241" r="7.15" fill="#e3a200"/>
+<text x="336" y="246" font-family="Menlo, Consolas, 'Liberation Mono', monospace" font-size="14" font-weight="normal" fill="#111111" text-anchor="start">Coordinates Ingest</text>
+</g>
+<g class="fl" style="animation-name:d1;animation-duration:11s;animation-delay:-1.7s">
+<circle cx="321" cy="276" r="7.15" fill="#e3a200"/>
+<text x="336" y="281" font-family="Menlo, Consolas, 'Liberation Mono', monospace" font-size="14" font-weight="normal" fill="#111111" text-anchor="start">Reads Your Repo</text>
+</g>
+<g class="fl" style="animation-name:d2;animation-duration:7.5s;animation-delay:-3.4s">
+<circle cx="321" cy="311" r="7.15" fill="#e3a200"/>
+<text x="336" y="316" font-family="Menlo, Consolas, 'Liberation Mono', monospace" font-size="14" font-weight="normal" fill="#111111" text-anchor="start">Reads The Website</text>
+</g>
+<g class="fl" style="animation-name:d3;animation-duration:10s;animation-delay:-5.1s">
+<circle cx="321" cy="346" r="7.15" fill="#e3a200"/>
+<text x="336" y="351" font-family="Menlo, Consolas, 'Liberation Mono', monospace" font-size="14" font-weight="normal" fill="#111111" text-anchor="start">Reads The Docs</text>
+</g>
+<g class="fl" style="animation-name:d4;animation-duration:9s;animation-delay:-6.8s">
+<circle cx="321" cy="381" r="7.15" fill="#e3a200"/>
+<text x="336" y="386" font-family="Menlo, Consolas, 'Liberation Mono', monospace" font-size="14" font-weight="normal" fill="#111111" text-anchor="start">Reads The Socials</text>
+</g>
+<g class="fl" style="animation-name:d5;animation-duration:12s;animation-delay:-1.5s">
+<circle cx="321" cy="416" r="7.15" fill="#e3a200"/>
+<text x="336" y="421" font-family="Menlo, Consolas, 'Liberation Mono', monospace" font-size="14" font-weight="normal" fill="#111111" text-anchor="start">Reads Media Files</text>
+</g>
+<g class="fl" style="animation-name:d0;animation-duration:8s;animation-delay:-3.2s">
+<circle cx="575" cy="241" r="7.15" fill="#e3a200"/>
+<text x="590" y="246" font-family="Menlo, Consolas, 'Liberation Mono', monospace" font-size="14" font-weight="normal" fill="#111111" text-anchor="start">Checks Every Fact</text>
+</g>
+<g class="fl" style="animation-name:d1;animation-duration:10.5s;animation-delay:-4.9s">
+<circle cx="575" cy="276" r="7.15" fill="#e3a200"/>
+<text x="590" y="281" font-family="Menlo, Consolas, 'Liberation Mono', monospace" font-size="14" font-weight="normal" fill="#111111" text-anchor="start">Speaks As Founder</text>
+</g>
+<g class="fl" style="animation-name:d2;animation-duration:9.5s;animation-delay:-6.6s">
+<circle cx="575" cy="311" r="7.15" fill="#e3a200"/>
+<text x="590" y="316" font-family="Menlo, Consolas, 'Liberation Mono', monospace" font-size="14" font-weight="normal" fill="#111111" text-anchor="start">Keeps Brand Assets</text>
+</g>
+<g class="fl" style="animation-name:d3;animation-duration:7s;animation-delay:-1.3s">
+<circle cx="575" cy="346" r="7.15" fill="#e3a200"/>
+<text x="590" y="351" font-family="Menlo, Consolas, 'Liberation Mono', monospace" font-size="14" font-weight="normal" fill="#111111" text-anchor="start">Versions Memory</text>
+</g>
+<text x="306" y="456" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#555555" text-anchor="start" font-style="italic">no citation, no fact</text>
 <rect x="1052" y="147" width="535" height="330" rx="22" fill="#0a39ff"/>
 <rect x="1045" y="140" width="535" height="330" rx="22" fill="#FFFFFF" stroke="#111111" stroke-width="3"/>
 <text x="1071" y="188" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="24" font-weight="bold" fill="#111111" text-anchor="start">arivu</text>
 <text x="1554" y="192" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="42" font-weight="normal" fill="#111111" text-anchor="end" letter-spacing="2">INTELLECT</text>
 <line x1="1065" y1="210" x2="1560" y2="210" stroke="#111111" stroke-width="1.5"/>
-<text x="1069" y="238" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#111111" font-weight="bold">○</tspan> <tspan font-weight="bold">Chair</tspan><tspan fill="#555555"> — chamber framer</tspan></text>
-<text x="1069" y="259" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#111111" font-weight="bold">○</tspan> <tspan font-weight="bold">Economist</tspan><tspan fill="#555555"> — unit economics</tspan></text>
-<text x="1069" y="280" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#111111" font-weight="bold">○</tspan> <tspan font-weight="bold">Growth Advocate</tspan><tspan fill="#555555"> — acquisition</tspan></text>
-<text x="1069" y="301" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#111111" font-weight="bold">○</tspan> <tspan font-weight="bold">Brand Guardian</tspan><tspan fill="#555555"> — canon &amp; promises</tspan></text>
-<text x="1069" y="322" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#111111" font-weight="bold">○</tspan> <tspan font-weight="bold">Risk Advocate</tspan><tspan fill="#555555"> — downside first</tspan></text>
-<text x="1069" y="343" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#111111" font-weight="bold">○</tspan> <tspan font-weight="bold">Ops Mantri</tspan><tspan fill="#555555"> — can we ship this</tspan></text>
-<text x="1335" y="238" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#111111" font-weight="bold">○</tspan> <tspan font-weight="bold">Debate Moderator</tspan><tspan fill="#555555"> — convergence</tspan></text>
-<text x="1335" y="259" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#0a39ff" font-weight="bold">✦</tspan> <tspan font-weight="bold">Verdict Chair</tspan><tspan fill="#555555"> — the verdict</tspan></text>
-<text x="1335" y="280" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#0a39ff" font-weight="bold">✦</tspan> <tspan font-weight="bold">Prosecutor</tspan><tspan fill="#555555"> — cross-examines</tspan></text>
-<text x="1335" y="301" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#111111" font-weight="bold">▪</tspan> <tspan font-weight="bold">Executor</tspan><tspan fill="#555555"> — approved dispatch</tspan></text>
-<polygon points="1347.4382121338197,357.7625085134184 1356.458692709805,366.7829890894037 1347.4382121338197,375.803469665389 1338.4177315578343,366.7829890894037" fill="#0a39ff"/>
-<polygon points="1407.947507973283,360.4929863332956 1416.4057837080088,368.95126206802126 1407.947507973283,377.4095378027469 1399.4892322385574,368.95126206802126" fill="#0a39ff"/>
-<polygon points="1451.5657555313462,363.11236495992483 1458.9548900120126,370.5014994405912 1451.5657555313462,377.8906339212576 1444.1766210506798,370.5014994405912" fill="#0a39ff"/>
-<polygon points="1510.9613050192636,357.59746606442644 1519.2924776099253,365.92863865508804 1510.9613050192636,374.25981124574963 1502.6301324286019,365.92863865508804" fill="#0a39ff"/>
-<polygon points="1354.7680207009985,393.4111309585438 1363.2316080596713,401.8747183172167 1354.7680207009985,410.3383056758896 1346.3044333423256,401.8747183172167" fill="#0a39ff"/>
-<polygon points="1404.028816083561,392.7600995342744 1410.820240989067,399.55152443978045 1404.028816083561,406.3429493452865 1397.2373911780548,399.55152443978045" fill="#0a39ff"/>
-<polygon points="1464.5420822669635,393.0366463957992 1471.0498409722106,399.5444051010465 1464.5420822669635,406.0521638062938 1458.0343235617163,399.5444051010465" fill="#0a39ff"/>
-<polygon points="1514.2537316816101,392.29579853832405 1522.5394063857566,400.58147324247045 1514.2537316816101,408.86714794661685 1505.9680569774637,400.58147324247045" fill="#0a39ff"/>
-<polygon points="1351.3706461157128,427.3472825120231 1358.2476832907687,434.224319687079 1351.3706461157128,441.1013568621349 1344.493608940657,434.224319687079" fill="#0a39ff"/>
-<polygon points="1405.051818493942,420.08262932784004 1413.2314957564467,428.2623065903449 1405.051818493942,436.4419838528498 1396.8721412314371,428.2623065903449" fill="#0a39ff"/>
-<text x="1071" y="442" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#555555" text-anchor="start" font-style="italic">debate → verdict → prosecutor → gate 1</text>
+<g class="fl" style="animation-name:d0;animation-duration:8.5s;animation-delay:-0.0s">
+<polygon points="1086,232.94 1094.06,241 1086,249.06 1077.94,241" fill="#0a39ff"/>
+<text x="1101" y="246" font-family="Menlo, Consolas, 'Liberation Mono', monospace" font-size="14" font-weight="normal" fill="#111111" text-anchor="start">Sets The Question</text>
+</g>
+<g class="fl" style="animation-name:d1;animation-duration:11s;animation-delay:-1.7s">
+<polygon points="1086,267.94 1094.06,276 1086,284.06 1077.94,276" fill="#0a39ff"/>
+<text x="1101" y="281" font-family="Menlo, Consolas, 'Liberation Mono', monospace" font-size="14" font-weight="normal" fill="#111111" text-anchor="start">Argues The Numbers</text>
+</g>
+<g class="fl" style="animation-name:d2;animation-duration:7.5s;animation-delay:-3.4s">
+<polygon points="1086,302.94 1094.06,311 1086,319.06 1077.94,311" fill="#0a39ff"/>
+<text x="1101" y="316" font-family="Menlo, Consolas, 'Liberation Mono', monospace" font-size="14" font-weight="normal" fill="#111111" text-anchor="start">Argues For Growth</text>
+</g>
+<g class="fl" style="animation-name:d3;animation-duration:10s;animation-delay:-5.1s">
+<polygon points="1086,337.94 1094.06,346 1086,354.06 1077.94,346" fill="#0a39ff"/>
+<text x="1101" y="351" font-family="Menlo, Consolas, 'Liberation Mono', monospace" font-size="14" font-weight="normal" fill="#111111" text-anchor="start">Guards The Brand</text>
+</g>
+<g class="fl" style="animation-name:d4;animation-duration:9s;animation-delay:-6.8s">
+<polygon points="1086,372.94 1094.06,381 1086,389.06 1077.94,381" fill="#0a39ff"/>
+<text x="1101" y="386" font-family="Menlo, Consolas, 'Liberation Mono', monospace" font-size="14" font-weight="normal" fill="#111111" text-anchor="start">Argues The Risks</text>
+</g>
+<g class="fl" style="animation-name:d5;animation-duration:12s;animation-delay:-1.5s">
+<polygon points="1086,407.94 1094.06,416 1086,424.06 1077.94,416" fill="#0a39ff"/>
+<text x="1101" y="421" font-family="Menlo, Consolas, 'Liberation Mono', monospace" font-size="14" font-weight="normal" fill="#111111" text-anchor="start">Checks Feasibility</text>
+</g>
+<g class="fl" style="animation-name:d0;animation-duration:8s;animation-delay:-3.2s">
+<polygon points="1340,232.94 1348.06,241 1340,249.06 1331.94,241" fill="#0a39ff"/>
+<text x="1355" y="246" font-family="Menlo, Consolas, 'Liberation Mono', monospace" font-size="14" font-weight="normal" fill="#111111" text-anchor="start">Runs The Debate</text>
+</g>
+<g class="fl" style="animation-name:d1;animation-duration:10.5s;animation-delay:-4.9s">
+<polygon points="1340,267.94 1348.06,276 1340,284.06 1331.94,276" fill="#0a39ff"/>
+<text x="1355" y="281" font-family="Menlo, Consolas, 'Liberation Mono', monospace" font-size="14" font-weight="normal" fill="#111111" text-anchor="start">Writes The Verdict</text>
+</g>
+<g class="fl" style="animation-name:d2;animation-duration:9.5s;animation-delay:-6.6s">
+<polygon points="1340,302.94 1348.06,311 1340,319.06 1331.94,311" fill="#0a39ff"/>
+<text x="1355" y="316" font-family="Menlo, Consolas, 'Liberation Mono', monospace" font-size="14" font-weight="normal" fill="#111111" text-anchor="start">Tests The Verdict</text>
+</g>
+<g class="fl" style="animation-name:d3;animation-duration:7s;animation-delay:-1.3s">
+<polygon points="1340,337.94 1348.06,346 1340,354.06 1331.94,346" fill="#0a39ff"/>
+<text x="1355" y="351" font-family="Menlo, Consolas, 'Liberation Mono', monospace" font-size="14" font-weight="normal" fill="#111111" text-anchor="start">Ships The Decision</text>
+</g>
+<text x="1071" y="456" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#555555" text-anchor="start" font-style="italic">debates, decides — asks you when it's close</text>
 <rect x="287" y="707" width="535" height="330" rx="22" fill="#00a86b"/>
 <rect x="280" y="700" width="535" height="330" rx="22" fill="#FFFFFF" stroke="#111111" stroke-width="3"/>
 <text x="306" y="748" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="24" font-weight="bold" fill="#111111" text-anchor="start">kural</text>
 <text x="789" y="752" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="42" font-weight="normal" fill="#111111" text-anchor="end" letter-spacing="2">COMMUNICATION</text>
 <line x1="300" y1="770" x2="795" y2="770" stroke="#111111" stroke-width="1.5"/>
-<text x="304" y="798" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#00a86b" font-weight="bold">✦</tspan> <tspan font-weight="bold">Envoy Lead</tspan><tspan fill="#555555"> — qualifies</tspan></text>
-<text x="304" y="819" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#111111" font-weight="bold">○</tspan> <tspan font-weight="bold">Prospect Scout</tspan><tspan fill="#555555"> — finds audiences</tspan></text>
-<text x="304" y="840" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#111111" font-weight="bold">○</tspan> <tspan font-weight="bold">Market Watcher</tspan><tspan fill="#555555"> — feeds · rivals</tspan></text>
-<text x="304" y="861" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#111111" font-weight="bold">○</tspan> <tspan font-weight="bold">Consent Reader</tspan><tspan fill="#555555"> — consent lens</tspan></text>
-<text x="304" y="882" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#111111" font-weight="bold">○</tspan> <tspan font-weight="bold">Reach Reader</tspan><tspan fill="#555555"> — reachable audience</tspan></text>
-<text x="304" y="903" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#111111" font-weight="bold">○</tspan> <tspan font-weight="bold">Topic Reader</tspan><tspan fill="#555555"> — topic fit</tspan></text>
-<text x="570" y="798" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#111111" font-weight="bold">○</tspan> <tspan font-weight="bold">Timing Reader</tspan><tspan fill="#555555"> — open windows</tspan></text>
-<text x="570" y="819" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#00a86b" font-weight="bold">✦</tspan> <tspan font-weight="bold">Delivery Planner</tspan><tspan fill="#555555"> — picks the plan</tspan></text>
-<text x="570" y="840" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#111111" font-weight="bold">▪</tspan> <tspan font-weight="bold">Email Envoy</tspan><tspan fill="#555555"> — consented outreach</tspan></text>
-<text x="570" y="861" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#111111" font-weight="bold">▪</tspan> <tspan font-weight="bold">Channel Mouth</tspan><tspan fill="#555555"> — the publisher</tspan></text>
-<text x="570" y="882" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#111111" font-weight="bold">▪</tspan> <tspan font-weight="bold">Send Gate</tspan><tspan fill="#555555"> — send eligibility</tspan></text>
-<rect x="569.7943802283273" y="927.1173337162749" width="12.375202070582567" height="12.375202070582567" rx="2" fill="#00a86b"/>
-<rect x="625.1423907167017" y="919.5600457621542" width="13.312835785495427" height="13.312835785495427" rx="2" fill="#00a86b"/>
-<rect x="681.1062173617581" y="920.8488733691225" width="11.90623200458251" height="11.90623200458251" rx="2" fill="#00a86b"/>
-<rect x="744.3754179521046" y="925.3820323183459" width="12.886579908750877" height="12.886579908750877" rx="2" fill="#00a86b"/>
-<rect x="576.2262342524932" y="950.5116826097149" width="12.266914045851163" height="12.266914045851163" rx="2" fill="#00a86b"/>
-<rect x="631.1716838731904" y="957.2389533358787" width="9.634001025268493" height="9.634001025268493" rx="2" fill="#00a86b"/>
-<rect x="694.2264699497072" y="960.986834196373" width="10.194759185830637" height="10.194759185830637" rx="2" fill="#00a86b"/>
-<rect x="736.8083975764181" y="949.0599875199382" width="13.581126280351942" height="13.581126280351942" rx="2" fill="#00a86b"/>
-<rect x="579.5668849649484" y="983.3783582953032" width="10.805485808373009" height="10.805485808373009" rx="2" fill="#00a86b"/>
-<rect x="628.2100916716579" y="978.5281597030385" width="14.171018448680005" height="14.171018448680005" rx="2" fill="#00a86b"/>
-<rect x="686.9606104567512" y="979.0103669634475" width="12.45720378202313" height="12.45720378202313" rx="2" fill="#00a86b"/>
-<text x="306" y="1002" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#555555" text-anchor="start" font-style="italic">delivers verbatim → gate 2 → publish</text>
+<g class="fl" style="animation-name:d0;animation-duration:8.5s;animation-delay:-0.0s">
+<rect x="314.76" y="794.76" width="12.48" height="12.48" rx="2" fill="#00a86b"/>
+<text x="336" y="806" font-family="Menlo, Consolas, 'Liberation Mono', monospace" font-size="14" font-weight="normal" fill="#111111" text-anchor="start">Leads The Outreach</text>
+</g>
+<g class="fl" style="animation-name:d1;animation-duration:11s;animation-delay:-1.7s">
+<rect x="314.76" y="829.76" width="12.48" height="12.48" rx="2" fill="#00a86b"/>
+<text x="336" y="841" font-family="Menlo, Consolas, 'Liberation Mono', monospace" font-size="14" font-weight="normal" fill="#111111" text-anchor="start">Finds The Audience</text>
+</g>
+<g class="fl" style="animation-name:d2;animation-duration:7.5s;animation-delay:-3.4s">
+<rect x="314.76" y="864.76" width="12.48" height="12.48" rx="2" fill="#00a86b"/>
+<text x="336" y="876" font-family="Menlo, Consolas, 'Liberation Mono', monospace" font-size="14" font-weight="normal" fill="#111111" text-anchor="start">Watches The Market</text>
+</g>
+<g class="fl" style="animation-name:d3;animation-duration:10s;animation-delay:-5.1s">
+<rect x="314.76" y="899.76" width="12.48" height="12.48" rx="2" fill="#00a86b"/>
+<text x="336" y="911" font-family="Menlo, Consolas, 'Liberation Mono', monospace" font-size="14" font-weight="normal" fill="#111111" text-anchor="start">Checks The Consent</text>
+</g>
+<g class="fl" style="animation-name:d4;animation-duration:9s;animation-delay:-6.8s">
+<rect x="314.76" y="934.76" width="12.48" height="12.48" rx="2" fill="#00a86b"/>
+<text x="336" y="946" font-family="Menlo, Consolas, 'Liberation Mono', monospace" font-size="14" font-weight="normal" fill="#111111" text-anchor="start">Maps The Reach</text>
+</g>
+<g class="fl" style="animation-name:d5;animation-duration:12s;animation-delay:-1.5s">
+<rect x="314.76" y="969.76" width="12.48" height="12.48" rx="2" fill="#00a86b"/>
+<text x="336" y="981" font-family="Menlo, Consolas, 'Liberation Mono', monospace" font-size="14" font-weight="normal" fill="#111111" text-anchor="start">Matches The Topic</text>
+</g>
+<g class="fl" style="animation-name:d0;animation-duration:8s;animation-delay:-3.2s">
+<rect x="568.76" y="794.76" width="12.48" height="12.48" rx="2" fill="#00a86b"/>
+<text x="590" y="806" font-family="Menlo, Consolas, 'Liberation Mono', monospace" font-size="14" font-weight="normal" fill="#111111" text-anchor="start">Picks The Moment</text>
+</g>
+<g class="fl" style="animation-name:d1;animation-duration:10.5s;animation-delay:-4.9s">
+<rect x="568.76" y="829.76" width="12.48" height="12.48" rx="2" fill="#00a86b"/>
+<text x="590" y="841" font-family="Menlo, Consolas, 'Liberation Mono', monospace" font-size="14" font-weight="normal" fill="#111111" text-anchor="start">Plans The Delivery</text>
+</g>
+<g class="fl" style="animation-name:d2;animation-duration:9.5s;animation-delay:-6.6s">
+<rect x="568.76" y="864.76" width="12.48" height="12.48" rx="2" fill="#00a86b"/>
+<text x="590" y="876" font-family="Menlo, Consolas, 'Liberation Mono', monospace" font-size="14" font-weight="normal" fill="#111111" text-anchor="start">Sends The Emails</text>
+</g>
+<g class="fl" style="animation-name:d3;animation-duration:7s;animation-delay:-1.3s">
+<rect x="568.76" y="899.76" width="12.48" height="12.48" rx="2" fill="#00a86b"/>
+<text x="590" y="911" font-family="Menlo, Consolas, 'Liberation Mono', monospace" font-size="14" font-weight="normal" fill="#111111" text-anchor="start">Posts To Channels</text>
+</g>
+<g class="fl" style="animation-name:d4;animation-duration:11.5s;animation-delay:-3.0s">
+<rect x="568.76" y="934.76" width="12.48" height="12.48" rx="2" fill="#00a86b"/>
+<text x="590" y="946" font-family="Menlo, Consolas, 'Liberation Mono', monospace" font-size="14" font-weight="normal" fill="#111111" text-anchor="start">Clears Every Send</text>
+</g>
+<text x="306" y="1016" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#555555" text-anchor="start" font-style="italic">delivers verbatim, never rewrites</text>
 <rect x="1052" y="707" width="535" height="330" rx="22" fill="#ff2d2d"/>
 <rect x="1045" y="700" width="535" height="330" rx="22" fill="#FFFFFF" stroke="#111111" stroke-width="3"/>
 <text x="1071" y="748" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="24" font-weight="bold" fill="#111111" text-anchor="start">kalai</text>
 <text x="1554" y="752" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="42" font-weight="normal" fill="#111111" text-anchor="end" letter-spacing="2">IMAGINATION</text>
 <line x1="1065" y1="770" x2="1560" y2="770" stroke="#111111" stroke-width="1.5"/>
-<text x="1069" y="798" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#ff2d2d" font-weight="bold">✦</tspan> <tspan font-weight="bold">Creative Director</tspan><tspan fill="#555555"> — the brief</tspan></text>
-<text x="1069" y="819" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#111111" font-weight="bold">○</tspan> <tspan font-weight="bold">Designer Producer</tspan><tspan fill="#555555"> — visual specs</tspan></text>
-<text x="1069" y="840" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#111111" font-weight="bold">○</tspan> <tspan font-weight="bold">Copy Smith</tspan><tspan fill="#555555"> — copy &amp; SEO</tspan></text>
-<text x="1069" y="861" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#111111" font-weight="bold">◇</tspan> <tspan font-weight="bold">Still Maker</tspan><tspan fill="#555555"> — Imagen 4.0 stills</tspan></text>
-<text x="1069" y="882" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#111111" font-weight="bold">◇</tspan> <tspan font-weight="bold">Reel Maker</tspan><tspan fill="#555555"> — Veo 3.1 reels</tspan></text>
-<text x="1069" y="903" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#555555" font-weight="bold">◌</tspan> <tspan font-weight="bold">Sound Maker</tspan><tspan fill="#555555"> — music · sfx · voice</tspan></text>
-<text x="1335" y="798" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#111111" font-weight="bold">○</tspan> <tspan font-weight="bold">Brand Scorer</tspan><tspan fill="#555555"> — brand lens</tspan></text>
-<text x="1335" y="819" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#111111" font-weight="bold">○</tspan> <tspan font-weight="bold">Voice Scorer</tspan><tspan fill="#555555"> — voice-tone lens</tspan></text>
-<text x="1335" y="840" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#111111" font-weight="bold">○</tspan> <tspan font-weight="bold">Platform Scorer</tspan><tspan fill="#555555"> — platform fit</tspan></text>
-<text x="1335" y="861" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#111111" font-weight="bold">○</tspan> <tspan font-weight="bold">Edge Scorer</tspan><tspan fill="#555555"> — compliance edge</tspan></text>
-<text x="1335" y="882" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#ff2d2d" font-weight="bold">✦</tspan> <tspan font-weight="bold">Compliance Gate</tspan><tspan fill="#555555"> — fail-closed</tspan></text>
-<polygon points="1350.0586935150359,929.2757923737682 1357.3005158038588,942.7605649115766 1342.816871226213,942.7605649115766" fill="#ff2d2d"/>
-<polygon points="1409.0987118121068,926.782614651418 1417.2596040008002,941.9787587269163 1400.9378196234134,941.9787587269163" fill="#ff2d2d"/>
-<polygon points="1452.1045880361046,931.5806446131726 1458.8373342570605,944.117482403918 1445.3718418151486,944.117482403918" fill="#ff2d2d"/>
-<polygon points="1514.2842654395079,921.4597469690541 1522.9323444069762,937.5630664257194 1505.6361864720395,937.5630664257194" fill="#ff2d2d"/>
-<polygon points="1335.5852309555912,952.2229537660044 1342.4418726554245,964.9904934829352 1328.728589255758,964.9904934829352" fill="#ff2d2d"/>
-<polygon points="1393.7787158763517,954.4300651268849 1401.7179828476958,969.2135277631807 1385.8394489050077,969.2135277631807" fill="#ff2d2d"/>
-<polygon points="1454.6034376515952,960.1250145183561 1461.2850795594975,972.5666925537603 1447.9217957436929,972.5666925537603" fill="#ff2d2d"/>
-<polygon points="1511.2820756774393,957.946415543371 1518.2250438818198,970.8747011653209 1504.3391074730587,970.8747011653209" fill="#ff2d2d"/>
-<polygon points="1337.5589838349006,988.9404102496984 1345.728385870238,1004.1524002465338 1329.389581799563,1004.1524002465338" fill="#ff2d2d"/>
-<polygon points="1391.024415411152,988.3366768345956 1397.517555048244,1000.4273506415946 1384.5312757740598,1000.4273506415946" fill="#ff2d2d"/>
-<polygon points="1462.6345212420174,988.829079364556 1468.7009815027395,1000.1252467465903 1456.5680609812953,1000.1252467465903" fill="#ff2d2d"/>
-<text x="1071" y="1002" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#555555" text-anchor="start" font-style="italic">fail-closed compliance before handoff</text>
+<g class="fl" style="animation-name:d0;animation-duration:8.5s;animation-delay:-0.0s">
+<polygon points="1086,793.2 1093.54,807.24 1078.46,807.24" fill="#ff2d2d"/>
+<text x="1101" y="806" font-family="Menlo, Consolas, 'Liberation Mono', monospace" font-size="14" font-weight="normal" fill="#111111" text-anchor="start">Directs The Brief</text>
+</g>
+<g class="fl" style="animation-name:d1;animation-duration:11s;animation-delay:-1.7s">
+<polygon points="1086,828.2 1093.54,842.24 1078.46,842.24" fill="#ff2d2d"/>
+<text x="1101" y="841" font-family="Menlo, Consolas, 'Liberation Mono', monospace" font-size="14" font-weight="normal" fill="#111111" text-anchor="start">Designs The Visual</text>
+</g>
+<g class="fl" style="animation-name:d2;animation-duration:7.5s;animation-delay:-3.4s">
+<polygon points="1086,863.2 1093.54,877.24 1078.46,877.24" fill="#ff2d2d"/>
+<text x="1101" y="876" font-family="Menlo, Consolas, 'Liberation Mono', monospace" font-size="14" font-weight="normal" fill="#111111" text-anchor="start">Writes The Copy</text>
+</g>
+<g class="fl" style="animation-name:d3;animation-duration:10s;animation-delay:-5.1s">
+<polygon points="1086,898.2 1093.54,912.24 1078.46,912.24" fill="#ff2d2d"/>
+<text x="1101" y="911" font-family="Menlo, Consolas, 'Liberation Mono', monospace" font-size="14" font-weight="normal" fill="#111111" text-anchor="start">Renders The Stills</text>
+</g>
+<g class="fl" style="animation-name:d4;animation-duration:9s;animation-delay:-6.8s">
+<polygon points="1086,933.2 1093.54,947.24 1078.46,947.24" fill="#ff2d2d"/>
+<text x="1101" y="946" font-family="Menlo, Consolas, 'Liberation Mono', monospace" font-size="14" font-weight="normal" fill="#111111" text-anchor="start">Renders The Reels</text>
+</g>
+<g class="fl" style="animation-name:d5;animation-duration:12s;animation-delay:-1.5s">
+<polygon points="1086,968.2 1093.54,982.24 1078.46,982.24" fill="#ff2d2d"/>
+<text x="1101" y="981" font-family="Menlo, Consolas, 'Liberation Mono', monospace" font-size="14" font-weight="normal" fill="#111111" text-anchor="start">Makes The Sound</text>
+</g>
+<g class="fl" style="animation-name:d0;animation-duration:8s;animation-delay:-3.2s">
+<polygon points="1340,793.2 1347.54,807.24 1332.46,807.24" fill="#ff2d2d"/>
+<text x="1355" y="806" font-family="Menlo, Consolas, 'Liberation Mono', monospace" font-size="14" font-weight="normal" fill="#111111" text-anchor="start">Scores Brand Fit</text>
+</g>
+<g class="fl" style="animation-name:d1;animation-duration:10.5s;animation-delay:-4.9s">
+<polygon points="1340,828.2 1347.54,842.24 1332.46,842.24" fill="#ff2d2d"/>
+<text x="1355" y="841" font-family="Menlo, Consolas, 'Liberation Mono', monospace" font-size="14" font-weight="normal" fill="#111111" text-anchor="start">Scores The Voice</text>
+</g>
+<g class="fl" style="animation-name:d2;animation-duration:9.5s;animation-delay:-6.6s">
+<polygon points="1340,863.2 1347.54,877.24 1332.46,877.24" fill="#ff2d2d"/>
+<text x="1355" y="876" font-family="Menlo, Consolas, 'Liberation Mono', monospace" font-size="14" font-weight="normal" fill="#111111" text-anchor="start">Fits The Platform</text>
+</g>
+<g class="fl" style="animation-name:d3;animation-duration:7s;animation-delay:-1.3s">
+<polygon points="1340,898.2 1347.54,912.24 1332.46,912.24" fill="#ff2d2d"/>
+<text x="1355" y="911" font-family="Menlo, Consolas, 'Liberation Mono', monospace" font-size="14" font-weight="normal" fill="#111111" text-anchor="start">Spots Legal Edges</text>
+</g>
+<g class="fl" style="animation-name:d4;animation-duration:11.5s;animation-delay:-3.0s">
+<polygon points="1340,933.2 1347.54,947.24 1332.46,947.24" fill="#ff2d2d"/>
+<text x="1355" y="946" font-family="Menlo, Consolas, 'Liberation Mono', monospace" font-size="14" font-weight="normal" fill="#111111" text-anchor="start">Blocks Violations</text>
+</g>
+<text x="1071" y="1016" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#555555" text-anchor="start" font-style="italic">fail-closed before handoff</text>
 <line x1="857.0" y1="511.0" x2="793" y2="458" stroke="#111111" stroke-width="2.2" stroke-dasharray="4,5"/>
 <circle cx="793" cy="458" r="3.4" fill="#111111"/>
 <line x1="1003.0" y1="511.0" x2="1067" y2="458" stroke="#111111" stroke-width="2.2" stroke-dasharray="4,5"/>
@@ -150,9 +244,9 @@
 <text x="930" y="289" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="bold" fill="#111111" text-anchor="middle">grounds</text>
 <text x="930" y="327" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="10" font-weight="normal" fill="#555555" text-anchor="middle">cited facts</text>
 <line x1="1315" y1="478" x2="1315" y2="692" stroke="#111111" stroke-width="3" marker-end="url(#ah)"/>
-<rect x="1281.0" y="573.0" width="68" height="24" rx="12.0" fill="#111111"/>
-<text x="1315" y="589" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#FFFFFF" text-anchor="middle">TAP 1</text>
-<text x="1269" y="589" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="10.5" font-weight="normal" fill="#555555" text-anchor="end">founder approves the decision</text>
+<rect x="1267.0" y="573.0" width="96" height="24" rx="12.0" fill="#111111"/>
+<text x="1315" y="589" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11" font-weight="bold" fill="#FFFFFF" text-anchor="middle">APPROVED</text>
+<text x="1259" y="589" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="10.5" font-weight="normal" fill="#555555" text-anchor="end">the founder signs off the decision</text>
 <line x1="1037" y1="865" x2="823" y2="865" stroke="#111111" stroke-width="3" marker-end="url(#ah)"/>
 <text x="930" y="849" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="bold" fill="#111111" text-anchor="middle">verbatim master</text>
 <text x="930" y="887" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="10" font-weight="normal" fill="#555555" text-anchor="middle">byte-for-byte</text>
@@ -171,13 +265,13 @@
 <rect x="1626" y="186" width="200" height="250" rx="18" fill="#111111"/>
 <rect x="1620" y="180" width="200" height="250" rx="18" fill="#F4EEE2" stroke="#111111" stroke-width="2.5"/>
 <text x="1642" y="216" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" font-weight="bold" fill="#111111" text-anchor="start">THE FOUNDER</text>
-<text x="1642" y="246" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="normal" fill="#555555" text-anchor="start">one human</text>
-<text x="1642" y="268" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="normal" fill="#555555" text-anchor="start">two taps a day</text>
+<text x="1642" y="246" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="normal" fill="#555555" text-anchor="start">asked wherever</text>
+<text x="1642" y="268" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="normal" fill="#555555" text-anchor="start">taste is needed</text>
 <line x1="1638" y1="277" x2="1802" y2="277" stroke="#111111" stroke-width="1"/>
-<text x="1642" y="294" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="bold" fill="#111111" text-anchor="start">TAP 1 — approves</text>
-<text x="1642" y="316" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="normal" fill="#555555" text-anchor="start">every decision</text>
-<text x="1642" y="338" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="bold" fill="#111111" text-anchor="start">TAP 2 — approves</text>
-<text x="1642" y="360" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="normal" fill="#555555" text-anchor="start">every publish</text>
+<text x="1642" y="294" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="bold" fill="#111111" text-anchor="start">approves decisions</text>
+<text x="1642" y="316" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="bold" fill="#111111" text-anchor="start">approves publishes</text>
+<text x="1642" y="338" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="normal" fill="#555555" text-anchor="start">questions signed by</text>
+<text x="1642" y="360" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="normal" fill="#555555" text-anchor="start">the asking agent</text>
 <line x1="1612" y1="305" x2="1592" y2="305" stroke="#111111" stroke-width="3" marker-end="url(#ah)"/>
 <rect x="46" y="746" width="200" height="250" rx="18" fill="#111111"/>
 <rect x="40" y="740" width="200" height="250" rx="18" fill="#F4EEE2" stroke="#111111" stroke-width="2.5"/>
@@ -185,11 +279,10 @@
 <text x="62" y="806" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="normal" fill="#555555" text-anchor="start">X · Instagram</text>
 <text x="62" y="828" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="normal" fill="#555555" text-anchor="start">LinkedIn · email</text>
 <line x1="58" y1="837" x2="222" y2="837" stroke="#111111" stroke-width="1"/>
-<text x="62" y="854" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="bold" fill="#111111" text-anchor="start">opens after TAP 2</text>
+<text x="62" y="854" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="bold" fill="#111111" text-anchor="start">founder-approved</text>
 <text x="62" y="876" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="bold" fill="#111111" text-anchor="start">dry-run by default</text>
 <text x="62" y="898" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="normal" fill="#555555" text-anchor="start">never auto-posts</text>
 <line x1="276" y1="865" x2="252" y2="865" stroke="#111111" stroke-width="3" marker-end="url(#ah)"/>
-<text x="261" y="850" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="middle">TAP 2</text>
 <rect x="1626" y="746" width="200" height="250" rx="18" fill="#111111"/>
 <rect x="1620" y="740" width="200" height="250" rx="18" fill="#F4EEE2" stroke="#111111" stroke-width="2.5"/>
 <text x="1642" y="776" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" font-weight="bold" fill="#111111" text-anchor="start">MEDIA ENGINES</text>
