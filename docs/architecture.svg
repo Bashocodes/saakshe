@@ -1,196 +1,231 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="1660" height="1330" viewBox="0 0 1660 1330" role="img" aria-label="saakshe architecture diagram">
-<title>saakshe — architecture</title>
+<svg xmlns="http://www.w3.org/2000/svg" width="1860" height="1300" viewBox="0 0 1860 1300" role="img" aria-label="saakshe architecture — witnessing agents">
+<title>saakshe — architecture · witnessing agents</title>
 <defs>
   <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
     <path d="M 0 0 L 10 5 L 0 10 z" fill="#111111"/>
   </marker>
 </defs>
-<rect x="0" y="0" width="1660" height="1330" fill="#F4EEE2"/>
-<text x="60" y="52" font-family="Helvetica, Arial, sans-serif" font-size="15" font-weight="bold" fill="#111111" text-anchor="start" letter-spacing="6">SΛΛKSHE</text>
-<text x="60" y="88" font-family="Helvetica, Arial, sans-serif" font-size="28" font-weight="bold" fill="#111111" text-anchor="start">ARCHITECTURE — THE AGENTIC COMPANY + ITS WITNESS</text>
-<text x="1600" y="52" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="normal" fill="#555555" text-anchor="end">Google for Startups AI Agents Challenge · Track 1 BUILD</text>
-<text x="1600" y="72" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="normal" fill="#555555" text-anchor="end">one founder · four realms · 42 agents · two human gates</text>
-<rect x="66" y="124" width="260" height="96" fill="#111111"/>
-<rect x="60" y="118" width="260" height="96" fill="#F4EEE2" stroke="#111111" stroke-width="3"/>
-<text x="190" y="152" font-family="Helvetica, Arial, sans-serif" font-size="18" font-weight="bold" fill="#111111" text-anchor="middle">THE FOUNDER</text>
-<text x="190" y="174" font-family="Helvetica, Arial, sans-serif" font-size="11.5" font-weight="normal" fill="#555555" text-anchor="middle">talks ONLY to saakshe</text>
-<text x="190" y="192" font-family="Helvetica, Arial, sans-serif" font-size="11.5" font-weight="normal" fill="#555555" text-anchor="middle">two taps a day — owns both gates</text>
-<line x1="322" y1="166" x2="358" y2="166" stroke="#111111" stroke-width="2.5" marker-end="url(#ah)"/>
-<line x1="358" y1="150" x2="322" y2="150" stroke="#111111" stroke-width="2.5" marker-end="url(#ah)"/>
-<text x="340" y="140" font-family="Helvetica, Arial, sans-serif" font-size="10" font-weight="normal" fill="#555555" text-anchor="middle">chat</text>
-<rect x="366" y="124" width="1240" height="96" fill="#111111"/>
-<rect x="360" y="118" width="1240" height="96" fill="#111111" stroke="#111111" stroke-width="3"/>
-<text x="380" y="150" font-family="Helvetica, Arial, sans-serif" font-size="18" font-weight="bold" fill="#FFFFFF" text-anchor="start">SAAKSHE — THE WITNESS</text>
-<text x="700" y="150" font-family="Helvetica, Arial, sans-serif" font-size="11.5" font-weight="normal" fill="#cfcabf" text-anchor="start">the 43rd eye · never counted among the 42 · initiates nothing — the founder's taps land here</text>
-<text x="380" y="174" font-family="Helvetica, Arial, sans-serif" font-size="11.5" font-weight="normal" fill="#F4EEE2" text-anchor="start">chat + voice (Gemini Live) · answers from tools, not vibes:  anyone_waiting · cost_today · whats_reversible · what_learned · whos_acting</text>
-<text x="380" y="196" font-family="Helvetica, Arial, sans-serif" font-size="11.5" font-weight="normal" fill="#cfcabf" text-anchor="start">asked beyond its data, it refuses · every panel cites where it came from</text>
-<line x1="980" y1="214" x2="980" y2="246" stroke="#111111" stroke-width="2" marker-end="url(#ah)" stroke-dasharray="5,4"/>
-<text x="992" y="236" font-family="Helvetica, Arial, sans-serif" font-size="10.5" font-weight="normal" fill="#555555" text-anchor="start">watches one ordered event stream — every span, gate, action, cost</text>
-<rect x="386" y="256" width="550" height="330" fill="#e3a200"/>
-<rect x="380" y="250" width="550" height="330" fill="#F4EEE2" stroke="#111111" stroke-width="3"/>
-<text x="400" y="288" font-family="Helvetica, Arial, sans-serif" font-size="24" font-weight="bold" fill="#111111"><tspan fill="#e3a200">●</tspan> manas</text>
-<rect x="812" y="266" width="98" height="26" rx="13" fill="#111111"/>
-<text x="861" y="284" font-family="Helvetica, Arial, sans-serif" font-size="11.5" font-weight="bold" fill="#FFFFFF" text-anchor="middle">10 AGENTS</text>
-<text x="400" y="310" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="normal" fill="#555555" text-anchor="start">MEMORY · knows — grounds every realm</text>
-<line x1="396" y1="324" x2="914" y2="324" stroke="#111111" stroke-width="1.5"/>
-<text x="402" y="348" font-family="Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#111111" font-weight="bold">○</tspan> <tspan font-weight="bold">Mind Keeper</tspan><tspan fill="#555555"> — ingest coordinator</tspan></text>
-<text x="402" y="369" font-family="Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#111111" font-weight="bold">○</tspan> <tspan font-weight="bold">Repo Reader</tspan><tspan fill="#555555"> — repo imbiber</tspan></text>
-<text x="402" y="390" font-family="Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#111111" font-weight="bold">○</tspan> <tspan font-weight="bold">Web Reader</tspan><tspan fill="#555555"> — website imbiber</tspan></text>
-<text x="402" y="411" font-family="Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#111111" font-weight="bold">○</tspan> <tspan font-weight="bold">Docs Reader</tspan><tspan fill="#555555"> — docs imbiber</tspan></text>
-<text x="402" y="432" font-family="Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#111111" font-weight="bold">○</tspan> <tspan font-weight="bold">Social Reader</tspan><tspan fill="#555555"> — social imbiber</tspan></text>
-<text x="402" y="453" font-family="Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#555555" font-weight="bold">◌</tspan> <tspan font-weight="bold">Media Reader</tspan><tspan fill="#555555"> — pdf · video · image</tspan></text>
-<text x="668" y="348" font-family="Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#e3a200" font-weight="bold">✦</tspan> <tspan font-weight="bold">Memory Curator</tspan><tspan fill="#555555"> — verify-before-commit</tspan></text>
-<text x="668" y="369" font-family="Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#e3a200" font-weight="bold">✦</tspan> <tspan font-weight="bold">Founder Voice</tspan><tspan fill="#555555"> — grounded answerer</tspan></text>
-<text x="668" y="390" font-family="Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#111111" font-weight="bold">▪</tspan> <tspan font-weight="bold">Asset Keeper</tspan><tspan fill="#555555"> — brand-asset vault</tspan></text>
-<text x="668" y="411" font-family="Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#111111" font-weight="bold">▪</tspan> <tspan font-weight="bold">Pack Binder</tspan><tspan fill="#555555"> — pack versioner</tspan></text>
-<rect x="396" y="492" width="518" height="68" fill="#FFFFFF" stroke="#111111" stroke-width="2"/>
-<text x="410" y="519" font-family="Helvetica, Arial, sans-serif" font-size="11.5" font-weight="bold" fill="#111111" text-anchor="start">connect → parallel readers → curator verify ≥0.80</text>
-<text x="410" y="541" font-family="Helvetica, Arial, sans-serif" font-size="11.5" font-weight="bold" fill="#111111" text-anchor="start">→ cited Context Pack v1→vN · 124-field schema · brand vault</text>
-<rect x="1056" y="256" width="550" height="330" fill="#0a39ff"/>
-<rect x="1050" y="250" width="550" height="330" fill="#F4EEE2" stroke="#111111" stroke-width="3"/>
-<text x="1070" y="288" font-family="Helvetica, Arial, sans-serif" font-size="24" font-weight="bold" fill="#111111"><tspan fill="#0a39ff">◆</tspan> arivu</text>
-<rect x="1482" y="266" width="98" height="26" rx="13" fill="#111111"/>
-<text x="1531" y="284" font-family="Helvetica, Arial, sans-serif" font-size="11.5" font-weight="bold" fill="#FFFFFF" text-anchor="middle">10 AGENTS</text>
-<text x="1070" y="310" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="normal" fill="#555555" text-anchor="start">INTELLECT · decides — the chamber every realm calls</text>
-<line x1="1066" y1="324" x2="1584" y2="324" stroke="#111111" stroke-width="1.5"/>
-<text x="1072" y="348" font-family="Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#111111" font-weight="bold">○</tspan> <tspan font-weight="bold">Chair</tspan><tspan fill="#555555"> — chamber framer</tspan></text>
-<text x="1072" y="369" font-family="Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#111111" font-weight="bold">○</tspan> <tspan font-weight="bold">Economist</tspan><tspan fill="#555555"> — unit economics</tspan></text>
-<text x="1072" y="390" font-family="Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#111111" font-weight="bold">○</tspan> <tspan font-weight="bold">Growth Advocate</tspan><tspan fill="#555555"> — funnel &amp; acquisition</tspan></text>
-<text x="1072" y="411" font-family="Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#111111" font-weight="bold">○</tspan> <tspan font-weight="bold">Brand Guardian</tspan><tspan fill="#555555"> — canon &amp; promises</tspan></text>
-<text x="1072" y="432" font-family="Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#111111" font-weight="bold">○</tspan> <tspan font-weight="bold">Risk Advocate</tspan><tspan fill="#555555"> — downside first</tspan></text>
-<text x="1072" y="453" font-family="Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#111111" font-weight="bold">○</tspan> <tspan font-weight="bold">Ops Mantri</tspan><tspan fill="#555555"> — can we ship this</tspan></text>
-<text x="1338" y="348" font-family="Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#111111" font-weight="bold">○</tspan> <tspan font-weight="bold">Debate Moderator</tspan><tspan fill="#555555"> — convergence loop</tspan></text>
-<text x="1338" y="369" font-family="Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#0a39ff" font-weight="bold">✦</tspan> <tspan font-weight="bold">Verdict Chair</tspan><tspan fill="#555555"> — chamber synthesizer</tspan></text>
-<text x="1338" y="390" font-family="Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#0a39ff" font-weight="bold">✦</tspan> <tspan font-weight="bold">Prosecutor</tspan><tspan fill="#555555"> — verdict cross-examiner</tspan></text>
-<text x="1338" y="411" font-family="Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#111111" font-weight="bold">▪</tspan> <tspan font-weight="bold">Executor</tspan><tspan fill="#555555"> — approved dispatch</tspan></text>
-<rect x="1066" y="492" width="518" height="68" fill="#FFFFFF" stroke="#111111" stroke-width="2"/>
-<text x="1080" y="519" font-family="Helvetica, Arial, sans-serif" font-size="11.5" font-weight="bold" fill="#111111" text-anchor="start">frame → 5-advisor panel → debate ⟲ converge → ✦ verdict</text>
-<text x="1080" y="541" font-family="Helvetica, Arial, sans-serif" font-size="11.5" font-weight="bold" fill="#111111" text-anchor="start">→ ✦ prosecutor ⟲ @0.80 — revises only faulted reasons → GATE 1</text>
-<rect x="386" y="656" width="550" height="330" fill="#00a86b"/>
-<rect x="380" y="650" width="550" height="330" fill="#F4EEE2" stroke="#111111" stroke-width="3"/>
-<text x="400" y="688" font-family="Helvetica, Arial, sans-serif" font-size="24" font-weight="bold" fill="#111111"><tspan fill="#00a86b">■</tspan> kural</text>
-<rect x="812" y="666" width="98" height="26" rx="13" fill="#111111"/>
-<text x="861" y="684" font-family="Helvetica, Arial, sans-serif" font-size="11.5" font-weight="bold" fill="#FFFFFF" text-anchor="middle">11 AGENTS</text>
-<text x="400" y="710" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="normal" fill="#555555" text-anchor="start">COMMUNICATION · engages — the only mouth, authors nothing</text>
-<line x1="396" y1="724" x2="914" y2="724" stroke="#111111" stroke-width="1.5"/>
-<text x="402" y="748" font-family="Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#00a86b" font-weight="bold">✦</tspan> <tspan font-weight="bold">Envoy Lead</tspan><tspan fill="#555555"> — engagement qualifier</tspan></text>
-<text x="402" y="769" font-family="Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#111111" font-weight="bold">○</tspan> <tspan font-weight="bold">Prospect Scout</tspan><tspan fill="#555555"> — audience prospector</tspan></text>
-<text x="402" y="790" font-family="Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#111111" font-weight="bold">○</tspan> <tspan font-weight="bold">Market Watcher</tspan><tspan fill="#555555"> — feeds &amp; competitors</tspan></text>
-<text x="402" y="811" font-family="Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#111111" font-weight="bold">○</tspan> <tspan font-weight="bold">Consent Reader</tspan><tspan fill="#555555"> — consent lens</tspan></text>
-<text x="402" y="832" font-family="Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#111111" font-weight="bold">○</tspan> <tspan font-weight="bold">Reach Reader</tspan><tspan fill="#555555"> — reachable audience</tspan></text>
-<text x="402" y="853" font-family="Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#111111" font-weight="bold">○</tspan> <tspan font-weight="bold">Topic Reader</tspan><tspan fill="#555555"> — topic fit</tspan></text>
-<text x="668" y="748" font-family="Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#111111" font-weight="bold">○</tspan> <tspan font-weight="bold">Timing Reader</tspan><tspan fill="#555555"> — open windows</tspan></text>
-<text x="668" y="769" font-family="Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#00a86b" font-weight="bold">✦</tspan> <tspan font-weight="bold">Delivery Planner</tspan><tspan fill="#555555"> — variant · window</tspan></text>
-<text x="668" y="790" font-family="Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#111111" font-weight="bold">▪</tspan> <tspan font-weight="bold">Email Envoy</tspan><tspan fill="#555555"> — consented outreach</tspan></text>
-<text x="668" y="811" font-family="Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#111111" font-weight="bold">▪</tspan> <tspan font-weight="bold">Channel Mouth</tspan><tspan fill="#555555"> — platform publisher</tspan></text>
-<text x="668" y="832" font-family="Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#111111" font-weight="bold">▪</tspan> <tspan font-weight="bold">Send Gate</tspan><tspan fill="#555555"> — send eligibility</tspan></text>
-<rect x="396" y="892" width="518" height="68" fill="#FFFFFF" stroke="#111111" stroke-width="2"/>
-<text x="410" y="919" font-family="Helvetica, Arial, sans-serif" font-size="11.5" font-weight="bold" fill="#111111" text-anchor="start">plan — delivery schema has NO text field → assemble byte-for-byte</text>
-<text x="410" y="941" font-family="Helvetica, Arial, sans-serif" font-size="11.5" font-weight="bold" fill="#111111" text-anchor="start">→ send gate (consent · caps) → GATE 2 → publish · dry-run default</text>
-<rect x="1056" y="656" width="550" height="330" fill="#ff2d2d"/>
-<rect x="1050" y="650" width="550" height="330" fill="#F4EEE2" stroke="#111111" stroke-width="3"/>
-<text x="1070" y="688" font-family="Helvetica, Arial, sans-serif" font-size="24" font-weight="bold" fill="#111111"><tspan fill="#ff2d2d">▲</tspan> kalai</text>
-<rect x="1482" y="666" width="98" height="26" rx="13" fill="#111111"/>
-<text x="1531" y="684" font-family="Helvetica, Arial, sans-serif" font-size="11.5" font-weight="bold" fill="#FFFFFF" text-anchor="middle">11 AGENTS</text>
-<text x="1070" y="710" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="normal" fill="#555555" text-anchor="start">IMAGINATION · makes — holds no channel keys, never ships</text>
-<line x1="1066" y1="724" x2="1584" y2="724" stroke="#111111" stroke-width="1.5"/>
-<text x="1072" y="748" font-family="Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#ff2d2d" font-weight="bold">✦</tspan> <tspan font-weight="bold">Creative Director</tspan><tspan fill="#555555"> — concept &amp; guardrails</tspan></text>
-<text x="1072" y="769" font-family="Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#111111" font-weight="bold">○</tspan> <tspan font-weight="bold">Designer Producer</tspan><tspan fill="#555555"> — visual master-spec</tspan></text>
-<text x="1072" y="790" font-family="Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#111111" font-weight="bold">○</tspan> <tspan font-weight="bold">Copy Smith</tspan><tspan fill="#555555"> — copy &amp; SEO</tspan></text>
-<text x="1072" y="811" font-family="Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#111111" font-weight="bold">◇</tspan> <tspan font-weight="bold">Still Maker</tspan><tspan fill="#555555"> — Imagen 4.0 stills</tspan></text>
-<text x="1072" y="832" font-family="Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#111111" font-weight="bold">◇</tspan> <tspan font-weight="bold">Reel Maker</tspan><tspan fill="#555555"> — Veo 3.1 reels</tspan></text>
-<text x="1072" y="853" font-family="Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#555555" font-weight="bold">◌</tspan> <tspan font-weight="bold">Sound Maker</tspan><tspan fill="#555555"> — music · sfx · voice</tspan></text>
-<text x="1338" y="748" font-family="Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#111111" font-weight="bold">○</tspan> <tspan font-weight="bold">Brand Scorer</tspan><tspan fill="#555555"> — brand lens</tspan></text>
-<text x="1338" y="769" font-family="Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#111111" font-weight="bold">○</tspan> <tspan font-weight="bold">Voice Scorer</tspan><tspan fill="#555555"> — voice-tone lens</tspan></text>
-<text x="1338" y="790" font-family="Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#111111" font-weight="bold">○</tspan> <tspan font-weight="bold">Platform Scorer</tspan><tspan fill="#555555"> — platform-fit lens</tspan></text>
-<text x="1338" y="811" font-family="Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#111111" font-weight="bold">○</tspan> <tspan font-weight="bold">Edge Scorer</tspan><tspan fill="#555555"> — compliance edge</tspan></text>
-<text x="1338" y="832" font-family="Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#ff2d2d" font-weight="bold">✦</tspan> <tspan font-weight="bold">Compliance Gate</tspan><tspan fill="#555555"> — fail-closed gate</tspan></text>
-<rect x="1066" y="892" width="518" height="68" fill="#FFFFFF" stroke="#111111" stroke-width="2"/>
-<text x="1080" y="919" font-family="Helvetica, Arial, sans-serif" font-size="11.5" font-weight="bold" fill="#111111" text-anchor="start">brief → make (copy · Imagen · Veo) → 4-scorer fidelity ⟲ ≥8.5</text>
-<text x="1080" y="941" font-family="Helvetica, Arial, sans-serif" font-size="11.5" font-weight="bold" fill="#111111" text-anchor="start">→ ✦ compliance fail-closed → verbatim handoff to kural</text>
-<line x1="930" y1="400" x2="1050" y2="400" stroke="#111111" stroke-width="3" marker-end="url(#ah)"/>
-<text x="990.0" y="386" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="bold" fill="#111111" text-anchor="middle">grounds</text>
-<text x="990.0" y="418" font-family="Helvetica, Arial, sans-serif" font-size="10" font-weight="normal" fill="#555555" text-anchor="middle">cited facts</text>
-<line x1="1325" y1="580" x2="1325" y2="650" stroke="#111111" stroke-width="3" marker-end="url(#ah)"/>
-<rect x="1292.0" y="603.0" width="66" height="24" rx="12" fill="#111111"/>
-<text x="1325" y="619" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#FFFFFF" text-anchor="middle">TAP 1</text>
-<text x="1280" y="619" font-family="Helvetica, Arial, sans-serif" font-size="10.5" font-weight="normal" fill="#555555" text-anchor="end">founder approves the decision</text>
-<line x1="1050" y1="800" x2="930" y2="800" stroke="#111111" stroke-width="3" marker-end="url(#ah)"/>
-<text x="990.0" y="786" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="bold" fill="#111111" text-anchor="middle">verbatim master</text>
-<text x="990.0" y="818" font-family="Helvetica, Arial, sans-serif" font-size="10" font-weight="normal" fill="#555555" text-anchor="middle">byte-for-byte</text>
-<line x1="655" y1="650" x2="655" y2="580" stroke="#111111" stroke-width="3" marker-end="url(#ah)"/>
-<text x="669" y="619" font-family="Helvetica, Arial, sans-serif" font-size="10.5" font-weight="normal" fill="#555555" text-anchor="start">learns — outcome → new cited fact · pack ticks a version</text>
-<rect x="66" y="256" width="260" height="180" fill="#111111"/>
-<rect x="60" y="250" width="260" height="180" fill="#F4EEE2" stroke="#111111" stroke-width="3"/>
-<text x="80" y="280" font-family="Helvetica, Arial, sans-serif" font-size="15" font-weight="bold" fill="#111111" text-anchor="start">YOUR COMPANY</text>
-<text x="80" y="304" font-family="Helvetica, Arial, sans-serif" font-size="11.5" font-weight="normal" fill="#555555" text-anchor="start">GitHub repo — clone &amp; read</text>
-<text x="80" y="324" font-family="Helvetica, Arial, sans-serif" font-size="11.5" font-weight="normal" fill="#555555" text-anchor="start">website + docs — live fetch</text>
-<text x="80" y="344" font-family="Helvetica, Arial, sans-serif" font-size="11.5" font-weight="normal" fill="#555555" text-anchor="start">social profiles</text>
-<line x1="76" y1="358" x2="304" y2="358" stroke="#111111" stroke-width="1"/>
-<text x="80" y="380" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="start">ingested at connect · every fact</text>
-<text x="80" y="398" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="start">cited to its source — or rejected</text>
-<line x1="330" y1="340" x2="376" y2="340" stroke="#111111" stroke-width="3" marker-end="url(#ah)"/>
-<rect x="66" y="476" width="260" height="200" fill="#111111"/>
-<rect x="60" y="470" width="260" height="200" fill="#F4EEE2" stroke="#111111" stroke-width="3"/>
-<text x="80" y="500" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="bold" fill="#111111" text-anchor="start">WHO RUNS EACH SEAT</text>
-<text x="80" y="528" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="bold" fill="#111111" text-anchor="start">✦ Claude Sonnet 4.6 — 8 seats</text>
-<text x="94" y="544" font-family="Helvetica, Arial, sans-serif" font-size="10.5" font-weight="normal" fill="#555555" text-anchor="start">via Vertex AI Model Garden</text>
-<text x="80" y="566" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="bold" fill="#111111" text-anchor="start">○ Gemini — 24 seats</text>
-<text x="94" y="582" font-family="Helvetica, Arial, sans-serif" font-size="10.5" font-weight="normal" fill="#555555" text-anchor="start">3.1 Pro Preview · 3.5 Flash, on Vertex</text>
-<text x="80" y="604" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="bold" fill="#111111" text-anchor="start">◇ Vertex media — 2 (Imagen · Veo)</text>
-<text x="80" y="626" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="bold" fill="#111111" text-anchor="start">▪ deterministic code — 6</text>
-<text x="80" y="648" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="bold" fill="#555555" text-anchor="start">◌ planned — 2</text>
-<rect x="66" y="716" width="260" height="200" fill="#111111"/>
-<rect x="60" y="710" width="260" height="200" fill="#F4EEE2" stroke="#111111" stroke-width="3"/>
-<text x="80" y="740" font-family="Helvetica, Arial, sans-serif" font-size="15" font-weight="bold" fill="#111111" text-anchor="start">THE WORLD</text>
-<text x="80" y="764" font-family="Helvetica, Arial, sans-serif" font-size="11.5" font-weight="normal" fill="#555555" text-anchor="start">X · Instagram · LinkedIn · email</text>
-<text x="80" y="788" font-family="Helvetica, Arial, sans-serif" font-size="11.5" font-weight="normal" fill="#555555" text-anchor="start">consented outreach only</text>
-<line x1="76" y1="804" x2="304" y2="804" stroke="#111111" stroke-width="1"/>
-<text x="80" y="826" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="bold" fill="#111111" text-anchor="start">executor fires ONLY after TAP 2</text>
-<text x="80" y="844" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#111111" text-anchor="start">dry-run is the hardcoded default</text>
-<text x="80" y="862" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#555555" text-anchor="start">no auto-publish — the human gate</text>
-<text x="80" y="880" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#555555" text-anchor="start">is the point, not a limitation</text>
-<line x1="376" y1="790" x2="330" y2="790" stroke="#111111" stroke-width="3" marker-end="url(#ah)"/>
-<rect x="326.0" y="811.0" width="58" height="22" rx="12" fill="#111111"/>
-<text x="355" y="826" font-family="Helvetica, Arial, sans-serif" font-size="10.5" font-weight="bold" fill="#FFFFFF" text-anchor="middle">TAP 2</text>
-<rect x="66" y="1026" width="1540" height="180" fill="#111111"/>
-<rect x="60" y="1020" width="1540" height="180" fill="#F4EEE2" stroke="#111111" stroke-width="3"/>
-<text x="80" y="1050" font-family="Helvetica, Arial, sans-serif" font-size="15" font-weight="bold" fill="#111111" text-anchor="start">GOOGLE CLOUD — THE SUBSTRATE</text>
-<rect x="80" y="1064" width="240" height="118" fill="#FFFFFF" stroke="#111111" stroke-width="2"/>
-<text x="94" y="1088" font-family="Helvetica, Arial, sans-serif" font-size="11.5" font-weight="bold" fill="#111111" text-anchor="start">ADK (PYTHON)</text>
-<text x="94" y="1110" font-family="Helvetica, Arial, sans-serif" font-size="10.5" font-weight="normal" fill="#555555" text-anchor="start">Sequential · Parallel · Loop</text>
-<text x="94" y="1128" font-family="Helvetica, Arial, sans-serif" font-size="10.5" font-weight="normal" fill="#555555" text-anchor="start">escalate on numeric thresholds</text>
-<text x="94" y="1146" font-family="Helvetica, Arial, sans-serif" font-size="10.5" font-weight="normal" fill="#555555" text-anchor="start">ChamberSpec — deliberation</text>
-<text x="94" y="1164" font-family="Helvetica, Arial, sans-serif" font-size="10.5" font-weight="normal" fill="#555555" text-anchor="start">built once · evalsets @0.8</text>
-<rect x="332" y="1064" width="240" height="118" fill="#FFFFFF" stroke="#111111" stroke-width="2"/>
-<text x="346" y="1088" font-family="Helvetica, Arial, sans-serif" font-size="11.5" font-weight="bold" fill="#111111" text-anchor="start">VERTEX AI · MODELS</text>
-<text x="346" y="1110" font-family="Helvetica, Arial, sans-serif" font-size="10.5" font-weight="normal" fill="#555555" text-anchor="start">Gemini 3.1 Pro Preview</text>
-<text x="346" y="1128" font-family="Helvetica, Arial, sans-serif" font-size="10.5" font-weight="normal" fill="#555555" text-anchor="start">Gemini 3.5 Flash</text>
-<text x="346" y="1146" font-family="Helvetica, Arial, sans-serif" font-size="10.5" font-weight="normal" fill="#555555" text-anchor="start">✦ Claude Sonnet 4.6</text>
-<text x="346" y="1164" font-family="Helvetica, Arial, sans-serif" font-size="10.5" font-weight="normal" fill="#555555" text-anchor="start">via Model Garden</text>
-<rect x="584" y="1064" width="240" height="118" fill="#FFFFFF" stroke="#111111" stroke-width="2"/>
-<text x="598" y="1088" font-family="Helvetica, Arial, sans-serif" font-size="11.5" font-weight="bold" fill="#111111" text-anchor="start">VERTEX AI · MEDIA</text>
-<text x="598" y="1110" font-family="Helvetica, Arial, sans-serif" font-size="10.5" font-weight="normal" fill="#555555" text-anchor="start">Imagen 4.0 — live renders</text>
-<text x="598" y="1128" font-family="Helvetica, Arial, sans-serif" font-size="10.5" font-weight="normal" fill="#555555" text-anchor="start">Veo 3.1 — wrapper shipped</text>
-<text x="598" y="1146" font-family="Helvetica, Arial, sans-serif" font-size="10.5" font-weight="normal" fill="#555555" text-anchor="start">Gemini Live — witness voice</text>
-<rect x="836" y="1064" width="240" height="118" fill="#FFFFFF" stroke="#111111" stroke-width="2"/>
-<text x="850" y="1088" font-family="Helvetica, Arial, sans-serif" font-size="11.5" font-weight="bold" fill="#111111" text-anchor="start">CLOUD RUN</text>
-<text x="850" y="1110" font-family="Helvetica, Arial, sans-serif" font-size="10.5" font-weight="normal" fill="#555555" text-anchor="start">one FastAPI service</text>
-<text x="850" y="1128" font-family="Helvetica, Arial, sans-serif" font-size="10.5" font-weight="normal" fill="#555555" text-anchor="start">us-central1</text>
-<text x="850" y="1146" font-family="Helvetica, Arial, sans-serif" font-size="10.5" font-weight="normal" fill="#555555" text-anchor="start">live at saakshe.com</text>
-<rect x="1088" y="1064" width="240" height="118" fill="#FFFFFF" stroke="#111111" stroke-width="2"/>
-<text x="1102" y="1088" font-family="Helvetica, Arial, sans-serif" font-size="11.5" font-weight="bold" fill="#111111" text-anchor="start">OBSERVABILITY</text>
-<text x="1102" y="1110" font-family="Helvetica, Arial, sans-serif" font-size="10.5" font-weight="normal" fill="#555555" text-anchor="start">OTel spans on every seat</text>
-<text x="1102" y="1128" font-family="Helvetica, Arial, sans-serif" font-size="10.5" font-weight="normal" fill="#555555" text-anchor="start">ordered agent_events stream</text>
-<text x="1102" y="1146" font-family="Helvetica, Arial, sans-serif" font-size="10.5" font-weight="normal" fill="#555555" text-anchor="start">live-metered cost → witness</text>
-<rect x="1340" y="1064" width="240" height="118" fill="#FFFFFF" stroke="#111111" stroke-width="2"/>
-<text x="1354" y="1088" font-family="Helvetica, Arial, sans-serif" font-size="11.5" font-weight="bold" fill="#111111" text-anchor="start">SUPABASE + INTEROP</text>
-<text x="1354" y="1110" font-family="Helvetica, Arial, sans-serif" font-size="10.5" font-weight="normal" fill="#555555" text-anchor="start">auth · Postgres (RLS) · vault</text>
-<text x="1354" y="1128" font-family="Helvetica, Arial, sans-serif" font-size="10.5" font-weight="normal" fill="#555555" text-anchor="start">A2A agent card per realm</text>
-<text x="1354" y="1146" font-family="Helvetica, Arial, sans-serif" font-size="10.5" font-weight="normal" fill="#555555" text-anchor="start">MCP client for live tools</text>
-<rect x="66" y="1234" width="1540" height="50" fill="#111111"/>
-<rect x="60" y="1228" width="1540" height="50" fill="#F4EEE2" stroke="#111111" stroke-width="3"/>
-<text x="80" y="1259" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#111111"><tspan font-weight="bold">MODES — </tspan><tspan font-weight="bold">demo:</tspan> deterministic, creds-free (judges &amp; CI run the same day)  ·  <tspan font-weight="bold">hybrid (prod today):</tspan> every seat live, Claude seats on a Gemini understudy  ·  <tspan font-weight="bold">live:</tspan> Claude seated via Model Garden — one env flip</text>
-<text x="60" y="1310" font-family="Helvetica, Arial, sans-serif" font-size="11.5" font-weight="normal" fill="#555555" text-anchor="start">manas 10 · arivu 10 · kalai 11 · kural 11 = 42 agents — the witness is never counted · 2 human gates · ~500 tests run creds-free · built solo, net-new, during the contest</text>
+<rect x="0" y="0" width="1860" height="1300" fill="#F4EEE2"/>
+<text x="60" y="56" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="15" font-weight="bold" fill="#111111" text-anchor="start" letter-spacing="6">SΛΛKSHE</text>
+<text x="60" y="96" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="30" font-weight="bold" fill="#111111" text-anchor="start">ARCHITECTURE — WITNESSING AGENTS</text>
+<rect x="1750" y="30" width="64" height="64" rx="15" fill="#111111"/>
+<rect x="1746" y="26" width="64" height="64" rx="15" fill="#141118" stroke="#111111" stroke-width="3"/>
+<polygon points="1762.6,38.8 1772.2,56.699999999999996 1766.824,56.699999999999996 1762.6,46.138999999999996 1758.376,56.699999999999996 1753,56.699999999999996" fill="#F4EEE2"/>
+<polygon points="1793.3999999999999,38.8 1803.0,56.699999999999996 1797.624,56.699999999999996 1793.3999999999999,46.138999999999996 1789.176,56.699999999999996 1783.8,56.699999999999996" fill="#F4EEE2"/>
+<rect x="1767.1" y="69.4" width="21.8" height="5.8" rx="2.4" fill="#F4EEE2"/>
+<rect x="287" y="147" width="535" height="330" rx="22" fill="#e3a200"/>
+<rect x="280" y="140" width="535" height="330" rx="22" fill="#FFFFFF" stroke="#111111" stroke-width="3"/>
+<text x="306" y="188" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="24" font-weight="bold" fill="#111111" text-anchor="start">manas</text>
+<text x="789" y="192" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="42" font-weight="normal" fill="#111111" text-anchor="end" letter-spacing="2">MEMORY</text>
+<line x1="300" y1="210" x2="795" y2="210" stroke="#111111" stroke-width="1.5"/>
+<text x="304" y="238" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#111111" font-weight="bold">○</tspan> <tspan font-weight="bold">Mind Keeper</tspan><tspan fill="#555555"> — ingest coordinator</tspan></text>
+<text x="304" y="259" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#111111" font-weight="bold">○</tspan> <tspan font-weight="bold">Repo Reader</tspan><tspan fill="#555555"> — repo imbiber</tspan></text>
+<text x="304" y="280" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#111111" font-weight="bold">○</tspan> <tspan font-weight="bold">Web Reader</tspan><tspan fill="#555555"> — website imbiber</tspan></text>
+<text x="304" y="301" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#111111" font-weight="bold">○</tspan> <tspan font-weight="bold">Docs Reader</tspan><tspan fill="#555555"> — docs imbiber</tspan></text>
+<text x="304" y="322" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#111111" font-weight="bold">○</tspan> <tspan font-weight="bold">Social Reader</tspan><tspan fill="#555555"> — social imbiber</tspan></text>
+<text x="304" y="343" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#555555" font-weight="bold">◌</tspan> <tspan font-weight="bold">Media Reader</tspan><tspan fill="#555555"> — pdf · video · image</tspan></text>
+<text x="570" y="238" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#e3a200" font-weight="bold">✦</tspan> <tspan font-weight="bold">Memory Curator</tspan><tspan fill="#555555"> — the verify gate</tspan></text>
+<text x="570" y="259" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#e3a200" font-weight="bold">✦</tspan> <tspan font-weight="bold">Founder Voice</tspan><tspan fill="#555555"> — grounded answers</tspan></text>
+<text x="570" y="280" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#111111" font-weight="bold">▪</tspan> <tspan font-weight="bold">Asset Keeper</tspan><tspan fill="#555555"> — brand vault</tspan></text>
+<text x="570" y="301" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#111111" font-weight="bold">▪</tspan> <tspan font-weight="bold">Pack Binder</tspan><tspan fill="#555555"> — pack versions</tspan></text>
+<circle cx="588.3285906467273" cy="374.017681775341" r="7.084175887423213" fill="#e3a200"/>
+<circle cx="628.7250357616131" cy="378.4507245747044" r="6.980348871742258" fill="#e3a200"/>
+<circle cx="696.8729084414322" cy="378.08551827423923" r="5.630922797793455" fill="#e3a200"/>
+<circle cx="739.1309390227023" cy="370.061709822535" r="6.604462435544129" fill="#e3a200"/>
+<circle cx="572.616970712859" cy="397.177835453552" r="7.189065468035922" fill="#e3a200"/>
+<circle cx="644.8845741864335" cy="403.6231647747614" r="7.769117054524495" fill="#e3a200"/>
+<circle cx="684.1620214173071" cy="399.8782548867467" r="8.167591634574684" fill="#e3a200"/>
+<circle cx="756.9739185218302" cy="398.1945925895147" r="7.154760461461069" fill="#e3a200"/>
+<circle cx="578.952422837249" cy="429.1841771539696" r="7.025339160178729" fill="#e3a200"/>
+<circle cx="635.1647879163743" cy="425.9994027056942" r="5.53871947217869" fill="#e3a200"/>
+<text x="306" y="442" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#555555" text-anchor="start" font-style="italic">no citation, no fact</text>
+<rect x="1052" y="147" width="535" height="330" rx="22" fill="#0a39ff"/>
+<rect x="1045" y="140" width="535" height="330" rx="22" fill="#FFFFFF" stroke="#111111" stroke-width="3"/>
+<text x="1071" y="188" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="24" font-weight="bold" fill="#111111" text-anchor="start">arivu</text>
+<text x="1554" y="192" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="42" font-weight="normal" fill="#111111" text-anchor="end" letter-spacing="2">INTELLECT</text>
+<line x1="1065" y1="210" x2="1560" y2="210" stroke="#111111" stroke-width="1.5"/>
+<text x="1069" y="238" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#111111" font-weight="bold">○</tspan> <tspan font-weight="bold">Chair</tspan><tspan fill="#555555"> — chamber framer</tspan></text>
+<text x="1069" y="259" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#111111" font-weight="bold">○</tspan> <tspan font-weight="bold">Economist</tspan><tspan fill="#555555"> — unit economics</tspan></text>
+<text x="1069" y="280" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#111111" font-weight="bold">○</tspan> <tspan font-weight="bold">Growth Advocate</tspan><tspan fill="#555555"> — acquisition</tspan></text>
+<text x="1069" y="301" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#111111" font-weight="bold">○</tspan> <tspan font-weight="bold">Brand Guardian</tspan><tspan fill="#555555"> — canon &amp; promises</tspan></text>
+<text x="1069" y="322" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#111111" font-weight="bold">○</tspan> <tspan font-weight="bold">Risk Advocate</tspan><tspan fill="#555555"> — downside first</tspan></text>
+<text x="1069" y="343" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#111111" font-weight="bold">○</tspan> <tspan font-weight="bold">Ops Mantri</tspan><tspan fill="#555555"> — can we ship this</tspan></text>
+<text x="1335" y="238" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#111111" font-weight="bold">○</tspan> <tspan font-weight="bold">Debate Moderator</tspan><tspan fill="#555555"> — convergence</tspan></text>
+<text x="1335" y="259" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#0a39ff" font-weight="bold">✦</tspan> <tspan font-weight="bold">Verdict Chair</tspan><tspan fill="#555555"> — the verdict</tspan></text>
+<text x="1335" y="280" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#0a39ff" font-weight="bold">✦</tspan> <tspan font-weight="bold">Prosecutor</tspan><tspan fill="#555555"> — cross-examines</tspan></text>
+<text x="1335" y="301" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#111111" font-weight="bold">▪</tspan> <tspan font-weight="bold">Executor</tspan><tspan fill="#555555"> — approved dispatch</tspan></text>
+<polygon points="1347.4382121338197,357.7625085134184 1356.458692709805,366.7829890894037 1347.4382121338197,375.803469665389 1338.4177315578343,366.7829890894037" fill="#0a39ff"/>
+<polygon points="1407.947507973283,360.4929863332956 1416.4057837080088,368.95126206802126 1407.947507973283,377.4095378027469 1399.4892322385574,368.95126206802126" fill="#0a39ff"/>
+<polygon points="1451.5657555313462,363.11236495992483 1458.9548900120126,370.5014994405912 1451.5657555313462,377.8906339212576 1444.1766210506798,370.5014994405912" fill="#0a39ff"/>
+<polygon points="1510.9613050192636,357.59746606442644 1519.2924776099253,365.92863865508804 1510.9613050192636,374.25981124574963 1502.6301324286019,365.92863865508804" fill="#0a39ff"/>
+<polygon points="1354.7680207009985,393.4111309585438 1363.2316080596713,401.8747183172167 1354.7680207009985,410.3383056758896 1346.3044333423256,401.8747183172167" fill="#0a39ff"/>
+<polygon points="1404.028816083561,392.7600995342744 1410.820240989067,399.55152443978045 1404.028816083561,406.3429493452865 1397.2373911780548,399.55152443978045" fill="#0a39ff"/>
+<polygon points="1464.5420822669635,393.0366463957992 1471.0498409722106,399.5444051010465 1464.5420822669635,406.0521638062938 1458.0343235617163,399.5444051010465" fill="#0a39ff"/>
+<polygon points="1514.2537316816101,392.29579853832405 1522.5394063857566,400.58147324247045 1514.2537316816101,408.86714794661685 1505.9680569774637,400.58147324247045" fill="#0a39ff"/>
+<polygon points="1351.3706461157128,427.3472825120231 1358.2476832907687,434.224319687079 1351.3706461157128,441.1013568621349 1344.493608940657,434.224319687079" fill="#0a39ff"/>
+<polygon points="1405.051818493942,420.08262932784004 1413.2314957564467,428.2623065903449 1405.051818493942,436.4419838528498 1396.8721412314371,428.2623065903449" fill="#0a39ff"/>
+<text x="1071" y="442" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#555555" text-anchor="start" font-style="italic">debate → verdict → prosecutor → gate 1</text>
+<rect x="287" y="707" width="535" height="330" rx="22" fill="#00a86b"/>
+<rect x="280" y="700" width="535" height="330" rx="22" fill="#FFFFFF" stroke="#111111" stroke-width="3"/>
+<text x="306" y="748" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="24" font-weight="bold" fill="#111111" text-anchor="start">kural</text>
+<text x="789" y="752" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="42" font-weight="normal" fill="#111111" text-anchor="end" letter-spacing="2">COMMUNICATION</text>
+<line x1="300" y1="770" x2="795" y2="770" stroke="#111111" stroke-width="1.5"/>
+<text x="304" y="798" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#00a86b" font-weight="bold">✦</tspan> <tspan font-weight="bold">Envoy Lead</tspan><tspan fill="#555555"> — qualifies</tspan></text>
+<text x="304" y="819" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#111111" font-weight="bold">○</tspan> <tspan font-weight="bold">Prospect Scout</tspan><tspan fill="#555555"> — finds audiences</tspan></text>
+<text x="304" y="840" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#111111" font-weight="bold">○</tspan> <tspan font-weight="bold">Market Watcher</tspan><tspan fill="#555555"> — feeds · rivals</tspan></text>
+<text x="304" y="861" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#111111" font-weight="bold">○</tspan> <tspan font-weight="bold">Consent Reader</tspan><tspan fill="#555555"> — consent lens</tspan></text>
+<text x="304" y="882" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#111111" font-weight="bold">○</tspan> <tspan font-weight="bold">Reach Reader</tspan><tspan fill="#555555"> — reachable audience</tspan></text>
+<text x="304" y="903" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#111111" font-weight="bold">○</tspan> <tspan font-weight="bold">Topic Reader</tspan><tspan fill="#555555"> — topic fit</tspan></text>
+<text x="570" y="798" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#111111" font-weight="bold">○</tspan> <tspan font-weight="bold">Timing Reader</tspan><tspan fill="#555555"> — open windows</tspan></text>
+<text x="570" y="819" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#00a86b" font-weight="bold">✦</tspan> <tspan font-weight="bold">Delivery Planner</tspan><tspan fill="#555555"> — picks the plan</tspan></text>
+<text x="570" y="840" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#111111" font-weight="bold">▪</tspan> <tspan font-weight="bold">Email Envoy</tspan><tspan fill="#555555"> — consented outreach</tspan></text>
+<text x="570" y="861" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#111111" font-weight="bold">▪</tspan> <tspan font-weight="bold">Channel Mouth</tspan><tspan fill="#555555"> — the publisher</tspan></text>
+<text x="570" y="882" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#111111" font-weight="bold">▪</tspan> <tspan font-weight="bold">Send Gate</tspan><tspan fill="#555555"> — send eligibility</tspan></text>
+<rect x="569.7943802283273" y="927.1173337162749" width="12.375202070582567" height="12.375202070582567" rx="2" fill="#00a86b"/>
+<rect x="625.1423907167017" y="919.5600457621542" width="13.312835785495427" height="13.312835785495427" rx="2" fill="#00a86b"/>
+<rect x="681.1062173617581" y="920.8488733691225" width="11.90623200458251" height="11.90623200458251" rx="2" fill="#00a86b"/>
+<rect x="744.3754179521046" y="925.3820323183459" width="12.886579908750877" height="12.886579908750877" rx="2" fill="#00a86b"/>
+<rect x="576.2262342524932" y="950.5116826097149" width="12.266914045851163" height="12.266914045851163" rx="2" fill="#00a86b"/>
+<rect x="631.1716838731904" y="957.2389533358787" width="9.634001025268493" height="9.634001025268493" rx="2" fill="#00a86b"/>
+<rect x="694.2264699497072" y="960.986834196373" width="10.194759185830637" height="10.194759185830637" rx="2" fill="#00a86b"/>
+<rect x="736.8083975764181" y="949.0599875199382" width="13.581126280351942" height="13.581126280351942" rx="2" fill="#00a86b"/>
+<rect x="579.5668849649484" y="983.3783582953032" width="10.805485808373009" height="10.805485808373009" rx="2" fill="#00a86b"/>
+<rect x="628.2100916716579" y="978.5281597030385" width="14.171018448680005" height="14.171018448680005" rx="2" fill="#00a86b"/>
+<rect x="686.9606104567512" y="979.0103669634475" width="12.45720378202313" height="12.45720378202313" rx="2" fill="#00a86b"/>
+<text x="306" y="1002" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#555555" text-anchor="start" font-style="italic">delivers verbatim → gate 2 → publish</text>
+<rect x="1052" y="707" width="535" height="330" rx="22" fill="#ff2d2d"/>
+<rect x="1045" y="700" width="535" height="330" rx="22" fill="#FFFFFF" stroke="#111111" stroke-width="3"/>
+<text x="1071" y="748" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="24" font-weight="bold" fill="#111111" text-anchor="start">kalai</text>
+<text x="1554" y="752" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="42" font-weight="normal" fill="#111111" text-anchor="end" letter-spacing="2">IMAGINATION</text>
+<line x1="1065" y1="770" x2="1560" y2="770" stroke="#111111" stroke-width="1.5"/>
+<text x="1069" y="798" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#ff2d2d" font-weight="bold">✦</tspan> <tspan font-weight="bold">Creative Director</tspan><tspan fill="#555555"> — the brief</tspan></text>
+<text x="1069" y="819" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#111111" font-weight="bold">○</tspan> <tspan font-weight="bold">Designer Producer</tspan><tspan fill="#555555"> — visual specs</tspan></text>
+<text x="1069" y="840" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#111111" font-weight="bold">○</tspan> <tspan font-weight="bold">Copy Smith</tspan><tspan fill="#555555"> — copy &amp; SEO</tspan></text>
+<text x="1069" y="861" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#111111" font-weight="bold">◇</tspan> <tspan font-weight="bold">Still Maker</tspan><tspan fill="#555555"> — Imagen 4.0 stills</tspan></text>
+<text x="1069" y="882" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#111111" font-weight="bold">◇</tspan> <tspan font-weight="bold">Reel Maker</tspan><tspan fill="#555555"> — Veo 3.1 reels</tspan></text>
+<text x="1069" y="903" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#555555" font-weight="bold">◌</tspan> <tspan font-weight="bold">Sound Maker</tspan><tspan fill="#555555"> — music · sfx · voice</tspan></text>
+<text x="1335" y="798" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#111111" font-weight="bold">○</tspan> <tspan font-weight="bold">Brand Scorer</tspan><tspan fill="#555555"> — brand lens</tspan></text>
+<text x="1335" y="819" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#111111" font-weight="bold">○</tspan> <tspan font-weight="bold">Voice Scorer</tspan><tspan fill="#555555"> — voice-tone lens</tspan></text>
+<text x="1335" y="840" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#111111" font-weight="bold">○</tspan> <tspan font-weight="bold">Platform Scorer</tspan><tspan fill="#555555"> — platform fit</tspan></text>
+<text x="1335" y="861" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#111111" font-weight="bold">○</tspan> <tspan font-weight="bold">Edge Scorer</tspan><tspan fill="#555555"> — compliance edge</tspan></text>
+<text x="1335" y="882" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" fill="#111111"><tspan fill="#ff2d2d" font-weight="bold">✦</tspan> <tspan font-weight="bold">Compliance Gate</tspan><tspan fill="#555555"> — fail-closed</tspan></text>
+<polygon points="1350.0586935150359,929.2757923737682 1357.3005158038588,942.7605649115766 1342.816871226213,942.7605649115766" fill="#ff2d2d"/>
+<polygon points="1409.0987118121068,926.782614651418 1417.2596040008002,941.9787587269163 1400.9378196234134,941.9787587269163" fill="#ff2d2d"/>
+<polygon points="1452.1045880361046,931.5806446131726 1458.8373342570605,944.117482403918 1445.3718418151486,944.117482403918" fill="#ff2d2d"/>
+<polygon points="1514.2842654395079,921.4597469690541 1522.9323444069762,937.5630664257194 1505.6361864720395,937.5630664257194" fill="#ff2d2d"/>
+<polygon points="1335.5852309555912,952.2229537660044 1342.4418726554245,964.9904934829352 1328.728589255758,964.9904934829352" fill="#ff2d2d"/>
+<polygon points="1393.7787158763517,954.4300651268849 1401.7179828476958,969.2135277631807 1385.8394489050077,969.2135277631807" fill="#ff2d2d"/>
+<polygon points="1454.6034376515952,960.1250145183561 1461.2850795594975,972.5666925537603 1447.9217957436929,972.5666925537603" fill="#ff2d2d"/>
+<polygon points="1511.2820756774393,957.946415543371 1518.2250438818198,970.8747011653209 1504.3391074730587,970.8747011653209" fill="#ff2d2d"/>
+<polygon points="1337.5589838349006,988.9404102496984 1345.728385870238,1004.1524002465338 1329.389581799563,1004.1524002465338" fill="#ff2d2d"/>
+<polygon points="1391.024415411152,988.3366768345956 1397.517555048244,1000.4273506415946 1384.5312757740598,1000.4273506415946" fill="#ff2d2d"/>
+<polygon points="1462.6345212420174,988.829079364556 1468.7009815027395,1000.1252467465903 1456.5680609812953,1000.1252467465903" fill="#ff2d2d"/>
+<text x="1071" y="1002" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#555555" text-anchor="start" font-style="italic">fail-closed compliance before handoff</text>
+<line x1="857.0" y1="511.0" x2="793" y2="458" stroke="#111111" stroke-width="2.2" stroke-dasharray="4,5"/>
+<circle cx="793" cy="458" r="3.4" fill="#111111"/>
+<line x1="1003.0" y1="511.0" x2="1067" y2="458" stroke="#111111" stroke-width="2.2" stroke-dasharray="4,5"/>
+<circle cx="1067" cy="458" r="3.4" fill="#111111"/>
+<line x1="857.0" y1="659.0" x2="793" y2="712" stroke="#111111" stroke-width="2.2" stroke-dasharray="4,5"/>
+<circle cx="793" cy="712" r="3.4" fill="#111111"/>
+<line x1="1003.0" y1="659.0" x2="1067" y2="712" stroke="#111111" stroke-width="2.2" stroke-dasharray="4,5"/>
+<circle cx="1067" cy="712" r="3.4" fill="#111111"/>
+<rect x="852.0" y="512.0" width="170" height="160" rx="26" fill="#111111"/>
+<rect x="845.0" y="505.0" width="170" height="160" rx="26" fill="#141118" stroke="#111111" stroke-width="3"/>
+<polygon points="920.0,527.0 927,540.0 923.08,540.0 920.0,532.33 916.92,540.0 913,540.0" fill="#F4EEE2"/>
+<polygon points="940.0,527.0 947,540.0 943.08,540.0 940.0,532.33 936.92,540.0 933,540.0" fill="#F4EEE2"/>
+<text x="930" y="567.0" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" font-weight="bold" fill="#FFFFFF" text-anchor="middle" letter-spacing="3">SΛΛKSHE</text>
+<text x="930" y="585.0" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="10.5" font-weight="normal" fill="#cfcabf" text-anchor="middle">the witness</text>
+<rect x="884" y="601.0" width="32" height="21" rx="7" fill="#F4EEE2"/>
+<path d="M 892 621.0 l 4 8 l 7 -8 z" fill="#F4EEE2"/>
+<circle cx="893" cy="611.5" r="1.8" fill="#141118"/>
+<circle cx="900" cy="611.5" r="1.8" fill="#141118"/>
+<circle cx="907" cy="611.5" r="1.8" fill="#141118"/>
+<rect x="954" y="597.0" width="13" height="19" rx="6.5" fill="#F4EEE2"/>
+<path d="M 948.5 610.0 a 12 12 0 0 0 24 0" fill="none" stroke="#F4EEE2" stroke-width="2.6" stroke-linecap="round"/>
+<line x1="960.5" y1="622.5" x2="960.5" y2="628.0" stroke="#F4EEE2" stroke-width="2.6" stroke-linecap="round"/>
+<line x1="953" y1="628.0" x2="968" y2="628.0" stroke="#F4EEE2" stroke-width="2.6" stroke-linecap="round"/>
+<text x="930" y="651.0" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="10" font-weight="normal" fill="#cfcabf" text-anchor="middle">chat · voice</text>
+<line x1="823" y1="305" x2="1037" y2="305" stroke="#111111" stroke-width="3" marker-end="url(#ah)"/>
+<text x="930" y="289" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="bold" fill="#111111" text-anchor="middle">grounds</text>
+<text x="930" y="327" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="10" font-weight="normal" fill="#555555" text-anchor="middle">cited facts</text>
+<line x1="1315" y1="478" x2="1315" y2="692" stroke="#111111" stroke-width="3" marker-end="url(#ah)"/>
+<rect x="1281.0" y="573.0" width="68" height="24" rx="12.0" fill="#111111"/>
+<text x="1315" y="589" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#FFFFFF" text-anchor="middle">TAP 1</text>
+<text x="1269" y="589" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="10.5" font-weight="normal" fill="#555555" text-anchor="end">founder approves the decision</text>
+<line x1="1037" y1="865" x2="823" y2="865" stroke="#111111" stroke-width="3" marker-end="url(#ah)"/>
+<text x="930" y="849" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="bold" fill="#111111" text-anchor="middle">verbatim master</text>
+<text x="930" y="887" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="10" font-weight="normal" fill="#555555" text-anchor="middle">byte-for-byte</text>
+<line x1="550" y1="692" x2="550" y2="478" stroke="#111111" stroke-width="3" marker-end="url(#ah)"/>
+<text x="596" y="589" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="10.5" font-weight="normal" fill="#555555" text-anchor="start">learns — outcome → new cited fact</text>
+<rect x="46" y="186" width="200" height="250" rx="18" fill="#111111"/>
+<rect x="40" y="180" width="200" height="250" rx="18" fill="#F4EEE2" stroke="#111111" stroke-width="2.5"/>
+<text x="62" y="216" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" font-weight="bold" fill="#111111" text-anchor="start">YOUR COMPANY</text>
+<text x="62" y="246" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="normal" fill="#555555" text-anchor="start">GitHub repo</text>
+<text x="62" y="268" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="normal" fill="#555555" text-anchor="start">website · docs</text>
+<text x="62" y="290" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="normal" fill="#555555" text-anchor="start">social profiles</text>
+<line x1="58" y1="299" x2="222" y2="299" stroke="#111111" stroke-width="1"/>
+<text x="62" y="316" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="bold" fill="#111111" text-anchor="start">read at connect</text>
+<text x="62" y="338" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="bold" fill="#111111" text-anchor="start">every fact cited</text>
+<line x1="248" y1="305" x2="272" y2="305" stroke="#111111" stroke-width="3" marker-end="url(#ah)"/>
+<rect x="1626" y="186" width="200" height="250" rx="18" fill="#111111"/>
+<rect x="1620" y="180" width="200" height="250" rx="18" fill="#F4EEE2" stroke="#111111" stroke-width="2.5"/>
+<text x="1642" y="216" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" font-weight="bold" fill="#111111" text-anchor="start">THE FOUNDER</text>
+<text x="1642" y="246" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="normal" fill="#555555" text-anchor="start">one human</text>
+<text x="1642" y="268" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="normal" fill="#555555" text-anchor="start">two taps a day</text>
+<line x1="1638" y1="277" x2="1802" y2="277" stroke="#111111" stroke-width="1"/>
+<text x="1642" y="294" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="bold" fill="#111111" text-anchor="start">TAP 1 — approves</text>
+<text x="1642" y="316" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="normal" fill="#555555" text-anchor="start">every decision</text>
+<text x="1642" y="338" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="bold" fill="#111111" text-anchor="start">TAP 2 — approves</text>
+<text x="1642" y="360" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="normal" fill="#555555" text-anchor="start">every publish</text>
+<line x1="1612" y1="305" x2="1592" y2="305" stroke="#111111" stroke-width="3" marker-end="url(#ah)"/>
+<rect x="46" y="746" width="200" height="250" rx="18" fill="#111111"/>
+<rect x="40" y="740" width="200" height="250" rx="18" fill="#F4EEE2" stroke="#111111" stroke-width="2.5"/>
+<text x="62" y="776" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" font-weight="bold" fill="#111111" text-anchor="start">THE WORLD</text>
+<text x="62" y="806" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="normal" fill="#555555" text-anchor="start">X · Instagram</text>
+<text x="62" y="828" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="normal" fill="#555555" text-anchor="start">LinkedIn · email</text>
+<line x1="58" y1="837" x2="222" y2="837" stroke="#111111" stroke-width="1"/>
+<text x="62" y="854" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="bold" fill="#111111" text-anchor="start">opens after TAP 2</text>
+<text x="62" y="876" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="bold" fill="#111111" text-anchor="start">dry-run by default</text>
+<text x="62" y="898" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="normal" fill="#555555" text-anchor="start">never auto-posts</text>
+<line x1="276" y1="865" x2="252" y2="865" stroke="#111111" stroke-width="3" marker-end="url(#ah)"/>
+<text x="261" y="850" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="middle">TAP 2</text>
+<rect x="1626" y="746" width="200" height="250" rx="18" fill="#111111"/>
+<rect x="1620" y="740" width="200" height="250" rx="18" fill="#F4EEE2" stroke="#111111" stroke-width="2.5"/>
+<text x="1642" y="776" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="14" font-weight="bold" fill="#111111" text-anchor="start">MEDIA ENGINES</text>
+<text x="1642" y="806" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="normal" fill="#555555" text-anchor="start">Imagen 4.0 — stills</text>
+<text x="1642" y="828" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="normal" fill="#555555" text-anchor="start">Veo 3.1 — reels</text>
+<text x="1642" y="850" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="normal" fill="#555555" text-anchor="start">brand vault assets</text>
+<line x1="1638" y1="859" x2="1802" y2="859" stroke="#111111" stroke-width="1"/>
+<text x="1642" y="876" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="bold" fill="#111111" text-anchor="start">bring your own</text>
+<text x="1642" y="898" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="bold" fill="#111111" text-anchor="start">keys, roadmap</text>
+<line x1="1612" y1="865" x2="1592" y2="865" stroke="#111111" stroke-width="3" marker-end="url(#ah)"/>
+<rect x="47" y="1087" width="1780" height="150" rx="22" fill="#111111"/>
+<rect x="40" y="1080" width="1780" height="150" rx="22" fill="#F4EEE2" stroke="#111111" stroke-width="3"/>
+<text x="66" y="1112" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="15" font-weight="bold" fill="#111111" text-anchor="start" letter-spacing="1">GOOGLE CLOUD — THE SUBSTRATE</text>
+<rect x="64" y="1126" width="278" height="86" rx="14" fill="#FFFFFF" stroke="#111111" stroke-width="2"/>
+<text x="82" y="1152" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#111111" text-anchor="start">ADK · PYTHON</text>
+<text x="82" y="1174" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" font-weight="normal" fill="#555555" text-anchor="start">Sequential · Parallel · Loop</text>
+<text x="82" y="1193" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" font-weight="normal" fill="#555555" text-anchor="start">one chamber primitive</text>
+<rect x="356" y="1126" width="278" height="86" rx="14" fill="#FFFFFF" stroke="#111111" stroke-width="2"/>
+<text x="374" y="1152" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#111111" text-anchor="start">VERTEX AI</text>
+<text x="374" y="1174" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" font-weight="normal" fill="#555555" text-anchor="start">Gemini 3.1 Pro · 3.5 Flash</text>
+<text x="374" y="1193" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" font-weight="normal" fill="#555555" text-anchor="start">Claude Sonnet 4.6 · Garden</text>
+<rect x="648" y="1126" width="278" height="86" rx="14" fill="#FFFFFF" stroke="#111111" stroke-width="2"/>
+<text x="666" y="1152" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#111111" text-anchor="start">MEDIA</text>
+<text x="666" y="1174" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" font-weight="normal" fill="#555555" text-anchor="start">Imagen 4.0 · Veo 3.1</text>
+<text x="666" y="1193" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" font-weight="normal" fill="#555555" text-anchor="start">Gemini Live — voice</text>
+<rect x="940" y="1126" width="278" height="86" rx="14" fill="#FFFFFF" stroke="#111111" stroke-width="2"/>
+<text x="958" y="1152" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#111111" text-anchor="start">CLOUD RUN</text>
+<text x="958" y="1174" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" font-weight="normal" fill="#555555" text-anchor="start">one service · us-central1</text>
+<text x="958" y="1193" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" font-weight="normal" fill="#555555" text-anchor="start">live at saakshe.com</text>
+<rect x="1232" y="1126" width="278" height="86" rx="14" fill="#FFFFFF" stroke="#111111" stroke-width="2"/>
+<text x="1250" y="1152" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#111111" text-anchor="start">OBSERVABILITY</text>
+<text x="1250" y="1174" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" font-weight="normal" fill="#555555" text-anchor="start">OTel traces · event stream</text>
+<text x="1250" y="1193" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" font-weight="normal" fill="#555555" text-anchor="start">live-metered cost</text>
+<rect x="1524" y="1126" width="278" height="86" rx="14" fill="#FFFFFF" stroke="#111111" stroke-width="2"/>
+<text x="1542" y="1152" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="bold" fill="#111111" text-anchor="start">SUPABASE + A2A</text>
+<text x="1542" y="1174" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" font-weight="normal" fill="#555555" text-anchor="start">auth · store · vault</text>
+<text x="1542" y="1193" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" font-weight="normal" fill="#555555" text-anchor="start">agent cards · MCP</text>
+<text x="40" y="1276" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="normal" fill="#555555" text-anchor="start">manas 10 · arivu 10 · kalai 11 · kural 11 — 42 agents</text>
 </svg>
