@@ -16,7 +16,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://saakshe.com/og.png">
 <!-- adds .js + resolves theme BEFORE paint (no flash): localStorage -> prefers-color-scheme -> default(light) -->
-<script>(function(){var d=document.documentElement;d.className+=' js';try{var t=localStorage.getItem('kural-theme');if(!t){t=(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light';}d.setAttribute('data-theme',t);}catch(e){d.setAttribute('data-theme','light');}})();</script>
+<script>(function(){var d=document.documentElement;d.className+=' js';try{var t=localStorage.getItem('saakshe-theme');if(t!=='light'&&t!=='dark'){var legacy=localStorage.getItem('kural-theme');if(legacy==='light'||legacy==='dark'){t=legacy;localStorage.setItem('saakshe-theme',legacy);}else{t=null;}}if(!t){t=(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light';}d.setAttribute('data-theme',t);}catch(e){d.setAttribute('data-theme','light');}})();</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap">
@@ -30,7 +30,7 @@
    - ZERO colored edge bands. No accent border-left/right/top/bottom.
      No gradient streaks on any card / quote / callout / connector.
    - Every container border is the SAME neutral hairline on all sides.
-   - Accent ink-blue (#1E47C4) appears ONLY as text colour or a <=10px dot.
+   - Accent kural green (#0B7A42) appears ONLY as text colour or a <=10px dot.
    - Emphasis = type scale & weight, oversized numerals, full-width
      neutral rules, generous whitespace, uniform-bordered/solid panels.
    - Body >= 16.5px, line-height ~1.6+ (eye-strain friendly).
@@ -50,9 +50,9 @@
   --mute:#686F7B;      /* meta / labels only */
   --hair:#E4E7EA;      /* the ONE neutral hairline, all sides */
   --hair-strong:#D2D6DB;
-  --accent:#1E47C4;    /* ink-blue — TEXT or <=10px dot ONLY */
-  --accent-rgb:30,71,196;   /* same ink-blue, for soft <=10px dot glows */
-  --sel:#D7DEF6;       /* selection wash (tokenised for theme flip) */
+  --accent:#0B7A42;    /* kural green — TEXT or <=10px dot ONLY (AA on near-white) */
+  --accent-rgb:11,122,66;   /* same kural green, for soft <=10px dot glows */
+  --sel:#D2EFDD;       /* selection wash (tokenised for theme flip) */
   --disp:'Space Grotesk',system-ui,sans-serif;
   --body:'Inter',system-ui,sans-serif;
   --mono:'JetBrains Mono',ui-monospace,monospace;
@@ -82,9 +82,9 @@ html[data-theme="dark"]{
   --mute:#79808C;       /* meta / labels */
   --hair:#262A31;       /* the ONE neutral hairline */
   --hair-strong:#343943;
-  --accent:#5B82F5;    /* ink-blue brightened for dark contrast — TEXT / <=10px dot ONLY */
-  --accent-rgb:91,130,245;
-  --sel:#27325A;        /* selection wash on dark */
+  --accent:#5EF08A;    /* kural phosphor green for dark contrast — TEXT / <=10px dot ONLY */
+  --accent-rgb:94,240,138;
+  --sel:#1E4A32;        /* selection wash on dark */
   /* elevation reads via deeper, cooler shadow on dark */
   --lift:0 1px 0 rgba(0,0,0,.20);
   --lift-hi:0 16px 40px -18px rgba(0,0,0,.66), 0 2px 10px -4px rgba(0,0,0,.40);
@@ -1532,7 +1532,7 @@ html:not(.js) .viz__controls{display:none}
   btn.addEventListener('click', function(){
     var next = isDark() ? 'light' : 'dark';
     docEl.setAttribute('data-theme', next);
-    try { localStorage.setItem('kural-theme', next); } catch(e){}
+    try { localStorage.setItem('saakshe-theme', next); } catch(e){}
     syncBtn();
   });
 })();

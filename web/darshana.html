@@ -18,15 +18,20 @@
 
 <!-- =========================================================================
      PRE-PAINT THEME — set data-theme on <html> BEFORE first paint.
-     Order: ?theme= (URL, this-load override) -> localStorage("darshana-theme")
+     Order: ?theme= (URL, this-load override) -> localStorage("saakshe-theme")
             -> prefers-color-scheme -> light (a bright plate's natural default).
+     One-time migration: legacy "darshana-theme" -> site-wide "saakshe-theme".
      ========================================================================= -->
 <script>(function(){
   var d=document.documentElement; d.className='js';
   var q={}; try{ (location.search||'').replace(/^\?/,'').split('&').forEach(function(p){
     if(!p)return; var kv=p.split('='); q[decodeURIComponent(kv[0])]=decodeURIComponent(kv[1]||''); }); }catch(e){}
   var t=q.theme;
-  if(t!=='light'&&t!=='dark'){ try{t=localStorage.getItem('darshana-theme');}catch(e2){} }
+  if(t!=='light'&&t!=='dark'){ try{
+    var s=localStorage.getItem('saakshe-theme');
+    if(s!=='light'&&s!=='dark'){ var lg=localStorage.getItem('darshana-theme'); if(lg==='light'||lg==='dark'){ localStorage.setItem('saakshe-theme',lg); s=lg; } }
+    t=s;
+  }catch(e2){} }
   if(t!=='light'&&t!=='dark'){ t=(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light'; }
   d.setAttribute('data-theme', (t==='dark'?'dark':'light'));
 })();</script>
@@ -61,11 +66,11 @@ html[data-theme="light"]{
   --hairline:    #DBE2DD;   /* neutral hairline border */
   --hairsoft:    #E7ECE7;   /* fainter rule */
 
-  /* the five hues — light backdrop (4.5–7.0:1) */
-  --manas:  #9A6B1E;   /* amber-bronze */
-  --arivu: #3A4FB0;   /* indigo */
-  --kalai:   #B0455A;   /* rose-madder */
-  --kural:  #1E7D86;   /* teal-ink */
+  /* the five hues — light backdrop, canon saakshe families (AA text-safe) */
+  --manas:  #7F5A0F;   /* canon manas amber, darkened for text */
+  --arivu: #2A41A0;   /* canon arivu blue, darkened for text */
+  --kalai:   #A33321;   /* canon kalai red (#CC4632 family), darkened for text */
+  --kural:  #2C6B45;   /* canon kural green, darkened for text */
   --saakshe:  #52606B;   /* graphite — the neutral standpoint & page chrome */
 
   --accent: var(--saakshe);   /* page-wide neutral accent = graphite */
@@ -75,7 +80,7 @@ html[data-theme="light"]{
 }
 
 html[data-theme="dark"]{
-  --page:        #0E1411;   /* cool green-black night */
+  --page:        #0A0D0A;   /* Obsidian near-black (canon site bg) */
   --plate:       #161E1A;   /* plate surface */
   --wash:        #0A0F0C;   /* deep wash */
   --ink:         #D7E0DA;   /* body, AAA */
@@ -83,11 +88,11 @@ html[data-theme="dark"]{
   --hairline:    #2A352F;   /* neutral hairline border */
   --hairsoft:    #222C26;
 
-  /* the five hues — ink backdrop (7.6–9.6:1) */
-  --manas:  #D9A441;
-  --arivu: #8FA2F0;
-  --kalai:   #E892A2;
-  --kural:  #54C7D0;
+  /* the five hues — ink backdrop, canon saakshe Obsidian families */
+  --manas:  #E0B25A;   /* canon manas amber */
+  --arivu: #7C97F2;   /* canon arivu blue */
+  --kalai:   #E0685C;   /* canon kalai matte red */
+  --kural:  #5EF08A;   /* canon kural phosphor green */
   --saakshe:  #AEBCC6;
 
   --accent: var(--saakshe);
@@ -1169,7 +1174,7 @@ html.js .token-static{ /* static token shown until run starts */ }
   "use strict";
   var root = document.documentElement;
 
-  /* ---------- theme toggle (persists to "darshana-theme") ---------- */
+  /* ---------- theme toggle (persists to the site-wide "saakshe-theme") ---------- */
   var btn = document.getElementById('themeToggle');
   var lbl = document.getElementById('themeLabel');
   function syncLabel(){
@@ -1181,7 +1186,7 @@ html.js .token-static{ /* static token shown until run starts */ }
   btn.addEventListener('click', function(){
     var next = (root.getAttribute('data-theme')==='dark') ? 'light' : 'dark';
     root.setAttribute('data-theme', next);
-    try{ localStorage.setItem('darshana-theme', next); }catch(e){}
+    try{ localStorage.setItem('saakshe-theme', next); }catch(e){}
     syncLabel();
   });
 

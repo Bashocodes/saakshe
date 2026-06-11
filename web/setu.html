@@ -18,15 +18,20 @@
 
 <!-- =========================================================================
      PRE-PAINT BOOT — resolve theme BEFORE first paint.
-     Order: ?theme= (URL, this-load override) -> localStorage("setu-theme")
+     Order: ?theme= (URL, this-load override) -> localStorage("saakshe-theme")
             -> prefers-color-scheme -> light (bakelite default).
+     One-time migration: legacy "setu-theme" -> site-wide "saakshe-theme".
      ========================================================================= -->
 <script>(function(){
   var d=document.documentElement; d.className='js';
   var q={}; try{ (location.search||'').replace(/^\?/,'').split('&').forEach(function(p){
     if(!p)return; var kv=p.split('='); q[decodeURIComponent(kv[0])]=decodeURIComponent(kv[1]||''); }); }catch(e){}
   var t=q.theme;
-  if(t!=='light'&&t!=='dark'){ try{t=localStorage.getItem('setu-theme');}catch(e2){} }
+  if(t!=='light'&&t!=='dark'){ try{
+    var s=localStorage.getItem('saakshe-theme');
+    if(s!=='light'&&s!=='dark'){ var lg=localStorage.getItem('setu-theme'); if(lg==='light'||lg==='dark'){ localStorage.setItem('saakshe-theme',lg); s=lg; } }
+    t=s;
+  }catch(e2){} }
   if(t!=='light'&&t!=='dark'){ t=(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light'; }
   d.setAttribute('data-theme',t);
 })();</script>
@@ -947,7 +952,7 @@ html:not(.js) .no-js-only{display:block}
   toggle.addEventListener('click',function(){
     var next = (root.getAttribute('data-theme')==='dark') ? 'light' : 'dark';
     root.setAttribute('data-theme',next);
-    try{ localStorage.setItem('setu-theme',next); }catch(e){}
+    try{ localStorage.setItem('saakshe-theme',next); }catch(e){}
     syncLabel();
   });
 

@@ -17,7 +17,7 @@
 <meta name="twitter:image" content="https://saakshe.com/og.png">
 <!-- add .js BEFORE paint so initial-hidden states only exist when JS is alive -->
 <!-- also resolve theme BEFORE paint (localStorage -> prefers-color-scheme -> default dark) so there is no flash -->
-<script>(function(){var d=document.documentElement;d.className='js';var t;try{t=localStorage.getItem('arivu-theme');}catch(e){}if(t!=='light'&&t!=='dark'){t=(window.matchMedia&&window.matchMedia('(prefers-color-scheme: light)').matches)?'light':'dark';}d.setAttribute('data-theme',t);})();</script>
+<script>(function(){var d=document.documentElement;d.className='js';var t;try{t=localStorage.getItem('saakshe-theme');if(t!=='light'&&t!=='dark'){var legacy=localStorage.getItem('arivu-theme');if(legacy==='light'||legacy==='dark'){t=legacy;localStorage.setItem('saakshe-theme',legacy);}}}catch(e){}if(t!=='light'&&t!=='dark'){t=(window.matchMedia&&window.matchMedia('(prefers-color-scheme: light)').matches)?'light':'dark';}d.setAttribute('data-theme',t);})();</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;0,6..72,700;1,6..72,400;1,6..72,500&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap">
@@ -31,9 +31,9 @@
    its center. The seal IS the board resolution: theme + artifact
    are one object.
 
-   HUE = INDIGO-VIOLET (purple-leaning) to stay clear of kural's
-   royal blue; anneal light = COOL PLATINUM-WHITE (never gold —
-   gold would echo kalai's copper).
+   HUE = ARIVU BLUE (the chamber's canonical hue across the
+   saakshe set — kural owns green); anneal light = COOL
+   PLATINUM-WHITE (never gold — gold would echo kalai's copper).
 
    HARD RULE: ZERO colored edge/border accent bands on ANY
    container in EITHER theme. Accent appears ONLY as text, a
@@ -53,23 +53,23 @@
    opacity only. Designed easing. Nothing hidden without JS.
    ============================================================ */
 :root{
-  --bg:#100E1C;          /* deep indigo-violet ground */
-  --bg-2:#13101F;        /* faint section wash (neutral-violet) */
-  --panel:#17142A;       /* raised surface */
-  --panel-2:#1C1834;     /* nested panel */
-  --ink:#ECEAF6;         /* primary text */
-  --ink-2:#C3BEDC;       /* secondary text */
-  --muted:#908AAB;       /* labels / data dim */
-  --ghost:#26224A;       /* oversized numerals / faint */
-  --rule:#2A2540;        /* hairline */
-  --rule-2:#352F52;      /* slightly stronger hairline */
-  --heavy:#443D66;       /* heaviest neutral rule */
-  --accent:#8A6CF0;      /* indigo-violet — the only non-neutral SURFACE hue; TEXT / DOT / RING / lattice only (--flare is a single thin risk-stroke) */
-  --accent-2:#A38DF5;    /* lighter violet for fine lattice strokes */
+  --bg:#0E1120;          /* deep blue-leaning near-black ground */
+  --bg-2:#10131F;        /* faint section wash (neutral-blue) */
+  --panel:#151A2C;       /* raised surface */
+  --panel-2:#1A2036;     /* nested panel */
+  --ink:#EAEDF6;         /* primary text */
+  --ink-2:#BEC7DC;       /* secondary text */
+  --muted:#8A93AB;       /* labels / data dim */
+  --ghost:#222B4A;       /* oversized numerals / faint */
+  --rule:#252B40;        /* hairline */
+  --rule-2:#2F3852;      /* slightly stronger hairline */
+  --heavy:#3D4A66;       /* heaviest neutral rule */
+  --accent:#7C97F2;      /* arivu blue — the only non-neutral SURFACE hue; TEXT / DOT / RING / lattice only (--flare is a single thin risk-stroke) */
+  --accent-2:#9CB2F5;    /* lighter blue for fine lattice strokes */
   --anneal:#EAF0FF;      /* cool platinum-white — the crystallized seal at convergence */
   --flare:#E0708F;       /* the Risk mantri's churn-cliff flare — a THIN STROKE only, never a band */
-  --term-bg:#0C0A18;     /* deliberation-log fill (tokenized so it themes) */
-  --sel-bg:#2c2350;      /* ::selection bg */
+  --term-bg:#0A0D18;     /* deliberation-log fill (tokenized so it themes) */
+  --sel-bg:#233050;      /* ::selection bg */
   --sel-fg:#eef0ff;      /* ::selection fg */
   color-scheme:dark;
   --disp:'Newsreader',Georgia,serif;     /* verdict + headings — the struck-verdict serif register */
@@ -84,31 +84,31 @@
    LIGHT THEME — "dawn anneal". Pale cool ground, white panel, ink;
    the seal renders as a rising platinum-white crystal point on the
    pale field, keeping the convergence soul. The one accent is
-   darkened (#5B3FD6) so it holds AA contrast as TEXT/DOT/RING.
+   darkened (#3551C8) so it holds AA contrast as TEXT/DOT/RING.
    Only color tokens are overridden; structure, motion, and rules
    are identical to dark. No colored bands anywhere.
    ============================================================ */
 html[data-theme="light"]{
-  --bg:#F6F5FB;          /* pale cool ground */
-  --bg-2:#F0EEF8;        /* faint section wash (neutral-violet) */
+  --bg:#F5F6FB;          /* pale cool ground */
+  --bg-2:#EEF1F8;        /* faint section wash (neutral-blue) */
   --panel:#FFFFFF;       /* raised surface */
-  --panel-2:#F8F7FD;     /* nested panel */
-  --ink:#1A1726;         /* primary text */
-  --ink-2:#403A57;       /* secondary text */
-  --muted:#6B6680;       /* labels / data dim */
-  --ghost:#E6E2F4;       /* oversized numerals / faint */
-  --rule:#E2DEEE;        /* hairline */
-  --rule-2:#D4CEE6;      /* slightly stronger hairline */
-  --heavy:#BCB4D4;       /* heaviest neutral rule */
-  --accent:#5B3FD6;      /* darkened indigo-violet — TEXT / DOT / RING only, AA on pale */
-  --accent-2:#6B4FE0;    /* fine lattice strokes */
-  --anneal:#7A5BE8;      /* on a pale field the "anneal point" reads as a luminous violet-white crystal */
+  --panel-2:#F7F9FD;     /* nested panel */
+  --ink:#171A26;         /* primary text */
+  --ink-2:#3A4257;       /* secondary text */
+  --muted:#666C80;       /* labels / data dim */
+  --ghost:#E2E7F4;       /* oversized numerals / faint */
+  --rule:#DEE3EE;        /* hairline */
+  --rule-2:#CED6E6;      /* slightly stronger hairline */
+  --heavy:#B4BFD4;       /* heaviest neutral rule */
+  --accent:#3551C8;      /* darkened arivu blue — TEXT / DOT / RING only, AA on pale */
+  --accent-2:#4565DC;    /* fine lattice strokes */
+  --anneal:#5B7CE8;      /* on a pale field the "anneal point" reads as a luminous blue-white crystal */
   --flare:#C0395F;       /* churn-cliff flare — thin stroke only, AA on pale */
-  --term-bg:#F4F2FB;     /* light deliberation-log fill (not near-black) */
-  --sel-bg:#ddd5f6;      /* ::selection bg */
-  --sel-fg:#1c1437;      /* ::selection fg */
+  --term-bg:#F2F4FB;     /* light deliberation-log fill (not near-black) */
+  --sel-bg:#d5ddf6;      /* ::selection bg */
+  --sel-fg:#141c37;      /* ::selection fg */
   color-scheme:light;
-  --lift:0 1px 0 rgba(26,23,38,.04),0 16px 38px -22px rgba(26,23,38,.30);
+  --lift:0 1px 0 rgba(23,26,38,.04),0 16px 38px -22px rgba(23,26,38,.30);
 }
 *{box-sizing:border-box}
 html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
@@ -1369,7 +1369,7 @@ html:not(.js) .viz .team .node .ndot{fill:var(--accent)}
   var pts=[], N=0, raf=null, vis=true;
 
   function css(name){ return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
-  var col = { accent:'#8A6CF0', muted:'#908AAB' };
+  var col = { accent:'#7C97F2', muted:'#8A93AB' };
   function readColors(){ col.accent = css('--accent')||col.accent; col.muted = css('--muted')||col.muted; }
 
   function resize(){
@@ -1440,7 +1440,7 @@ html:not(.js) .viz .team .node .ndot{fill:var(--accent)}
   function set(t){
     if(t!=='light'&&t!=='dark') t='dark';
     root.setAttribute('data-theme', t);
-    try{ localStorage.setItem('arivu-theme', t); }catch(e){}
+    try{ localStorage.setItem('saakshe-theme', t); }catch(e){}
   }
   var opts = document.querySelectorAll('.theme-toggle .opt');
   for(var i=0;i<opts.length;i++){
@@ -1449,7 +1449,7 @@ html:not(.js) .viz .team .node .ndot{fill:var(--accent)}
   if(window.matchMedia){
     var mq = window.matchMedia('(prefers-color-scheme: light)');
     var onChange = function(e){
-      var saved; try{ saved = localStorage.getItem('arivu-theme'); }catch(err){}
+      var saved; try{ saved = localStorage.getItem('saakshe-theme'); }catch(err){}
       if(saved!=='light'&&saved!=='dark') root.setAttribute('data-theme', e.matches?'light':'dark');
     };
     if(mq.addEventListener) mq.addEventListener('change', onChange);

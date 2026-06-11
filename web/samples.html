@@ -21,7 +21,12 @@
   var q={}; try{ (location.search||'').replace(/^\?/,'').split('&').forEach(function(p){
     if(!p)return; var kv=p.split('='); q[decodeURIComponent(kv[0])]=decodeURIComponent(kv[1]||''); }); }catch(e){}
   var t=q.theme;
-  if(t!=='light'&&t!=='dark'){ try{t=localStorage.getItem('setu-theme');}catch(e2){} }
+  /* site-wide key; one-time migration from the legacy 'setu-theme' this page used to read */
+  if(t!=='light'&&t!=='dark'){ try{
+    var s=localStorage.getItem('saakshe-theme');
+    if(s!=='light'&&s!=='dark'){ var lg=localStorage.getItem('setu-theme'); if(lg==='light'||lg==='dark'){ localStorage.setItem('saakshe-theme',lg); s=lg; } }
+    t=s;
+  }catch(e2){} }
   if(t!=='light'&&t!=='dark'){ t=(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light'; }
   d.setAttribute('data-theme',t);
 })();</script>
@@ -85,6 +90,9 @@ a.tag{border-bottom-width:1px} a.tag:hover{color:var(--acc);border-color:var(--r
 .topbar .wrap{display:flex;align-items:center;justify-content:space-between;padding-top:14px;padding-bottom:14px}
 .brand{display:flex;align-items:baseline;gap:10px;font-family:"Saira",sans-serif;font-weight:700;font-size:20px;letter-spacing:-0.01em}
 .brand .sib{font-family:"Martian Mono",monospace;font-size:13px;font-weight:500;letter-spacing:0.08em;color:var(--muted-s)}
+.brand .homelink{font-family:"Martian Mono",monospace;font-size:13px;font-weight:600;letter-spacing:0.14em;color:var(--ink-2);
+  text-decoration:none;border:1px solid var(--rule);border-radius:999px;padding:5px 11px;background:var(--panel)}
+.brand .homelink:hover{color:var(--acc);border-color:var(--rule-2)}
 .tgl{font-family:"Martian Mono",monospace;font-size:13px;letter-spacing:0.08em;color:var(--ink-2);
   background:var(--panel);border:1px solid var(--rule);border-radius:7px;padding:8px 13px;cursor:pointer}
 .tgl:hover{border-color:var(--rule-2);color:var(--ink)}
@@ -137,9 +145,9 @@ a.btn-ghost{color:var(--ink-2)} .btn-ghost:hover{color:var(--ink);background:var
 
 <header class="topbar">
   <div class="wrap">
-    <div class="brand">samples <span class="sib">· receipts of the first minute</span></div>
-    <button class="tgl" id="themeToggle" type="button" aria-label="Toggle light or dark theme">
-      <span class="dot" aria-hidden="true"></span><span id="themeLabel">dark room</span>
+    <div class="brand"><a href="/" class="homelink" aria-label="saakshe home">SΛΛKSHE</a> samples <span class="sib">· receipts of the first minute</span></div>
+    <button class="tgl" id="themeToggle" type="button" aria-label="Toggle Brut (light) or Obsidian (dark) theme">
+      <span class="dot" aria-hidden="true"></span><span id="themeLabel">Obsidian</span>
     </button>
   </div>
 </header>
@@ -304,13 +312,13 @@ a.btn-ghost{color:var(--ink-2)} .btn-ghost:hover{color:var(--ink);background:var
   var toggle=document.getElementById('themeToggle'), lbl=document.getElementById('themeLabel');
   function paint(){
     var t=document.documentElement.getAttribute('data-theme');
-    if(lbl) lbl.textContent = (t==='dark') ? 'day room' : 'dark room';
+    if(lbl) lbl.textContent = (t==='dark') ? 'Brut' : 'Obsidian';
   }
   if(toggle) toggle.addEventListener('click',function(){
     var cur=document.documentElement.getAttribute('data-theme');
     var next=(cur==='dark')?'light':'dark';
     document.documentElement.setAttribute('data-theme',next);
-    try{ localStorage.setItem('setu-theme',next); }catch(e){}
+    try{ localStorage.setItem('saakshe-theme',next); }catch(e){}
     paint();
   });
   paint();

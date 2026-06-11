@@ -15,6 +15,23 @@
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://saakshe.com/og.png">
+<!-- no-flash theme: saved 'saakshe-theme' (one-time migration from legacy 'sk-arch-theme') → OS preference → light -->
+<script>
+(function(){
+  try{
+    var t=localStorage.getItem('saakshe-theme');
+    if(t!=='dark'&&t!=='light'){
+      var old=localStorage.getItem('sk-arch-theme');
+      if(old==='dark'||old==='light'){ t=old; localStorage.setItem('saakshe-theme',old); }
+      try{localStorage.removeItem('sk-arch-theme');}catch(e){}
+    }
+    if(t!=='dark'&&t!=='light'){
+      t=(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light';
+    }
+    document.documentElement.dataset.theme=t;
+  }catch(e){}
+})();
+</script>
 <style>
   :root{
     --bg:#efe9e3; --surface:#fbf7f3; --surface-2:#f4efe9; --ink:#241f1b; --ink-2:#4b423a;
@@ -109,7 +126,7 @@
       <h1>The agentic company,<br>behind one witness.</h1>
       <p class="lede">One product the founder talks to. Four ADK quadrants working behind it. One service, one event stream, two human gates — and a demo that runs today with no cloud credentials.</p>
     </div>
-    <button class="toggle" onclick="t()">☾ theme</button>
+    <button class="toggle" onclick="t()" aria-pressed="false" aria-label="switch to dark theme">☾ theme</button>
   </header>
 
   <!-- 1 · THE CORRECTION -->
@@ -344,8 +361,19 @@
 
 </div>
 <script>
-  function t(){var h=document.documentElement;h.dataset.theme=h.dataset.theme==='dark'?'light':'dark';try{localStorage.setItem('sk-arch-theme',h.dataset.theme)}catch(e){}}
-  try{var s=localStorage.getItem('sk-arch-theme');if(s)document.documentElement.dataset.theme=s}catch(e){}
+  function syncToggle(){
+    var b=document.querySelector('.toggle'); if(!b) return;
+    var dark=document.documentElement.dataset.theme==='dark';
+    b.setAttribute('aria-pressed',String(dark));
+    b.setAttribute('aria-label',dark?'switch to light theme':'switch to dark theme');
+  }
+  function t(){
+    var h=document.documentElement;
+    h.dataset.theme=h.dataset.theme==='dark'?'light':'dark';
+    try{localStorage.setItem('saakshe-theme',h.dataset.theme)}catch(e){}
+    syncToggle();
+  }
+  syncToggle();
 </script>
 </body>
 </html>

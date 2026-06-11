@@ -18,7 +18,8 @@
 
 <!-- =========================================================================
      PRE-PAINT THEME — set data-theme on <html> BEFORE first paint.
-     Order: ?theme= (URL override) -> localStorage("cockpit-theme")
+     Order: ?theme= (URL override) -> localStorage("saakshe-theme") (site-wide key;
+            one-time migration from the legacy "cockpit-theme" key)
             -> prefers-color-scheme -> light.  Adds class "js" (noscript stays scrollable).
      ========================================================================= -->
 <script>(function(){
@@ -26,7 +27,13 @@
   var q={}; try{ (location.search||'').replace(/^\?/,'').split('&').forEach(function(p){
     if(!p)return; var kv=p.split('='); q[decodeURIComponent(kv[0])]=decodeURIComponent(kv[1]||''); }); }catch(e){}
   var t=q.theme;
-  if(t!=='light'&&t!=='dark'){ try{t=localStorage.getItem('cockpit-theme');}catch(e2){} }
+  if(t!=='light'&&t!=='dark'){ try{
+    t=localStorage.getItem('saakshe-theme');
+    if(t!=='light'&&t!=='dark'){
+      var old=localStorage.getItem('cockpit-theme');               /* one-time migration */
+      if(old==='light'||old==='dark'){ t=old; localStorage.setItem('saakshe-theme', old); }
+    }
+  }catch(e2){} }
   if(t!=='light'&&t!=='dark'){ t=(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light'; }
   d.setAttribute('data-theme', (t==='dark'?'dark':'light'));
 })();</script>
@@ -47,25 +54,25 @@
   --sb-rail: 56px;
   --rail: 380px;
 
-  /* ===== BRUT · LIGHT — ROUNDED BRUT + GRADIENT WHISPER (locked 2026-06-10 evening) =====
-     the report design system, in product: #eceae4 paper riding a ≤3% whisper
-     gradient, white surfaces with their own whisper, violet-black ink scale,
+  /* ===== BRUT · LIGHT — landing-locked tokens (saakshe_landing.html is canon) =====
+     the site design system, in product: #F4EEE2 paper riding a ≤3% whisper
+     gradient, cream card surfaces with their own whisper, warm ink scale,
      LOUD agent marks, hard ink borders + offset shadows, Archivo Black display,
      JetBrains Mono body, Syncopate wordmark. */
-  --bg:#eceae4; --surface:#ffffff; --surface-2:#e7e6e0;
-  --ink:#141118; --ink-2:#2a2530; --ink-3:#5f5868; --faint:#919191;
-  --line:#141118; --line-2:#141118;
+  --bg:#F4EEE2; --surface:#FBF7EE; --surface-2:#ECE4D3;
+  --ink:#161410; --ink-2:#45413A; --ink-3:#6B6557; --faint:#968F7F;
+  --line:#161410; --line-2:#161410;
   --line-w:2px;
-  --accent:#0a39ff; --amber:#795309; --terracotta:#A33321; --green:#0a8a4a; --ok:#0a8a4a;
-  --tint-amber:#fff3d6; --tint-blue:#e2e8ff; --tint-rose:#ffe0e0; --tint-green:#d8f7e8;
+  --accent:#CC4632; --amber:#7F5A0F; --terracotta:#A33321; --green:#3E8F5E; --ok:#3E8F5E;
+  --tint-amber:#F1DC95; --tint-blue:#C6CFF2; --tint-rose:#EBBAAC; --tint-green:#BFE0C6;
   --radius:14px; --radius-sm:10px; --radius-pill:999px;
   --offset:6px;
   --shadow:5px 5px 0 var(--ink);
   --shadow-sm:2px 2px 0 var(--ink);
   --glow:none; --glow-soft:none;
-  --grad-ink:linear-gradient(135deg,#141118 0%,#2a2040 55%,#43285c 100%);
-  --grad-bg:linear-gradient(165deg,#f1efe9 0%,#eceae4 45%,#e7e4dc 100%);
-  --grad-surf:linear-gradient(180deg,#ffffff 0%,#fbfaf6 100%);
+  --grad-ink:linear-gradient(135deg,#161410 0%,#2E2A20 55%,#453E2E 100%);
+  --grad-bg:linear-gradient(165deg,#F8F3E8 0%,#F4EEE2 45%,#EFE7D6 100%);
+  --grad-surf:linear-gradient(180deg,#FBF7EE 0%,#F7F1E3 100%);
   --font-display:'Archivo Black','Archivo',system-ui,sans-serif; --font-body:'JetBrains Mono',ui-monospace,monospace;
   --font-mono:'JetBrains Mono','IBM Plex Mono',ui-monospace,Menlo,Consolas,monospace;
   --word:'Syncopate',var(--font-display);
@@ -78,26 +85,26 @@
   --muted:var(--ink-2);
   --hairline:var(--line); --hairsoft:var(--line-2);
   --r:var(--radius-sm); --r6:var(--radius);
-  --manas:#e3a200; --arivu:#0a39ff; --kalai:#ff2d2d; --kural:#00a86b;
-  --saksi:#141118;                 /* witness chrome — pure ink in Brut */
+  --manas:#E3A52B; --arivu:#3551C8; --kalai:#CC4632; --kural:#3E8F5E;
+  --saksi:#161410;                 /* witness chrome — pure ink in Brut */
   --sig-green:var(--ok); --sig-amber:var(--amber); --sig-red:var(--terracotta);
   --sig-orange:#A85A1E;            /* between amber + terracotta */
   --nq-red:#A33321;                /* sidebar ?n red — clears 4.5:1 on cream */
-  --dotink:#eceae4;
-  --act:#0a39ff; --on-act:#fff;    /* primary action = ARIVU BLUE (locked) */
-  --witness:#141118;
-  --bot-face:#141118; --bot-eye:#eceae4;  /* witness mark — ink plate, paper Λ eyes */
+  --dotink:#F4EEE2;
+  --act:#CC4632; --on-act:#fff;    /* primary action = BRUT RED (landing-locked) */
+  --witness:#161410;
+  --bot-face:#161410; --bot-eye:#F4EEE2;  /* witness mark — ink plate, paper Λ eyes */
 }
 html[data-theme="dark"]{
   /* ===== OBSIDIAN · DARK — phosphor terminal (locked token set, 2026-06-10) =====
      near-black field, phosphor-green action, thin hairlines, monospace body. */
-  --bg:#06080a; --surface:#0c1013; --surface-2:#11171b;
-  --ink:#d2ecd9; --ink-2:#7fa089; --ink-3:#54695b; --faint:#36473c;
-  --line:#16201b; --line-2:#16201b;
+  --bg:#0A0D0A; --surface:#0F140F; --surface-2:#141B14;
+  --ink:#D4F5DE; --ink-2:#9DBBA6; --ink-3:#6F8C78; --faint:#47594C;
+  --line:#1E2A20; --line-2:#1E2A20;
   --line-w:1px;
   /* OBSIDIAN rule: green is the ONLY chrome accent in dark — arivu keeps its
      blue agent mark below, but hover/focus/accents are phosphor, never blue. */
-  --accent:#3ce791; --amber:#e7bb4a; --terracotta:#ff5d76; --green:#3ce791; --ok:#3ce791;
+  --accent:#5EF08A; --amber:#E0B25A; --terracotta:#E0685C; --green:#5EF08A; --ok:#5EF08A;
   --tint-amber:#19170f; --tint-blue:#10131f; --tint-rose:#1a1310; --tint-green:#0e1a11;
   --radius:10px; --radius-sm:8px; --radius-pill:999px;
   --shadow:none; --shadow-sm:none;
@@ -105,14 +112,14 @@ html[data-theme="dark"]{
   --grad-ink:none; --grad-bg:none; --grad-surf:none;   /* whispers are a paper thing */
   --font-display:'JetBrains Mono','IBM Plex Mono',monospace; --font-body:'JetBrains Mono','IBM Plex Mono',ui-monospace,monospace;
 
-  --manas:#e7bb4a; --arivu:#4fb6ff; --kalai:#ff5d76; --kural:#3ce791;
-  --saksi:#3ce791;                 /* witness chrome = phosphor in Obsidian */
+  --manas:#E0B25A; --arivu:#7C97F2; --kalai:#E0685C; --kural:#5EF08A;
+  --saksi:#5EF08A;                 /* witness chrome = phosphor in Obsidian */
   --sig-orange:#E0A060;
-  --nq-red:#ff5d76;                /* dark: clears 4.5 on near-black */
-  --dotink:#06080a;
-  --act:#3ce791; --on-act:#06140A; /* primary action = PHOSPHOR GREEN in dark */
-  --witness:#3ce791;
-  --bot-face:#0c1013; --bot-eye:#d2ecd9;  /* witness mark — near-black plate, phosphor Λ eyes */
+  --nq-red:#E0685C;                /* dark: matte kalai — clears 4.5 on near-black */
+  --dotink:#0A0D0A;
+  --act:#5EF08A; --on-act:#06140A; /* primary action = PHOSPHOR GREEN in dark */
+  --witness:#5EF08A;
+  --bot-face:#0F140F; --bot-eye:#D4F5DE;  /* witness mark — near-black plate, phosphor Λ eyes */
 }
 /* ===== OBSIDIAN v2 dark idioms — FLAT phosphor (no glow): identity = phosphor TEXT
    COLOR + crisp borders, not bloom. Light theme untouched. ===== */
@@ -966,7 +973,7 @@ html[data-theme="dark"] .plan, html[data-theme="dark"] .desk{
    ============================================================================ */
 
 /* ---- MEASURED contrast fix: sidebar ?n red was 4.05:1 on the active wash (light).
-   Use the theme-aware --nq-red token (light #9c4034 clears 4.5; dark already clears).
+   Use the theme-aware --nq-red token (light #A33321 clears 4.5; dark already clears).
    refreshMirrors() sets the inline color to var(--nq-red) too, so both agree. ---- */
 .navlist button.nav .nstat .nq{ color:var(--nq-red); }
 
@@ -2535,7 +2542,7 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
   tBtn.addEventListener('click', function(){
     var next=(root.getAttribute('data-theme')==='dark')?'light':'dark';
     root.setAttribute('data-theme', next);
-    try{ localStorage.setItem('cockpit-theme', next); }catch(e){}
+    try{ localStorage.setItem('saakshe-theme', next); }catch(e){}
     syncTheme();
   });
 
