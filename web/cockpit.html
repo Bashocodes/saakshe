@@ -287,16 +287,27 @@ html[data-theme="dark"] .tb-brand .skbot .skmouth{ background:linear-gradient(18
 .t-amber{ color:var(--sig-amber); } .t-orange{ color:var(--sig-orange); }
 
 /* ============================ TOOLTIP =================================== */
+/* JS users get a body-level portal (#sk-tip) that escapes .stage/.ovcard
+   overflow:hidden — the CSS ::after below would clip at every overflow edge,
+   so it is gated to noscript only (html:not(.js)). */
 [data-tip]{ position:relative; }
-[data-tip]:hover::after,[data-tip]:focus-visible::after{
+html:not(.js) [data-tip]:hover::after,html:not(.js) [data-tip]:focus-visible::after{
   content:attr(data-tip); position:absolute; left:50%; bottom:calc(100% + 7px); transform:translateX(-50%);
   background:var(--ink); color:var(--page); font-family:var(--font-body); font-size:11.5px; font-weight:500;
   letter-spacing:.01em; line-height:1.35; white-space:normal; width:max-content; max-width:230px; text-align:center;
   padding:6px 9px; border-radius:var(--r); z-index:200; box-shadow:var(--shadow-sm); pointer-events:none;
 }
-[data-tip].tip-r:hover::after,[data-tip].tip-r:focus-visible::after{ left:auto; right:0; transform:none; }
-[data-tip].tip-l:hover::after,[data-tip].tip-l:focus-visible::after{ left:0; transform:none; }
-[data-tip].tip-down:hover::after,[data-tip].tip-down:focus-visible::after{ bottom:auto; top:calc(100% + 7px); }
+html:not(.js) [data-tip].tip-r:hover::after{ left:auto; right:0; transform:none; }
+html:not(.js) [data-tip].tip-l:hover::after{ left:0; transform:none; }
+html:not(.js) [data-tip].tip-down:hover::after{ bottom:auto; top:calc(100% + 7px); }
+/* the JS tooltip portal — one fixed element, anchored per hover/focus */
+#sk-tip{ position:fixed; z-index:9000; pointer-events:none; opacity:0;
+  background:var(--ink); color:var(--page); font-family:var(--font-body); font-size:11.5px; font-weight:500;
+  letter-spacing:.01em; line-height:1.35; max-width:240px; text-align:center;
+  padding:6px 9px; border-radius:var(--r); box-shadow:var(--shadow-sm);
+  transition:opacity .1s var(--ease); }
+#sk-tip.on{ opacity:1; }
+@media (prefers-reduced-motion: reduce){ #sk-tip{ transition:none; } }
 
 /* ============================ APP SHELL GRID ============================== */
 .app{
@@ -1165,10 +1176,14 @@ html[data-theme="dark"] :is(.panel,.ovcard,.dcard,.constrip,.gate,.projhdr,
   letter-spacing:.05em; text-transform:uppercase; }
 
 /* 3 ── hover = lift + deeper hard shadow (the agreed Brut motion) */
-.ovcard:hover, .dcard:hover, .constrip:hover, .projhdr:hover{
+.ovcard:hover, .dcard:hover, .constrip:hover{
   border-color:var(--line); transform:translate(-2px,-2px);
   box-shadow:7px 7px 0 var(--line);
 }
+/* the project header holds a position:fixed dropdown — it must NEVER take a
+   transform (that makes it the menu's containing block → clips it under the
+   stage). Hover cue stays border + shadow, no translate. */
+.projhdr:hover{ border-color:var(--line); box-shadow:7px 7px 0 var(--line); }
 .desk:hover, .gate:hover{
   border-color:var(--line); transform:translate(-1px,-1px);
   box-shadow:4px 4px 0 var(--line);
@@ -1405,10 +1420,14 @@ html[data-theme="dark"] .meterbar{ height:9px; border:1px solid var(--line); box
   background:var(--wash); border:var(--hair) solid var(--hairline); border-radius:var(--r);
   padding:5px 11px; cursor:pointer; white-space:nowrap; }
 .pm-toggle:hover{ border-color:var(--accent); }
-.projmenu{ position:absolute; top:calc(100% + 9px); left:0; min-width:250px;
+/* FIXED to the viewport (JS sets left/top from the toggle) so the menu escapes
+   .stage{overflow:hidden} AND every ancestor stacking context — the only
+   reliable way for a stage popup to paint over the overview cards. z just
+   under the topbar (700) / chat pane is on the right, no overlap. */
+.projmenu{ position:fixed; min-width:250px; max-width:min(320px,90vw);
   background:var(--plate); background-image:var(--grad-surf);
   border:var(--line-w) solid var(--line); border-radius:var(--radius-sm);
-  box-shadow:var(--shadow); padding:6px; z-index:520;
+  box-shadow:var(--shadow); padding:6px; z-index:690;
   display:flex; flex-direction:column; gap:4px; }
 .pm-row{ display:flex; align-items:center; gap:9px; width:100%; text-align:left; cursor:pointer;
   background:var(--wash); border:var(--hair) solid var(--hairline); border-radius:var(--r);
@@ -1421,9 +1440,6 @@ html[data-theme="dark"] .pm-row:hover{ transform:none; box-shadow:none; border-c
 .pm-row .pmn{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .pm-row .pmk{ margin-left:auto; font-family:var(--font-mono); font-size:9.5px; font-weight:600;
   letter-spacing:.08em; text-transform:uppercase; color:var(--muted); flex:0 0 auto; }
-/* the hover-lift transform makes .projhdr a stacking context, which would trap
-   the open menu under the overview cards — lift the whole header while open */
-.projhdr:has(.projmenu:not([hidden])){ position:relative; z-index:540; }
 
 /* chat faculty tabs = the report's legend chips: realm dot + realm wash */
 #sa-chatpane .ch-tab[data-q="manas"]{ background:var(--tint-amber); }
@@ -2885,14 +2901,80 @@ html[data-theme="dark"] #sa-chatpane .ch-tab.on[data-q]{ background:var(--act); 
     if(STATE.view==='overview'){ render(); }
   }
 
+  /* ===== TOOLTIP PORTAL — one body-level fixed element so a [data-tip] inside
+     .stage/.ovcard{overflow:hidden} is never clipped (the CSS ::after was).
+     Anchored above the target, flipped below when there's no room, clamped to
+     the viewport horizontally. pointer-events:none — purely a hint. ===== */
+  (function(){
+    var tip=document.createElement('div'); tip.id='sk-tip'; tip.setAttribute('role','tooltip');
+    tip.setAttribute('aria-hidden','true'); document.body.appendChild(tip);
+    var cur=null;
+    function hide(){ cur=null; tip.classList.remove('on'); tip.style.left='-9999px'; tip.style.top='-9999px'; }
+    function show(el){
+      var txt=el.getAttribute('data-tip'); if(!txt){ hide(); return; }
+      cur=el; tip.textContent=txt;
+      /* measure off-screen, then place */
+      tip.style.left='0px'; tip.style.top='-9999px'; tip.classList.add('on');
+      var r=el.getBoundingClientRect(), tr=tip.getBoundingClientRect();
+      var vw=document.documentElement.clientWidth, vh=document.documentElement.clientHeight;
+      var left=r.left + r.width/2 - tr.width/2;
+      left=Math.max(8, Math.min(left, vw - tr.width - 8));
+      var top=r.top - tr.height - 7;
+      if(top < 8) top=r.bottom + 7;                 /* no room above → below */
+      if(top + tr.height > vh - 8) top=Math.max(8, r.top - tr.height - 7);
+      tip.style.left=Math.round(left)+'px'; tip.style.top=Math.round(top)+'px';
+    }
+    document.addEventListener('mouseover', function(e){
+      var el=e.target && e.target.closest ? e.target.closest('[data-tip]') : null;
+      if(el!==cur){ el ? show(el) : hide(); }
+    });
+    document.addEventListener('mouseout', function(e){
+      if(!cur) return;
+      var to=e.relatedTarget;
+      if(!to || !to.closest || !to.closest('[data-tip]') || to.closest('[data-tip]')!==cur) hide();
+    });
+    document.addEventListener('focusin', function(e){
+      var el=e.target && e.target.closest ? e.target.closest('[data-tip]') : null; el ? show(el) : hide(); });
+    document.addEventListener('focusout', hide);
+    /* any click/scroll/resize dismisses — a stale tip must never strand */
+    document.addEventListener('click', hide, true);
+    window.addEventListener('resize', hide);
+    window.addEventListener('scroll', hide, true);
+    window.sk_hideTip=hide;
+  })();
+
+  /* anchor the fixed-position project menu under its toggle (right-aligned if it
+     would overflow the viewport); close on resize/scroll so it never strands */
+  window.placeProjMenu = function(toggle){
+    var pjm = document.getElementById('projMenu'); if(!pjm || !toggle) return;
+    var r = toggle.getBoundingClientRect();
+    pjm.style.visibility='hidden'; pjm.style.left='0px'; pjm.style.top='-9999px';
+    var mw = pjm.offsetWidth, vw = document.documentElement.clientWidth;
+    var left = Math.min(r.left, vw - mw - 10); if(left < 8) left = 8;
+    pjm.style.left = Math.round(left)+'px';
+    pjm.style.top  = Math.round(r.bottom + 8)+'px';
+    pjm.style.visibility='';
+  };
+  window.addEventListener('resize', function(){
+    var pjm=document.getElementById('projMenu');
+    if(pjm && !pjm.hidden){ pjm.hidden=true;
+      var tg=document.querySelector('[data-projtoggle]'); if(tg) tg.setAttribute('aria-expanded','false'); }
+  });
+
   /* ================= EVENT DELEGATION ================= */
   document.addEventListener('click', function(e){
     var t = e.target;
-    /* project switcher (stage header) — toggle / connect-another / outside-close */
+    /* project switcher (stage header) — toggle / connect-another / outside-close.
+       The menu is position:fixed, so we anchor it to the toggle on open. */
     var pjm = document.getElementById('projMenu');
     var pjt = t.closest('[data-projtoggle]');
-    if(pjt && pjm){ pjm.hidden = !pjm.hidden;
-      pjt.setAttribute('aria-expanded', pjm.hidden ? 'false' : 'true'); return; }
+    if(pjt && pjm){
+      var willOpen = pjm.hidden;
+      pjm.hidden = !willOpen;
+      pjt.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
+      if(willOpen && window.placeProjMenu) placeProjMenu(pjt);
+      return;
+    }
     if(pjm && !pjm.hidden){
       if(t.closest('[data-projadd]')){ pjm.hidden = true;
         if(window.cockpitConnectNew) cockpitConnectNew();
