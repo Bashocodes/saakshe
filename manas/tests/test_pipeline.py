@@ -124,3 +124,37 @@ def test_exactly_two_claude_seats():
     assert {a.name for a in imbibers} == {
         "imbiber_repo", "imbiber_web", "imbiber_docs", "imbiber_social"
     }
+
+
+# ─── learn() commits published RESULTS as cited facts (loop steps 7+8) ───────
+async def test_learn_commits_results_as_cited_facts():
+    """kural.measure hands back channel outcomes; learn must commit each as a
+    cited fact and tick the pack — tomorrow stands on what actually happened."""
+    from common.stream import EventStream
+
+    s = EventStream()
+    results = [{"claim": "Published x/1 on x: reach 1240 · replies 3.",
+                "source": "channel stats · x/1"}]
+    res = await runner.learn(s, "r-results", {"results": results})
+    assert res.status == "completed"
+    assert res.output["context_pack_from"] != res.output["context_pack_to"]
+    assert res.output["remembered"] == "1 published result(s)"
+    claims = [f.get("claim") for f in project.STORE.all_facts()]
+    assert "Published x/1 on x: reach 1240 · replies 3." in claims
+    # The commit action names what was committed — results, not a decision.
+    commit = next(e for e in s.all() if e.kind == "action" and e.meta.get("context_pack_to"))
+    assert "commit results" in commit.text
+
+
+async def test_learn_drops_uncited_results():
+    """No citation, no fact — a result row without a source never reaches memory."""
+    from common.stream import EventStream
+
+    before = len(project.STORE.all_facts())
+    res = await runner.learn(EventStream(), "r-uncited",
+                             {"results": [{"claim": "reach 99"}]})  # no source
+    # Falls back to the decision path (empty decision) — the uncited row is gone.
+    claims = [f.get("claim") for f in project.STORE.all_facts()]
+    assert "reach 99" not in claims
+    assert res.status == "completed"
+    assert len(project.STORE.all_facts()) == before + 1  # only the decision fact

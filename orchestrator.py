@@ -158,6 +158,16 @@ async def _start(question, org, stream, store, user_id="", spend_idem_key="", ch
     stream.emit(run_id, "saakshe", "founder", f'asks: "{q}"', span="invocation", kind="span_start")
     stream.emit(run_id, "saakshe", "witness", "stakes here — route to arivu (decide)", span="agent_run")
 
+    # Yesterday's results learn FIRST — measure → learn → ground, so today's
+    # Context Pack stands on what actually happened, not only on what was decided.
+    # Unconfigured stats surface (demo / CI) → no facts, no events, byte-identical.
+    try:
+        results = await kural.measure(stream, run_id)
+        if results:
+            await manas.learn(stream, run_id, {"results": results})
+    except Exception:  # noqa: BLE001 — a flaky stats surface never blocks the day
+        pass
+
     # manas grounds the whole flywheel in the company's own memory (read-side A2A).
     stream.a2a(run_id, "arivu", "manas", "get_founder_context", state="submitted")
     pack = await manas.ground(stream, run_id, topic=q)

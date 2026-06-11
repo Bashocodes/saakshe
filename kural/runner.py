@@ -197,6 +197,34 @@ async def publish(stream: EventStream, run_id: str, state: dict, *, dry_run: boo
     return result
 
 
+# ─── measure: read yesterday's outcomes back from the world (loop step 7) ─────
+async def measure(stream: EventStream, run_id: str) -> list[dict]:
+    """Read engagement outcomes from the founder's configured stats surface and
+    return them as cited facts for manas to learn.
+
+    Unconfigured (demo / CI / creds-free) → [] with ZERO stream events, so every
+    existing run stays byte-identical. Configured → one stream line per pull and
+    the normalized facts, ready for ``manas.learn({"results": facts})``.
+    """
+    from .tools import outcomes
+
+    if not outcomes.stats_url():
+        return []
+    import asyncio
+
+    rows = await asyncio.to_thread(outcomes.pull_outcomes)
+    facts = outcomes.outcome_facts(rows)
+    if not facts:
+        stream.emit(run_id, NS, "Channel Analyst",
+                    "stats surface reachable — no measurable outcomes yet",
+                    span="execute_tool", kind="note")
+        return []
+    stream.emit(run_id, NS, "Channel Analyst",
+                f"read {len(facts)} published outcome(s) back from the channels",
+                span="execute_tool", kind="action", outcomes=len(facts))
+    return facts
+
+
 # ─── A2A skill + agent card ───────────────────────────────────────────────────
 def _launch_campaign(brief: str = "", **kw) -> dict:
     """A2A entry: accept a launch and hold it at the founder's publish gate.

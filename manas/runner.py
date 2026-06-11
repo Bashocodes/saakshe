@@ -289,14 +289,24 @@ async def learn(stream: EventStream, run_id: str, outcome: dict) -> a2a.Quadrant
     from common.usage import emit_authoritative
     emit_authoritative(stream, run_id, NS, pipeline.get("_usage"), live=config.is_live())
 
-    # The real write: the day's decision becomes a cited fact in the company's own
+    # The real write: the day's outcome becomes cited facts in the company's own
     # memory, and the Context Pack version ticks (v → v+1) in the store — no canon pin.
+    # Two kinds of outcome close the loop: the DECISION (every flywheel run) and
+    # published RESULTS read back from the channels (kural.measure) — the part
+    # that makes tomorrow's grounding stand on what actually happened.
     decision = (outcome or {}).get("decision", "")
-    new_fact = {"claim": f"Decided: {decision}" if decision else "A decision was committed today.",
-                "source": "founder decision · today"}
+    results = [r for r in ((outcome or {}).get("results") or [])
+               if isinstance(r, dict) and r.get("claim") and r.get("source")]
+    if results:
+        new_facts = results
+        note = "learned the published results"
+    else:
+        new_facts = [{"claim": f"Decided: {decision}" if decision else "A decision was committed today.",
+                      "source": "founder decision · today"}]
+        note = "remembered the day's decision"
     pack = store.pack(project.TOPIC)
-    to = store.commit_pack(store.all_facts() + [new_fact], pack.voice_rules, pack.brand_rules,
-                           groundedness=final_groundedness, note="remembered the day's decision")
+    to = store.commit_pack(store.all_facts() + new_facts, pack.voice_rules, pack.brand_rules,
+                           groundedness=final_groundedness, note=note)
 
     stream.emit(run_id, NS, "Mind Keeper",
                 "route ingestion across 4 channels (repo · web · docs · social)", span="agent_run")
@@ -310,8 +320,9 @@ async def learn(stream: EventStream, run_id: str, outcome: dict) -> a2a.Quadrant
         span="call_llm", model="claude·vertex",
         usage={"input_tokens": 1100, "output_tokens": 220}, rounds=len(rounds),
     )
+    what = "results" if results else "decision"
     stream.action(run_id, NS, "Memory Curator",
-                  f"commit decision to Memory Bank · Context Pack {frm} → {to}",
+                  f"commit {what} to Memory Bank · Context Pack {frm} → {to}",
                   context_pack_from=frm, context_pack_to=to,
                   groundedness=final_groundedness)
     stream.a2a(run_id, NS, "kalai", "context-pack re-bind", state="completed", version=to)
@@ -333,7 +344,8 @@ async def learn(stream: EventStream, run_id: str, outcome: dict) -> a2a.Quadrant
     return a2a.QuadrantResult(
         quadrant=NS, status="completed",
         output={"context_pack_from": frm, "context_pack_to": to,
-                "remembered": outcome.get("decision", ""),
+                "remembered": (f"{len(results)} published result(s)" if results
+                               else outcome.get("decision", "")),
                 "groundedness": final_groundedness, "committed": committed},
         transcript=transcript,
         state={"curate_history": rounds},
