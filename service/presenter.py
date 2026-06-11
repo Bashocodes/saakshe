@@ -4,13 +4,31 @@ Any faculty's raw reply becomes a ``blocks[]`` list the chat panel renders as
 data rows + actionable buttons. Words pass through untouched — same rule as
 kural's assembler: format is not authorship.
 
-Block kinds: text · data · actions · slider · progress · receipt.
+Block kinds: text · data · actions · slider · progress · receipt · options.
 """
 from __future__ import annotations
 
 import re
 
 _MEDIA_WORDS = ("hdr", "video", "reel", "animate", "motion")
+
+# Every answer offers the next asks as tappable chips — agent-to-human talk is
+# structured, never a dead end. Chips are shortcuts; the founder can ALWAYS
+# type instead. Deterministic: drawn from the witness's telemetry buckets,
+# minus whatever was just asked.
+_FOLLOWUPS = (
+    ("wait", "anyone waiting on me?"),
+    ("cost", "what did today cost?"),
+    ("learn", "what did the company learn?"),
+    ("acting", "who's acting right now?"),
+    ("revers", "what's reversible?"),
+)
+
+
+def followup_options(asked: str = "") -> dict:
+    low = (asked or "").lower()
+    items = [{"label": s, "send": s} for k, s in _FOLLOWUPS if k not in low]
+    return {"t": "options", "items": items[:3]}
 
 
 def media_intent(text: str) -> dict:
@@ -22,7 +40,7 @@ def media_intent(text: str) -> dict:
             "wants_hdr": "hdr" in low}
 
 
-def to_blocks(reply: dict) -> list[dict]:
+def to_blocks(reply: dict, asked: str = "") -> list[dict]:
     blocks: list[dict] = [{"t": "text", "who": "saakshe/witness",
                            "md": reply.get("text", "")}]
     # The witness's gate context must reach the panel — "something is waiting"
@@ -37,6 +55,7 @@ def to_blocks(reply: dict) -> list[dict]:
     pills = reply.get("pills") or []
     if pills:
         blocks.append({"t": "data", "rows": [[p, ""] for p in pills]})
+    blocks.append(followup_options(asked))
     return blocks
 
 

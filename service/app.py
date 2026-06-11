@@ -41,6 +41,7 @@ from starlette.websockets import WebSocketDisconnect
 
 import common  # noqa: F401 — bootstraps arivu onto sys.path
 from common import a2a, auth, config, credits, models, project
+from common import agents as staff
 from common.stream import STREAM
 from common.supastream import SupabaseEventStream
 import orchestrator
@@ -430,6 +431,13 @@ def health() -> dict[str, Any]:
     }
 
 
+@app.get("/api/saakshe/agents")
+def agents_registry() -> dict[str, Any]:
+    """The staff register — 42 agents · 4 realms (+ the witness above them).
+    Free, unauthenticated, deterministic: pure data the cockpit renders."""
+    return staff.as_payload()
+
+
 # ─── setu · the connect bridge ────────────────────────────────────────────────
 @app.get("/api/connect/status")
 def connect_status(sess: Session = Depends(_session_dep)) -> dict[str, Any]:
@@ -724,7 +732,18 @@ async def ask(req: AskRequest, request: Request, sess: Session = Depends(_sessio
             return {"kind": "connect_first",
                     "text": "I can't run a decision on a blank memory — connect your project first "
                             "(a repo + your site), and I'll ground the company before deciding.",
-                    "status": _redact_secrets(sess.store.status_dict())}
+                    "status": _redact_secrets(sess.store.status_dict()),
+                    "blocks": [
+                        {"t": "text", "who": "saakshe/witness",
+                         "md": "I can't run a decision on a blank memory — connect your project "
+                               "first (a repo + your site), and I'll ground the company before deciding."},
+                        {"t": "actions", "items": [
+                            {"label": "CONNECT PROJECT", "kind": "primary",
+                             "action": "nav.connections", "args": {}}]},
+                        {"t": "options", "items": [
+                            {"label": "what can you see right now?",
+                             "send": "what can you see right now?"}]},
+                    ]}
         return await _start_flywheel(sess, question=text, idem_key=req.idem_key,
                                      ok_text="That's a real decision — routing it to arivu. A gate will land in your queue.",
                                      wrap_key="flywheel")
@@ -737,7 +756,7 @@ async def ask(req: AskRequest, request: Request, sess: Session = Depends(_sessio
             reply = await witness.respond(text, req.run_id, sess.stream)
     except credits.OutOfCredits as exc:
         return JSONResponse(status_code=402, content=credits.out_of_credits_payload(exc.balance))
-    return {"kind": "witness", **reply, "blocks": presenter.to_blocks(reply)}
+    return {"kind": "witness", **reply, "blocks": presenter.to_blocks(reply, asked=text)}
 
 
 # ─── the flywheel (resumable 2-gate state machine) ───────────────────────────

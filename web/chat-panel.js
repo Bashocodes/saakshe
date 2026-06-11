@@ -1,6 +1,6 @@
 /* saakshe chat panel — always-on right pane. Renders presenter blocks.
    Block kinds (contract in service/presenter.py): text · data · actions ·
-   slider · progress · receipt. The panel formats; it never authors.
+   slider · progress · receipt · options. The panel formats; it never authors.
    Brut skin rides the cockpit tokens (chat-panel.css); the skbot mascot,
    honest error states, voice auth and the collapse rail live here. */
 (function () {
@@ -17,12 +17,16 @@
      faculty-tabs row, just above the ask box. Collapsed = just the bot, big. */
   pane.innerHTML =
     '<div class="ch-feed" id="sa-ch-feed" aria-live="polite"></div>' +
+    '<div id="sa-ch-settings" role="region" aria-label="settings"></div>' +
     '<div class="ch-tabs" role="group" aria-label="filter by faculty">' +
     '<button class="ch-tab on" type="button" data-q="saakshe" aria-pressed="true">saakshe</button>' +
     '<button class="ch-tab" type="button" data-q="manas" aria-pressed="false"><span class="fdot"></span>manas</button>' +
     '<button class="ch-tab" type="button" data-q="kalai" aria-pressed="false"><span class="fdot"></span>kalai</button>' +
     '<button class="ch-tab" type="button" data-q="kural" aria-pressed="false"><span class="fdot"></span>kural</button>' +
     '<span class="live" id="sa-ch-live"></span>' +
+    '<button class="ch-gear" id="sa-ch-gear" type="button" title="settings" aria-label="settings" aria-pressed="false">' +
+    '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.2"/>' +
+    '<path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>' +
     '<button class="ch-collapse" id="sa-ch-clps" type="button" title="collapse the chat pane" aria-label="collapse chat">' +
     '<svg class="ic" aria-hidden="true"><use href="#i-handoff"/></svg></button></div>' +
     '<div class="ch-input"><input id="sa-ch-inp" placeholder="ask saakshe…" aria-label="ask saakshe">' +
@@ -102,9 +106,11 @@
   function msg(who, html, user, stamp) {
     /* every non-user message wears the bot mark — the witness is the one talking */
     var when = stamp || ts();
-    log.push({ who: String(who), html: String(html), user: !!user, ts: when });
+    var entry = { who: String(who), html: String(html), user: !!user, ts: when };
+    log.push(entry);
     var m = el('<div class="msg' + (user ? ' user' : '') + '" data-fac="' + esc(facOf(who)) + '"><div class="who">' +
                (user ? '' : BOT) + esc(who) + '<span class="ts">' + esc(when) + '</span></div><p>' + html + '</p></div>');
+    m._log = entry;                 // options blocks ride the entry into sessionStorage
     applyFacFilter(m);
     feed.appendChild(m); down(); persist(); return m;
   }
@@ -124,6 +130,26 @@
   function lockActs(scope) {
     if (!scope) return;
     scope.querySelectorAll('.act').forEach(function (b) { b.classList.add('done'); });
+  }
+
+  /* options chips — the founder's core chat principle: EVERY answer offers
+     tappable next steps, while typing stays always available. A chip click ==
+     typing item.send and pressing send. Once one chip in a row fires, the row
+     is spent — options reflect the moment they were offered. Built via DOM +
+     dataset (same no-attribute-injection rule as actBtn). */
+  function renderOpts(host, items, spent) {
+    var row = el('<div class="ch-opts' + (spent ? ' spent' : '') + '"></div>');
+    items.forEach(function (i) {
+      var b = document.createElement('button');
+      b.className = 'ch-opt';
+      b.type = 'button';
+      b.dataset.send = String(i.send || i.label || '');
+      b.textContent = String(i.label || i.send || '');
+      if (spent) b.disabled = true;
+      row.appendChild(b);
+    });
+    host.appendChild(row);
+    return row;
   }
 
   /* actions render via DOM + dataset — never string-built attributes (an args
@@ -176,6 +202,13 @@
         };
         last.appendChild(s);
       }
+      else if (b.t === 'options' && Array.isArray(b.items) && b.items.length) {
+        var clean = b.items.map(function (i) {
+          return { label: String(i.label || i.send || ''), send: String(i.send || i.label || '') };
+        });
+        renderOpts(last || feed, clean, false);
+        if (last && last._log) last._log.opts = clean;   // refresh restores the row (spent)
+      }
       else if (b.t === 'progress') pollJob(b.job_id);
     });
     down(); persist();
@@ -216,6 +249,18 @@
   feed.addEventListener('click', function (e) {
     var sg = e.target.closest('.sug');
     if (sg) { input.value = sg.dataset.ask || sg.textContent; send(); return; }
+    var op = e.target.closest('.ch-opt');
+    if (op) {
+      /* a chip == the founder typed it; spend the row only if the send took
+         (inflight asks bounce, and the row must stay live for a retry) */
+      var row = op.closest('.ch-opts');
+      if (row && !row.classList.contains('spent') &&
+          sendText(op.dataset.send || op.textContent)) {
+        row.classList.add('spent');
+        row.querySelectorAll('.ch-opt').forEach(function (x) { x.disabled = true; });
+      }
+      return;
+    }
     var b = e.target.closest('.act');
     if (!b || b.classList.contains('done')) return;
     var action = b.dataset.action, args = {};
@@ -224,6 +269,7 @@
     if (action === 'auth.signin') { if (window.SAAKSHE_AUTH) SAAKSHE_AUTH.signIn(); return; }
     if (action === 'open.pricing') { window.open('/pricing.html', '_blank', 'noopener'); return; }
     if (action === 'nav.questions') { if (window.cockpitGo) window.cockpitGo('questions', null); return; }
+    if (action === 'nav.connections') { if (window.cockpitGo) window.cockpitGo('manas', 'connections'); return; }
     lockActs(b.closest('.acts'));
     if (action === 'media.render') startRender();
     else if (action === 'media.requote') { if (args.seconds) state.seconds = args.seconds; requote(); }
@@ -380,11 +426,14 @@
   function syncSend() { sendBtn.disabled = state.inflight || !input.value.trim(); }
   input.addEventListener('input', syncSend);
 
-  function send() {
-    var text = input.value.trim();
-    if (!text || state.inflight) return;
+  /* sendText: the ONE ask path — typed sends and options chips both land here.
+     Echoes the user bubble + POSTs /api/saakshe/ask. Returns true when the ask
+     actually went out (false on empty / already inflight). */
+  function sendText(text) {
+    text = String(text == null ? '' : text).trim();
+    if (!text || state.inflight) return false;
+    setSettings(false);                           // an ask always surfaces the feed
     msg('YOU', esc(text), true);
-    input.value = ''; syncSend();
     var low = text.toLowerCase();
     var m = low.match(/\$\s*(\d+(?:\.\d+)?)/);
     if (m && MEDIA_WORDS.some(function (w) { return low.indexOf(w) !== -1; })) {
@@ -400,6 +449,10 @@
       renderBlocks(d.blocks && d.blocks.length ? d.blocks :
         [{ t: 'text', who: 'saakshe', md: d.text || '…' }]);
     });
+    return true;
+  }
+  function send() {
+    if (sendText(input.value)) { input.value = ''; syncSend(); }
   }
 
   /* ── voice: /ws/voice — Gemini Live native-audio bridge ──
@@ -543,6 +596,7 @@
   }
   pane.querySelectorAll('.ch-tab').forEach(function (t) {
     t.onclick = function () {
+      setSettings(false);                     // any faculty tab returns to chat
       pane.querySelectorAll('.ch-tab').forEach(function (x) {
         x.classList.remove('on'); x.setAttribute('aria-pressed', 'false');
       });
@@ -552,6 +606,41 @@
       down(true);
     };
   });
+
+  /* ── settings INSIDE the pane: the layout law — sidebar + canvas never move;
+     the only thing that changes on the right is this pane's content,
+     chat ↔ settings. Toggling is display-only: the feed DOM (and its scroll
+     position) survives untouched. ── */
+  var settingsEl = document.getElementById('sa-ch-settings');
+  var gearBtn = document.getElementById('sa-ch-gear');
+  var settingsOn = false, feedScroll = 0;
+  function fillSettings() {
+    /* filled lazily on every open — the cockpit owns the markup (and the
+       document-level delegation for its controls); we own the back row */
+    var back = '<button class="ch-setsback" type="button">back to chat</button>';
+    if (typeof window.SK_SETTINGS_HTML === 'function') {
+      settingsEl.innerHTML = back + window.SK_SETTINGS_HTML();
+    } else {
+      settingsEl.innerHTML = back +
+        '<div class="ch-setsnote">settings live on the stage for now.</div>' +
+        '<button class="act plain ch-setsgo" type="button">OPEN SETTINGS</button>';
+      settingsEl.querySelector('.ch-setsgo').onclick = function () {
+        if (window.cockpitGo) window.cockpitGo('settings');
+      };
+    }
+    settingsEl.querySelector('.ch-setsback').onclick = function () { setSettings(false); };
+  }
+  function setSettings(on) {
+    on = !!on;
+    if (on === settingsOn) return;
+    if (on) { feedScroll = feed.scrollTop; fillSettings(); }
+    settingsOn = on;
+    pane.classList.toggle('settings-on', on);
+    gearBtn.classList.toggle('on', on);
+    gearBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
+    if (!on) feed.scrollTop = feedScroll;     // exactly as it was
+  }
+  gearBtn.onclick = function () { setSettings(!settingsOn); };
 
   /* ── collapse rail (desktop) + FAB (narrow) ── */
   var H = document.documentElement;
@@ -581,6 +670,7 @@
      every ask here instead of keeping a second chat surface ── */
   window.SK_CHAT = {
     open: function () {
+      setSettings(false);
       if (window.innerWidth < 1100) { H.classList.add('sk-chat-open'); }
       else { setCollapsed(false); }
       down(true); input.focus();
@@ -616,7 +706,13 @@
   if (restored && restored.v === 2 && Array.isArray(restored.items) && restored.items.length) {
     restored.items.forEach(function (it) {
       if (it && typeof it.html === 'string') {
-        msg(String(it.who || 'SΛΛKSHE'), it.html, !!it.user, String(it.ts || ''));
+        var rm = msg(String(it.who || 'SΛΛKSHE'), it.html, !!it.user, String(it.ts || ''));
+        if (Array.isArray(it.opts) && it.opts.length) {
+          /* restored options render SPENT — they reflect the moment they were
+             offered; keep them on the fresh log entry so they survive again */
+          if (rm._log) rm._log.opts = it.opts;
+          renderOpts(rm, it.opts, true);
+        }
       }
     });
     down(true);

@@ -1246,6 +1246,74 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
   /* the collapse affordance is a desktop concept */
   #sa-chatpane .ch-collapse{ display:none; }
 }
+
+/* ===================== THE STAFF REGISTER (42 agents · 4 realms) ============
+   Flat data board: hard borders, theme tokens, offset shadows in light, flat
+   dark. Status dot = filled realm hue (live) · hollow realm ring (planned) ·
+   faint grey (benched). No gradients, no colored edge streaks. */
+.stf-hero{ display:flex; align-items:center; gap:13px; flex-wrap:wrap;
+  border:var(--hair) solid var(--hairline); border-radius:var(--r6); background:var(--plate);
+  box-shadow:var(--shadow-sm); padding:9px 13px; margin-bottom:12px; }
+.stf-hero .stf-counts{ font-family:var(--font-mono); font-size:11.5px; color:var(--muted); }
+.stf-hero .stf-witness{ margin-left:auto; display:inline-flex; align-items:center; gap:7px;
+  font-family:var(--font-mono); font-size:11px; color:var(--muted); text-align:right; }
+.stf-hero .stf-witness .dot{ width:8px; height:8px; }
+.stf-scroll{ flex:1 1 auto; min-height:0; overflow-y:auto; padding-right:2px; }
+.stf-sec{ display:flex; align-items:baseline; gap:9px; margin:13px 2px 8px; }
+.stf-sec:first-child{ margin-top:2px; }
+.stf-glyph{ font-size:13px; line-height:1; }
+.stf-realm{ font-family:var(--font-display); font-size:15px; line-height:1.2; }
+.stf-word{ font-family:var(--font-mono); font-size:10.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); }
+.stf-verb{ font-family:var(--font-body); font-style:italic; font-size:12px; color:var(--muted); }
+.stf-live{ margin-left:auto; font-family:var(--font-mono); font-size:11px; color:var(--muted); white-space:nowrap; }
+.stf-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:9px; }
+.stf-chip{ display:flex; flex-direction:column; gap:2px; min-width:0; text-align:left; cursor:pointer;
+  background:var(--plate); border:var(--hair) solid var(--hairline); border-radius:var(--r);
+  box-shadow:var(--shadow-sm); padding:8px 10px 7px; color:var(--ink); }
+.stf-chip:hover{ border-color:var(--accent); }
+.stf-call{ display:flex; align-items:center; gap:7px; font-family:var(--font-mono); font-size:14.5px; font-weight:700; letter-spacing:.02em; min-width:0; }
+.stf-dot{ width:9px; height:9px; border-radius:50%; flex:0 0 auto; display:inline-block; }
+.stf-tag{ margin-left:auto; font-family:var(--font-mono); font-size:9px; font-weight:700; letter-spacing:.08em;
+  color:var(--ink-3); border:1px solid var(--hairline); border-radius:4px; padding:1px 5px; flex:0 0 auto; }
+.stf-name{ font-family:var(--font-body); font-size:11px; color:var(--ink-2); line-height:1.3;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.stf-bench .stf-chip{ opacity:.55; }
+/* per-realm slim staff strip (BUILD.manas/arivu/kalai/kural) */
+.stf-strip{ display:flex; align-items:center; gap:7px; flex-wrap:wrap; width:100%;
+  border:var(--hair) solid var(--hairline); border-radius:var(--r6); background:var(--plate);
+  box-shadow:var(--shadow); padding:7px 13px; }
+.stf-lbl{ font-family:var(--font-mono); font-size:11px; font-weight:600; letter-spacing:.1em;
+  text-transform:uppercase; color:var(--muted); flex:0 0 auto; margin-right:4px; }
+.stf-mini{ display:inline-flex; align-items:center; gap:6px; cursor:pointer;
+  font-family:var(--font-mono); font-size:11px; font-weight:700; letter-spacing:.02em; color:var(--ink);
+  background:var(--wash); border:var(--hair) solid var(--hairline); border-radius:var(--radius-pill); padding:3px 9px; }
+.stf-mini:hover{ border-color:var(--accent); }
+.stf-mini .stf-dot{ width:7px; height:7px; }
+.stf-all{ margin-left:auto; cursor:pointer; background:transparent; border:0; padding:3px 2px;
+  font-family:var(--font-mono); font-size:11px; font-weight:700; color:var(--ink-3); white-space:nowrap; }
+.stf-all:hover{ color:var(--ink); text-decoration:underline; }
+/* the staff strip adds a 4th row to every quadrant stack */
+.qstack{ grid-template-rows:auto auto auto minmax(0,1fr); }
+
+/* ===================== kalai BRAND SHELF (served by manas) ================== */
+.shelf-grid{ display:flex; flex-wrap:wrap; gap:10px; }
+.shelf-tile{ margin:0; display:flex; flex-direction:column; align-items:center; gap:3px; }
+.shelf-tile img{ width:56px; height:56px; object-fit:contain; background:var(--wash);
+  border:2px solid var(--line); border-radius:var(--r); }
+.shelf-tag{ font-family:var(--font-mono); font-size:9px; font-weight:700; letter-spacing:.1em; color:var(--ink-3); }
+.shelf-ask{ display:flex; align-items:center; gap:9px; flex-wrap:wrap; margin-top:10px; font-size:12.5px; }
+.shelf-up{ display:flex; align-items:center; justify-content:center; gap:8px; width:100%; min-height:62px;
+  cursor:pointer; font-family:var(--font-body); font-size:12.5px; font-weight:600; color:var(--muted);
+  background:var(--wash); border:2px solid var(--hairline); border-radius:var(--r); }
+.shelf-up:hover{ border-color:var(--accent); color:var(--ink); }
+.shelf-note{ font-size:11.5px; color:var(--muted); line-height:1.45; margin-top:7px; }
+
+/* ===================== settings, exported into the chat pane ================
+   SK_SETTINGS_HTML wraps the same panels in .sk-settings-one — forced to ONE
+   column at any width (the pane is ~30vw). */
+.sk-settings-one{ display:flex; flex-direction:column; min-width:0; }
+.sk-settings-one .grid2{ display:flex; flex-direction:column; gap:9px; margin-top:0 !important; }
+.sk-settings-one .panel{ box-shadow:var(--shadow-sm); }
 </style>
 <link rel="stylesheet" href="chat-panel.css">
 </head>
@@ -1334,6 +1402,7 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
         <li><button class="nav tip-r" data-view="manas" type="button" data-tip="manas — knows"><span class="navic"><span class="dot manas lg"></span><span class="navini">m</span></span><span class="lbl">manas</span><span class="nstat"><span class="nidle">idle</span></span></button></li>
         <li><button class="nav tip-r" data-view="kalai" type="button" data-tip="kalai — creates"><span class="navic"><span class="dot kalai lg"></span><span class="navini">ka</span></span><span class="lbl">kalai</span><span class="nstat"><span class="nidle">idle</span></span></button></li>
         <li><button class="nav tip-r" data-view="kural" type="button" data-tip="kural — engages"><span class="navic"><span class="dot kural lg"></span><span class="navini">ku</span></span><span class="lbl">kural</span><span class="nstat"><span class="nidle">idle</span></span></button></li>
+        <li><button class="nav tip-r" data-view="staff" type="button" data-tip="the staff register — 42 agents · 4 realms"><span class="navic"><span class="dot saksi lg"></span><span class="navini">st</span></span><span class="lbl">staff</span><span class="nstat"><span class="nidle" id="staffNavCt">42</span></span></button></li>
         <li class="nsec">Attention</li>
         <li><button class="nav tip-r" data-view="questions" type="button" data-tip="Questions needing you"><span class="navic"><svg class="ic sm"><use href="#i-question"/></svg></span><span class="lbl">Questions</span><span class="badge red" id="navQBadge" style="display:none">0</span></button></li>
         <li><button class="nav tip-r" data-view="activity" type="button" data-tip="Activity — the day as a feed"><span class="navic"><svg class="ic sm"><use href="#i-activity"/></svg></span><span class="lbl">Activity</span></button></li>
@@ -1562,7 +1631,7 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
     return '<div class="constrip panel" data-drill="connections" role="button" tabindex="0" aria-label="open connections — setu · the bridge">'
       + '<span class="cslabel">'+icon(CONNHEAD[quad].ic,'sm')+'Connections</span>'
       + connRowHTML(quad)
-      + (CSPROV[quad]||'')
+      + (quad==='manas' ? manasProvHTML() : (CSPROV[quad]||''))
       + '<span class="cstag">'+icon('handoff','sm')+'setu · the bridge</span>'
       + '</div>';
   }
@@ -1586,6 +1655,202 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
   }
   function permListHTML(quad){
     return '<div class="permlist">'+CONNS[quad].map(permRowHTML).join('')+'</div>';
+  }
+
+  /* ===================== THE STAFF REGISTER ==================================
+     Canonical staff data — 42 agents · 4 realms (+ the witness above them).
+     Embedded fallback from common/agents.as_payload() so the register renders
+     with no backend; /api/saakshe/agents overwrites it on boot when reachable. */
+  var SK_STAFF = {"total":42,"types":{"orchestrator":7,"action":20,"verifier":13,"keeper":2},"realms":{"manas":{"realm":"memory","verb":"knows","glyph":"\u25cf","hue":"#88602c","ui":{"light":"#E3A52B","dark":"#E0B25A"},"line":"the storehouse \u2014 everything the company has ever grasped","count":10,"live":9,"agents":[{"id":"mind_keeper","call":"MiKe","name":"Mind Keeper","expansion":"ingestion coordinator","realm":"manas","type":"orchestrator","model":"gemini-pro","status":"live","does":"Routes every connect across the channel readers and owns the imbibe."},{"id":"repo_reader","call":"ReRe","name":"Repo Reader","expansion":"repository imbiber","realm":"manas","type":"action","model":"gemini-flash","status":"live","does":"Reads a GitHub repo (public, SSH or PAT) \u2014 README, manifests, structure, docs."},{"id":"web_reader","call":"WeRe","name":"Web Reader","expansion":"website imbiber","realm":"manas","type":"action","model":"gemini-flash","status":"live","does":"Crawls the live site \u2014 copy, pages, og-images; feeds the Asset Keeper."},{"id":"docs_reader","call":"DoRe","name":"Docs Reader","expansion":"document imbiber","realm":"manas","type":"action","model":"gemini-flash","status":"live","does":"Reads linked docs pages and parses the brand canon."},{"id":"social_reader","call":"SoRe","name":"Social Reader","expansion":"social-profile imbiber","realm":"manas","type":"action","model":"gemini-flash","status":"live","does":"Reads public X/Instagram/LinkedIn profiles for voice and pulse."},{"id":"media_reader","call":"MeRe","name":"Media Reader","expansion":"pdf \u00b7 video \u00b7 image imbiber","realm":"manas","type":"action","model":null,"status":"planned","does":"ONE reader, many streams \u2014 PDF, video, image decode land here, not as ten agents."},{"id":"memory_curator","call":"MeCu","name":"Memory Curator","expansion":"verify-before-commit librarian","realm":"manas","type":"verifier","model":"claude-vertex","status":"live","does":"No claim enters memory without a source; finds contradictions, raises doubts."},{"id":"founder_voice","call":"FoVo","name":"Founder Voice","expansion":"grounded company answerer","realm":"manas","type":"action","model":"claude-vertex","status":"live","does":"Answers only from the corpus \u2014 refuses anything it cannot cite."},{"id":"asset_keeper","call":"AsKe","name":"Asset Keeper","expansion":"brand-asset vault custodian","realm":"manas","type":"keeper","model":"deterministic","status":"live","does":"Holds logos and references with provenance + sha256; serves them to kalai."},{"id":"pack_binder","call":"PaBi","name":"Pack Binder","expansion":"context-pack versioner","realm":"manas","type":"keeper","model":"deterministic","status":"live","does":"Binds each learn into Context Pack vN\u2192vN+1 \u2014 the company remembers."}]},"arivu":{"realm":"intellect","verb":"decides","glyph":"\u25c6","hue":"#5166a7","ui":{"light":"#3551C8","dark":"#7C97F2"},"line":"the chamber \u2014 deliberation earned through opposition","count":10,"live":10,"agents":[{"id":"chair","call":"ChAi","name":"Chair","expansion":"chamber framer","realm":"arivu","type":"orchestrator","model":"gemini-pro","status":"live","does":"Frames the question and grounds the chamber before any mantri speaks."},{"id":"economist","call":"EcOn","name":"Economist","expansion":"unit-economics mantri","realm":"arivu","type":"action","model":"gemini-flash","status":"live","does":"Argues the numbers \u2014 pricing, margin, unit economics (3-advisor ensemble)."},{"id":"growth_advocate","call":"GrAd","name":"Growth Advocate","expansion":"funnel & acquisition mantri","realm":"arivu","type":"action","model":"gemini-flash","status":"live","does":"Argues reach \u2014 funnel, acquisition, what compounds (3-advisor ensemble)."},{"id":"brand_guardian","call":"BrGu","name":"Brand Guardian","expansion":"canon & promises mantri","realm":"arivu","type":"verifier","model":"gemini-flash","status":"live","does":"Defends the canon \u2014 what the brand has promised and must not break."},{"id":"risk_advocate","call":"RiAd","name":"Risk Advocate","expansion":"downside-first devil's advocate","realm":"arivu","type":"verifier","model":"gemini-flash","status":"live","does":"Attacks every plan downside-first so the verdict is earned, not agreed."},{"id":"ops_mantri","call":"OpMa","name":"Ops Mantri","expansion":"can-we-ship-this mantri","realm":"arivu","type":"verifier","model":"gemini-flash","status":"live","does":"Checks feasibility \u2014 can the company actually execute this."},{"id":"debate_moderator","call":"DeMo","name":"Debate Moderator","expansion":"convergence loop moderator","realm":"arivu","type":"orchestrator","model":"gemini-flash","status":"live","does":"Runs the debate rounds; exits only on numeric convergence or rollback."},{"id":"verdict_chair","call":"VeCh","name":"Verdict Chair","expansion":"chamber synthesizer","realm":"arivu","type":"orchestrator","model":"claude-vertex","status":"live","does":"Writes the one verdict the chamber earned; halts at the founder's tap."},{"id":"prosecutor","call":"PrOs","name":"Prosecutor","expansion":"verdict cross-examiner","realm":"arivu","type":"verifier","model":"claude-vertex","status":"live","does":"Prosecutes the verdict; below defensibility 0.80 it dies (reviser stream repairs)."},{"id":"executor","call":"ExEc","name":"Executor","expansion":"approved-decision dispatcher","realm":"arivu","type":"action","model":"deterministic","status":"live","does":"Fires ONLY after tap-1 approval \u2014 commits and dispatches to kalai/kural."}]},"kalai":{"realm":"imagination","verb":"makes","glyph":"\u25b2","hue":"#b35a4e","ui":{"light":"#CC4632","dark":"#E0685C"},"line":"the studio \u2014 everything the company shows the world","count":11,"live":10,"agents":[{"id":"creative_director","call":"CrDi","name":"Creative Director","expansion":"concept & guardrail framer","realm":"kalai","type":"orchestrator","model":"claude-vertex","status":"live","does":"Frames the concept and brand guardrails every desk works inside."},{"id":"designer_producer","call":"DePr","name":"Designer Producer","expansion":"visual master-spec desk","realm":"kalai","type":"action","model":"gemini-flash","status":"live","does":"Composes the visual spec \u2014 layout, palette, formats per platform."},{"id":"copy_smith","call":"CoSm","name":"Copy Smith","expansion":"copy & SEO desk","realm":"kalai","type":"action","model":"gemini-flash","status":"live","does":"Writes every variant of the words \u2014 captions, posts, SEO."},{"id":"still_maker","call":"StMa","name":"Still Maker","expansion":"poster & still renderer","realm":"kalai","type":"action","model":"vertex-imagen","status":"live","does":"Renders stills and posters (Imagen) after compliance clears \u2014 never before."},{"id":"reel_maker","call":"ReMa","name":"Reel Maker","expansion":"reel & shorts renderer","realm":"kalai","type":"action","model":"vertex-veo","status":"live","does":"Renders motion (Veo). Reels and Shorts are ONE craft \u2014 one agent, two stages."},{"id":"sound_maker","call":"SoMa","name":"Sound Maker","expansion":"music \u00b7 sfx \u00b7 voice renderer","realm":"kalai","type":"action","model":null,"status":"planned","does":"Audio as one craft \u2014 music, SFX and voice land here as streams."},{"id":"brand_scorer","call":"BrSc","name":"Brand Scorer","expansion":"brand-consistency lens","realm":"kalai","type":"verifier","model":"gemini-flash","status":"live","does":"Scores palette, lockups, grid against the brand pack (0\u201310)."},{"id":"voice_scorer","call":"VoSc","name":"Voice Scorer","expansion":"voice-tone lens","realm":"kalai","type":"verifier","model":"gemini-flash","status":"live","does":"Scores the words against the voice rules \u2014 calm, candid, anti-hype."},{"id":"platform_scorer","call":"PlSc","name":"Platform Scorer","expansion":"platform-fit lens","realm":"kalai","type":"verifier","model":"gemini-flash","status":"live","does":"Scores crop, format, length per destination platform."},{"id":"edge_scorer","call":"EdSc","name":"Edge Scorer","expansion":"compliance-edge lens","realm":"kalai","type":"verifier","model":"gemini-flash","status":"live","does":"Scores claims/rights/tone risk before the gate even looks."},{"id":"compliance_gate","call":"CoGa","name":"Compliance Gate","expansion":"fail-closed clearance","realm":"kalai","type":"verifier","model":"claude-vertex","status":"live","does":"Cleared or blocked \u2014 default-deny; nothing renders or ships uncleared."}]},"kural":{"realm":"communication","verb":"engages","glyph":"\u25fc","hue":"#3e725f","ui":{"light":"#3E8F5E","dark":"#5EF08A"},"line":"the mouth \u2014 consented, gated, never a blast","count":11,"live":11,"agents":[{"id":"envoy_lead","call":"EnLe","name":"Envoy Lead","expansion":"engagement qualifier","realm":"kural","type":"orchestrator","model":"claude-vertex","status":"live","does":"Decides if this is worth saying at all before anyone drafts a send."},{"id":"prospect_scout","call":"PrSc","name":"Prospect Scout","expansion":"audience prospector","realm":"kural","type":"action","model":"gemini-flash","status":"live","does":"Scouts profiles and communities; brings strategy back, never posts."},{"id":"market_watcher","call":"MaWa","name":"Market Watcher","expansion":"feed & competitor watcher","realm":"kural","type":"action","model":"gemini-flash","status":"live","does":"Watches the feeds \u2014 what the market is saying and when it's crowded."},{"id":"consent_reader","call":"CoRe","name":"Consent Reader","expansion":"consent & permission lens","realm":"kural","type":"verifier","model":"gemini-flash","status":"live","does":"Counts who actually consented \u2014 kural never blasts."},{"id":"reach_reader","call":"ReaRe","name":"Reach Reader","expansion":"reachable-audience lens","realm":"kural","type":"action","model":"gemini-flash","status":"live","does":"Measures who is reachable and active in the last 30 days."},{"id":"topic_reader","call":"ToRe","name":"Topic Reader","expansion":"topic-fit lens","realm":"kural","type":"verifier","model":"gemini-flash","status":"live","does":"Checks the message actually fits what this audience signed up for."},{"id":"timing_reader","call":"TiRe","name":"Timing Reader","expansion":"open-window lens","realm":"kural","type":"action","model":"gemini-flash","status":"live","does":"Finds the open window \u2014 crowded feed, staleness, when to speak."},{"id":"delivery_planner","call":"DePl","name":"Delivery Planner","expansion":"variant \u00d7 segment \u00d7 window picker","realm":"kural","type":"orchestrator","model":"claude-vertex","status":"live","does":"Picks what goes where and when \u2014 its schema has no text field; it cannot author."},{"id":"email_envoy","call":"EmEn","name":"Email Envoy","expansion":"consented outreach sender","realm":"kural","type":"action","model":"deterministic","status":"live","does":"Sends the consented one-to-one outreach, ledgered \u2014 no double-send, ever."},{"id":"channel_mouth","call":"ChMo","name":"Channel Mouth","expansion":"platform publisher","realm":"kural","type":"action","model":"deterministic","status":"live","does":"The one mouth. Streams: X \u00b7 Instagram \u00b7 LinkedIn live; Pinterest \u00b7 YouTube planned. Assembles kalai's words verbatim and publishes only past tap-2."},{"id":"send_gate","call":"SeGa","name":"Send Gate","expansion":"send-eligibility gate","realm":"kural","type":"verifier","model":"deterministic","status":"live","does":"Fail-closed: qualified + consented + under cap, or nothing leaves."}]}},"witness":{"id":"witness","call":"Witness","name":"saakshe","expansion":"the founder's eye","realm":"witness","type":"verifier","model":"gemini-pro","status":"live","does":"Sees everything, touches nothing \u2014 telemetry-only, refuses to invent numbers it can't see. The 43rd eye above the 42."},"benched":[{"id":"prahari","call":"PraHa","name":"Prahari","expansion":"code-change sentry","realm":"arivu","type":"action","model":null,"status":"benched","does":"The hands that change code \u2014 drafts the diff, opens the request, never merges. Benched for the hackathon; wakes after."}]};
+  var TYPETAG = { orchestrator:'ORCH', action:'ACT', verifier:'VER', keeper:'KEEP' };
+  function stfDotStyle(status, realmKey){
+    if(status==='live')    return 'background:var(--'+realmKey+')';
+    if(status==='planned') return 'background:transparent;border:1.5px solid var(--'+realmKey+')';
+    return 'background:var(--faint)';
+  }
+  function stfTip(a){ return esc((a.expansion||'')+' — '+(a.does||'')); }
+  function staffChipHTML(a, realmKey){
+    return '<button class="stf-chip" type="button" data-view="'+esc(realmKey)+'" title="'+stfTip(a)+'">'
+      +'<span class="stf-call"><span class="stf-dot" style="'+stfDotStyle(a.status, realmKey)+'"></span>'+esc(a.call)
+      +'<span class="stf-tag">'+(TYPETAG[a.type]||'ACT')+'</span></span>'
+      +'<span class="stf-name">'+esc(a.name)+'</span>'
+      +'</button>';
+  }
+  function staffRealmSectionHTML(key){
+    var r = SK_STAFF.realms[key]; if(!r) return '';
+    return '<div class="stf-sec">'
+      +'<span class="stf-glyph c-'+key+'">'+esc(r.glyph||'')+'</span>'
+      +'<span class="stf-realm c-'+key+'">'+key+'</span>'
+      +'<span class="stf-word">'+esc(r.realm||'')+'</span>'
+      +'<span class="stf-verb">'+esc(r.verb||'')+'</span>'
+      +'<span class="stf-live">'+(r.live||0)+' live / '+(r.count||((r.agents||[]).length))+'</span>'
+      +'</div>'
+      +'<div class="stf-grid">'+(r.agents||[]).map(function(a){ return staffChipHTML(a, key); }).join('')+'</div>';
+  }
+  /* slim per-realm strip — call-signs only, dots carry the truth */
+  function staffStripHTML(quad){
+    var r = SK_STAFF && SK_STAFF.realms && SK_STAFF.realms[quad];
+    if(!r) return '';
+    var chips = (r.agents||[]).map(function(a){
+      return '<button class="stf-mini" type="button" data-view="staff" title="'+stfTip(a)+'">'
+        +'<span class="stf-dot" style="'+stfDotStyle(a.status, quad)+'"></span>'+esc(a.call)+'</button>';
+    }).join('');
+    return '<div class="stf-strip" data-staffstrip="'+quad+'">'
+      +'<span class="stf-lbl">staff — '+(r.count||(r.agents||[]).length)+' seats</span>'
+      + chips
+      +'<button class="stf-all" type="button" data-view="staff">view all '+((SK_STAFF&&SK_STAFF.total)||42)+' →</button>'
+      +'</div>';
+  }
+  /* boot: overwrite the embedded register with the live one (fail-soft) */
+  (function(){
+    try{
+      fetch('/api/saakshe/agents',{cache:'no-store'}).then(function(r){ return r.ok ? r.json() : null; })
+      .then(function(d){
+        if(d && d.realms && d.total){
+          SK_STAFF = d;
+          var ne=document.getElementById('staffNavCt'); if(ne) ne.textContent=String(d.total);
+          if(STATE.view==='staff'){ render(); }
+        }
+      }).catch(function(){});
+    }catch(e){}
+  })();
+
+  /* ===================== manas PRESENCE BOARD ================================
+     The six manas chips are ALWAYS visible; their lit state is REAL. Unlit =
+     the .off look + "+ connect" — the founder must always SEE what manas does
+     not yet have. Fail-soft: with no backend the hardcoded demo look stands. */
+  var PRES = { status:null, at:0 };
+  var VAULT = { assets:null, note:'' };     /* null = never fetched (demo look) */
+  var MANAS_SUBS = CONNS.manas.map(function(c){ return c.sub; });
+  function applyPresence(){
+    if(!PRES.status) return false;          /* no real status — keep the demo look */
+    var st = PRES.status, kinds = {};
+    (st.connections||[]).forEach(function(c){ if(c && c.kind) kinds[String(c.kind).toLowerCase()]=true; });
+    var assetsKnown = (VAULT.assets!==null);
+    var lit = [
+      !!(kinds.github || kinds.repo || kinds.code),                /* repository  */
+      !!(kinds.website || kinds.web || kinds.site),                /* website     */
+      !!kinds.docs,                                                /* documents   */
+      assetsKnown ? !!VAULT.assets.length : !!st.asset_count,      /* brand assets*/
+      !!kinds.social,                                              /* social      */
+      !!(st.grounded && st.version && st.version!=='v0')           /* memory bank */
+    ];
+    var before = CONNS.manas.map(function(c){ return c.st; }).join(',');
+    CONNS.manas.forEach(function(c,i){
+      c.st  = lit[i] ? 'granted' : 'off';
+      c.sub = lit[i] ? MANAS_SUBS[i] : '+ connect';
+    });
+    return CONNS.manas.map(function(c){ return c.st; }).join(',') !== before;
+  }
+  function manasProvHTML(){
+    if(!PRES.status) return CSPROV.manas;
+    var lit = CONNS.manas.filter(function(c){ return c.st==='granted'; }).length;
+    return '<span class="csprov">'+(lit===6
+      ? 'six grants <span class="arr">→</span> six buckets'
+      : lit+' of 6 lit · <b>+ connect</b> the rest')+'</span>';
+  }
+  var presBusy=false;
+  function fetchPresence(){
+    if(presBusy) return; presBusy=true;
+    var H=(window.SA_HEADERS||Object)();
+    Promise.all([
+      fetch('/api/connect/status',{cache:'no-store',headers:H})
+        .then(function(r){ return r.ok ? r.json() : null; }).catch(function(){ return null; }),
+      fetch('/api/vault/list',{cache:'no-store',headers:H})
+        .then(function(r){ return r.ok ? r.json() : null; }).catch(function(){ return null; })
+    ]).then(function(res){
+      presBusy=false;
+      if(res[0]){ PRES.status=res[0]; PRES.at=Date.now(); }
+      if(res[1] && res[1].assets){ VAULT.assets=res[1].assets; VAULT.note=''; }
+      var changed = applyPresence();
+      renderBrandShelf();
+      if(changed && STATE.view==='manas'){ render(); }
+    });
+  }
+  setTimeout(fetchPresence, 400);                       /* once at boot */
+  setInterval(function(){ if(STATE.view==='manas'){ fetchPresence(); } }, 30000);
+
+  /* ===================== kalai BRAND SHELF (served by manas) ================= */
+  function brandShelfHTML(){
+    var assets = VAULT.assets;
+    if(assets===null || !assets.length){
+      return '<button class="shelf-up" type="button" data-logoupload>'+icon('upload','sm')+'<span>drop your logo — it lands in the vault</span></button>'
+        +'<div class="shelf-note">manas found no logo in your sources — drop yours here; it lands in the vault and every realm can use it.</div>'
+        +(VAULT.note?'<div class="shelf-note">'+esc(VAULT.note)+'</div>':'');
+    }
+    var sorted = assets.slice().sort(function(a,b){ return (a.kind==='logo'?0:1)-(b.kind==='logo'?0:1); });
+    var tiles = sorted.map(function(a){
+      return '<figure class="shelf-tile" title="'+esc((a.filename||'')+(a.provenance?' — '+a.provenance:''))+'">'
+        +'<img src="/api/vault/asset?uri='+encodeURIComponent(a.uri||'')+'" alt="'+esc(a.filename||a.kind||'asset')+'" loading="lazy">'
+        +'<figcaption class="shelf-tag">'+(a.kind==='logo'?'LOGO':'REF')+'</figcaption></figure>';
+    }).join('');
+    var logo = (sorted[0] && sorted[0].kind==='logo') ? sorted[0] : null;
+    var ask='';
+    if(logo){
+      var confirmedUri=''; try{ confirmedUri=localStorage.getItem('sk-logo-confirmed')||''; }catch(e){}
+      ask = '<div class="shelf-ask">'
+        + (confirmedUri && confirmedUri===logo.uri
+          ? '<span class="t-green">'+icon('check','sm')+' confirmed — this is the logo</span>'
+            +'<button class="qbtn" type="button" data-logoreplace style="width:auto;">REPLACE</button>'
+          : '<span>this is your logo?</span>'
+            +'<button class="qbtn" type="button" data-logoconfirm="'+esc(logo.uri||'')+'" style="width:auto;">CONFIRM</button>'
+            +'<button class="qbtn" type="button" data-logoreplace style="width:auto;">REPLACE</button>')
+        +'</div>';
+    }
+    return '<div class="shelf-grid">'+tiles+'</div>'+ask
+      +(VAULT.note?'<div class="shelf-note">'+esc(VAULT.note)+'</div>':'');
+  }
+  function renderBrandShelf(){
+    var el=document.getElementById('kalaiShelfBody'); if(el){ el.innerHTML=brandShelfHTML(); }
+    var ct=document.getElementById('kalaiShelfCt');
+    if(ct){ ct.textContent = (VAULT.assets && VAULT.assets.length)
+      ? (VAULT.assets.length+' in the vault') : 'vault empty · served by manas'; }
+  }
+  /* CONFIRM — answer the open missing_asset question when one exists; else the
+     confirmation lives client-side (localStorage) so the state still shows. */
+  function skConfirmLogo(uri){
+    try{ localStorage.setItem('sk-logo-confirmed', uri||''); }catch(e){}
+    var H=(window.SA_HEADERS||Object)();
+    fetch('/api/connect/grasped',{cache:'no-store',headers:H})
+      .then(function(r){ return r.ok ? r.json() : null; }).catch(function(){ return null; })
+      .then(function(g){
+        var q=((g&&g.questions)||[]).filter(function(x){
+          return x && x.trigger==='missing_asset' && (x.status||'open')!=='answered'; })[0];
+        if(q && q.id){
+          var done = window.cockpitAnswerQuestion
+            ? window.cockpitAnswerQuestion(q.id, 'confirmed — this is our logo')
+            : fetch('/api/connect/answer',{method:'POST',
+                headers:(window.SA_HEADERS||Object)({'content-type':'application/json'}),
+                body:JSON.stringify({qid:q.id, answer:'confirmed — this is our logo'})})
+                .then(function(r){ return {ok:r.ok}; }).catch(function(){ return {ok:false}; });
+          return done;
+        }
+        return null;
+      })
+      .then(function(){ renderBrandShelf(); })
+      .catch(function(){ renderBrandShelf(); });
+  }
+  /* REPLACE / empty-state tile — file input -> base64 -> POST /api/vault/add */
+  function skPickLogo(){
+    var inp=document.createElement('input'); inp.type='file'; inp.accept='image/*';
+    inp.addEventListener('change', function(){
+      var f=inp.files && inp.files[0]; if(!f) return;
+      var rd=new FileReader();
+      rd.onload=function(){
+        var s=String(rd.result||''); var b64=s.slice(s.indexOf(',')+1);
+        fetch('/api/vault/add',{method:'POST',
+          headers:(window.SA_HEADERS||Object)({'content-type':'application/json'}),
+          body:JSON.stringify({kind:'logo', filename:(f.name||'logo.png'),
+            content_type:(f.type||'image/png'), data_b64:b64, tags:['logo']})})
+        .then(function(r){
+          if(!r.ok){ VAULT.note='the vault did not take it — demo mode or no grant'; renderBrandShelf(); return; }
+          VAULT.note=''; fetchPresence();   /* re-fetch the shelf + relight the chip */
+        })
+        .catch(function(){ VAULT.note='the vault is unreachable — demo mode keeps the tile'; renderBrandShelf(); });
+      };
+      rd.readAsDataURL(f);
+    });
+    inp.click();
   }
 
   var BUCKET_ICONS = { 'BRAND CANON':'book','PRODUCT FACTS':'box','PRICING HISTORY':'tag','VISUAL LANGUAGE':'palette','FOUNDER VOICE':'mic','AUDIENCE SENTIMENT':'heart','DECISION RECORD':'seal','OPEN QUESTIONS':'question' };
@@ -1703,6 +1968,7 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
   BUILD.manas = function(){
     return '<div class="view">'+quadHead('manas')+'<div class="vbody"><div class="qstack">'
     +constripHTML('manas')
+    +staffStripHTML('manas')
     +deskBandHTML('manas')
     +'<div class="qwork">'
       +'<div class="col"><div class="panel flex"><div class="phead"><h3>'+icon('database','sm')+' Memory management</h3>'
@@ -1734,6 +2000,7 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
   BUILD.arivu = function(){
     return '<div class="view">'+quadHead('arivu')+'<div class="vbody"><div class="qstack">'
     +constripHTML('arivu')
+    +staffStripHTML('arivu')
     +deskBandHTML('arivu')
     +'<div class="qwork">'
       +'<div class="col"><div class="panel flex"><div class="phead"><h3>'+icon('seal','sm')+' Decisions docket</h3><span class="ct">no verdict yet</span></div>'
@@ -1755,6 +2022,7 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
   BUILD.kalai = function(){
     return '<div class="view">'+quadHead('kalai')+'<div class="vbody"><div class="qstack">'
     +constripHTML('kalai')
+    +staffStripHTML('kalai')
     +deskBandHTML('kalai')
     +'<div class="qwork">'
       +'<div class="col"><div class="panel flex"><div class="phead"><h3>'+icon('palette','sm')+' Studio work</h3><span class="ct">brief · loop · handoff</span></div>'
@@ -1775,7 +2043,11 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
             +'<div class="wusage">'+icon('arrowleft','sm')+'<span>usage record <span class="arr">→</span> logged in manas <b>(permanent)</b></span></div>'
           +'</div>'
           +'<button class="backchip" data-drill="studio" style="margin-top:auto;align-self:flex-start;">'+icon('arrowleft','sm')+' full studio · loop + master + backends</button>'
-        +'</div></div></div>'
+        +'</div></div>'
+      +'<div class="panel"><div class="phead"><h3>'+icon('image','sm')+' BRAND SHELF <span class="vgloss">— served by <b class="c-manas">manas</b></span></h3>'
+        +'<span class="ct" id="kalaiShelfCt">'+((VAULT.assets&&VAULT.assets.length)?(VAULT.assets.length+' in the vault'):'vault empty · served by manas')+'</span></div>'
+        +'<div class="pbody tight" id="kalaiShelfBody">'+brandShelfHTML()+'</div></div>'
+      +'</div>'
       +rightStackHTML('kalai')
     +'</div>'
     +'</div></div></div>';
@@ -1784,6 +2056,7 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
   BUILD.kural = function(){
     return '<div class="view">'+quadHead('kural')+'<div class="vbody"><div class="qstack">'
     +constripHTML('kural')
+    +staffStripHTML('kural')
     +deskBandHTML('kural')
     +'<div class="qwork">'
       +'<div class="col"><div class="panel flex"><div class="phead"><h3>'+icon('hand','sm')+' Taps &amp; outreach</h3><span class="ct"><span id="kuralTapCt">0</span> on you</span></div>'
@@ -2187,17 +2460,15 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
   };
 
   /* ================= SETTINGS VIEW ================= */
-  BUILD.settings = function(){
+  /* the PANELS alone (no view chrome) — shared by BUILD.settings and the
+     chat-pane export window.SK_SETTINGS_HTML (which stacks them one-column) */
+  function settingsPanelsHTML(){
     function meter(quad, pct){
       return '<div class="meterrow"><span class="ml"><span class="pdot dot '+quad+'"></span>'+quad+'</span>'
         +'<span class="meterbar"><i style="width:'+pct+'%;background:var(--'+quad+')"></i></span>'
         +'<span class="mv">'+QMETA[quad].cost+'</span></div>';
     }
-    return '<div class="view"><div class="vbody">'
-    +'<div class="eyebrow"><span class="num">S</span> &nbsp;/&nbsp; Settings</div>'
-    +'<h2 class="vtitle">The consent board.</h2>'
-    +'<p class="vlede sm">Agents are <b>always-on while credits last</b> — the real throttle is spend. Your keys, your costs, your control. A fresh connection starts <b>read-only and fully gated</b>.</p>'
-    +'<div class="grid2" style="margin-top:12px; flex:1 1 auto; min-height:0;">'
+    return '<div class="grid2" style="margin-top:12px; flex:1 1 auto; min-height:0;">'
       +'<div style="display:flex;flex-direction:column;gap:9px;min-height:0;">'
         +'<div class="panel"><div class="phead"><h3>'+icon('dollar','sm')+' Spend, not switches</h3><span class="ct">daily allocation · $40 cap</span></div>'
           +'<div class="pbody tight">'+meter('manas',0)+meter('arivu',0)+meter('kalai',0)+meter('kural',0)
@@ -2228,7 +2499,54 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
           +'<div class="gaps"><b>Named gaps, on the roadmap.</b> <b>Code execution</b> — out of scope for now, a future capability. <b>Ground-up company mode</b> — for idea-only founders — future; this cockpit is for companies that already exist.</div>'
           +'<div class="quiet">the maker’s view: one day the desks go behind glass and you only ever talk to saakshe — this cockpit stays as the builder’s window.</div></div></div>'
       +'</div>'
-    +'</div></div></div>';
+    +'</div>';
+  }
+  BUILD.settings = function(){
+    return '<div class="view"><div class="vbody">'
+    +'<div class="eyebrow"><span class="num">S</span> &nbsp;/&nbsp; Settings</div>'
+    +'<h2 class="vtitle">The consent board.</h2>'
+    +'<p class="vlede sm">Agents are <b>always-on while credits last</b> — the real throttle is spend. Your keys, your costs, your control. A fresh connection starts <b>read-only and fully gated</b>.</p>'
+    + settingsPanelsHTML()
+    +'</div></div>';
+  };
+  /* the chat pane injects the SAME settings panels (chat-panel.js owns the
+     swap). One column at any width; the duplicate gateSeg id is stripped —
+     .sw / .seg handlers are document-delegated, so they work inside the pane. */
+  window.SK_SETTINGS_HTML = function(){
+    return '<div class="sk-settings-one">'
+      + settingsPanelsHTML().replace(' id="gateSeg"','')
+      + '</div>';
+  };
+
+  /* ================= THE STAFF REGISTER VIEW ================= */
+  BUILD.staff = function(){
+    var S = SK_STAFF;
+    if(!S || !S.realms){
+      return '<div class="view"><div class="vbody"><div class="panel"><div class="pbody">the staff register is loading…</div></div></div></div>';
+    }
+    var t = S.types||{};
+    var counts = (t.orchestrator||0)+' orchestrators · '+(t.action||0)+' action · '
+               + (t.verifier||0)+' verifiers · '+(t.keeper||0)+' keepers';
+    var realmsN = Object.keys(S.realms).length;
+    var sections = ['manas','arivu','kalai','kural'].map(staffRealmSectionHTML).join('');
+    var bench = (S.benched && S.benched.length)
+      ? '<div class="stf-sec" style="margin-top:18px;"><span class="stf-word">benched</span>'
+        +'<span class="stf-verb">wakes after the hackathon</span>'
+        +'<span class="stf-live">'+S.benched.length+'</span></div>'
+        +'<div class="stf-grid stf-bench">'
+        + S.benched.map(function(a){ return staffChipHTML(a, a.realm||'arivu'); }).join('')
+        +'</div>'
+      : '';
+    return '<div class="view">'
+    +'<div class="vhead"><div><div class="vid"><span class="vname">THE STAFF</span>'
+      +'<span class="vgloss">— '+(S.total||42)+' agents · '+realmsN+' realms</span></div>'
+      +'<div class="vline">'+counts+'</div></div>'
+    +'</div>'
+    +'<div class="vbody">'
+      +'<div class="stf-hero"><span class="stf-counts">'+counts+'</span>'
+        +'<span class="stf-witness"><span class="dot saksi"></span>saakshe — the 43rd eye; sees everything, touches nothing</span></div>'
+      +'<div class="stf-scroll">'+sections+bench+'</div>'
+    +'</div></div>';
   };
 
   /* ================= ROUTER HELPERS ================= */
@@ -2273,6 +2591,9 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
     var hash = '#'+view + (STATE.sub?'/'+STATE.sub:'');
     if(location.hash !== hash){ history.replaceState(null,'',hash); }
     render();
+    /* presence board + brand shelf: refresh the real lit state on view entry
+       (cached — a re-render inside 30s never refetches; fail-soft throughout) */
+    if((view==='manas' || view==='kalai') && (Date.now()-PRES.at > 30000)){ fetchPresence(); }
   }
   function setSub(sub){ go(STATE.view, sub); }
   function back(){ go(STATE.view, null); }
@@ -2440,6 +2761,12 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
   /* ================= EVENT DELEGATION ================= */
   document.addEventListener('click', function(e){
     var t = e.target;
+    /* brand-shelf FIRST — its CONFIRM/REPLACE buttons wear .qbtn, so they must
+       never fall into the question-answer branch below */
+    var lc = t.closest('[data-logoconfirm]');
+    if(lc){ skConfirmLogo(lc.getAttribute('data-logoconfirm')); return; }
+    var lr = t.closest('[data-logoreplace],[data-logoupload]');
+    if(lr){ skPickLogo(); return; }
     var qb = t.closest('.qbtn');
     if(qb){
       var card=qb.closest('.qcard');
@@ -2480,7 +2807,9 @@ html[data-theme="dark"] .seg button[aria-pressed="true"]{ background:var(--act);
     if(navBtn){ var dv=navBtn.getAttribute('data-view'); if(dv){ go(dv, null); return; } }
     var sw = t.closest('[data-sw]');
     if(sw){ var on=sw.classList.toggle('on'); sw.setAttribute('aria-checked', on?'true':'false'); return; }
-    var seg = t.closest('#gateSeg button[data-g]');
+    /* .seg (not #gateSeg) — the same control also lives inside the chat pane's
+       injected settings (SK_SETTINGS_HTML strips the duplicate id) */
+    var seg = t.closest('.seg button[data-g]');
     if(seg){ Array.prototype.forEach.call(seg.parentNode.querySelectorAll('button'), function(x){ x.setAttribute('aria-pressed','false'); }); seg.setAttribute('aria-pressed','true'); return; }
   });
 

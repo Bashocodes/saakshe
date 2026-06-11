@@ -21,6 +21,7 @@ from __future__ import annotations
 import hashlib
 
 from common import a2a
+from . import grasp_schema
 from .tools import curator
 
 # Dimensions the company needs grounded for the flywheel to decide / make / engage
@@ -121,6 +122,35 @@ def detect(
         [str(f.get("claim", "")) + " " + str(f.get("source", "")) for f in facts]
         + list(voice_rules) + list(brand_rules)
     ).lower()
+    # Deep grasp (SAAKSHE_DEEP_GRASP=1): derive the asks from the Brand Pack's
+    # tier-1 fields instead of the classic four dimensions — same code-trigger
+    # honesty (stem match over the corpus), aikizi-depth coverage. Flag off →
+    # byte-identical classic flow below.
+    if grasp_schema.enabled():
+        cap = max(max_questions, 8)
+        for f in grasp_schema.missing_fields(
+                corpus_text, has_logo=has_logo_asset, owned=owned, tier=1):
+            if f["kind"] == "asset":
+                continue  # the vault doubt below owns the logo ask
+            if f["kind"] == "channel" and has_social_connection:
+                continue
+            out.append(a2a.ClarifyingQuestion(
+                id=_qid("missing", f["key"]),
+                text=f["ask"],
+                why=f"no connected source mentioned {f['label']}",
+                trigger="missing_field",
+                blocks=f"deep grasp · {f['key']}",
+            ))
+        # 3) below still applies; contradictions stay first in the slice.
+        if not has_logo_asset and owned:
+            out.append(a2a.ClarifyingQuestion(
+                id=_qid("missing_asset", "logo"),
+                text="I don't have your logo. Add one to the vault so kalai can put it on what it makes?",
+                why="the brand-asset vault holds no asset of kind 'logo'",
+                trigger="missing_asset",
+                blocks="logo placement on creative (kalai)",
+            ))
+        return out[:cap]
     for dim in _REQUIRED:
         if dim["key"] == "voice" and voice_rules:
             continue
@@ -139,7 +169,9 @@ def detect(
     # 3) Missing brand assets — the vault index served no logo (the caller reads
     #    the store's assets index and tells us). Non-blocking like every doubt:
     #    kalai can still make; it just makes bare until the founder adds one.
-    if not has_logo_asset:
+    #    NEVER asked about a public repository the founder is merely exploring —
+    #    a logo question only makes sense about the founder's OWN brand.
+    if not has_logo_asset and owned:
         out.append(a2a.ClarifyingQuestion(
             id=_qid("missing_asset", "logo"),
             text=("I don't have your logo. Add one to the vault so kalai can put it on what it makes?"
