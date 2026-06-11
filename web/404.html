@@ -144,6 +144,20 @@ html[data-theme="dark"] .botlogo .skbot .skeye{
   filter:drop-shadow(0 0 3px rgba(94,240,138,.5))}
 html[data-theme="dark"] .botlogo .skbot .skmouth{background:linear-gradient(180deg,#eafff1,#a8e8bd);
   filter:drop-shadow(0 0 2px rgba(94,240,138,.4))}
+/* the mouth cycles moods — bar → smirk → bar → open smile → cursor → smirk → bar · 14s */
+.botlogo .skbot .skmouth{width:40%;height:24%;bottom:9%;background:none;border-radius:0}
+.botlogo .skbot .skmouth .m{position:absolute;inset:0;width:100%;height:100%;opacity:0}
+.botlogo .skbot .skmouth .m *{fill:#f4eee2}
+html[data-theme="dark"] .botlogo .skbot .skmouth .m *{fill:#d4f5de}
+.botlogo .skbot .skmouth .m1{opacity:1;animation:skmBar 14s linear infinite}
+.botlogo .skbot .skmouth .m9{animation:skmSmirk 14s linear infinite}
+.botlogo .skbot .skmouth .m4{animation:skmOpen 14s linear infinite}
+.botlogo .skbot .skmouth .m7{animation:skmCursor 14s linear infinite}
+@keyframes skmBar{0%,19%{opacity:1}21%,32%{opacity:0}34%,46%{opacity:1}48%,84%{opacity:0}86%,100%{opacity:1}}
+@keyframes skmSmirk{0%,19%{opacity:0}21%,32%{opacity:1}34%,71%{opacity:0}73%,84%{opacity:1}86%,100%{opacity:0}}
+@keyframes skmOpen{0%,46%{opacity:0}48%,58%{opacity:1}60%,100%{opacity:0}}
+@keyframes skmCursor{0%,58%{opacity:0}60%,71%{opacity:1}73%,100%{opacity:0}}
+@media(prefers-reduced-motion:reduce){.botlogo .skbot .skmouth .m{animation:none}}
 .botlogo .skbot .skeye{animation:skcurious 6.4s ease-in-out infinite;transform-origin:50% 100%}
 @keyframes skcurious{0%,18%{transform:translateX(0) scaleY(1)}26%,42%{transform:translateX(-21%) scaleY(1)}46%{transform:translateX(0) scaleY(.1)}50%,66%{transform:translateX(21%) scaleY(1)}74%,100%{transform:translateX(0) scaleY(1)}}
 @media(prefers-reduced-motion:reduce){.botlogo .skbot .skeye{animation:none}}
@@ -259,7 +273,7 @@ a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var
   <!-- ═══ TOPBAR: logo → home + theme toggle ═══ -->
   <div class="bar">
     <a class="botlogo" href="/" aria-label="saakshe home">
-      <span class="skbot" aria-hidden="true"><span class="skwd">SΛΛKSHE</span><span class="skeye L"></span><span class="skeye R"></span><span class="skmouth"></span></span>
+      <span class="skbot" aria-hidden="true"><span class="skwd">SΛΛKSHE</span><span class="skeye L"></span><span class="skeye R"></span><span class="skmouth"><svg class="m m1" viewBox="0 0 100 60" aria-hidden="true"><rect x="9" y="23" width="82" height="15" rx="7"/></svg><svg class="m m9" viewBox="0 0 100 60" aria-hidden="true"><g transform="rotate(-8 50 30)"><rect x="14" y="24" width="72" height="13" rx="6"/></g></svg><svg class="m m4" viewBox="0 0 100 60" aria-hidden="true"><path d="M16 14 H84 A34 34 0 0 1 16 14 Z"/></svg><svg class="m m7" viewBox="0 0 100 60" aria-hidden="true"><rect x="12" y="26" width="76" height="11"/></svg></span></span>
     </a>
     <div class="toggle" role="group" aria-label="Theme">
       <button id="tg-light" type="button" aria-pressed="true"><span class="dot"></span>Brut</button>
