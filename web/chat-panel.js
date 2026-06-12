@@ -11,36 +11,38 @@
   var BOT = '<span class="skbot sm" aria-hidden="true"><span class="skface">' +
             '<span class="skeye L"></span><span class="skeye R"></span>' +
             '<span class="skmouth"></span></span></span>';
-  /* the chat has NO top chrome at all — messages flow from under the cockpit's
-     single topbar. The bot mark rides every witness reply (and the typing row),
-     black bezel always; collapse + live dot sit at the far right of the
-     faculty-tabs row, just above the ask box. Collapsed = just the bot, big. */
+  /* the pane's chrome (founder, 2026-06-12): ONE ink tab at the top right —
+     HISTORY + SETTINGS — just under the cockpit topbar. No close, no collapse,
+     no live dot. The faculty pills float free above the ask box (no band), and
+     a pill click drops an ENTITY CHIP into the ask, never plain text. */
   pane.innerHTML =
+    '<div class="ch-head"><div class="ch-htab" role="group" aria-label="chat controls">' +
+    '<button class="ch-hbtn" id="sa-ch-hist" type="button" title="chat history" aria-pressed="false">' +
+    '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 12a8.5 8.5 0 1 1 2.5 6M3.5 12V7M3.5 12h5"/><path d="M12 7.5v5l3.2 2"/></svg>history</button>' +
+    '<button class="ch-hbtn" id="sa-ch-gear" type="button" title="settings" aria-pressed="false">' +
+    '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.2"/>' +
+    '<path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>settings</button>' +
+    '</div></div>' +
     '<div class="ch-feed" id="sa-ch-feed" aria-live="polite"></div>' +
     '<div id="sa-ch-settings" role="region" aria-label="settings"></div>' +
+    '<div id="sa-ch-history" role="region" aria-label="chat history"></div>' +
     '<div class="ch-tabs" role="group" aria-label="mention an agent">' +
     '<button class="ch-tab" type="button" data-q="manas" title="drop manas into your ask"><span class="fdot"></span>manas</button>' +
     '<button class="ch-tab" type="button" data-q="arivu" title="drop arivu into your ask"><span class="fdot"></span>arivu</button>' +
     '<button class="ch-tab" type="button" data-q="kalai" title="drop kalai into your ask"><span class="fdot"></span>kalai</button>' +
     '<button class="ch-tab" type="button" data-q="kural" title="drop kural into your ask"><span class="fdot"></span>kural</button>' +
-    '<span class="live" id="sa-ch-live"></span>' +
-    '<button class="ch-gear" id="sa-ch-gear" type="button" title="settings" aria-label="settings" aria-pressed="false">' +
-    '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.2"/>' +
-    '<path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>' +
-    '<button class="ch-collapse" id="sa-ch-clps" type="button" title="collapse the chat pane" aria-label="collapse chat">' +
-    '<svg class="ic" aria-hidden="true"><use href="#i-handoff"/></svg></button></div>' +
-    '<div class="ch-input"><input id="sa-ch-inp" placeholder="ask saakshe…" aria-label="ask saakshe">' +
+    '</div>' +
+    '<div class="ch-input"><div class="ch-ed" id="sa-ch-inp" contenteditable="true" role="textbox" ' +
+    'aria-multiline="false" aria-label="ask saakshe" data-ph="ask saakshe…"></div>' +
     '<button id="sa-ch-mic" type="button" title="voice — Gemini Live" aria-label="voice">' +
     '<svg class="ic" aria-hidden="true"><use href="#i-mic"/></svg><span class="recdot"></span></button>' +
-    '<button id="sa-ch-send" type="button">SEND</button></div>' +
-    '<button class="ch-rail" id="sa-ch-rail" type="button" title="open the chat pane" aria-label="open chat">' +
-    BOT + '</button>';
+    '<button id="sa-ch-send" type="button">SEND</button></div>';
 
   var feed = document.getElementById('sa-ch-feed');
   var input = document.getElementById('sa-ch-inp');
   var sendBtn = document.getElementById('sa-ch-send');
   var micBtn = document.getElementById('sa-ch-mic');
-  var liveDot = document.getElementById('sa-ch-live');
+  var liveDot = null;   /* the green dot is retired — dot() keeps the contract as a no-op */
   var state = { budget: 1.0, seconds: 4, fx: 'sat_sort', image: null, job: null,
                 poller: null, pollEnd: null, inflight: false, fac: 'saakshe' };
   var FX = ['sat_sort', 'dark_sort', 'vert_sort', 'hue_sort', 'ripple', 'wave',
@@ -51,7 +53,42 @@
   function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c]; }); }
   function hdrs(extra) { return (window.SA_HEADERS || Object)(extra || {}); }
   function bot(fn) { if (window.SK_BOT && SK_BOT[fn]) SK_BOT[fn](); }
-  function dot(cls) { liveDot.className = 'live' + (cls ? ' ' + cls : ''); }
+  function dot(cls) { if (liveDot) liveDot.className = 'live' + (cls ? ' ' + cls : ''); }
+
+  /* ── the entity-chip ask box (contenteditable) ──
+     A faculty pill drops a CHIP into the ask — the founder is pointing at the
+     ENTITY, not typing its name. On send a chip serializes as @agent so the
+     witness reads an unambiguous reference. */
+  function entChip(q) {
+    var s = document.createElement('span');
+    s.className = 'ent'; s.dataset.q = q;
+    s.setAttribute('contenteditable', 'false');
+    s.innerHTML = '<span class="fdot"></span>' + esc(q);
+    return s;
+  }
+  function insertEnt(q) {
+    input.focus();
+    var sel = window.getSelection(), range = null;
+    if (sel && sel.rangeCount && input.contains(sel.anchorNode)) range = sel.getRangeAt(0);
+    else { range = document.createRange(); range.selectNodeContents(input); range.collapse(false); }
+    var chip = entChip(q);
+    range.deleteContents(); range.insertNode(chip);
+    var sp = document.createTextNode(' ');
+    chip.after(sp);
+    range.setStartAfter(sp); range.collapse(true);
+    if (sel) { sel.removeAllRanges(); sel.addRange(range); }
+    syncSend();
+  }
+  function readInput() {
+    var out = '';
+    for (var n = input.firstChild; n; n = n.nextSibling) {
+      if (n.nodeType === 3) out += n.nodeValue;
+      else if (n.classList && n.classList.contains('ent')) out += '@' + (n.dataset.q || '');
+      else out += n.textContent;
+    }
+    return out.replace(/ /g, ' ').replace(/\s+/g, ' ').trim();
+  }
+  function clearInput() { input.innerHTML = ''; syncSend(); }
 
   /* honest wall-clock label: the render runs in a throttled background thread,
      so anything past 90s is shown as a MINUTES RANGE, never false precision */
@@ -289,7 +326,7 @@
 
   feed.addEventListener('click', function (e) {
     var sg = e.target.closest('.sug');
-    if (sg) { input.value = sg.dataset.ask || sg.textContent; send(); return; }
+    if (sg) { sendText(sg.dataset.ask || sg.textContent); return; }
     var op = e.target.closest('.ch-opt');
     if (op) {
       /* a chip == the founder typed it; spend the row only if the send took
@@ -537,8 +574,14 @@
     });
   }
 
-  function syncSend() { sendBtn.disabled = state.inflight || !input.value.trim(); }
+  function syncSend() { sendBtn.disabled = state.inflight || !readInput(); }
   input.addEventListener('input', syncSend);
+  /* paste lands as plain text — markup must never enter the ask box */
+  input.addEventListener('paste', function (e) {
+    e.preventDefault();
+    var t = (e.clipboardData || window.clipboardData).getData('text');
+    if (t) document.execCommand('insertText', false, t);
+  });
 
   /* sendText: the ONE ask path — typed sends and options chips both land here.
      Echoes the user bubble + POSTs /api/saakshe/ask. Returns true when the ask
@@ -546,7 +589,7 @@
   function sendText(text) {
     text = String(text == null ? '' : text).trim();
     if (!text || state.inflight) return false;
-    setSettings(false);                           // an ask always surfaces the feed
+    setMode('chat');                              // an ask always surfaces the feed
     msg('YOU', esc(text), true);
     var low = text.toLowerCase();
     var m = low.match(/\$\s*(\d+(?:\.\d+)?)/);
@@ -566,7 +609,7 @@
     return true;
   }
   function send() {
-    if (sendText(input.value)) { input.value = ''; syncSend(); }
+    if (sendText(readInput())) { clearInput(); }
   }
 
   /* ── voice: /ws/voice — Gemini Live native-audio bridge ──
@@ -690,8 +733,8 @@
     if (e.isComposing || e.keyCode === 229) return;       // never swallow IME composition
     if (e.key === 'Enter' && voice.on && voice.ws && voice.ws.readyState === 1 &&
         voice.mode === 'kbd') {
-      var t = input.value.trim();
-      if (t) { msg('YOU', esc(t), true); voice.ws.send(JSON.stringify({ type: 'text', text: t })); input.value = ''; syncSend(); }
+      var t = readInput();
+      if (t) { msg('YOU', esc(t), true); voice.ws.send(JSON.stringify({ type: 'text', text: t })); clearInput(); }
       e.stopImmediatePropagation(); e.preventDefault();
     }
   }, true);
@@ -699,11 +742,13 @@
   sendBtn.onclick = send;
   input.addEventListener('keydown', function (e) {
     if (e.isComposing || e.keyCode === 229) return;
-    if (e.key === 'Enter') send();
+    /* the ask box is single-line — Enter always sends, never a newline */
+    if (e.key === 'Enter') { e.preventDefault(); send(); }
   });
 
-  /* ── faculty chips DROP the agent's name into the ask (founder, 2026-06-12):
-     we are always talking to saakshe — a chip just tells it who we mean.
+  /* ── faculty pills DROP the agent into the ask as an ENTITY CHIP (founder,
+     2026-06-12): we are always talking to saakshe — the chip tells it WHO we
+     mean, unambiguously (serialized @agent on send), never loose text.
      state.fac stays 'saakshe' forever, so the filter never hides anything. ── */
   function applyFacFilter(m) {
     var f = state.fac;
@@ -712,20 +757,20 @@
   }
   pane.querySelectorAll('.ch-tab').forEach(function (t) {
     t.onclick = function () {
-      setSettings(false);                     // any faculty chip returns to chat
-      var v = input.value;
-      input.value = (v && !/\s$/.test(v) ? v + ' ' : v) + t.dataset.q + ' ';
-      input.focus();
+      setMode('chat');                        // any faculty pill returns to chat
+      insertEnt(t.dataset.q);
     };
   });
 
-  /* ── settings INSIDE the pane: the layout law — sidebar + canvas never move;
-     the only thing that changes on the right is this pane's content,
-     chat ↔ settings. Toggling is display-only: the feed DOM (and its scroll
-     position) survives untouched. ── */
+  /* ── pane MODES: chat ↔ settings ↔ history (the top-right ink tab drives
+     them). The layout law — sidebar + canvas never move; the only thing that
+     changes on the right is this pane's content. Display-only toggles: the
+     feed DOM (and its scroll position) survives untouched. ── */
   var settingsEl = document.getElementById('sa-ch-settings');
+  var historyEl = document.getElementById('sa-ch-history');
   var gearBtn = document.getElementById('sa-ch-gear');
-  var settingsOn = false, feedScroll = 0;
+  var histBtn = document.getElementById('sa-ch-hist');
+  var paneMode = 'chat', feedScroll = 0;
   function fillSettings() {
     /* filled lazily on every open — the cockpit owns the markup (and the
        document-level delegation for its controls); we own the back row */
@@ -740,37 +785,79 @@
         if (window.cockpitGo) window.cockpitGo('settings');
       };
     }
-    settingsEl.querySelector('.ch-setsback').onclick = function () { setSettings(false); };
+    settingsEl.querySelector('.ch-setsback').onclick = function () { setMode('chat'); };
   }
-  function setSettings(on) {
-    on = !!on;
-    if (on === settingsOn) return;
-    if (on) { feedScroll = feed.scrollTop; fillSettings(); }
-    settingsOn = on;
-    pane.classList.toggle('settings-on', on);
-    gearBtn.classList.toggle('on', on);
-    gearBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
-    if (!on) feed.scrollTop = feedScroll;     // exactly as it was
+  function tsMs(c) {
+    var d = typeof c === 'number' ? new Date(c * 1000) : new Date(c || NaN);
+    return isNaN(+d) ? 0 : +d;
   }
-  gearBtn.onclick = function () { setSettings(!settingsOn); };
+  /* the HISTORY view — the persisted transcript regrouped into sittings
+     (a quiet gap over 45 min starts a new one); tapping a sitting opens it
+     in the feed, exactly like the live path renders it. */
+  function fillHistory() {
+    historyEl.innerHTML =
+      '<button class="ch-setsback" type="button">back to chat</button>' +
+      '<div class="ch-setsnote">the witness transcript — every sitting, newest first</div>' +
+      '<div class="ch-histlist"><div class="ch-setsnote">loading…</div></div>';
+    historyEl.querySelector('.ch-setsback').onclick = function () { setMode('chat'); };
+    var list = historyEl.querySelector('.ch-histlist');
+    fetch('/api/saakshe/messages?limit=200', { headers: hdrs({}) })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (d) {
+        var rows = (d && Array.isArray(d.messages)) ? d.messages : [];
+        if (!rows.length) {
+          list.innerHTML = '<div class="ch-setsnote">no saved chats yet — ask saakshe something and the sitting lands here.</div>';
+          return;
+        }
+        var secs = [], cur = null, last = 0;
+        rows.forEach(function (r) {
+          var t = tsMs(r.created_at);
+          if (!cur || (t && last && (t - last) > 45 * 60000)) { cur = { at: t, rows: [] }; secs.push(cur); }
+          cur.rows.push(r);
+          if (t) last = t;
+        });
+        list.innerHTML = '';
+        secs.slice().reverse().forEach(function (s) {
+          var first = s.rows.filter(function (r) { return r.role === 'you'; })[0] || s.rows[0] || {};
+          var when = s.at ? new Date(s.at) : null;
+          var label = when
+            ? when.toLocaleDateString(undefined, { day: 'numeric', month: 'short' }) +
+              ' · ' + ('0' + when.getHours()).slice(-2) + ':' + ('0' + when.getMinutes()).slice(-2)
+            : '—';
+          var b = el('<button class="ch-histrow" type="button"><span class="hwhen">' + esc(label) +
+            '</span><span class="htxt">' + esc(String(first.text || '…').slice(0, 90)) +
+            '</span><span class="hct">' + s.rows.length + ' message' + (s.rows.length === 1 ? '' : 's') +
+            '</span></button>');
+          b.onclick = function () { renderHistory(s.rows); setMode('chat'); down(true); };
+          list.appendChild(b);
+        });
+      })
+      .catch(function () {
+        list.innerHTML = '<div class="ch-setsnote">could not reach the transcript — signed in? backend up?</div>';
+      });
+  }
+  function setMode(mode) {
+    if (mode === paneMode) return;
+    if (paneMode === 'chat') feedScroll = feed.scrollTop;
+    if (mode === 'settings') fillSettings();
+    if (mode === 'history') fillHistory();
+    paneMode = mode;
+    pane.classList.toggle('settings-on', mode === 'settings');
+    pane.classList.toggle('history-on', mode === 'history');
+    gearBtn.classList.toggle('on', mode === 'settings');
+    gearBtn.setAttribute('aria-pressed', mode === 'settings' ? 'true' : 'false');
+    histBtn.classList.toggle('on', mode === 'history');
+    histBtn.setAttribute('aria-pressed', mode === 'history' ? 'true' : 'false');
+    if (mode === 'chat') feed.scrollTop = feedScroll;     // exactly as it was
+  }
+  gearBtn.onclick = function () { setMode(paneMode === 'settings' ? 'chat' : 'settings'); };
+  histBtn.onclick = function () { setMode(paneMode === 'history' ? 'chat' : 'history'); };
 
-  /* ── collapse rail (desktop) + FAB (narrow) ── */
+  /* ── the pane never closes on desktop (founder, 2026-06-12) — collapse is
+     retired; the FAB stays for narrow screens only ── */
   var H = document.documentElement;
-  function setCollapsed(c) {
-    H.classList.toggle('sk-chat-collapsed', c);
-    try { localStorage.setItem('sk-chat-collapsed', c ? '1' : ''); } catch (e) {}
-  }
-  document.getElementById('sa-ch-clps').onclick = function () { setCollapsed(true); };
-  document.getElementById('sa-ch-rail').onclick = function () { setCollapsed(false); };
-  try {
-    var stored = localStorage.getItem('sk-chat-collapsed');
-    if (stored === '1') setCollapsed(true);
-    /* no stored choice: on tighter desktops the stage needs the room more —
-       start collapsed; the witness rail stays one click away */
-    else if (stored === null && window.innerWidth >= 1100 && window.innerWidth < 1500) {
-      H.classList.add('sk-chat-collapsed');
-    }
-  } catch (e) {}
+  H.classList.remove('sk-chat-collapsed');
+  try { localStorage.removeItem('sk-chat-collapsed'); } catch (e) {}
   var fab = el('<button id="sa-chatfab" type="button" title="company chat" aria-label="open chat">' + BOT + '</button>');
   fab.onclick = function () { H.classList.add('sk-chat-open'); down(true); };
   document.body.appendChild(fab);
@@ -782,14 +869,13 @@
      every ask here instead of keeping a second chat surface ── */
   window.SK_CHAT = {
     open: function () {
-      setSettings(false);
+      setMode('chat');
       if (window.innerWidth < 1100) { H.classList.add('sk-chat-open'); }
-      else { setCollapsed(false); }
       down(true); input.focus();
     },
     ask: function (text) {
       if (!text) return;
-      input.value = String(text); syncSend(); send();
+      sendText(String(text));
     },
     note: function (who, text) { msg(String(who || 'SΛΛKSHE').toUpperCase(), fmt(String(text || ''))); },
     /* the reveal seed: each clarifying question is its OWN row plus a chip

@@ -13,48 +13,39 @@
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)'/%3E%3C/svg%3E")}
 html[data-theme="dark"] #sa-chatpane::after{display:none}
 
-/* ── no top chrome. The bot mark wears a BLACK (ink) bezel in the chat, ALWAYS —
+/* ── the bot mark wears a BLACK (ink) bezel in the chat, ALWAYS —
    the faculty quad-tint (html[data-quad] → yellow/red/…) never recolors it here.
    Its Λ-eyes still animate through the global html[data-bot] reply states. ── */
 #sa-chatpane .skbot{color:var(--ink,#141118)}
-/* the live dot + collapse live at the far right of the tabs row */
-#sa-chatpane .ch-tabs .live{margin-left:auto;width:9px;height:9px;border-radius:50%;
-  align-self:center;background:var(--ok,#0a8a4a)}
-#sa-chatpane .ch-tabs .live.busy{background:var(--sig-amber,#795309)}
-#sa-chatpane .ch-tabs .live.err{background:var(--sig-red,#A33321)}
-#sa-chatpane .ch-collapse{border:1.5px solid var(--line,#141118);border-radius:var(--radius-pill,999px);
-  background:var(--surface,#fff);color:var(--ink,#141118);width:26px;height:26px;
-  display:inline-flex;align-items:center;justify-content:center;cursor:pointer;flex:0 0 auto}
-#sa-chatpane .ch-collapse .ic{width:13px;height:13px;stroke:currentColor;fill:none;
-  stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-#sa-chatpane .ch-collapse:hover{background:var(--surface-2,#e7e6e0)}
-#sa-chatpane .ch-collapse:focus-visible{outline:none;box-shadow:0 0 0 2px var(--accent,#0a39ff)}
-/* the settings gear — same chip-button language as the collapse control */
-#sa-chatpane .ch-gear{border:1.5px solid var(--line,#141118);border-radius:var(--radius-pill,999px);
-  background:var(--surface,#fff);color:var(--ink,#141118);width:26px;height:26px;
-  display:inline-flex;align-items:center;justify-content:center;cursor:pointer;flex:0 0 auto}
-#sa-chatpane .ch-gear .ic{width:14px;height:14px;stroke:currentColor;fill:none;
+
+/* ── the ONE control tab — top right, just under the cockpit topbar: an ink
+   plate carrying HISTORY + SETTINGS. No close, no collapse (founder,
+   2026-06-12 — the pane never closes on desktop). ── */
+#sa-chatpane .ch-head{display:flex;justify-content:flex-end;align-items:center;
+  padding:8px 12px 0;background:var(--bg,#F4EEE2);flex:0 0 auto;position:relative;z-index:2}
+#sa-chatpane .ch-htab{display:inline-flex;gap:2px;background:var(--ink,#161410);
+  border-radius:9px;padding:3px;box-shadow:var(--shadow-sm,2px 2px 0 var(--ink))}
+html[data-theme="dark"] #sa-chatpane .ch-htab{background:var(--surface-2,#141B14);
+  border:1px solid var(--line,#1E2A20);box-shadow:none}
+#sa-chatpane .ch-hbtn{border:0;background:transparent;color:var(--bg,#F4EEE2);
+  font:700 9.5px var(--font-mono);letter-spacing:.1em;text-transform:uppercase;
+  padding:5px 10px;border-radius:7px;cursor:pointer;display:inline-flex;
+  align-items:center;gap:6px}
+html[data-theme="dark"] #sa-chatpane .ch-hbtn{color:var(--ink,#D4F5DE)}
+#sa-chatpane .ch-hbtn .ic{width:12px;height:12px;stroke:currentColor;fill:none;
   stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-#sa-chatpane .ch-gear:hover{background:var(--surface-2,#e7e6e0)}
-#sa-chatpane .ch-gear:focus-visible{outline:none;box-shadow:0 0 0 2px var(--accent,#0a39ff)}
-#sa-chatpane .ch-gear.on{background:var(--ink,#161410);color:var(--bg,#F4EEE2)}
-html[data-theme="dark"] #sa-chatpane .ch-gear.on{background:var(--act);color:var(--on-act);border-color:var(--act)}
+#sa-chatpane .ch-hbtn:hover{background:rgba(255,255,255,.16)}
+html[data-theme="dark"] #sa-chatpane .ch-hbtn:hover{background:rgba(255,255,255,.07)}
+#sa-chatpane .ch-hbtn.on{background:var(--bg,#F4EEE2);color:var(--ink,#161410)}
+html[data-theme="dark"] #sa-chatpane .ch-hbtn.on{background:var(--act);color:var(--on-act)}
+#sa-chatpane .ch-hbtn:focus-visible{outline:none;box-shadow:0 0 0 2px var(--accent,#2A41A0)}
 
-/* ── collapsed desktop rail: ONLY the witness mark, big, black bezel ── */
-#sa-chatpane .ch-rail{display:none}
-html.sk-chat-collapsed #sa-chatpane > *{display:none}
-html.sk-chat-collapsed #sa-chatpane::after{display:none}
-html.sk-chat-collapsed #sa-chatpane .ch-rail{display:flex;flex-direction:column;align-items:center;
-  padding:14px 0;width:100%;height:100%;cursor:pointer;background:transparent;border:0}
-html.sk-chat-collapsed #sa-chatpane .ch-rail .skbot{width:38px;height:38px;border-width:2.5px;border-radius:11px}
-html.sk-chat-collapsed #sa-chatpane .ch-rail:hover .skbot{transform:translateY(-1px)}
-
-/* ── faculty chips, just ABOVE the ask box: ONE line always (founder,
-   2026-06-12) — a chip drops its agent's name into the ask; no saakshe chip,
-   we are always talking to saakshe. ── */
-#sa-chatpane .ch-tabs{display:flex;align-items:center;gap:6px;padding:9px 12px;
-  border-top:var(--line-w,2px) solid var(--line,#141118);flex-wrap:nowrap;
-  overflow-x:auto;scrollbar-width:none;background:var(--surface,#FBF7EE)}
+/* ── faculty pills, just ABOVE the ask box — free-floating on the feed field,
+   NO band behind them (founder, 2026-06-12). A pill drops its agent into the
+   ask as an ENTITY CHIP; no saakshe pill — we are always talking to saakshe. ── */
+#sa-chatpane .ch-tabs{display:flex;align-items:center;gap:6px;padding:7px 12px 9px;
+  border-top:0;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;
+  background:var(--bg,#F4EEE2)}
 #sa-chatpane .ch-tabs::-webkit-scrollbar{display:none}
 #sa-chatpane .ch-tabs > *{flex:0 0 auto}
 #sa-chatpane .ch-tab{border:1.5px solid var(--line,#161410);border-radius:var(--radius-pill,999px);
@@ -77,16 +68,31 @@ html[data-theme="dark"] #sa-chatpane .ch-tab.on{background:var(--act);color:var(
 #sa-chatpane .ch-feed{flex:1;overflow-y:auto;padding:14px;display:flex;
   flex-direction:column;gap:11px;background:var(--bg,#F4EEE2)}
 
-/* ── settings mode: the pane's content swaps chat ↔ settings; sidebar and
-   canvas never move. Display-only toggle — the feed DOM is untouched. ── */
-#sa-chatpane #sa-ch-settings{display:none;flex:1;min-height:0;overflow-y:auto;
-  padding:14px;background:var(--bg,#F4EEE2)}
+/* ── settings / history modes: the pane's content swaps; sidebar and canvas
+   never move. Display-only toggles — the feed DOM is untouched. ── */
+#sa-chatpane #sa-ch-settings, #sa-chatpane #sa-ch-history{display:none;flex:1;
+  min-height:0;overflow-y:auto;padding:14px;background:var(--bg,#F4EEE2)}
 #sa-chatpane.settings-on #sa-ch-settings{display:block}
-#sa-chatpane.settings-on .ch-feed{display:none}
-#sa-chatpane.settings-on .ch-input{display:none}
-/* the collapsed rail always wins — IDs in .settings-on rules would otherwise
-   out-rank the rail's hide-everything sweep */
-html.sk-chat-collapsed #sa-chatpane #sa-ch-settings{display:none}
+#sa-chatpane.history-on #sa-ch-history{display:block}
+#sa-chatpane.settings-on .ch-feed, #sa-chatpane.history-on .ch-feed{display:none}
+#sa-chatpane.settings-on .ch-input, #sa-chatpane.history-on .ch-input{display:none}
+#sa-chatpane.settings-on .ch-tabs, #sa-chatpane.history-on .ch-tabs{display:none}
+/* history rows — one sitting per row: when · first ask · count */
+#sa-chatpane .ch-histlist{display:flex;flex-direction:column;gap:8px}
+#sa-chatpane .ch-histrow{display:flex;flex-direction:column;gap:3px;width:100%;
+  text-align:left;cursor:pointer;border:1.5px solid var(--line,#161410);
+  border-radius:var(--radius-sm,10px);background:var(--surface,#FBF7EE);
+  color:var(--ink,#161410);padding:9px 12px;box-shadow:var(--shadow-sm,2px 2px 0 var(--ink));
+  transition:transform .1s, box-shadow .1s}
+html[data-theme="dark"] #sa-chatpane .ch-histrow{border-width:1px;box-shadow:none}
+#sa-chatpane .ch-histrow:hover{transform:translate(-1px,-1px);box-shadow:3px 3px 0 var(--line)}
+html[data-theme="dark"] #sa-chatpane .ch-histrow:hover{transform:none;box-shadow:none;border-color:var(--ink-2)}
+#sa-chatpane .ch-histrow:focus-visible{outline:none;box-shadow:0 0 0 2px var(--accent,#2A41A0)}
+#sa-chatpane .ch-histrow .hwhen{font:700 9.5px var(--font-mono);letter-spacing:.1em;
+  text-transform:uppercase;color:var(--ink-3,#6B6557)}
+#sa-chatpane .ch-histrow .htxt{font:12.5px var(--font-body);line-height:1.4;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#sa-chatpane .ch-histrow .hct{font:10px var(--font-mono);color:var(--ink-3,#6B6557)}
 /* back-to-chat row + fallback note (when the cockpit hasn't shipped
    SK_SETTINGS_HTML yet) */
 #sa-chatpane .ch-setsback{display:block;width:100%;text-align:left;margin:0 0 12px;
@@ -223,15 +229,33 @@ html[data-theme="dark"] #sa-chatpane .filechip{color:var(--ink)}
   padding:4px 13px;cursor:pointer;box-shadow:var(--shadow-sm)}
 html[data-theme="dark"] #sa-chatpane .newmsgs{background:var(--act);color:var(--on-act)}
 
-/* ── input bar ── */
+/* ── input bar — a contenteditable ask box that holds TEXT + ENTITY CHIPS ── */
 #sa-chatpane .ch-input{border-top:var(--line-w,2.5px) solid var(--line,#161410);padding:12px 14px;
   display:flex;gap:8px;background:var(--surface,#FBF7EE);align-items:center}
-#sa-chatpane .ch-input input{flex:1;min-width:0;border:2px solid var(--line,#161410);
-  border-radius:var(--radius-pill,999px);padding:9px 15px;font:12.5px var(--font-body);
-  background:var(--surface-2,#ECE4D3);color:var(--ink,#161410)}
-#sa-chatpane .ch-input input::placeholder{color:var(--ink-3)}
-#sa-chatpane .ch-input input:focus-visible{outline:none;border-color:var(--accent,#2A41A0);
+#sa-chatpane .ch-ed{flex:1;min-width:0;border:2px solid var(--line,#161410);
+  border-radius:18px;padding:8px 15px;font:12.5px/1.5 var(--font-body);
+  background:var(--surface-2,#ECE4D3);color:var(--ink,#161410);cursor:text;
+  max-height:96px;overflow-y:auto;white-space:pre-wrap;overflow-wrap:break-word}
+#sa-chatpane .ch-ed:empty::before{content:attr(data-ph);color:var(--ink-3);pointer-events:none}
+#sa-chatpane .ch-ed:focus-visible{outline:none;border-color:var(--accent,#2A41A0);
   box-shadow:0 0 0 2px var(--accent,#2A41A0)}
+/* the entity chip — the agent itself, sitting in the sentence as a pill */
+#sa-chatpane .ch-ed .ent{display:inline-flex;align-items:center;gap:5px;
+  vertical-align:baseline;margin:0 1px;border:1.5px solid var(--line,#161410);
+  border-radius:var(--radius-pill,999px);padding:1px 9px;
+  font:600 9.5px var(--font-mono);letter-spacing:.1em;text-transform:uppercase;
+  background:var(--surface,#FBF7EE);color:var(--ink,#161410);user-select:all;
+  -webkit-user-select:all}
+#sa-chatpane .ch-ed .ent .fdot{display:inline-block;width:7px;height:7px;
+  border:1px solid var(--line)}
+#sa-chatpane .ch-ed .ent[data-q="manas"]{background:var(--tint-amber)}
+#sa-chatpane .ch-ed .ent[data-q="arivu"]{background:var(--tint-blue)}
+#sa-chatpane .ch-ed .ent[data-q="kalai"]{background:var(--tint-rose)}
+#sa-chatpane .ch-ed .ent[data-q="kural"]{background:var(--tint-green)}
+#sa-chatpane .ch-ed .ent[data-q="manas"] .fdot{background:var(--manas);border-radius:50%}
+#sa-chatpane .ch-ed .ent[data-q="arivu"] .fdot{background:var(--arivu);clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);border:0}
+#sa-chatpane .ch-ed .ent[data-q="kalai"] .fdot{background:var(--kalai);clip-path:polygon(50% 0,100% 100%,0 100%);border:0}
+#sa-chatpane .ch-ed .ent[data-q="kural"] .fdot{background:var(--kural)}
 #sa-chatpane .ch-input button{border:2px solid var(--line,#161410);border-radius:var(--radius-pill,999px);
   background:var(--surface,#FBF7EE);color:var(--ink,#161410);font:700 11px var(--font-mono);
   letter-spacing:.08em;padding:8px 14px;cursor:pointer;box-shadow:var(--shadow-sm,2px 2px 0 var(--ink));

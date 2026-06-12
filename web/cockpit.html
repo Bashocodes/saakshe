@@ -151,9 +151,10 @@ html[data-theme="dark"] body::after{ display:none; }
 a{ color:inherit; }
 img,svg{ display:block; max-width:100%; }
 button{ font:inherit; }
-::-webkit-scrollbar{ width:8px; height:8px; }
-::-webkit-scrollbar-thumb{ background:var(--hairline); border-radius:var(--radius-sm); }
-::-webkit-scrollbar-track{ background:transparent; }
+/* scroll WITHOUT scrollbars (founder, 2026-06-12): every container keeps its
+   scroll functionality, no horizontal or vertical bars ever paint. */
+::-webkit-scrollbar{ width:0; height:0; display:none; }
+*{ scrollbar-width:none; }
 .svgsprite{ position:absolute; width:0; height:0; overflow:hidden; }
 /* visually-hidden page h1 — the app chrome carries no visible top heading */
 .vh-h1{ position:absolute; width:1px; height:1px; margin:-1px; padding:0; border:0;
@@ -268,19 +269,47 @@ html[data-theme="dark"] .tb-brand .skbot .skmouth{ background:linear-gradient(18
 @keyframes skcurious{ 0%,18%{ transform:translateX(0) scaleY(1); } 26%,42%{ transform:translateX(-21%) scaleY(1); }
   46%{ transform:translateX(0) scaleY(.1); } 50%,66%{ transform:translateX(21%) scaleY(1); }
   74%,100%{ transform:translateX(0) scaleY(1); } }
-/* once a day the logo wakes as the BOX: full SΛΛKSHE badge → swallowed into the bot */
+/* the wake — B · the box (lab wake-B, nav scale): every ~20s the bot opens into
+   the full SΛΛKSHE badge, holds a beat, then the edges sweep back in and the
+   letters are swallowed into the face. The box NEVER repositions — it stays
+   anchored exactly where the bot lives (founder, 2026-06-12: no settle move). */
 .tb-brand .skbot{ position:relative; overflow:hidden; }
 .tb-brand .skwd{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
   font-family:var(--word); font-weight:900; font-size:11.5px; letter-spacing:.295em; text-indent:.295em;
   color:var(--bot-eye,#F4EEE2); white-space:nowrap; opacity:0; pointer-events:none; }
-.tb-brand.wake .skbot{ animation:tbboxwake 1.45s cubic-bezier(.6,.05,.3,1) .5s both; }
-.tb-brand.wake .skwd{ animation:tbwdwake 1.45s cubic-bezier(.6,.05,.3,1) .5s both; }
-.tb-brand.wake .skbot .skeye{ animation:tbpartin 1.45s cubic-bezier(.6,.05,.3,1) .5s both, skcurious 6.4s ease-in-out 2.2s infinite; }
-.tb-brand.wake .skbot .skmouth{ animation:tbpartin 1.45s cubic-bezier(.6,.05,.3,1) .5s both; }
-@keyframes tbboxwake{ 0%,28%{ width:150px; border-radius:10px; } 100%{ width:40px; border-radius:12px; } }
-@keyframes tbwdwake{ 0%,34%{ opacity:1; } 72%,100%{ opacity:0; } }
-@keyframes tbpartin{ 0%,58%{ opacity:0; } 88%,100%{ opacity:1; } }
-@media (prefers-reduced-motion: reduce){ .tb-brand.wake .skbot,.tb-brand.wake .skwd{ animation:none; } }
+.tb-brand.wake .skbot{ animation:tbboxwake 3.4s cubic-bezier(.6,.05,.3,1) both; }
+.tb-brand.wake .skwd{ animation:tbwdwake 3.4s ease both; }
+.tb-brand.wake .skbot .skeye{ animation:tbpartblink 3.4s ease both; }
+.tb-brand.wake .skbot .skmouth .m{ animation:none; opacity:0; }
+.tb-brand.wake .skbot .skmouth .m1{ animation:tbpartblink 3.4s ease both; }
+@keyframes tbboxwake{ 0%{ width:40px; border-radius:12px; } 16%,58%{ width:150px; border-radius:10px; }
+  90%,100%{ width:40px; border-radius:12px; } }
+@keyframes tbwdwake{ 0%,7%{ opacity:0; } 19%,56%{ opacity:1; } 80%,100%{ opacity:0; } }
+@keyframes tbpartblink{ 0%{ opacity:1; } 9%,72%{ opacity:0; } 93%,100%{ opacity:1; } }
+@media (prefers-reduced-motion: reduce){ .tb-brand.wake .skbot,.tb-brand.wake .skwd,
+  .tb-brand.wake .skbot .skeye,.tb-brand.wake .skbot .skmouth .m{ animation:none; } }
+
+/* ── the topbar PROJECT seat — name dead-center + a quiet "+" beside it.
+   The old stage ribbon (AIKIZI · what manas grasped · ＋ project · memory pack)
+   is retired; the name IS the way into the grasped profile, the + IS the
+   connect-another-project workflow. ── */
+.tb-proj{ position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+  display:flex; align-items:center; gap:9px; max-width:min(38vw,420px); min-width:0; }
+.tb-proj .pll{ width:8px; height:8px; border-radius:50%; background:var(--faint); flex:0 0 auto; }
+.tb-proj .pll.on{ background:var(--sig-green); }
+.tb-projname{ font-family:var(--font-display); font-size:16.5px; font-weight:700; letter-spacing:.01em;
+  color:var(--ink); background:transparent; border:0; padding:4px 2px; cursor:pointer;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0; }
+.tb-projname:hover{ text-decoration:underline; text-underline-offset:4px; }
+html[data-theme="dark"] .tb-projname{ font-weight:500; }
+.tb-projadd{ width:26px; height:26px; flex:0 0 auto; cursor:pointer; color:var(--ink);
+  background:var(--plate); border:1.5px solid var(--line); border-radius:var(--radius-pill);
+  font:700 15px/1 var(--font-mono); display:inline-flex; align-items:center; justify-content:center;
+  padding:0; transition:transform .15s var(--ease); }
+.tb-projadd:hover{ background:var(--ink); color:var(--bg); transform:scale(1.08); }
+html[data-theme="dark"] .tb-projadd:hover{ background:var(--act); color:var(--on-act); border-color:var(--act); transform:none; }
+/* icon-only theme toggle — the label is gone, the icon is the whole story */
+.theme-toggle.icononly{ width:32px; height:32px; padding:0; justify-content:center; border-radius:var(--radius-pill); }
 
 /* signal text */
 .t-red{ color:var(--sig-red); } .t-green{ color:var(--sig-green); }
@@ -958,9 +987,7 @@ html[data-theme="dark"] .loop .step{
 .navlist button.nav.active{ border-color:transparent; background:var(--surface-2); }
 .navlist button.nav:hover{ background:var(--surface-2); }
 
-/* --- SCROLLBAR (warm) --- */
-::-webkit-scrollbar-thumb{ background:var(--line); }
-html[data-theme="dark"] ::-webkit-scrollbar-thumb{ background:var(--line); }
+/* (scrollbars are globally hidden — scroll functionality only) */
 
 /* --- FOCUS-VISIBLE + SELECTION (warm) --- */
 :focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
@@ -1435,8 +1462,65 @@ html[data-theme="dark"] .pm-row:hover{ transform:none; box-shadow:none; border-c
 #sa-chatpane .ch-tab[data-q="kural"]{ background:var(--tint-green); }
 #sa-chatpane .ch-tab.on[data-q]{ background:var(--ink); color:var(--bg); }
 html[data-theme="dark"] #sa-chatpane .ch-tab.on[data-q]{ background:var(--act); color:var(--on-act); }
+
+/* ============================================================================
+   16 ── OVERVIEW v4 · THE PALETTE STRIP (founder, 2026-06-12)
+   The three agents live as ONE joined half-height strip just under the topbar
+   — always visible, the active one expands (the aikizi V3 palette move) and
+   the page below it changes IN PLACE. Questions are ALWAYS the right column
+   (under kural) for placement consistency; the left two-thirds carries the
+   active agent's whole page. No page navigation, no visible scrollbars.
+   ============================================================================ */
+.ovstrip{ display:flex; align-items:stretch; flex:0 0 auto; min-width:0;
+  border-radius:var(--r6); box-shadow:var(--shadow); }
+html[data-theme="dark"] .ovstrip{ box-shadow:none; }
+.ovtab{ position:relative; overflow:hidden; display:flex; flex-direction:column;
+  justify-content:space-between; gap:5px; min-width:0; flex:1 1 0; height:88px;
+  cursor:pointer; text-align:left; color:var(--ink);
+  background:var(--plate); background-image:var(--grad-surf);
+  border:var(--line-w) solid var(--line); padding:11px 15px 10px;
+  transition:flex-grow .34s var(--ease), background-color .34s var(--ease); }
+.ovtab + .ovtab{ margin-left:calc(var(--line-w) * -1); }
+.ovtab:first-child{ border-radius:var(--r6) 0 0 var(--r6); }
+.ovtab:last-child{ border-radius:0 var(--r6) var(--r6) 0; }
+.ovtab:hover{ flex-grow:1.22; z-index:1; }
+.ovtab.sel{ flex-grow:2.1; z-index:1; background-image:none; }
+.ovtab.sel.tint-amber{ background-color:var(--tint-amber); }
+.ovtab.sel.tint-rose{ background-color:var(--tint-rose); }
+.ovtab.sel.tint-green{ background-color:var(--tint-green); }
+.ovtab .ovtop{ min-width:0; overflow:hidden; }
+.ovtab .ovname{ font-size:18px; }
+.ovtab-foot{ display:flex; align-items:flex-end; justify-content:space-between;
+  gap:9px; min-width:0; }
+.ovtab-line{ font-family:var(--font-body); font-size:11px; color:var(--muted);
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0; }
+.ovtab .ovpills{ margin-top:0; flex-wrap:nowrap; flex:0 0 auto; }
+.ovtab .ovmark{ opacity:.55; }
+.ovtab.sel .ovmark{ opacity:.9; }
+@media (prefers-reduced-motion: reduce){ .ovtab{ transition:none; } }
+
+/* the stage-in-stage: left two-thirds = the active agent's page · right third
+   = questions, always. Both columns SCROLL (bars hidden globally). */
+.ovgrid{ display:grid; grid-template-columns:minmax(0,2.05fr) minmax(0,1fr);
+  gap:13px; flex:1 1 auto; min-height:0; margin-top:13px; }
+.ovmain, .ovside{ display:flex; flex-direction:column; gap:12px; min-height:0;
+  overflow-y:auto; padding-bottom:2px; padding-right:1px; }
+.ovmain > *, .ovside > *{ flex:0 0 auto; }
+.ovmain > .panel.flex, .ovside > .panel.flex{ flex:1 0 auto; }
+.ovside .sub.agq{ margin:4px 2px 0; }
+@media (max-width:900px){
+  .ovgrid{ grid-template-columns:minmax(0,1fr); }
+}
+@media (max-width:720px){
+  .ovstrip{ flex-direction:column; }
+  .ovtab{ height:auto; min-height:62px; }
+  .ovtab + .ovtab{ margin-left:0; margin-top:calc(var(--line-w) * -1); }
+  .ovtab:first-child{ border-radius:var(--r6) var(--r6) 0 0; }
+  .ovtab:last-child{ border-radius:0 0 var(--r6) var(--r6); }
+  .ovmain, .ovside{ overflow:visible; }
+}
 </style>
-<link rel="stylesheet" href="chat-panel.css?v=oneline1">
+<link rel="stylesheet" href="chat-panel.css?v=palette1">
 </head>
 
 <body>
@@ -1492,19 +1576,27 @@ html[data-theme="dark"] #sa-chatpane .ch-tab.on[data-q]{ background:var(--act); 
   <!-- ============================== TOPBAR ============================== -->
   <header class="topbar">
     <div class="tb-brand"><a class="tb-logo" href="#overview" aria-label="overview — home" data-tip="overview"><span class="skbot" aria-hidden="true"><span class="skwd">SΛΛKSHE</span><span class="skeye L"></span><span class="skeye R"></span><span class="skmouth"><svg class="m m1" viewBox="0 0 100 60" aria-hidden="true"><rect x="9" y="23" width="82" height="15" rx="7"/></svg><svg class="m m9" viewBox="0 0 100 60" aria-hidden="true"><g transform="rotate(-8 50 30)"><rect x="14" y="24" width="72" height="13" rx="6"/></g></svg><svg class="m m4" viewBox="0 0 100 60" aria-hidden="true"><path d="M16 14 H84 A34 34 0 0 1 16 14 Z"/></svg><svg class="m m7" viewBox="0 0 100 60" aria-hidden="true"><rect x="12" y="26" width="76" height="11"/></svg></span></span></a></div>
-    <div class="tb-spacer"></div>
-    <div class="pills">
-      <button class="pill" id="pillConnect" data-tip="connect a project — sources are granted over setu" type="button" onclick="window.cockpitOpenGate&&cockpitOpenGate()"><svg class="ic"><use href="#i-database"/></svg><span>connect</span></button>
-      <button class="pill" id="pillCost" data-tip="cost today — every line lands in the live console" type="button"><svg class="ic"><use href="#i-dollar"/></svg><span id="pillCostV">0.00</span></button>
-      <button class="pill" id="pillWork" data-tip="seats working now" type="button"><span class="pdot" style="background:var(--sig-green)"></span><span id="pillWorkV">0</span></button>
-      <button class="pill red" id="pillQ" data-tip="questions needing you" type="button"><svg class="ic"><use href="#i-question"/></svg><span id="pillQV">0</span></button>
-      <button class="pill amber" id="pillTap" data-tip="taps waiting — gates held" type="button"><svg class="ic"><use href="#i-hand"/></svg><span id="pillTapV">0</span></button>
+    <!-- the project seat — dead-center: the connected project's name + the
+         "＋" that starts the connect-another-project workflow -->
+    <div class="tb-proj" id="tbProj">
+      <span class="pll" id="tbProjDot" aria-hidden="true"></span>
+      <button class="tb-projname" id="tbProjName" type="button" data-tip="what manas grasped — the live extraction">— connect a project —</button>
+      <button class="tb-projadd" id="tbProjAdd" type="button" data-tip="connect another project" aria-label="connect another project">＋</button>
     </div>
-    <button type="button" class="theme-toggle" id="liveToggle" data-tip="open the live backend console — the real ADK flywheel behind this page" style="gap:7px;align-items:center"><span id="liveDot" style="width:8px;height:8px;border-radius:50%;background:var(--ink-3,#9c8f83)"></span>live</button>
-    <button class="theme-toggle rail-reopen" id="railReopen" type="button" data-tip="reopen saakshe rail"><svg class="ic"><use href="#i-compass"/></svg>rail</button>
-    <button class="theme-toggle" id="themeToggle" type="button" aria-label="Switch light or dark theme">
-      <svg class="ic" id="themeIcon"><use href="#i-moon"/></svg><span id="themeLabel">dark</span>
+    <div class="tb-spacer"></div>
+    <!-- the right side carries exactly three seats: the bill · the theme · the door -->
+    <div class="pills">
+      <button class="pill" id="pillCost" data-tip="cost today — every line lands in the live console" type="button"><svg class="ic"><use href="#i-dollar"/></svg><span id="pillCostV">0.00</span></button>
+    </div>
+    <button class="theme-toggle icononly" id="themeToggle" type="button" aria-label="Switch light or dark theme" data-tip="switch theme">
+      <svg class="ic" id="themeIcon"><use href="#i-moon"/></svg>
     </button>
+    <button class="pill" id="saBal" type="button" data-tip="your credit balance" style="display:none"><span style="opacity:.7">◈</span>&nbsp;<span id="saBalV">—</span></button>
+    <button class="theme-toggle" id="saIn" type="button" data-tip="sign in to run the live flywheel" style="display:none;gap:6px">Sign in</button>
+    <button class="theme-toggle" id="saOut" type="button" data-tip="sign out" style="display:none">sign out</button>
+    <!-- the live console keeps its switch — hidden chrome, still wired (chat
+         chips + the lc feed dot drive it) -->
+    <button type="button" class="theme-toggle" id="liveToggle" style="display:none" aria-hidden="true" tabindex="-1"><span id="liveDot" style="width:8px;height:8px;border-radius:50%;background:var(--ink-3,#9c8f83)"></span>live</button>
   </header>
 
   <!-- ============================== SIDEBAR ============================= -->
@@ -2012,72 +2104,117 @@ html[data-theme="dark"] #sa-chatpane .ch-tab.on[data-q]{ background:var(--act); 
     kalai:{ two:'STANDING BY', three:'no brief yet — studio idle', spark:spark('kalai',FLATSPARK) },
     kural:{ two:'STANDING BY', three:'no master yet — gate unmanned', spark:spark('kural',FLATSPARK) }
   };
-  var OVWORK = {
-    manas:'<span class="ovpill" data-tip="no seat working">idle</span>',
-    arivu:'<span class="ovpill" data-tip="no seat working">idle</span>',
-    kalai:'<span class="ovpill" data-tip="idle — no seat working">idle</span>',
-    kural:'<span class="ovpill" data-tip="no seat working">idle</span>'
-  };
-
   var BUILD = {};
-  BUILD.overview = function(){
-    var OVTINT = { manas:'tint-amber', arivu:'tint-blue', kalai:'tint-rose', kural:'tint-green' };
-    /* one COLUMN per agent: its card, then everything that agent needs from you
-       (questions; kural also carries the taps/publish gate) directly below it. */
-    var allQ = openQuestionsList(0);
-    var ovc = ['manas','kalai','kural'].map(function(q){
-      var m=QMETA[q]; var st=OVSTATUS[q]; var qn=quadQ[q];
-      var tapbit = q==='kural' ? '<span class="ovpill" data-tip="taps waiting"><span class="pdot" style="background:var(--sig-amber)"></span>✋ '+gateOpen()+'</span>' : '';
-      var card = '<button class="ovcard '+OVTINT[q]+'" data-view="'+q+'" type="button">'
-        +'<div class="ovtop"><span class="ovname c-'+q+'">'+q+'</span><span class="ovverb">'+m.verb+'</span></div>'
-        +'<div class="ovtwo">'+st.two+'</div><div class="ovthree">'+st.three+'</div>'
-        +'<div class="ovspark">'+st.spark+'</div>'
-        +'<div class="ovpills"><span class="ovpill" data-tip="cost today"><span class="pdot" style="background:var(--sig-orange)"></span>'+m.cost+'</span>'
-        + OVWORK[q]
-        +'<span class="ovpill" data-tip="questions waiting"><span class="pdot" style="background:var(--sig-red)"></span>? '+qn+'</span>'+tapbit+'</div>'
-        +'<span class="ovmark s-'+q+'" aria-hidden="true"></span></button>';
-      /* the live ClarifyingQuestions hydrate Q[quad].questions in cockpitSetOrg,
-         so openQuestionsList already carries them — no special case needed */
-      var rows = allQ.filter(function(o){ return o.quad===q; });
-      var items = rows.map(function(o){
-        return '<li data-jumpq><b class="c-'+o.quad+'">'+o.quad+'</b> · '+esc(o.short)+'<div class="qmeta">'+esc(o.meta)+'</div></li>';
-      }).join('');
-      var body = items ? '<ul class="qlist">'+items+'</ul>'
-        : '<div class="sub" style="padding:2px 2px 6px;">nothing waiting on you</div>';
-      if(q==='kural'){
-        body += '<div class="gates-col" style="display:flex;flex-direction:column;gap:8px;margin-top:9px;">'+emptyGateHTML()+'</div>';
-      }
-      if(q==='kalai'){
-        /* the studio strip — renders live here too, not only in the chat;
-           filled by the skStudio poller (background renders take minutes) */
-        body += '<div class="gates-col" id="skStudio" style="display:flex;flex-direction:column;gap:8px;margin-top:9px;"></div>';
-      }
-      var panel = '<div class="panel"><div class="phead"><h3>'+icon('question','sm')+' '+q+' — needs you</h3>'
-        +'<span class="ct">? '+rows.length+(q==='kural'?' · ✋ '+gateOpen():'')+'</span></div>'
-        +'<div class="pbody tight">'+body+'</div></div>';
-      return '<div class="ovcol">'+card+panel+'</div>';
-    }).join('');
-    return '<div class="view"><div class="vbody">'
-    /* unconnected, the hero ribbon IS a way into the setu flow — same surface
-       the topbar connect pill and the sidebar project row open */
-    +'<div class="projhdr"'+(ORG.grounded?'':' role="button" tabindex="0" style="cursor:pointer" data-tip="connect a project — grant sources over setu"'
-        +' onclick="window.cockpitOpenGate&&cockpitOpenGate()"'
-        +' onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();window.cockpitOpenGate&&cockpitOpenGate();}"')
-      +'><span class="ll"></span><span class="pn">'+esc(orgName())+'</span>'
-      +(ORG.grounded
-        ?'<button class="qbtn" type="button" style="flex:0 0 auto;width:auto;" onclick="location.href=\'/grasped\'" data-tip="the stored extraction — everything manas grasped, point-and-editable">what manas grasped →</button>'
-         +'<span class="projsw" style="position:relative;flex:0 0 auto;">'
-           +'<button class="pm-toggle" type="button" data-projtoggle aria-haspopup="menu" aria-expanded="false" data-tip="switch project — or connect another">＋ project</button>'
-           +'<div class="projmenu" id="projMenu" hidden role="menu" aria-label="projects">'
-             +'<button class="pm-row" type="button" role="menuitem" onclick="location.href=\'/grasped\'"><span class="pll on"></span><span class="pmn">'+esc(orgName())+'</span><span class="pmk">current</span></button>'
-             +'<button class="pm-row" type="button" role="menuitem" data-projadd><span class="pll"></span><span class="pmn">connect another project…</span></button>'
-           +'</div>'
-         +'</span>'
-        :'<span class="pm">connect over setu to begin →</span>')
-      +'<span class="pm" style="margin-left:auto;">memory <b>Context Pack '+esc(orgPack())+'</b></span></div>'
-    +'<div class="grid3 ovquads" style="margin-top:13px; flex:1 1 auto; min-height:0;">'+ovc+'</div>'
-    +'</div></div>';
-  };
+  /* ============================================================================
+     OVERVIEW v4 · THE PALETTE STRIP (founder, 2026-06-12)
+     The project ribbon moved INTO the topbar; the three agents are one joined
+     half-height strip that stays put. Clicking a tab expands it (the aikizi V3
+     palette move) and swaps ONLY the page below — agent pages live inside the
+     overview now. Questions hold the right column, always.
+     ============================================================================ */
+  var OVTINT = { manas:'tint-amber', arivu:'tint-blue', kalai:'tint-rose', kural:'tint-green' };
+
+  function ovTabHTML(q, sel){
+    var m=QMETA[q], st=OVSTATUS[q], qn=quadQ[q];
+    var tap = (q==='kural' && gateOpen())
+      ? '<span class="ovpill" data-tip="taps waiting"><span class="pdot" style="background:var(--sig-amber)"></span>✋ '+gateOpen()+'</span>' : '';
+    return '<button class="ovtab '+OVTINT[q]+(sel?' sel':'')+'" data-view="'+q+'" type="button" '
+      +'aria-pressed="'+(sel?'true':'false')+'" data-tip="'+(sel ? 'collapse — back to the overview' : q+' — '+m.verb+' · opens below, no page change')+'">'
+      +'<div class="ovtop"><span class="ovname c-'+q+'">'+q+'</span><span class="ovverb">'+m.verb+'</span></div>'
+      +'<div class="ovtab-foot"><span class="ovtab-line">'+st.three+'</span>'
+      +'<span class="ovpills"><span class="ovpill" data-tip="questions waiting on you"><span class="pdot" style="background:'+(qn?'var(--sig-red)':'var(--sig-green)')+'"></span>? '+qn+'</span>'+tap+'</span></div>'
+      +'<span class="ovmark s-'+q+'" aria-hidden="true"></span></button>';
+  }
+
+  /* the LEFT two-thirds — the active agent's whole page, in place */
+  function ovAgentMain(q){
+    var main = q==='manas' ? manasMainHTML() : (q==='kalai' ? kalaiMainHTML() : kuralMainHTML());
+    return '<div class="ovmain">'+constripHTML(q)+staffStripHTML(q)+deskBandHTML(q)+main+'</div>';
+  }
+  /* the RIGHT third — questions, ALWAYS here (placement consistency) */
+  function ovAgentSide(q){
+    var extras = '';
+    if(q==='kalai'){
+      extras = '<div class="panel"><div class="phead"><h3>'+icon('image','sm')+' Studio jobs</h3><span class="ct">background renders</span></div>'
+        +'<div class="pbody tight"><div class="gates-col" id="skStudio" style="display:flex;flex-direction:column;gap:8px;"></div></div></div>';
+    }
+    return '<div class="ovside">'
+      +'<div class="panel flex qopen"><div class="phead"><h3>'+icon('question','sm')+' Questions — needs you</h3><span class="ct" data-qpill2="'+q+'">? '+quadQ[q]+'</span></div>'
+      +'<div class="pbody tight">'+(questionsHTML(q) || '<div class="sub" style="padding:2px 2px 6px;">nothing waiting on you</div>')+'</div></div>'
+      + extras
+      +'<div class="panel"><div class="phead"><h3>'+icon('seal','sm')+' Recent outputs</h3><span class="ct">provenance-tagged</span></div><div class="pbody tight">'+outsHTML(q)+'</div></div>'
+      +'</div>';
+  }
+
+  /* no tab expanded — the glance: the day's shape + taps left, every open
+     question (answerable in place) right */
+  function ovGlanceMain(){
+    function band(label, quad){ return '<div class="phband"><span class="phb-dot dot '+quad+'"></span>'+label+'</div>'; }
+    function note(txt){ return '<div class="frow act" style="cursor:default;"><span class="ft">·</span><span class="fe" style="color:var(--muted);">'+esc(txt)+'</span></div>'; }
+    var col1 = band('Now working','manas')+note('manas imbibes your granted sources and commits a cited Context Pack.')
+             + band('The verdict','arivu')+note('arivu convenes five lenses and seals a tested verdict — for your tap.');
+    var col2 = band('The making','kalai')+note('kalai creates the masters and runs the brand-fidelity loop.')
+             + band('The engaging','kural')+note('kural speaks — only on an approved make, only after your tap.')
+             + band('The commit','manas')+note('manas learns from the outcome; the Context Pack ticks up a version.');
+    return '<div class="ovmain">'
+      +'<div class="panel flex"><div class="phead"><h3>'+icon('activity','sm')+' The day in five phases</h3><span class="ct">'+(ORG.grounded?'connected · memory Context Pack '+esc(orgPack()):'no run yet')+'</span></div>'
+        +'<div class="pbody" style="display:flex;flex-direction:column;"><div class="phbands"><div class="phcol">'+col1+'</div><div class="phcol">'+col2+'</div></div></div></div>'
+      +'<div class="panel"><div class="phead"><h3>'+icon('hand','sm')+' Taps — your hand</h3><span class="ct"><span id="kuralTapCt">'+gateOpen()+'</span> on you</span></div>'
+        +'<div class="pbody tight"><div class="gates-col" style="display:flex;flex-direction:column;gap:8px;">'+emptyGateHTML()+'</div>'
+        +'<div class="gates-col" id="skStudio" style="display:flex;flex-direction:column;gap:8px;margin-top:8px;"></div></div></div>'
+      +'</div>';
+  }
+  function ovGlanceSide(){
+    var inner='';
+    ['manas','arivu','kalai','kural'].forEach(function(q){
+      var h = questionsHTML(q);
+      if(h){ inner += '<div class="sub agq"><b class="c-'+q+'">'+q+'</b> — needs you</div>'+h; }
+    });
+    if(!inner){
+      inner = '<div class="allclear" style="padding:4px 2px;"><span class="chk">'+icon('check','sm')+'</span>'
+        +'<span>nothing waiting on you — ask saakshe a real decision and anything that needs you lands here.</span></div>';
+    }
+    return '<div class="ovside">'
+      +'<div class="panel flex qopen"><div class="phead"><h3>'+icon('question','sm')+' Questions — need you</h3><span class="ct">? '+STATE.openQ+'</span></div>'
+      +'<div class="pbody tight">'+inner+'</div></div>'
+      +'</div>';
+  }
+  function ovBodyHTML(sel){ return sel ? (ovAgentMain(sel)+ovAgentSide(sel)) : (ovGlanceMain()+ovGlanceSide()); }
+  function cockpitHTML(v){
+    var sel = isQuad(v) ? v : null;
+    return '<div class="view"><div class="vbody" style="min-height:0;">'
+      +'<div class="ovstrip" role="tablist" aria-label="the three agents">'
+      + ['manas','kalai','kural'].map(function(q){ return ovTabHTML(q, q===sel); }).join('')
+      +'</div>'
+      +'<div class="ovgrid" id="ovBody">'+ovBodyHTML(sel)+'</div>'
+      +'</div></div>';
+  }
+  BUILD.overview = function(){ return cockpitHTML(null); };
+
+  /* tab switch IN PLACE — the strip DOM survives (so the expansion tweens),
+     only #ovBody swaps. Falls back to a full go() off the strip surface. */
+  function selectOvTab(v){
+    Array.prototype.forEach.call(document.querySelectorAll('.ovtab'), function(b){
+      var on = b.getAttribute('data-view')===v;
+      b.classList.toggle('sel', on);
+      b.setAttribute('aria-pressed', on?'true':'false');
+    });
+  }
+  function ovTabClick(v){
+    var target = (v===STATE.view && !STATE.sub) ? 'overview' : v;
+    var body = document.getElementById('ovBody');
+    if(!body || STATE.sub){ go(target, null); return; }
+    STATE.view = target; STATE.sub = null;
+    var hash = '#'+target;
+    if(location.hash !== hash){ history.replaceState(null,'',hash); }
+    selectOvTab(isQuad(target)?target:null);
+    body.innerHTML = ovBodyHTML(isQuad(target)?target:null);
+    if(!reduced){ body.classList.remove('fadein'); void body.offsetWidth; body.classList.add('fadein'); }
+    document.documentElement.setAttribute('data-view', STATE.view);
+    syncNav();
+    refreshMirrors();
+    if((target==='manas' || target==='kalai') && (Date.now()-PRES.at > 30000)){ fetchPresence(); }
+  }
 
   /* ================= QUADRANT HEAD ================= */
   function quadHead(quad){
@@ -2098,13 +2235,10 @@ html[data-theme="dark"] #sa-chatpane .ch-tab.on[data-q]{ background:var(--act); 
     +'</div>';
   }
 
-  BUILD.manas = function(){
-    return '<div class="view">'+quadHead('manas')+'<div class="vbody"><div class="qstack">'
-    +constripHTML('manas')
-    +staffStripHTML('manas')
-    +deskBandHTML('manas')
-    +'<div class="qwork">'
-      +'<div class="col"><div class="panel flex"><div class="phead"><h3>'+icon('database','sm')+' Memory management</h3>'
+  /* the agents' WORKING PANELS — the meat of their old full pages, now living
+     inside the overview's left column (the strip owns the header role) */
+  function manasMainHTML(){
+    return '<div class="panel flex"><div class="phead"><h3>'+icon('database','sm')+' Memory management</h3>'
         +'<span class="ct"><span class="info" data-tip="cited · versioned — every fact keeps its source">'+icon('seal','sm')+'</span> cited · versioned</span></div>'
         +'<div class="pbody tight" style="display:flex;flex-direction:column;">'
           +'<div class="packline"><span class="pack">Context Pack <b>'+esc(orgPack())+'</b></span><span class="pack cap">'+(ORG.grounded?'cited · versioned':'empty — connect a project to ground memory')+'</span>'
@@ -2124,11 +2258,9 @@ html[data-theme="dark"] #sa-chatpane .ch-tab.on[data-q]{ background:var(--act); 
             +'data-tip="run the real manas ingestion over the connected sources — the live feed shows every reader as it lands">'
             +'↻ imbibe now — re-read the connected sources</button>'
           +'<button class="backchip" data-drill="memory" style="margin-top:auto;align-self:flex-start;">'+icon('arrowleft','sm')+' buckets detail + imbibe activity</button>'
-        +'</div></div></div>'
-      +rightStackHTML('manas')
-    +'</div>'
-    +'</div></div></div>';
-  };
+        +'</div></div>';
+  }
+  BUILD.manas = function(){ return cockpitHTML('manas'); };
 
   BUILD.arivu = function(){
     return '<div class="view">'+quadHead('arivu')+'<div class="vbody"><div class="qstack">'
@@ -2152,13 +2284,8 @@ html[data-theme="dark"] #sa-chatpane .ch-tab.on[data-q]{ background:var(--act); 
     +'</div></div></div>';
   };
 
-  BUILD.kalai = function(){
-    return '<div class="view">'+quadHead('kalai')+'<div class="vbody"><div class="qstack">'
-    +constripHTML('kalai')
-    +staffStripHTML('kalai')
-    +deskBandHTML('kalai')
-    +'<div class="qwork">'
-      +'<div class="col"><div class="panel flex"><div class="phead"><h3>'+icon('palette','sm')+' Studio work</h3><span class="ct">brief · loop · handoff</span></div>'
+  function kalaiMainHTML(){
+    return '<div class="panel flex"><div class="phead"><h3>'+icon('palette','sm')+' Studio work</h3><span class="ct">brief · loop · handoff</span></div>'
         +'<div class="pbody tight" style="display:flex;flex-direction:column;">'
           +'<div class="sub">Brand-fidelity loop</div>'
           +'<div class="docket-rider sans" style="margin:4px 0;">no make yet — kalai regenerates and scores each master until it looks like us, then hands it to kural.</div>'
@@ -2179,20 +2306,12 @@ html[data-theme="dark"] #sa-chatpane .ch-tab.on[data-q]{ background:var(--act); 
         +'</div></div>'
       +'<div class="panel"><div class="phead"><h3>'+icon('image','sm')+' BRAND SHELF <span class="vgloss">— served by <b class="c-manas">manas</b></span></h3>'
         +'<span class="ct" id="kalaiShelfCt">'+((VAULT.assets&&VAULT.assets.length)?(VAULT.assets.length+' in the vault'):'vault empty · served by manas')+'</span></div>'
-        +'<div class="pbody tight" id="kalaiShelfBody">'+brandShelfHTML()+'</div></div>'
-      +'</div>'
-      +rightStackHTML('kalai')
-    +'</div>'
-    +'</div></div></div>';
-  };
+        +'<div class="pbody tight" id="kalaiShelfBody">'+brandShelfHTML()+'</div></div>';
+  }
+  BUILD.kalai = function(){ return cockpitHTML('kalai'); };
 
-  BUILD.kural = function(){
-    return '<div class="view">'+quadHead('kural')+'<div class="vbody"><div class="qstack">'
-    +constripHTML('kural')
-    +staffStripHTML('kural')
-    +deskBandHTML('kural')
-    +'<div class="qwork">'
-      +'<div class="col"><div class="panel flex"><div class="phead"><h3>'+icon('hand','sm')+' Taps &amp; outreach</h3><span class="ct"><span id="kuralTapCt">0</span> on you</span></div>'
+  function kuralMainHTML(){
+    return '<div class="panel flex"><div class="phead"><h3>'+icon('hand','sm')+' Taps &amp; outreach</h3><span class="ct"><span id="kuralTapCt">0</span> on you</span></div>'
         +'<div class="pbody tight" style="display:flex;flex-direction:column;">'
           +'<div class="gates-col" style="display:flex;flex-direction:column;gap:9px;">'+emptyGateHTML()+'</div>'
           +'<div class="sub" style="margin-top:13px;">Outreach pipeline</div>'
@@ -2206,11 +2325,9 @@ html[data-theme="dark"] #sa-chatpane .ch-tab.on[data-q]{ background:var(--act); 
             +'<tr><td class="ch" colspan="5" style="text-align:left;color:var(--muted);">connect a social handle over setu to grant channel scopes</td></tr>'
           +'</tbody></table>'
           +'<button class="backchip" data-drill="outreach" style="margin-top:auto;align-self:flex-start;">'+icon('arrowleft','sm')+' full outreach · pipeline + the publish gate</button>'
-        +'</div></div></div>'
-      +rightStackHTML('kural')
-    +'</div>'
-    +'</div></div></div>';
-  };
+        +'</div></div>';
+  }
+  BUILD.kural = function(){ return cockpitHTML('kural'); };
 
   /* ================= DRILL-INS ================= */
   function backChip(label){ return '<button class="backchip" data-back type="button">'+icon('arrowleft','sm')+' '+esc(label)+'</button>'; }
@@ -3091,6 +3208,9 @@ html[data-theme="dark"] #sa-chatpane .ch-tab.on[data-q]{ background:var(--act); 
     if(jq){ go('questions', null); return; }
     var jv = t.closest('[data-jumpv]');
     if(jv){ go(jv.getAttribute('data-jumpv'), null); return; }
+    /* the palette strip — expands in place (clicking the open tab collapses) */
+    var ovt = t.closest('.ovtab');
+    if(ovt){ ovTabClick(ovt.getAttribute('data-view')); return; }
     var navBtn = t.closest('[data-view]');
     if(navBtn){ var dv=navBtn.getAttribute('data-view'); if(dv){ go(dv, null); return; } }
     var sw = t.closest('[data-sw]');
@@ -3124,20 +3244,43 @@ html[data-theme="dark"] #sa-chatpane .ch-tab.on[data-q]{ background:var(--act); 
     rb.click();
   });
 
-  /* ================= TOPBAR PILLS NAV ================= */
+  /* ================= TOPBAR ================= */
   document.getElementById('pillCost').addEventListener('click', function(){ openRail(); switchTab('today'); });
-  document.getElementById('pillWork').addEventListener('click', function(){ go('activity', null); });
-  document.getElementById('pillQ').addEventListener('click', function(){ go('questions', null); });
-  document.getElementById('pillTap').addEventListener('click', function(){ openRail(); switchTab('taps'); });
+  /* the project seat — the name opens the grasped profile (or the connect gate
+     when nothing is grounded); the ＋ starts connect-another-project */
+  document.getElementById('tbProjName').addEventListener('click', function(){
+    if(ORG.grounded){ location.href='/grasped'; }
+    else if(window.cockpitOpenGate){ cockpitOpenGate(); }
+  });
+  document.getElementById('tbProjAdd').addEventListener('click', function(){
+    if(window.cockpitConnectNew){ cockpitConnectNew(); }
+    else if(window.cockpitOpenGate){ cockpitOpenGate(); }
+  });
+  /* the wake — B · the box, on a ~20s heartbeat. The class re-arms the CSS
+     timeline; the curious idle resumes when it falls off. No repositioning. */
+  (function(){
+    if(reduced) return;
+    var brand=document.querySelector('.tb-brand'); if(!brand) return;
+    var bot=brand.querySelector('.skbot'); if(!bot) return;
+    function wake(){
+      if(document.visibilityState!=='visible') return;
+      brand.classList.remove('wake'); void bot.offsetWidth;
+      brand.classList.add('wake');
+    }
+    bot.addEventListener('animationend', function(e){
+      if(e.animationName==='tbboxwake'){ brand.classList.remove('wake'); }
+    });
+    setTimeout(wake, 2200);
+    setInterval(wake, 20000);
+  })();
 
-  /* ================= THEME TOGGLE ================= */
+  /* ================= THEME TOGGLE (icon-only) ================= */
   var tBtn=document.getElementById('themeToggle');
-  var tLbl=document.getElementById('themeLabel');
   var tUse=document.getElementById('themeIcon').querySelector('use');
   function syncTheme(){
     var dark = root.getAttribute('data-theme')==='dark';
-    tLbl.textContent = dark ? 'light' : 'dark';
     tUse.setAttribute('href', dark ? '#i-sun' : '#i-moon');
+    tBtn.setAttribute('aria-label', dark ? 'Switch to light theme' : 'Switch to dark theme');
   }
   syncTheme();
   tBtn.addEventListener('click', function(){
@@ -3148,10 +3291,12 @@ html[data-theme="dark"] #sa-chatpane .ch-tab.on[data-q]{ background:var(--act); 
   });
 
   /* ================= SIDEBAR / RAIL COLLAPSE ================= */
-  document.getElementById('sbToggle').addEventListener('click', function(){ app.classList.toggle('sb-collapsed'); });
+  var sbT=document.getElementById('sbToggle');
+  if(sbT) sbT.addEventListener('click', function(){ app.classList.toggle('sb-collapsed'); });
   function openRail(){ app.classList.remove('rail-collapsed'); }
   document.getElementById('railClose').addEventListener('click', function(){ app.classList.add('rail-collapsed'); });
-  document.getElementById('railReopen').addEventListener('click', openRail);
+  var rrBtn=document.getElementById('railReopen');
+  if(rrBtn) rrBtn.addEventListener('click', openRail);
 
   /* ================= RAIL TABS ================= */
   function switchTab(name){
@@ -3223,6 +3368,15 @@ html[data-theme="dark"] #sa-chatpane .ch-tab.on[data-q]{ background:var(--act); 
     ORG.relationship = org.relationship || 'own';
     /* static DOM mirrors (set once; not re-rendered by go()) */
     setText('todayPack', ORG.version);
+    /* the topbar project seat — name centered in the bar, lit when grounded */
+    setText('tbProjName', ORG.name);
+    (function(){
+      var pd=document.getElementById('tbProjDot'); if(pd) pd.classList.toggle('on', ORG.grounded);
+      var pn=document.getElementById('tbProjName');
+      if(pn) pn.setAttribute('data-tip', ORG.grounded
+        ? 'what manas grasped — the live extraction'
+        : 'connect a project — sources are granted over setu');
+    })();
     /* the sidebar project rows — one per connected source, stacked above Overview;
        repos lead. Click (delegated on #sbProjects) opens what manas grasped. */
     (function(){
@@ -4246,14 +4400,11 @@ html[data-theme="dark"] #sa-chatpane .ch-tab.on[data-q]{ background:var(--act); 
   }
 
   function injectControl(){
-    var lt=$("liveToggle"); if(!lt||$("saIn")) return;
-    function mk(html){ var s=document.createElement("span"); s.innerHTML=html; return s.firstElementChild; }
-    var bal=mk('<button class="pill" id="saBal" type="button" data-tip="your credit balance" style="display:none"><span style="opacity:.7">◈</span>&nbsp;<span id="saBalV">—</span></button>');
-    var sin=mk('<button class="theme-toggle" id="saIn" type="button" data-tip="sign in to run the live flywheel" style="display:none;gap:6px">Sign in</button>');
-    var out=mk('<button class="theme-toggle" id="saOut" type="button" data-tip="sign out" style="display:none">sign out</button>');
-    lt.parentNode.insertBefore(bal, lt);
-    lt.parentNode.insertBefore(sin, lt);
-    lt.parentNode.insertBefore(out, lt);
+    /* the controls are STATIC topbar seats now (sign out must always be
+       findable at the far right) — this only wires them, once */
+    var sin=$("saIn"), out=$("saOut");
+    if(!sin || sin._wired) return;
+    sin._wired = true;
     sin.addEventListener("click", function(){ A.signIn(); });
     out.addEventListener("click", function(){ A.signOut(); });
   }
@@ -4591,7 +4742,7 @@ html[data-theme="dark"] #sa-chatpane .ch-tab.on[data-q]{ background:var(--act); 
   setTimeout(fill,1200);
 })();
 </script>
-<script src="chat-panel.js?v=screening2"></script>
+<script src="chat-panel.js?v=palette1"></script>
 <script>
 /* the box wake — once a day, the badge contracts into the bot */
 (function(){
