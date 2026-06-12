@@ -26,12 +26,18 @@ BG_WALL_FACTOR = float(os.environ.get("SAAKSHE_RENDER_WALL_FACTOR", "30"))
 
 
 def route(*, has_source_image: bool, wants_hdr: bool) -> tuple[str, str]:
-    """Pick the path; return (path, rationale). The agentic decision, recorded."""
+    """Pick the path; return (path, rationale). The agentic decision, recorded.
+
+    The rationale is FOUNDER-FACING chat copy (the presenter renders it
+    verbatim) — plain words, no pipeline jargon, and it must not claim an
+    image already exists: path B means the founder supplies one at render time.
+    """
     if has_source_image:
-        return "B", ("source image exists and HDR is a compute capability — "
-                     "no generation needed, deterministic FX+HDR path")
-    return "A->B", ("no source image — generate a still (Imagen), then the "
-                    "compute path adds motion + HDR (Veo cannot output HDR)")
+        return "B", ("I can do this without buying any generation — hand me one "
+                     "source image and I add the motion and the HDR finish myself")
+    return "A->B", ("no source image — I generate a still with Imagen first, then "
+                    "add the motion and the HDR finish myself (no video model can "
+                    "output HDR today)")
 
 
 def _lines(path: str, seconds: int) -> list[dict]:

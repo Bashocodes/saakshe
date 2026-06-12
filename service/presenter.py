@@ -61,7 +61,9 @@ def to_blocks(reply: dict, asked: str = "") -> list[dict]:
 
 def quote_blocks(q: dict) -> list[dict]:
     rows = [[l["item"].replace("_", " "), f"${l['usd']:.3f}"] for l in q["lines"]]
-    rows.append(["total", f"${q['total_usd']:.3f} of ${q['budget_usd']:.2f}"])
+    rows.append(["total", f"${q['total_usd']:.3f}"])
+    # the budget is a DEFAULT cap, not something the founder set — say so
+    rows.append(["budget", f"${q['budget_usd']:.2f} — say “under $5” to change it"])
     blocks: list[dict] = [
         {"t": "text", "who": "kalai/router",
          "md": f"Path {q['path']} — {q['rationale']}."},

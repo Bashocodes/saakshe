@@ -109,10 +109,13 @@ html[data-theme="dark"] #sa-chatpane .ch-setsback{border-width:1px;box-shadow:no
   background:var(--surface,#FBF7EE);box-shadow:var(--shadow-sm,2px 2px 0 var(--ink))}
 #sa-chatpane .msg.hidden-fac{display:none}
 @media (prefers-reduced-motion: no-preference){
-  #sa-chatpane .msg{animation:sa-slidein .28s cubic-bezier(.2,.9,.3,1.2)}
+  /* no-overshoot bezier — a >1 scale mid-flight momentarily clipped the
+     user bubble against the feed edge */
+  #sa-chatpane .msg{animation:sa-slidein .28s cubic-bezier(.2,.9,.3,1)}
   @keyframes sa-slidein{from{opacity:0;transform:translateY(10px) scale(.97)}to{opacity:1;transform:none}}
 }
-#sa-chatpane .msg.user{align-self:flex-end;background:var(--ink,#161410);color:var(--bg,#F4EEE2);box-shadow:none}
+#sa-chatpane .msg.user{align-self:flex-end;background:var(--ink,#161410);color:var(--bg,#F4EEE2);
+  box-shadow:none;margin-right:2px;max-width:88%}
 html[data-theme="dark"] #sa-chatpane .msg.user{background:var(--surface-2);color:var(--ink);border-color:var(--ink-2)}
 #sa-chatpane .msg .who{display:flex;align-items:center;gap:8px;font:700 9.5px var(--font-mono);
   text-transform:uppercase;letter-spacing:.12em;margin-bottom:5px;color:var(--ink-3,#6B6557)}
@@ -167,6 +170,12 @@ html[data-theme="dark"] #sa-chatpane .act.ok,
 html[data-theme="dark"] #sa-chatpane .act.no,
 html[data-theme="dark"] #sa-chatpane .act.blocked{color:var(--ink)}
 #sa-chatpane .act.done{background:var(--tint-green,#D6EDDB);pointer-events:none;opacity:.6}
+#sa-chatpane .act:disabled{pointer-events:none;box-shadow:none;transform:none;cursor:default}
+/* superseded rows — an older quote/render offer retired by a newer one
+   (same fade idea as .ch-opts.spent); VIEW HDR inside stays clickable */
+#sa-chatpane .acts.stale{opacity:.55}
+#sa-chatpane .acts .stamp{font:600 9px var(--font-mono);letter-spacing:.08em;
+  text-transform:uppercase;color:var(--ink-3,#6B6557);align-self:center;padding:2px 0}
 
 /* options chips — every answer offers tappable next steps (typing stays open).
    Brut light: 2px border; Obsidian: 1px hairline, flat. Hover inverts. */
@@ -183,21 +192,30 @@ html[data-theme="dark"] #sa-chatpane .ch-opt{border-width:1px}
 #sa-chatpane .ch-opts.spent .ch-opt{pointer-events:none;cursor:default}
 #sa-chatpane .ch-opts.spent .ch-opt:hover{background:var(--surface,#FBF7EE);color:var(--ink,#161410)}
 
-/* slider (kalai quote) — Brut chip thumb on a hairline track */
+/* slider (kalai quote) — proper Brut slider: bordered surface track, square
+   ink-edged --act thumb. Every Firefox pseudo styled explicitly (an unstyled
+   ::-moz-range-progress was the orange smear under the cost box). */
 #sa-chatpane .sld{margin-top:9px;background:var(--surface-2,#ECE4D3);
   border:1.5px solid var(--line,#161410);border-radius:var(--radius-sm,10px);padding:9px 12px}
 #sa-chatpane .sld .lab{display:flex;justify-content:space-between;font:700 9.5px var(--font-mono);
   text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px;color:var(--ink-2)}
-#sa-chatpane .sld input{width:100%;-webkit-appearance:none;appearance:none;height:18px;background:transparent}
-#sa-chatpane .sld input::-webkit-slider-runnable-track{height:2px;background:var(--line)}
-#sa-chatpane .sld input::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;margin-top:-6px;
-  background:var(--act);border:2px solid var(--line);border-radius:3px;cursor:pointer}
-#sa-chatpane .sld input::-moz-range-track{height:2px;background:var(--line)}
-#sa-chatpane .sld input::-moz-range-thumb{width:12px;height:12px;background:var(--act);
-  border:2px solid var(--line);border-radius:3px;cursor:pointer}
+#sa-chatpane .sld input{width:100%;-webkit-appearance:none;appearance:none;height:22px;
+  background:transparent;accent-color:var(--act,#CC4632)}
+#sa-chatpane .sld input::-webkit-slider-runnable-track{height:6px;background:var(--surface,#FBF7EE);
+  border:1.5px solid var(--line,#161410);border-radius:2px}
+#sa-chatpane .sld input::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;margin-top:-5px;
+  background:var(--act,#CC4632);border:1.5px solid var(--line,#161410);border-radius:3px;cursor:pointer}
+#sa-chatpane .sld input::-moz-range-track{height:6px;background:var(--surface,#FBF7EE);
+  border:1.5px solid var(--line,#161410);border-radius:2px}
+#sa-chatpane .sld input::-moz-range-progress{height:6px;background:var(--surface,#FBF7EE);border-radius:2px}
+#sa-chatpane .sld input::-moz-range-thumb{width:16px;height:16px;background:var(--act,#CC4632);
+  border:1.5px solid var(--line,#161410);border-radius:3px;cursor:pointer}
 #sa-chatpane .sld input:focus-visible{outline:none;box-shadow:0 0 0 2px var(--accent)}
 #sa-chatpane .sld .quote{margin-top:6px;font:11px var(--font-mono);display:flex;justify-content:space-between}
 #sa-chatpane .sld .quote b{font-size:12.5px}
+/* quiet note when the debounced requote fails — the shown cost may be stale */
+#sa-chatpane .sld .qerr{margin-top:6px;font:600 9.5px var(--font-mono);letter-spacing:.05em;
+  color:var(--sig-red,#A33321)}
 
 /* attachment drop-plate */
 #sa-chatpane .drop{margin-top:9px;border:1.5px dashed var(--ink-3);border-radius:var(--radius-sm);
@@ -266,6 +284,9 @@ html[data-theme="dark"] #sa-chatpane .ch-input button:hover{transform:none;box-s
 #sa-chatpane .ch-input button:focus-visible{outline:none;box-shadow:0 0 0 2px var(--accent,#2A41A0)}
 #sa-chatpane .ch-input button:disabled{opacity:.45;pointer-events:none;box-shadow:none}
 #sa-chatpane #sa-ch-send{background:var(--act,#CC4632);color:var(--on-act,#fff)}
+/* disabled SEND wears surface, not washed-out pink — full --act only when armed */
+#sa-chatpane #sa-ch-send:disabled{background:var(--surface-2,#ECE4D3);color:var(--ink-3,#6B6557);
+  border-color:var(--line,#161410);opacity:1;box-shadow:none}
 #sa-chatpane #sa-ch-mic .ic{width:14px;height:14px;fill:none;stroke:currentColor;
   stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;display:block}
 #sa-chatpane #sa-ch-mic .recdot{display:none;width:8px;height:8px;border-radius:50%;background:var(--sig-red,#A33321)}
@@ -276,9 +297,18 @@ html[data-theme="dark"] #sa-chatpane .ch-input button:hover{transform:none;box-s
 }
 #sa-chatpane #sa-ch-mic.kbd .ic{display:none}
 #sa-chatpane #sa-ch-mic.kbd::after{content:'⌨';font-size:13px}
-#sa-chatpane #sa-ch-mic.loading{opacity:.6;pointer-events:none}
+/* loading stays CLICKABLE (dimmed) — the founder must always be able to stop */
+#sa-chatpane #sa-ch-mic.loading{opacity:.6}
 
-/* the mobile FAB lives outside the pane */
-#sa-chatfab{border:var(--line-w,2.5px) solid var(--line,#161410);border-radius:12px;
+/* the mobile FAB lives outside the pane. Hidden by DEFAULT so it can never
+   orphan-float over the feed; cockpit.html's max-width:1099px block only
+   POSITIONS it (never sets display), so the narrow-screen show is owned here
+   in a matching media query. cockpit's `html.sk-chat-open #sa-chatfab
+   {display:none}` outranks the show on specificity, so open-state hiding
+   still wins. (This sheet loads AFTER the cockpit inline style.) */
+#sa-chatfab{display:none;border:var(--line-w,2.5px) solid var(--line,#161410);border-radius:12px;
   background:var(--surface,#FBF7EE);padding:8px;cursor:pointer;box-shadow:var(--shadow,5px 5px 0 var(--ink))}
+@media(max-width:1099px){
+  #sa-chatfab{display:inline-flex;align-items:center;justify-content:center}
+}
 #sa-chatfab:focus-visible{outline:none;box-shadow:0 0 0 2px var(--accent,#2A41A0)}

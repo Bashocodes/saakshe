@@ -49,12 +49,23 @@
                 poller: null, pollEnd: null, inflight: false, fac: 'saakshe' };
   var FX = ['sat_sort', 'dark_sort', 'vert_sort', 'hue_sort', 'ripple', 'wave',
             'light_sweep', 'charcoal', 'lith', 'sabattier', 'cinestill', 'ca_pulse'];
+  /* plain-words gloss per FX — rides the chip's title attribute */
+  var FX_GLOSS = {
+    sat_sort: 'pixels sorted by saturation', dark_sort: 'dark pixels swept into streaks',
+    vert_sort: 'vertical pixel-sort columns', hue_sort: 'pixels sorted by hue',
+    ripple: 'concentric water-ripple distortion', wave: 'rolling wave displacement',
+    light_sweep: 'a light band sweeps across', charcoal: 'soft charcoal-sketch shading',
+    lith: 'high-contrast lith print look', sabattier: 'partial tone inversion — darkroom look',
+    cinestill: 'warm halation film look', ca_pulse: 'chromatic aberration pulse'
+  };
   var MEDIA_WORDS = ['hdr', 'video', 'reel', 'animate', 'motion'];   // mirrors presenter.media_intent
 
   function el(h) { var d = document.createElement('div'); d.innerHTML = h; return d.firstElementChild; }
-  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c]; }); }
+  function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]; }); }
   function hdrs(extra) { return (window.SA_HEADERS || Object)(extra || {}); }
   function bot(fn) { if (window.SK_BOT && SK_BOT[fn]) SK_BOT[fn](); }
+  /* state echo to the cockpit (render phases, spend) — always guarded */
+  function echo(kind, info) { if (window.SK_ECHO) { try { window.SK_ECHO(kind, info); } catch (e) {} } }
   function dot(cls) { if (liveDot) liveDot.className = 'live' + (cls ? ' ' + cls : ''); }
 
   /* ── the entity-chip ask box (contenteditable) ──
@@ -133,6 +144,18 @@
   }
   feed.addEventListener('scroll', function () { if (nearBottom() && newBtn) { newBtn.remove(); newBtn = null; } });
 
+  /* the typing row + the new-messages pill must stay the LAST feed nodes —
+     msg() appends cards AFTER them otherwise, stranding them mid-feed where
+     they overlap card borders (the orphaned dark square). */
+  function dockFloaters() {
+    if (typingEl) feed.appendChild(typingEl);
+    if (newBtn) feed.appendChild(newBtn);
+  }
+  function clearFloaters() {
+    if (typingEl) { typingEl.remove(); typingEl = null; }
+    if (newBtn) { newBtn.remove(); newBtn = null; }
+  }
+
   /* ── feed persistence: a refresh must not amnesia the conversation ──
      structured JSON (v2) re-rendered through msg() on restore — never raw
      innerHTML re-injection. persist() is debounced (~1s trailing) because it
@@ -160,7 +183,7 @@
                (user ? '' : BOT) + esc(who) + '<span class="ts">' + esc(when) + '</span></div><p>' + html + '</p></div>');
     m._log = entry;                 // options blocks ride the entry into sessionStorage
     applyFacFilter(m);
-    feed.appendChild(m); down(); persist(); return m;
+    feed.appendChild(m); dockFloaters(); down(); persist(); return m;
   }
 
   var typingEl = null;
@@ -197,6 +220,7 @@
       row.appendChild(b);
     });
     host.appendChild(row);
+    if (host === feed) dockFloaters();
     return row;
   }
 
@@ -224,54 +248,102 @@
       (b.verify.ok ? '✓ ' + esc(b.verify.hdr_format) : '✗ FAILED') +
       '</b></div></div>'));
   }
-  function appendActs(host, items) {
-    var acts = el('<div class="acts"></div>');
-    items.forEach(function (i) { acts.appendChild(actBtn(i)); });
+  /* a NEW render offer retires every older one — an old RENDER button would
+     bill an old quote. Stale rows fade (.stale) and their quote-acting buttons
+     die; VIEW HDR stays live (a paid render is always viewable). */
+  function supersedeQuotes() {
+    feed.querySelectorAll('.acts').forEach(function (row) {
+      if (row.classList.contains('stale')) return;
+      if (!row.querySelector('.act[data-action="media.render"],.act[data-action="media.fxmenu"]')) return;
+      row.classList.add('stale');
+      row.querySelectorAll('.act').forEach(function (x) {
+        if (x.dataset.action !== 'media.view') x.disabled = true;
+      });
+      row.appendChild(el('<span class="stamp">superseded — asked again</span>'));
+    });
+  }
+  function appendActs(host, items, stale) {
+    var acts = el('<div class="acts' + (stale ? ' stale' : '') + '"></div>');
+    items.forEach(function (i) {
+      var b = actBtn(i);
+      if (stale && b.dataset.action !== 'media.view') b.disabled = true;
+      acts.appendChild(b);
+    });
+    if (stale) acts.appendChild(el('<span class="stamp">superseded — asked again</span>'));
+    else if (items.some(function (i) { return i && i.action === 'media.render'; })) supersedeQuotes();
     host.appendChild(acts);
   }
 
+  /* backend `who` idiom kalai/router → the panel's dot idiom KALAI · ROUTER */
+  function whoLabel(w) {
+    return String(w || 'saakshe').split('/').map(function (p) { return p.trim(); })
+      .filter(Boolean).join(' · ').toUpperCase();
+  }
   function renderBlocks(blocks) {
     var last = null;
-    blocks.forEach(function (b) {
-      if (b.t === 'text') last = msg(b.who.toUpperCase(), fmt(b.md));
-      else if ((b.t === 'data' || b.t === 'receipt') && last) {
-        appendData(last, b);
-        if (last._log) (last._log.rows = last._log.rows || []).push(
-          { rows: b.rows, verify: b.verify || null });
-      }
-      else if (b.t === 'actions' && last) {
-        appendActs(last, b.items);
-        if (last._log) last._log.acts = b.items;
-      }
-      else if (b.t === 'slider' && last) {
-        var sv = +b.value || 4, q = b.quote || { total_usd: 0, est_wall_sec: 0 };
-        var s = el('<div class="sld"><div class="lab"><span>DURATION</span>' +
-          '<span class="dv">' + sv + 's</span></div>' +
-          '<input type="range" min="' + (+b.min || 1) + '" max="' + (+b.max || 8) + '" value="' + sv + '" aria-label="duration seconds">' +
-          '<div class="quote"><span>est. cost</span><b class="qc">$' + (+q.total_usd || 0).toFixed(3) + '</b></div>' +
-          '<div class="quote"><span>est. render</span><b class="qt">' + fmtEta(q.est_wall_sec) + '</b></div>' +
-          '<div style="opacity:.72;font-size:.85em;margin-top:5px;">renders in the background — ' +
-          'track it here or on the kalai card; it survives a closed tab.</div></div>');
-        s.querySelector('input').oninput = function (e) {
-          state.seconds = +e.target.value;
-          s.querySelector('.dv').textContent = state.seconds + 's';
-          api('/api/kalai/media/quote', { seconds: state.seconds, budget_usd: state.budget,
-                                          has_source_image: true }).then(function (res) {
-            if (!res.ok) return;
-            s.querySelector('.qc').textContent = '$' + res.data.total_usd.toFixed(3);
-            s.querySelector('.qt').textContent = fmtEta(res.data.est_wall_sec);
+    (Array.isArray(blocks) ? blocks : []).forEach(function (b) {
+      try {   // one malformed block must not drop the rest of the reply
+        if (!b || typeof b.t !== 'string') return;
+        if (b.t === 'text') last = msg(whoLabel(b.who), fmt(String(b.md || '')));
+        else if ((b.t === 'data' || b.t === 'receipt') && last && Array.isArray(b.rows)) {
+          appendData(last, b);
+          if (last._log) (last._log.rows = last._log.rows || []).push(
+            { rows: b.rows, verify: b.verify || null });
+        }
+        else if (b.t === 'actions' && last && Array.isArray(b.items)) {
+          appendActs(last, b.items);
+          if (last._log) last._log.acts = b.items;
+        }
+        else if (b.t === 'slider' && last) {
+          var sv = +b.value || 4, q = b.quote || { total_usd: 0, est_wall_sec: 0 };
+          var s = el('<div class="sld"><div class="lab"><span>DURATION</span>' +
+            '<span class="dv">' + sv + 's</span></div>' +
+            '<input type="range" min="' + (+b.min || 1) + '" max="' + (+b.max || 8) + '" value="' + sv + '" aria-label="duration seconds">' +
+            '<div class="quote"><span>est. cost</span><b class="qc">$' + (+q.total_usd || 0).toFixed(3) + '</b></div>' +
+            '<div class="quote"><span>est. render</span><b class="qt">' + fmtEta(q.est_wall_sec) + '</b></div>' +
+            '<div style="opacity:.72;font-size:.85em;margin-top:5px;">renders in the background — ' +
+            'track it here or on the kalai card; it survives a closed tab.</div></div>');
+          var rng = s.querySelector('input'), qTimer = null;
+          rng.oninput = function () {
+            var sec = +rng.value;
+            state.seconds = sec;                          // global fallback only
+            s.querySelector('.dv').textContent = sec + 's';
+            /* per-card billing: THIS card's RENDER must render what THIS card
+               displays — write the seconds into its button args (dataset) */
+            var card = s.closest('.msg');
+            if (card) card.querySelectorAll('.act[data-action="media.render"]').forEach(function (rb) {
+              var a = {}; try { a = JSON.parse(rb.dataset.args || '{}'); } catch (er) {}
+              a.seconds = sec; rb.dataset.args = JSON.stringify(a);
+            });
+            /* requote debounced — one POST per settle, not per drag tick */
+            if (qTimer) clearTimeout(qTimer);
+            qTimer = setTimeout(function () {
+              qTimer = null;
+              api('/api/kalai/media/quote', { seconds: sec, budget_usd: state.budget,
+                                              has_source_image: true }).then(function (res) {
+                if (+rng.value !== sec) return;           // a newer drag owns the card now
+                var n = s.querySelector('.qerr');
+                if (!res.ok || !res.data) {
+                  if (!n) s.appendChild(el('<div class="qerr">quote didn\'t refresh — cost shown may be stale</div>'));
+                  return;
+                }
+                if (n) n.remove();
+                s.querySelector('.qc').textContent = '$' + (+res.data.total_usd || 0).toFixed(3);
+                s.querySelector('.qt').textContent = fmtEta(res.data.est_wall_sec);
+              });
+            }, 250);
+          };
+          last.appendChild(s);
+        }
+        else if (b.t === 'options' && Array.isArray(b.items) && b.items.length) {
+          var clean = b.items.map(function (i) {
+            return { label: String(i.label || i.send || ''), send: String(i.send || i.label || '') };
           });
-        };
-        last.appendChild(s);
-      }
-      else if (b.t === 'options' && Array.isArray(b.items) && b.items.length) {
-        var clean = b.items.map(function (i) {
-          return { label: String(i.label || i.send || ''), send: String(i.send || i.label || '') };
-        });
-        renderOpts(last || feed, clean, false);
-        if (last && last._log) last._log.opts = clean;   // refresh restores the row (spent)
-      }
-      else if (b.t === 'progress') pollJob(b.job_id);
+          renderOpts(last || feed, clean, false);
+          if (last && last._log) last._log.opts = clean;   // refresh restores the row (spent)
+        }
+        else if (b.t === 'progress') pollJob(b.job_id);
+      } catch (er) {}
     });
     down(); persist();
   }
@@ -288,12 +360,17 @@
       .catch(function () { return false; });
   }
 
-  /* api() reports status honestly — a 401/402 is an ANSWER, never '…' */
+  /* api() reports status honestly — a 401/402 is an ANSWER, never '…'.
+     A 45s abort keeps a hung backend from bricking SEND (inflight forever). */
   function api(url, body, _retried) {
     dot('busy');
+    var ac = (typeof AbortController === 'function') ? new AbortController() : null;
+    var tt = ac ? setTimeout(function () { ac.abort(); }, 45000) : null;
+    function settle() { if (tt) { clearTimeout(tt); tt = null; } }
     return fetch(url, { method: 'POST', headers: hdrs({ 'content-type': 'application/json' }),
-                        body: JSON.stringify(body) })
+                        body: JSON.stringify(body), signal: ac ? ac.signal : undefined })
       .then(function (r) {
+        settle();
         return r.json().catch(function () { return null; }).then(function (d) {
           if (r.status === 401 && !_retried) {
             return recoverAuth().then(function (ok) {
@@ -305,9 +382,20 @@
           return { ok: r.ok, status: r.status, data: d };
         });
       })
-      .catch(function (e) { dot('err'); return { ok: false, status: 0, data: null, error: String(e) }; });
+      .catch(function (e) {
+        settle(); dot('err');
+        if (ac && e && e.name === 'AbortError') {
+          /* the ask hung — recover the UI honestly, no eternal spinner */
+          hideTyping(false);
+          msg('SΛΛKSHE', 'the witness took too long — try again.');
+          state.inflight = false; syncSend();
+          return { ok: false, status: 0, data: null, timeout: true };
+        }
+        return { ok: false, status: 0, data: null, error: String(e) };
+      });
   }
   function httpBubble(res, what) {
+    if (res.timeout) return;          // the abort path already spoke
     if (res.status === 401) {
       var m = msg('SΛΛKSHE', 'You are signed out — sign in to ' + esc(what) + '.');
       var acts = el('<div class="acts"></div>');
@@ -351,13 +439,24 @@
     if (action === 'nav.questions') { if (window.cockpitGo) window.cockpitGo('questions', null); return; }
     if (action === 'nav.connections') { if (window.cockpitGo) window.cockpitGo('manas', 'connections'); return; }
     /* viewing and menus are repeatable — only acting/spending chips lock the
-       row (VIEW HDR used to go permanently dead after one click) */
-    if (action !== 'media.view' && action !== 'media.fxmenu') lockActs(b.closest('.acts'));
-    if (action === 'media.render') startRender();
-    else if (action === 'media.requote') { if (args.seconds) state.seconds = args.seconds; requote(); }
+       row (VIEW HDR used to go permanently dead after one click). Locking
+       lives INSIDE the recognized branches: an unknown action from a newer
+       backend must not brick its row. */
+    if (action === 'media.render') {
+      /* billing: the clicked card's args carry ITS quoted seconds — the
+         global state.seconds is only the fallback */
+      if (args.seconds != null) state.seconds = +args.seconds || state.seconds;
+      if (!state.poller) lockActs(b.closest('.acts'));
+      startRender();
+    }
+    else if (action === 'media.requote') { lockActs(b.closest('.acts')); if (args.seconds) state.seconds = args.seconds; requote(); }
     else if (action === 'media.fxmenu') fxMenu();
-    else if (action === 'media.fx') { state.fx = args.fx; startRender(); }
-    else if (action === 'media.retrypoll' && args.job) pollJob(args.job);
+    else if (action === 'media.fx') {
+      state.fx = args.fx;
+      if (!state.poller) lockActs(b.closest('.acts'));
+      startRender();
+    }
+    else if (action === 'media.retrypoll' && args.job) { lockActs(b.closest('.acts')); pollJob(args.job); }
     else if (action === 'media.view' && (args.job || state.job)) viewHdr(args.job || state.job);
   });
 
@@ -393,9 +492,11 @@
     var m = msg('▲ KALAI · FX-PICKER', 'pick the effect:');
     var acts = el('<div class="acts"></div>');
     FX.forEach(function (f) {
-      acts.appendChild(actBtn({ label: f.replace(/_/g, ' ').toUpperCase(),
-                                kind: (f === state.fx ? 'ok' : 'plain'),
-                                action: 'media.fx', args: { fx: f } }));
+      var b = actBtn({ label: f.replace(/_/g, ' ').toUpperCase(),
+                       kind: (f === state.fx ? 'ok' : 'plain'),
+                       action: 'media.fx', args: { fx: f } });
+      if (FX_GLOSS[f]) b.title = FX_GLOSS[f];
+      acts.appendChild(b);
     });
     m.appendChild(acts); down(); persist();
   }
@@ -423,6 +524,11 @@
   }
 
   function startRender(_retried) {
+    if (state.poller) {
+      /* one render at a time — superseding would orphan the live poller */
+      msg('▲ KALAI · PRODUCER', 'a render is already running — wait for it to finish.');
+      return;
+    }
     if (!state.image) {
       var m = msg('▲ KALAI · PRODUCER', 'drop the source image — or click to choose:');
       m.appendChild(dropPlate(m)); down(); persist(); return;
@@ -494,6 +600,7 @@
                   endPoll();
                   note('render check failed.', true);
                   httpBubble({ ok: false, status: 401, data: d }, 'check the render');
+                  echo('render', { phase: 'failed' });
                   down(); persist();
                   return null;
                 });
@@ -507,6 +614,7 @@
                 note('render check failed.', true);
                 httpBubble({ ok: false, status: r.status, data: d }, 'check the render');
               }
+              echo('render', { phase: 'failed' });
               down(); persist();
               return null;
             });
@@ -519,6 +627,7 @@
           fails = 0; authTried = false;
           if (s.status === 'rendering') {
             note('frame ' + s.frame + '/' + s.frames + ' · rendering…');
+            echo('render', { phase: 'rendering', frame: s.frame, frames: s.frames });
           } else {
             endPoll();
             if (s.status === 'done') {
@@ -526,7 +635,11 @@
               if (m._log) { m._log.html = '<b>done.</b>'; m._log.job = null; }
               state.job = jid;
               renderBlocks(receiptBlocks(s, jid)); bot('joy');
-            } else note('error: ' + (s.error || 'unknown'), true);
+              echo('render', { phase: (s.verify && s.verify.ok) ? 'ready' : 'failed' });
+              /* the spend is real either way — tell the cockpit + refresh the credits pill */
+              if (s.receipt && s.receipt.total_usd != null) echo('spend', { usd: +s.receipt.total_usd });
+              if (window.SAAKSHE_AUTH && SAAKSHE_AUTH.refresh) SAAKSHE_AUTH.refresh();
+            } else { note('error: ' + (s.error || 'unknown'), true); echo('render', { phase: 'failed' }); }
           }
           down(); persist();
         })
@@ -536,6 +649,7 @@
           if (++fails >= 4) {
             endPoll();
             note('lost the render — the backend stopped answering.');
+            echo('render', { phase: 'failed' });
             var acts = el('<div class="acts"></div>');
             acts.appendChild(actBtn({ label: 'RETRY', kind: 'primary', action: 'media.retrypoll', args: { job: jid } }));
             m.appendChild(acts); down(); persist();
@@ -571,13 +685,19 @@
         { t: 'slider', action: 'media.requote', min: 1, max: 8, value: q.seconds,
           quote: { total_usd: q.total_usd, est_wall_sec: q.est_wall_sec } },
         { t: 'actions', items: [
-          { label: 'RENDER', kind: 'primary', action: 'media.render', args: {} },
+          /* the card's RENDER carries the card's quoted seconds from birth */
+          { label: 'RENDER', kind: 'primary', action: 'media.render', args: { seconds: q.seconds } },
           { label: 'PICK FX (12)', kind: 'plain', action: 'media.fxmenu', args: {} }] }]);
     });
   }
 
   function syncSend() { sendBtn.disabled = state.inflight || !readInput(); }
-  input.addEventListener('input', syncSend);
+  input.addEventListener('input', function () {
+    /* a deleted chip can leave an empty husk (<br>/empty text node) that kills
+       the :empty placeholder — clear it so the ghost returns */
+    if (readInput() === '' && input.childNodes.length) input.innerHTML = '';
+    syncSend();
+  });
   /* paste lands as plain text — markup must never enter the ask box */
   input.addEventListener('paste', function (e) {
     e.preventDefault();
@@ -661,17 +781,28 @@
     var A = window.SAAKSHE_AUTH;
     var tok = (A && A.token && A.token()) || '';
     var ws = new WebSocket(proto + location.host + '/ws/voice');
+    var helloT = null;
     voice.ws = ws; voice.on = true; voice.sawHello = false;
     micBtn.classList.add('loading');
     ws.onopen = function () {
       /* first-frame auth — the gated server awaits this before its hello;
          the open demo just ignores it */
       ws.send(JSON.stringify({ type: 'auth', token: tok }));
+      /* a server that never says hello must not leave the mic spinning */
+      helloT = setTimeout(function () {
+        if (!voice.sawHello && voice.ws === ws) {
+          voiceStop();
+          msg('SΛΛKSHE · VOICE', 'voice didn\'t connect — try again.');
+        }
+      }, 8000);
     };
     ws.onmessage = function (ev) {
-      var m = JSON.parse(ev.data);
+      var m = null;
+      try { m = JSON.parse(ev.data); } catch (e) {}   // one garbled frame must not kill the session
+      if (!m) return;
       if (m.type === 'hello') {
         voice.sawHello = true;
+        if (helloT) { clearTimeout(helloT); helloT = null; }
         micBtn.classList.remove('loading');
         msg('SΛΛKSHE · VOICE', esc(m.mode === 'live'
           ? 'voice live — Gemini native audio. speak.'
@@ -685,6 +816,7 @@
       else if (m.type === 'notice') msg('SΛΛKSHE · VOICE', fmt(m.text || ''));
     };
     ws.onclose = function (ev) {
+      if (helloT) { clearTimeout(helloT); helloT = null; }
       var auth401 = (ev && ev.code === 4401) || (!voice.sawHello && voice.on);
       voiceStop();
       if (ev && ev.code === 4401) {
@@ -859,6 +991,7 @@
   document.getElementById('sa-ch-new').onclick = function () {
     setMode('chat');
     if (state.pollEnd) state.pollEnd();           // a live render poller must not write into the fresh feed
+    clearFloaters();                              // typing/pill refs would dangle past the wipe
     feed.innerHTML = ''; log.length = 0;
     try { sessionStorage.removeItem('sk-chat-feed'); } catch (e) {}
     clearInput();
@@ -918,6 +1051,7 @@
     var sugs = el('<div class="sugs"></div>');
     [['what is waiting on me?', "what's waiting on me?"],
      ['status', 'status'],
+     ['ask a decision — should we raise the price?', 'should we raise the price?'],
      ['render an HDR reel under $1', 'render an HDR reel under $1']].forEach(function (s) {
       var b = el('<button class="sug" type="button">' + esc(s[0]) + '</button>');
       b.dataset.ask = s[1];
@@ -927,7 +1061,13 @@
   }
 
   function restoreItems(items) {
-    items.forEach(function (it) {
+    /* restored action rows come back DISABLED except the newest one — the
+       same rule that restores options spent. Only the latest offer is live. */
+    var lastActs = -1;
+    items.forEach(function (it, ix) {
+      if (it && Array.isArray(it.acts) && it.acts.length) lastActs = ix;
+    });
+    items.forEach(function (it, ix) {
       if (!it || typeof it.html !== 'string') return;
       var rm = msg(String(it.who || 'SΛΛKSHE'), it.html, !!it.user, String(it.ts || ''));
       (Array.isArray(it.rows) ? it.rows : []).forEach(function (d) {
@@ -935,7 +1075,7 @@
       });
       if (rm._log && Array.isArray(it.rows)) rm._log.rows = it.rows;
       if (Array.isArray(it.acts) && it.acts.length) {
-        appendActs(rm, it.acts);
+        appendActs(rm, it.acts, ix !== lastActs);
         if (rm._log) rm._log.acts = it.acts;
       }
       if (Array.isArray(it.opts) && it.opts.length) {
@@ -959,6 +1099,8 @@
      the stored reply blocks minus live-only kinds (slider/progress); a persisted
      render_done record rebuilds its receipt + a working VIEW HDR. */
   function renderHistory(rows) {
+    if (state.pollEnd) state.pollEnd();   // a live poller must not write into detached nodes
+    clearFloaters();                      // typing/pill refs would dangle past the wipe
     feed.innerHTML = ''; log.length = 0;
     rows.forEach(function (r) {
       var who = String(r.role || 'saakshe'), when = hhmm(r.created_at);
@@ -1011,6 +1153,9 @@
       fetch('/api/saakshe/messages', { headers: hdrs({}) })
         .then(function (r) { return r.ok ? r.json() : null; })
         .then(function (d) {
+          /* this lands up to 7s after boot — a conversation that already grew
+             past the greeting (or an in-flight ask) outranks the archive */
+          if (log.length > 1 || state.inflight) return;
           if (d && Array.isArray(d.messages) && d.messages.length) renderHistory(d.messages);
         })
         .catch(function () {});

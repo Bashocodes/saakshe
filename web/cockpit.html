@@ -652,7 +652,7 @@ html:not(.js) [data-tip].tip-down:hover::after{ bottom:auto; top:calc(100% + 7px
 .qcard .qfree{ display:flex; gap:8px; margin-top:8px; }
 .qcard .qfree input{ flex:1 1 auto; min-width:0; font-family:var(--font-body); font-size:12.5px; color:var(--ink);
   background:var(--bg); border:var(--hair) solid var(--hairline); border-radius:var(--r); padding:6px 10px; }
-.qcard .qfree input:focus{ outline:none; border-color:var(--accent); }
+.qcard .qfree input:focus{ outline:none; border-color:var(--accent); box-shadow:0 0 0 2px color-mix(in srgb, var(--accent) 35%, transparent); }
 .qcard .qfree .qgo{ flex:0 0 auto; min-width:0; }
 .qcard.answered .qfree{ display:none; }
 .qcard.busy{ opacity:.55; pointer-events:none; }
@@ -1069,7 +1069,7 @@ html[data-theme="dark"] .deskflow{ box-shadow:inset 0 1px 0 rgba(255,255,255,.04
   padding:4px 11px; background:rgba(255,255,255,.5); }
 html[data-theme="dark"] .dfstep{ background:rgba(255,255,255,.06); }
 .dfstep .dfn{ font-family:var(--font-body); font-size:11px; font-weight:600; color:var(--ink-2); white-space:nowrap; line-height:1.2; }
-.dfstep.here{ background:var(--plate); box-shadow:0 0 0 1.6px var(--accent); }
+.dfstep.here{ background:var(--plate); box-shadow:0 0 0 1.6px var(--qc); }
 html[data-theme="dark"] .dfstep.here{ background:var(--surface-2); }
 .dfstep.here .dfn{ color:var(--ink); font-weight:700; }
 .dfstep .dfdot{ width:6px;height:6px;border-radius:50%; flex:0 0 auto; background:var(--faint); }
@@ -1282,8 +1282,9 @@ html[data-theme="dark"] :is(.vtitle, .ovname, .drillanchor){
 .ovcol .panel{ flex:1 1 auto; min-height:0; }
 
 /* 8 ── nav active: the agreed red bar (dark: phosphor), no layout shift */
-.navlist button.nav.active{ box-shadow:inset 4px 0 0 var(--act); font-weight:700; }
-html[data-theme="dark"] .navlist button.nav.active{ box-shadow:inset 4px 0 0 var(--c-kural); }
+/* (the inset left-edge accent stripe was deleted — colored bands on container
+   edges are banned everywhere, even in the retired sidebar) */
+.navlist button.nav.active{ font-weight:700; }
 
 /* 9 ── witness-rail tabs: mono segments, selected = ink fill (dark: phosphor) */
 .railtabs{ gap:6px; padding:8px 12px; }
@@ -1513,6 +1514,16 @@ html[data-theme="dark"] .ovstrip{ box-shadow:none; }
   gap:9px; min-width:0; }
 .ovtab-line{ font-family:var(--font-body); font-size:11px; color:var(--muted);
   white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0; }
+/* shrunk tabs carry the SHORT status form; the full sentence only when selected
+   (or hovered wide) — no mid-word ellipsis on the strip (founder screenshot, 2026-06-12) */
+.ovtab .ovl-full{ display:none; }
+.ovtab.sel .ovl-full{ display:inline; }
+.ovtab.sel .ovl-short{ display:none; }
+/* a tab keeps focus after the click (the strip DOM survives the swap) — the
+   global red :focus-visible ring read as a debug/error state; keep keyboard
+   focus visible but intentional and INSIDE the tab (the joined strip overlaps) */
+.ovtab:focus-visible{ outline:2px solid var(--ink); outline-offset:-5px; }
+html[data-theme="dark"] .ovtab:focus-visible{ outline-color:var(--act); }
 .ovtab .ovpills{ margin-top:0; flex-wrap:nowrap; flex:0 0 auto; }
 /* the Bauhaus marks stay WHOLE — fully visible inside the tab, never clipped
    by an edge (founder, 2026-06-12). ● circle · ▲ triangle · ■ square, parked
@@ -1536,6 +1547,9 @@ html[data-theme="dark"] .ovstrip{ box-shadow:none; }
   overflow-y:auto; padding-bottom:2px; padding-right:1px; }
 .ovmain > *, .ovside > *{ flex:0 0 auto; }
 .ovmain > .panel.flex, .ovside > .panel.flex{ flex:1 0 auto; }
+/* pre-first-run panels stay CONTENT height — slack lands as page whitespace,
+   never as a bordered void inside a panel (founder screenshot, 2026-06-12) */
+.ovmain > .panel.flex.empty, .ovside > .panel.flex.empty{ flex:0 0 auto; }
 .ovside .sub.agq{ margin:4px 2px 0; }
 @media (max-width:900px){
   .ovgrid{ grid-template-columns:minmax(0,1fr); }
@@ -1549,7 +1563,7 @@ html[data-theme="dark"] .ovstrip{ box-shadow:none; }
   .ovmain, .ovside{ overflow:visible; }
 }
 </style>
-<link rel="stylesheet" href="chat-panel.css?v=palette2">
+<link rel="stylesheet" href="chat-panel.css?v=audit1">
 </head>
 
 <body>
@@ -1615,7 +1629,7 @@ html[data-theme="dark"] .ovstrip{ box-shadow:none; }
     <div class="tb-spacer"></div>
     <!-- the right side carries exactly three seats: the bill · the theme · the door -->
     <div class="pills">
-      <button class="pill" id="pillCost" data-tip="cost today — every line lands in the live console" type="button"><svg class="ic"><use href="#i-dollar"/></svg><span id="pillCostV">0.00</span></button>
+      <button class="pill" id="pillCost" data-tip="spend this session — opens the today tab" type="button"><svg class="ic"><use href="#i-dollar"/></svg><span id="pillCostV">0.00</span></button>
     </div>
     <button class="theme-toggle icononly" id="themeToggle" type="button" aria-label="Switch light or dark theme" data-tip="switch theme">
       <svg class="ic" id="themeIcon"><use href="#i-moon"/></svg>
@@ -1828,22 +1842,25 @@ html[data-theme="dark"] .ovstrip{ box-shadow:none; }
       {ic:'database', st:'granted', label:'Memory bank',    sub:'writing versioned pack',     feeds:'commits → Context Pack'}
     ],
     arivu:[
-      {ic:'card',     st:'granted', label:'Live numbers ← Stripe',     sub:'revenue feed grounds every verdict',         feeds:''},
-      {ic:'chart',    st:'granted', label:'Live numbers ← RevenueCat', sub:'subscription metrics ground the lenses',     feeds:''},
+      /* external grants default OFF until a real connection exists — the cockpit
+         never claims a grant the backend can't show (no invented facts) */
+      {ic:'card',     st:'off',     label:'Live numbers ← Stripe',     sub:'not connected — a revenue feed would ground every verdict', feeds:''},
+      {ic:'chart',    st:'off',     label:'Live numbers ← RevenueCat', sub:'not connected — subscription metrics would ground the lenses', feeds:''},
       {ic:'database', st:'granted', label:'Memory read ← manas',       sub:'the Context Pack grounds the lenses',feeds:''},
       {ic:'tag',      st:'asked',   label:'Change-commit',             sub:'ASKED — runs only on your grant, to execute an approved decision', feeds:''},
       {ic:'seal',     st:'granted', label:'Resolution ledger',         sub:'signing the board record, publishes the verdict', feeds:''}
     ],
     kalai:[
       {ic:'database', st:'granted', label:'Memory read ← manas', sub:'fetching brand essence grounds the brief', feeds:''},
-      {ic:'example',   st:'granted', label:'Generative AI MCP',   sub:'Generative MCP — generates masters once a brief runs', feeds:''},
+      {ic:'spark',    st:'granted', label:'saakshe FX rig',      sub:'12 deterministic effects + the HDR finish — built in', feeds:''},
+      {ic:'example',  st:'off',     label:'Generative AI MCP',   sub:'not connected — add a generative backend for new imagery', feeds:''},
       {ic:'handoff',  st:'granted', label:'Handoff channel → kural', sub:'delivering the approved master', feeds:''}
     ],
     kural:[
-      {ic:'x',         st:'granted', label:'X',            sub:'posts · replies · listen ✓ — DMs ✗', feeds:''},
-      {ic:'instagram', st:'granted', label:'Instagram',   sub:'listen-only scope granted', feeds:''},
-      {ic:'linkedin',  st:'off',     label:'LinkedIn',    sub:'not connected — awaiting your connection', feeds:''},
-      {ic:'mail',      st:'granted', label:'Email sender',sub:'booking prospect meetings — none sent yet', feeds:''}
+      {ic:'x',         st:'off', label:'X',            sub:'not connected — connect a handle over setu', feeds:''},
+      {ic:'instagram', st:'off', label:'Instagram',   sub:'not connected — connect a handle over setu', feeds:''},
+      {ic:'linkedin',  st:'off', label:'LinkedIn',    sub:'not connected — awaiting your connection', feeds:''},
+      {ic:'mail',      st:'off', label:'Email sender',sub:'not connected — nothing sends without your clearance', feeds:''}
     ]
   };
   /* recompose the exact v1 hover string from the split fields (verbatim, no new info) */
@@ -1865,9 +1882,9 @@ html[data-theme="dark"] .ovstrip{ box-shadow:none; }
      VISIBLE provenance text on-surface (short labels, not prose). */
   var CSPROV = {
     manas:'<span class="csprov">six grants <span class="arr">→</span> six buckets</span>',
-    arivu:'<span class="csprov">live numbers <span class="arr">←</span> Stripe · RevenueCat &nbsp;·&nbsp; memory <span class="arr">←</span> manas</span>',
+    arivu:'<span class="csprov">memory <span class="arr">←</span> manas &nbsp;·&nbsp; live numbers not connected yet</span>',
     kalai:'<span class="csprov">memory <span class="arr">←</span> manas &nbsp;·&nbsp; master <span class="arr">→</span> kural</span>',
-    kural:'<span class="csprov">X + IG listen &nbsp;·&nbsp; email sender</span>'
+    kural:'<span class="csprov">no channels connected yet — kural never speaks without your tap</span>'
   };
   function constripHTML(quad){
     return '<div class="constrip panel" data-drill="connections" role="button" tabindex="0" aria-label="open connections — setu · the bridge">'
@@ -2117,21 +2134,24 @@ html[data-theme="dark"] .ovstrip{ box-shadow:none; }
      only appears once you ask saakshe a real decision and a quadrant proposes a
      change. (When a run lands, the live console drives the real gate queue.) */
   function emptyGateHTML(){
+    var sub = ORG.grounded
+      ? esc(orgName())+' is connected. Ask saakshe a real decision — anything that needs your tap stops here.'
+      : 'Connect a project, then ask saakshe a real decision — gates land here for your tap.';
     return '<div class="gate idle">'
       +'<div class="gtxt"><div class="gtitle"><span class="sdot idle"></span>no tap waiting</div>'
-      +'<div class="gsub">Ask saakshe a real decision and a gate appears here for your tap.</div></div></div>';
+      +'<div class="gsub">'+sub+'</div></div></div>';
   }
   function gateCardHTML(which, short){ return emptyGateHTML(); }
 
   /* ================= OVERVIEW ================= */
-  function spark(hue,pts){ return '<svg width="148" height="22" viewBox="0 0 158 26" fill="none" aria-hidden="true"><polyline points="'+pts+'" stroke="var(--'+hue+')" stroke-width="2" fill="none" stroke-linecap="round"/></svg>'; }
-  /* empty state — no run yet. Standing role per quadrant, flat spark, all idle. */
-  var FLATSPARK = '0,13 26,13 52,13 78,13 104,13 130,13 156,13 158,13';
+  /* empty state — no run yet. SHORT form rides the shrunk tabs (no mid-word
+     ellipsis); the full sentence shows only on the selected tab. SK_ECHO
+     rewrites kalai's pair live as renders move. */
   var OVSTATUS = {
-    manas:{ two:'STANDING BY', three:'no run yet — memory waiting', spark:spark('manas',FLATSPARK) },
-    arivu:{ two:'READY', three:'standing by — decides', spark:spark('arivu',FLATSPARK) },
-    kalai:{ two:'STANDING BY', three:'no brief yet — studio idle', spark:spark('kalai',FLATSPARK) },
-    kural:{ two:'STANDING BY', three:'no master yet — gate unmanned', spark:spark('kural',FLATSPARK) }
+    manas:{ short:'no run yet',    three:'no run yet — memory waiting' },
+    arivu:{ short:'standing by',   three:'standing by — decides' },
+    kalai:{ short:'no brief yet',  three:'no brief yet — studio idle' },
+    kural:{ short:'no master yet', three:'no master yet — gate unmanned' }
   };
   var BUILD = {};
   /* ============================================================================
@@ -2151,7 +2171,7 @@ html[data-theme="dark"] .ovstrip{ box-shadow:none; }
     return '<button class="ovtab '+OVTINT[q]+(sel?' sel':'')+'" data-view="'+q+'" type="button" '
       +'aria-pressed="'+(sel?'true':'false')+'">'
       +'<div class="ovtop"><span class="ovname c-'+q+'">'+q+'</span><span class="ovverb">'+m.verb+'</span></div>'
-      +'<div class="ovtab-foot"><span class="ovtab-line">'+st.three+'</span>'
+      +'<div class="ovtab-foot"><span class="ovtab-line"><span class="ovl-short">'+st.short+'</span><span class="ovl-full">'+st.three+'</span></span>'
       +'<span class="ovpills"><span class="ovpill"><span class="pdot" style="background:'+(qn?'var(--sig-red)':'var(--sig-green)')+'"></span>? '+qn+'</span>'+tap+'</span></div>'
       +'<span class="ovmark s-'+q+'" aria-hidden="true"></span></button>';
   }
@@ -2168,44 +2188,66 @@ html[data-theme="dark"] .ovstrip{ box-shadow:none; }
       extras = '<div class="panel"><div class="phead"><h3>'+icon('image','sm')+' Studio jobs</h3><span class="ct">background renders</span></div>'
         +'<div class="pbody tight"><div class="gates-col" id="skStudio" style="display:flex;flex-direction:column;gap:8px;"></div></div></div>';
     }
+    var qh = questionsHTML(q);
     return '<div class="ovside">'
-      +'<div class="panel flex qopen"><div class="phead"><h3>'+icon('question','sm')+' Questions — needs you</h3><span class="ct" data-qpill2="'+q+'">? '+quadQ[q]+'</span></div>'
-      +'<div class="pbody tight">'+(questionsHTML(q) || '<div class="sub" style="padding:2px 2px 6px;">nothing waiting on you</div>')+'</div></div>'
+      +'<div class="panel flex qopen'+(qh?'':' empty')+'"><div class="phead"><h3>'+icon('question','sm')+' Questions — need you</h3><span class="ct" data-qpill2="'+q+'">? '+quadQ[q]+'</span></div>'
+      +'<div class="pbody tight">'+(qh || '<div class="sub" style="padding:2px 2px 6px;">nothing waiting on you</div>')+'</div></div>'
       + extras
       +'<div class="panel"><div class="phead"><h3>'+icon('seal','sm')+' Recent outputs</h3><span class="ct">provenance-tagged</span></div><div class="pbody tight">'+outsHTML(q)+'</div></div>'
       +'</div>';
   }
 
-  /* no tab expanded — the glance: the day's shape + taps left, every open
-     question (answerable in place) right */
+  /* no tab expanded — the glance: the first-run ladder + the day's shape +
+     taps left, every open question (answerable in place) right. Phase notes
+     are WELDED to their bands in one top-anchored column — never scattered
+     across a stretched void (founder screenshot, 2026-06-12). */
   function ovGlanceMain(){
     function band(label, quad){ return '<div class="phband"><span class="phb-dot dot '+quad+'"></span>'+label+'</div>'; }
-    function note(txt){ return '<div class="frow act" style="cursor:default;"><span class="ft">·</span><span class="fe" style="color:var(--muted);">'+esc(txt)+'</span></div>'; }
-    var col1 = band('Now working','manas')+note('manas imbibes your granted sources and commits a cited Context Pack.')
-             + band('The verdict','arivu')+note('arivu convenes five lenses and seals a tested verdict — for your tap.');
-    var col2 = band('The making','kalai')+note('kalai creates the masters and runs the brand-fidelity loop.')
-             + band('The engaging','kural')+note('kural speaks — only on an approved make, only after your tap.')
-             + band('The commit','manas')+note('manas learns from the outcome; the Context Pack ticks up a version.');
+    function note(txt){ return '<div class="frow act" style="cursor:default;padding:2px 8px 10px 13px;"><span class="fe" style="color:var(--muted);">'+esc(txt)+'</span></div>'; }
+    var phases = band('Now working','manas')+note('manas imbibes your granted sources and commits a cited Context Pack.')
+               + band('The verdict','arivu')+note('arivu convenes five lenses and seals a tested verdict — for your tap.')
+               + band('The making','kalai')+note('kalai creates the masters and runs the brand-fidelity loop.')
+               + band('The engaging','kural')+note('kural speaks — only on an approved make, only after your tap.')
+               + band('The commit','manas')+note('manas learns from the outcome; the Context Pack ticks up a version.');
+    /* the ladder guides the first meaningful action; it retires once real
+       work (a question or a gate) is on the table */
+    var ladder = '';
+    if(!STATE.openQ && !gateOpen()){
+      var ask2 = 'should we raise the price?';
+      ladder = '<div class="panel empty"><div class="phead"><h3>'+icon('activity','sm')+' Your first run</h3><span class="ct">'+(ORG.grounded?'1 of 3 done':'0 of 3 done')+'</span></div>'
+        +'<div class="pbody tight"><div class="pipe">'
+        +'<div class="pstep"><span class="pn">'+(ORG.grounded?'<span class="t-green">'+icon('check','sm')+'</span>':'01')+'</span><span class="pt">Connect a project — '
+          +(ORG.grounded
+            ? '<b>'+esc(orgName())+'</b> connected · grounded'
+            : '<span class="meta">a repo + your site grounds the company</span> <button class="qbtn" type="button" data-connectnew>connect →</button>')
+          +'</span></div>'
+        +'<div class="pstep"><span class="pn">02</span><span class="pt">Ask a real decision — <span class="meta">arivu convenes five lenses and seals a verdict</span> '
+          +'<button class="qbtn" type="button" data-asksk="'+esc(ask2)+'">ask: &ldquo;'+esc(ask2)+'&rdquo; →</button></span></div>'
+        +'<div class="pstep"><span class="pn">03</span><span class="pt">Tap the gate — <span class="meta">the verdict stops for your approval; nothing moves without you</span></span></div>'
+        +'</div></div></div>';
+    }
     return '<div class="ovmain">'
-      +'<div class="panel flex"><div class="phead"><h3>'+icon('activity','sm')+' The day in five phases</h3><span class="ct">'+(ORG.grounded?'connected · memory Context Pack '+esc(orgPack()):'no run yet')+'</span></div>'
-        +'<div class="pbody" style="display:flex;flex-direction:column;"><div class="phbands"><div class="phcol">'+col1+'</div><div class="phcol">'+col2+'</div></div></div></div>'
-      +'<div class="panel"><div class="phead"><h3>'+icon('hand','sm')+' Taps — your hand</h3><span class="ct"><span id="kuralTapCt">'+gateOpen()+'</span> on you</span></div>'
-        +'<div class="pbody tight"><div class="gates-col" style="display:flex;flex-direction:column;gap:8px;">'+emptyGateHTML()+'</div>'
-        +'<div class="gates-col" id="skStudio" style="display:flex;flex-direction:column;gap:8px;margin-top:8px;"></div></div></div>'
+      + ladder
+      +'<div class="panel empty"><div class="phead"><h3>'+icon('activity','sm')+' The day in five phases</h3><span class="ct">'+(ORG.grounded?'connected · memory Context Pack '+esc(orgPack()):'no run yet')+'</span></div>'
+        +'<div class="pbody" style="display:flex;flex-direction:column;"><div class="phbands" style="grid-template-columns:1fr;flex:0 0 auto;"><div class="phcol" style="justify-content:flex-start;">'+phases+'</div></div></div></div>'
+      +'<div class="panel"><div class="phead"><h3>'+icon('hand','sm')+' Taps — waiting on you</h3><span class="ct"><span id="kuralTapCt">'+gateOpen()+'</span> on you</span></div>'
+        +'<div class="pbody tight"><div class="gates-col" style="display:flex;flex-direction:column;gap:8px;">'+emptyGateHTML()+'</div></div></div>'
+      +'<div class="panel"><div class="phead"><h3>'+icon('image','sm')+' Studio — done for you</h3><span class="ct">background renders</span></div>'
+        +'<div class="pbody tight"><div class="gates-col" id="skStudio" style="display:flex;flex-direction:column;gap:8px;"></div></div></div>'
       +'</div>';
   }
   function ovGlanceSide(){
-    var inner='';
+    var inner='', any=false;
     ['manas','arivu','kalai','kural'].forEach(function(q){
       var h = questionsHTML(q);
-      if(h){ inner += '<div class="sub agq"><b class="c-'+q+'">'+q+'</b> — needs you</div>'+h; }
+      if(h){ any=true; inner += '<div class="sub agq"><b class="c-'+q+'">'+q+'</b> — needs you</div>'+h; }
     });
     if(!inner){
       inner = '<div class="allclear" style="padding:4px 2px;"><span class="chk">'+icon('check','sm')+'</span>'
         +'<span>nothing waiting on you — ask saakshe a real decision and anything that needs you lands here.</span></div>';
     }
     return '<div class="ovside">'
-      +'<div class="panel flex qopen"><div class="phead"><h3>'+icon('question','sm')+' Questions — need you</h3><span class="ct">? '+STATE.openQ+'</span></div>'
+      +'<div class="panel flex qopen'+(any?'':' empty')+'"><div class="phead"><h3>'+icon('question','sm')+' Questions — need you</h3><span class="ct">? '+STATE.openQ+'</span></div>'
       +'<div class="pbody tight">'+inner+'</div></div>'
       +'</div>';
   }
@@ -2238,6 +2280,7 @@ html[data-theme="dark"] .ovstrip{ box-shadow:none; }
     var hash = '#'+target;
     if(location.hash !== hash){ history.replaceState(null,'',hash); }
     selectOvTab(isQuad(target)?target:null);
+    if(window.sk_hideTip) sk_hideTip();   /* the body swap detaches tooltip anchors */
     body.innerHTML = ovBodyHTML(isQuad(target)?target:null);
     if(!reduced){ body.classList.remove('fadein'); void body.offsetWidth; body.classList.add('fadein'); }
     document.documentElement.setAttribute('data-view', STATE.view);
@@ -2269,7 +2312,7 @@ html[data-theme="dark"] .ovstrip{ box-shadow:none; }
   /* the agents' WORKING PANELS — the meat of their old full pages, now living
      inside the overview's left column (the strip owns the header role) */
   function manasMainHTML(){
-    return '<div class="panel flex"><div class="phead"><h3>'+icon('database','sm')+' Memory management</h3>'
+    return '<div class="panel flex empty"><div class="phead"><h3>'+icon('database','sm')+' Memory management</h3>'
         +'<span class="ct"><span class="info" data-tip="cited · versioned — every fact keeps its source">'+icon('seal','sm')+'</span> cited · versioned</span></div>'
         +'<div class="pbody tight" style="display:flex;flex-direction:column;">'
           +'<div class="packline"><span class="pack">Context Pack <b>'+esc(orgPack())+'</b></span><span class="pack cap">'+(ORG.grounded?'cited · versioned':'empty — connect a project to ground memory')+'</span>'
@@ -2288,7 +2331,7 @@ html[data-theme="dark"] .ovstrip{ box-shadow:none; }
             +'onclick="window.cockpitRunIngest&&window.cockpitRunIngest()" '
             +'data-tip="run the real manas ingestion over the connected sources — the live feed shows every reader as it lands">'
             +'↻ imbibe now — re-read the connected sources</button>'
-          +'<button class="backchip" data-drill="memory" style="margin-top:auto;align-self:flex-start;">'+icon('arrowleft','sm')+' buckets detail + imbibe activity</button>'
+          +'<button class="backchip" data-drill="memory" style="margin-top:13px;align-self:flex-start;">'+icon('arrowleft','sm')+' buckets detail + imbibe activity</button>'
         +'</div></div>';
   }
   BUILD.manas = function(){ return cockpitHTML('manas'); };
@@ -2316,15 +2359,15 @@ html[data-theme="dark"] .ovstrip{ box-shadow:none; }
   };
 
   function kalaiMainHTML(){
-    return '<div class="panel flex"><div class="phead"><h3>'+icon('palette','sm')+' Studio work</h3><span class="ct">brief · loop · handoff</span></div>'
+    return '<div class="panel flex empty"><div class="phead"><h3>'+icon('palette','sm')+' Studio work</h3><span class="ct">brief · loop · handoff</span></div>'
         +'<div class="pbody tight" style="display:flex;flex-direction:column;">'
           +'<div class="sub">Brand-fidelity loop</div>'
           +'<div class="docket-rider sans" style="margin:4px 0;">no make yet — kalai regenerates and scores each master until it looks like us, then hands it to kural.</div>'
           +'<div class="prov-line">'+icon('handoff','sm')+'<span>masters <span class="arr">→</span> kural · compliance-cleared</span></div>'
-          +'<div class="sub" style="margin-top:13px;">Generative AI MCP <span class="info" data-tip="kalai holds no channel keys — it creates, hands the master to kural">'+icon('question','sm')+'</span></div>'
+          +'<div class="sub" style="margin-top:13px;">Backends <span class="info" data-tip="kalai holds no channel keys — it creates, hands the master to kural">'+icon('question','sm')+'</span></div>'
           +'<div class="choices">'
-            +'<div class="choice">'+icon('example','sm')+'<span class="cn">Generative MCP</span><span class="cs on">'+icon('check','sm')+' connected</span></div>'
-            +'<div class="choice">'+icon('spark','sm')+'<span class="cn">Gemini Images</span><span class="cs add">○ add key</span></div>'
+            +'<div class="choice">'+icon('spark','sm')+'<span class="cn">saakshe FX rig — 12 effects + HDR</span><span class="cs on">'+icon('check','sm')+' built in</span></div>'
+            +'<div class="choice">'+icon('example','sm')+'<span class="cn">Generative MCP</span><span class="cs add">○ add key</span></div>'
             +'<div class="choice">'+icon('openai','sm')+'<span class="cn">ChatGPT Images</span><span class="cs add">○ add key</span></div>'
           +'</div>'
           +'<div class="sub" style="margin-top:13px;">Workspace — temporary <span class="info" data-tip="temporary lives in the agent’s workspace; the usage record lands in manas">'+icon('question','sm')+'</span></div>'
@@ -2333,7 +2376,7 @@ html[data-theme="dark"] .ovstrip{ box-shadow:none; }
             +'<div class="wexp">'+icon('hourglass','sm')+' expires when the job closes</div>'
             +'<div class="wusage">'+icon('arrowleft','sm')+'<span>usage record <span class="arr">→</span> logged in manas <b>(permanent)</b></span></div>'
           +'</div>'
-          +'<button class="backchip" data-drill="studio" style="margin-top:auto;align-self:flex-start;">'+icon('arrowleft','sm')+' full studio · loop + master + backends</button>'
+          +'<button class="backchip" data-drill="studio" style="margin-top:13px;align-self:flex-start;">'+icon('arrowleft','sm')+' full studio · loop + master + backends</button>'
         +'</div></div>'
       +'<div class="panel"><div class="phead"><h3>'+icon('image','sm')+' BRAND SHELF <span class="vgloss">— served by <b class="c-manas">manas</b></span></h3>'
         +'<span class="ct" id="kalaiShelfCt">'+((VAULT.assets&&VAULT.assets.length)?(VAULT.assets.length+' in the vault'):'vault empty · served by manas')+'</span></div>'
@@ -2342,7 +2385,7 @@ html[data-theme="dark"] .ovstrip{ box-shadow:none; }
   BUILD.kalai = function(){ return cockpitHTML('kalai'); };
 
   function kuralMainHTML(){
-    return '<div class="panel flex"><div class="phead"><h3>'+icon('hand','sm')+' Taps &amp; outreach</h3><span class="ct"><span id="kuralTapCt">0</span> on you</span></div>'
+    return '<div class="panel flex empty"><div class="phead"><h3>'+icon('hand','sm')+' Taps &amp; outreach</h3><span class="ct"><span id="kuralTapCt">0</span> on you</span></div>'
         +'<div class="pbody tight" style="display:flex;flex-direction:column;">'
           +'<div class="gates-col" style="display:flex;flex-direction:column;gap:9px;">'+emptyGateHTML()+'</div>'
           +'<div class="sub" style="margin-top:13px;">Outreach pipeline</div>'
@@ -2355,7 +2398,7 @@ html[data-theme="dark"] .ovstrip{ box-shadow:none; }
           +'<table class="matrix"><thead><tr><th>Channel</th><th>posts</th><th>replies</th><th>listen</th><th>DMs</th></tr></thead><tbody>'
             +'<tr><td class="ch" colspan="5" style="text-align:left;color:var(--muted);">connect a social handle over setu to grant channel scopes</td></tr>'
           +'</tbody></table>'
-          +'<button class="backchip" data-drill="outreach" style="margin-top:auto;align-self:flex-start;">'+icon('arrowleft','sm')+' full outreach · pipeline + the publish gate</button>'
+          +'<button class="backchip" data-drill="outreach" style="margin-top:13px;align-self:flex-start;">'+icon('arrowleft','sm')+' full outreach · pipeline + the publish gate</button>'
         +'</div></div>';
   }
   BUILD.kural = function(){ return cockpitHTML('kural'); };
@@ -2573,7 +2616,7 @@ html[data-theme="dark"] .ovstrip{ box-shadow:none; }
   function drillStudio(){
     return '<div class="view">'+backChip('back to kalai')
     +'<div class="vhead"><div><div class="vid"><span class="drillanchor c-kalai">The studio make</span></div>'
-      +'<div class="vline"><span style="font-style:italic;">brief → fidelity loop → master v3 → handoff to kural</span></div></div></div>'
+      +'<div class="vline"><span style="font-style:italic;">brief → fidelity loop → master → handoff to kural</span></div></div></div>'
     +'<div class="vbody"><div class="grid2" style="flex:1 1 auto;min-height:0;">'
       +'<div class="panel flex"><div class="phead"><h3>'+icon('spark','sm')+' Brand-fidelity loop</h3><span class="ct">no make yet</span></div>'
         +'<div class="pbody" style="display:flex;flex-direction:column;">'
@@ -2739,14 +2782,14 @@ html[data-theme="dark"] .ovstrip{ box-shadow:none; }
         +'</div></div>';
     } else if(quad==='kalai'){
       extra = '<div class="panel flex"><div class="phead"><h3>'+icon('example','sm')+' Generative AI MCP</h3><span class="ct">no channel keys</span></div>'
-        +'<div class="pbody sidebody"><div class="permnote">kalai holds <b>no channel keys</b> — it creates, then hands the master to <b class="c-kural">kural</b>. One backend is connected; two key slots wait for yours.</div>'
+        +'<div class="pbody sidebody"><div class="permnote">kalai holds <b>no channel keys</b> — it creates, then hands the master to <b class="c-kural">kural</b>. The FX + HDR rig is built in; generative backends wait for your keys.</div>'
         +'<div class="choices">'
-          +'<div class="choice">'+icon('example','sm')+'<span class="cn">Generative MCP</span><span class="cs on">'+icon('check','sm')+' connected</span></div>'
-          +'<div class="choice">'+icon('spark','sm')+'<span class="cn">Gemini Images</span><span class="cs add">○ add key</span></div>'
+          +'<div class="choice">'+icon('spark','sm')+'<span class="cn">saakshe FX rig — 12 effects + HDR</span><span class="cs on">'+icon('check','sm')+' built in</span></div>'
+          +'<div class="choice">'+icon('example','sm')+'<span class="cn">Generative MCP</span><span class="cs add">○ add key</span></div>'
           +'<div class="choice">'+icon('openai','sm')+'<span class="cn">ChatGPT Images</span><span class="cs add">○ add key</span></div>'
         +'</div>'
         +'<div class="krows" style="margin-top:11px;">'
-          +'<div class="krow"><span class="kk">Backend</span><span class="kv">Generative MCP connected · 2 empty key slots</span></div>'
+          +'<div class="krow"><span class="kk">Backend</span><span class="kv">FX + HDR rig built in · generative key slots empty</span></div>'
           +'<div class="krow"><span class="kk">Channel keys</span><span class="kv"><span class="t-faint">none — kalai never publishes</span></span></div>'
         +'</div>'
         +'<div class="sidenext">'+icon('handoff','sm')+'<span>handoff → kural · delivers a compliance-cleared master once made.</span></div>'
@@ -2754,12 +2797,12 @@ html[data-theme="dark"] .ovstrip{ box-shadow:none; }
     } else { /* kural */
       extra = '<div class="panel flex"><div class="phead"><h3>'+icon('social','sm')+' Channels × scopes</h3><span class="ct">exactly what is granted</span></div>'
         +'<div class="pbody sidebody"><table class="matrix"><thead><tr><th>Channel</th><th>posts</th><th>replies</th><th>listen</th><th>DMs</th></tr></thead><tbody>'
-          +'<tr><td class="ch">X</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td class="no">✗</td></tr>'
-          +'<tr><td class="ch">Instagram</td><td class="no">✗</td><td class="no">✗</td><td class="yes">✓</td><td class="no">✗</td></tr>'
+          +'<tr><td class="ch">X</td><td class="nc" colspan="4">not connected</td></tr>'
+          +'<tr><td class="ch">Instagram</td><td class="nc" colspan="4">not connected</td></tr>'
           +'<tr><td class="ch">LinkedIn</td><td class="nc" colspan="4">not connected</td></tr>'
-          +'<tr><td class="ch">Email</td><td class="yes" colspan="4">sender granted · none sent yet</td></tr>'
+          +'<tr><td class="ch">Email</td><td class="nc" colspan="4">not connected</td></tr>'
         +'</tbody></table>'
-        +'<div class="permnote">kural is the only agent that can speak outward. X DMs stay <span class="t-faint">off</span> until you open the scope; LinkedIn awaits your connection.</div>'
+        +'<div class="permnote">kural is the only agent that can speak outward — and no channel is granted until you connect one over setu. Scopes light up here exactly as you grant them.</div>'
         +'<div class="sidenext">'+icon('hand','sm')+'<span>every outward move stops at a founder gate — kural never blasts.</span></div>'
         +'</div></div>';
     }
@@ -2779,15 +2822,15 @@ html[data-theme="dark"] .ovstrip{ box-shadow:none; }
     function group(quad){
       var qn = quadQ[quad];
       return '<div class="panel flex"><div class="phead"><h3><span class="dot '+quad+'"></span><span class="c-'+quad+'">'+quad+'</span></h3>'
-        +'<span class="ct" data-qhd="'+quad+'">'+(qn>0?'<span class="t-red">'+icon('alert','sm')+' '+qn+' needs you</span>':'<span class="t-green">'+icon('check','sm')+' clear</span>')+'</span></div>'
+        +'<span class="ct" data-qhd="'+quad+'">'+(qn>0?'<span class="t-red">'+icon('alert','sm')+' '+qn+(qn===1?' needs you':' need you')+'</span>':'<span class="t-green">'+icon('check','sm')+' clear</span>')+'</span></div>'
         +'<div class="pbody tight" style="display:flex;flex-direction:column;justify-content:space-evenly;gap:8px;">'+questionsHTML(quad)+'</div></div>';
     }
     return '<div class="view"><div class="vbody">'
     +'<div class="eyebrow"><span class="num">Q</span> &nbsp;/&nbsp; Questions</div>'
     +'<h2 class="vtitle">Where the system needs you.</h2>'
     +'<p class="vlede sm">When imbibing or deciding hits a gap, the system asks. Answering teaches — the answer commits with <span class="c-saksi">source: you</span>. <span id="qOpenLine">'+STATE.openQ+' open across the agents.</span></p>'
-    +'<div class="qgroups three" style="margin-top:12px;">'
-      +group('manas')+group('kalai')+group('kural')
+    +'<div class="qgroups three" style="margin-top:12px;grid-template-columns:repeat(4,minmax(0,1fr));">'
+      +group('manas')+group('arivu')+group('kalai')+group('kural')
     +'</div></div></div>';
   };
 
@@ -2824,7 +2867,7 @@ html[data-theme="dark"] .ovstrip{ box-shadow:none; }
     }
     return '<div class="grid2" style="margin-top:12px; flex:1 1 auto; min-height:0;">'
       +'<div style="display:flex;flex-direction:column;gap:9px;min-height:0;">'
-        +'<div class="panel"><div class="phead"><h3>'+icon('dollar','sm')+' Spend, not switches</h3><span class="ct">daily allocation · $40 cap</span></div>'
+        +'<div class="panel"><div class="phead"><h3>'+icon('dollar','sm')+' Spend, not switches</h3><span class="ct">daily allocation · cap not set</span></div>'
           +'<div class="pbody tight">'+meter('manas',0)+meter('arivu',0)+meter('kalai',0)+meter('kural',0)
             +'<div class="behave"><b>— no spend yet —</b> Re-imbibe: when your repo or site updates, manas ASKS “what should I update myself with?” — selective, never silent. Re-enable: an agent paused a month diffs what changed and asks.</div></div></div>'
         +'<div class="panel flex"><div class="phead"><h3>'+icon('database','sm')+' setu — bridge &amp; boundaries</h3></div>'
@@ -2930,7 +2973,12 @@ html[data-theme="dark"] .ovstrip{ box-shadow:none; }
     var v = STATE.view, sub = STATE.sub, html='';
     if(sub){
       var dm = /^desk-(\d+)$/.exec(sub);
-      if(isQuad(v) && dm){ html = drillDesk(v, parseInt(dm[1],10)); }
+      if(isQuad(v) && dm){
+        var di = parseInt(dm[1],10);
+        /* a malformed deep-link (#manas/desk-9) must never throw mid-render */
+        if(DESKS[v] && DESKS[v][di]){ html = drillDesk(v, di); }
+        else { STATE.sub=null; html = BUILD[v](); }
+      }
       else if(isQuad(v) && sub==='connections'){ html = drillConnections(v); }
       else if(v==='manas' && sub==='memory'){ html = drillMemory(); }
       else if(v==='arivu' && sub==='docket'){ html = drillDocket(); }
@@ -2941,6 +2989,7 @@ html[data-theme="dark"] .ovstrip{ box-shadow:none; }
     } else {
       html = (BUILD[v]||BUILD.overview)();
     }
+    if(window.sk_hideTip) sk_hideTip();   /* a repaint detaches tooltip anchors */
     stage.innerHTML = html;
     if(!reduced && !QUIET){ var f=stage.firstElementChild; if(f) f.classList.add('fadein'); }
     document.documentElement.setAttribute('data-view', STATE.view);  /* topbar overview active-state */
@@ -2999,37 +3048,57 @@ html[data-theme="dark"] .ovstrip{ box-shadow:none; }
     idle:function(){ clearTimeout(botJoyT); botState(null); }
   };
 
+  /* ===== SK_ECHO — chat → cockpit state echo. The pane reports what it did;
+     the cockpit reflects it, so the strip never contradicts the chat (a render
+     can be "ready" in the feed while kalai still said "studio idle").
+     kind 'render' {phase:'rendering'|'ready'|'failed', frame?, frames?}
+     kind 'spend'  {usd} — session spend accumulates into the topbar pill. ===== */
+  var SESSION_SPEND = 0;
+  window.SK_ECHO = function(kind, info){
+    info = info || {};
+    if(kind==='render'){
+      var st = OVSTATUS.kalai;
+      if(info.phase==='rendering'){
+        st.short = 'rendering…';
+        st.three = 'rendering'+(info.frame&&info.frames ? ' · frame '+info.frame+'/'+info.frames : '')+' — the studio is hot';
+      } else if(info.phase==='ready'){
+        st.short = 'render ready';
+        st.three = 'render ready — view it in the screening room';
+      } else if(info.phase==='failed'){
+        st.short = 'render failed';
+        st.three = 'last render failed — ask kalai to retry';
+      } else { return; }
+      var line = document.querySelector('.ovtab[data-view="kalai"] .ovtab-line');
+      if(line){ line.innerHTML = '<span class="ovl-short">'+esc(st.short)+'</span><span class="ovl-full">'+esc(st.three)+'</span>'; }
+    } else if(kind==='spend'){
+      var usd = +info.usd || 0;
+      if(usd > 0){ SESSION_SPEND += usd; }
+      setText('pillCostV', SESSION_SPEND.toFixed(2));
+      setText('todayCost', '$'+SESSION_SPEND.toFixed(2)+' this session');
+    }
+  };
+
   /* ================= MIRROR SYNC ================= */
   function setText(id,v){ var e=document.getElementById(id); if(e) e.textContent=v; }
   function refreshMirrors(){
-    setText('pillQV', STATE.openQ);
-    setText('pillTapV', gateOpen());
-    setText('pillWorkV', STATE.working);
-    var pq=document.getElementById('pillQ'); if(pq) pq.style.display = STATE.openQ>0?'':'none';
-    var pt=document.getElementById('pillTap'); if(pt) pt.style.display = gateOpen()>0?'':'none';
+    /* (the pre-v4 topbar ghost mirrors — pillQ/pillTap/ovQCt/data-navq — were
+       deleted with their markup; only live ids are written now) */
     var nb=document.getElementById('navQBadge'); if(nb){ nb.textContent=STATE.openQ; nb.style.display=STATE.openQ>0?'':'none'; }
     var tt=document.getElementById('tapTabCt'); if(tt){ tt.textContent='('+gateOpen()+')'; tt.style.display=gateOpen()>0?'':'none'; }
-    setText('ovQCt', STATE.openQ);
-    setText('ovTapCt', gateOpen()+' on you');
     setText('kuralTapCt', gateOpen());
     setText('outreachTapCt', gateOpen());
-    setText('qOpenLine', STATE.openQ+' open across the three agents.');
-    /* sidebar quadrant mini-status ?n */
-    ['manas','arivu','kalai','kural'].forEach(function(quad){
-      var nq=document.querySelector('[data-navq="'+quad+'"]'); if(nq){
-        nq.textContent='?'+quadQ[quad];
-        nq.classList.toggle('nq', quadQ[quad]>0);
-        nq.style.color = quadQ[quad]>0 ? 'var(--nq-red)' : 'var(--sig-green)';
-      }
-    });
+    setText('qOpenLine', STATE.openQ+' open across the agents.');
     renderTapsPane();
   }
   function renderTapsPane(){
     var pane=document.getElementById('tapsPane'); if(!pane) return;
-    /* empty state — no flywheel run, so no gate has been raised. */
     pane.innerHTML = '<div class="sub">no tap waiting</div>'
       + emptyGateHTML()
-      + '<div class="provtag">Irreversible moves stop here for your tap — but nothing has run yet. Connect a project and ask saakshe a real decision; a gate will land here for you to approve.</div>';
+      + '<div class="provtag">Irreversible moves stop here for your tap. '
+      + (ORG.grounded
+          ? 'Ask saakshe a real decision and the first gate lands here for you to approve.'
+          : 'Connect a project and ask saakshe a real decision; a gate will land here for you to approve.')
+      + '</div>';
   }
 
   /* the held-reply question, when a real run raises one; null in the empty state. */
@@ -3074,7 +3143,7 @@ html[data-theme="dark"] .ovstrip{ box-shadow:none; }
     });
     Array.prototype.forEach.call(document.querySelectorAll('[data-qhd]'), function(p){
       var quad=p.getAttribute('data-qhd'); var qn=quadQ[quad];
-      p.innerHTML = qn>0 ? '<span class="t-red"><svg class="ic sm"><use href="#i-alert"/></svg> '+qn+' needs you</span>'
+      p.innerHTML = qn>0 ? '<span class="t-red"><svg class="ic sm"><use href="#i-alert"/></svg> '+qn+(qn===1?' needs you':' need you')+'</span>'
                           : '<span class="t-green"><svg class="ic sm"><use href="#i-check"/></svg> clear</span>';
     });
   }
@@ -3136,6 +3205,7 @@ html[data-theme="dark"] .ovstrip{ box-shadow:none; }
     function hide(){ cur=null; tip.classList.remove('on'); tip.style.left='-9999px'; tip.style.top='-9999px'; }
     function show(el){
       var txt=el.getAttribute('data-tip'); if(!txt){ hide(); return; }
+      if(!document.contains(el)){ hide(); return; }   /* a re-render detached the anchor */
       cur=el; tip.textContent=txt;
       /* measure off-screen, then place */
       tip.style.left='0px'; tip.style.top='-9999px'; tip.classList.add('on');
@@ -3158,7 +3228,11 @@ html[data-theme="dark"] .ovstrip{ box-shadow:none; }
       if(!to || !to.closest || !to.closest('[data-tip]') || to.closest('[data-tip]')!==cur) hide();
     });
     document.addEventListener('focusin', function(e){
-      var el=e.target && e.target.closest ? e.target.closest('[data-tip]') : null; el ? show(el) : hide(); });
+      /* only VISIBLE focus shows a tip — a mouse-click's transient focus used to
+         park the tip permanently under the topbar (founder screenshot, 2026-06-12) */
+      var el=e.target && e.target.closest ? e.target.closest('[data-tip]') : null;
+      if(el && el.matches && !el.matches(':focus-visible')){ hide(); return; }
+      el ? show(el) : hide(); });
     document.addEventListener('focusout', hide);
     /* any click/scroll/resize dismisses — a stale tip must never strand */
     document.addEventListener('click', hide, true);
@@ -3212,6 +3286,12 @@ html[data-theme="dark"] .ovstrip{ box-shadow:none; }
     if(lc){ skConfirmLogo(lc.getAttribute('data-logoconfirm')); return; }
     var lr = t.closest('[data-logoreplace],[data-logoupload]');
     if(lr){ skPickLogo(); return; }
+    /* first-run ladder — the ask chip sends to the witness; connect opens setu.
+       MUST run before the generic .qbtn branch (the chips wear .qbtn). */
+    var ask = t.closest('[data-asksk]');
+    if(ask){ if(window.SK_CHAT){ SK_CHAT.open(); SK_CHAT.ask(ask.getAttribute('data-asksk')); } return; }
+    var cnew = t.closest('[data-connectnew]');
+    if(cnew){ if(window.cockpitConnectNew){ cockpitConnectNew(); } else if(window.cockpitOpenGate){ cockpitOpenGate(); } return; }
     var qb = t.closest('.qbtn');
     if(qb){
       var card=qb.closest('.qcard');
@@ -3381,7 +3461,11 @@ html[data-theme="dark"] .ovstrip{ box-shadow:none; }
   }
 
   /* ================= KEYBOARD ================= */
-  document.addEventListener('keydown', function(e){ if(e.key==='Escape' && STATE.sub){ back(); } });
+  document.addEventListener('keydown', function(e){
+    if(e.key!=='Escape') return;
+    if(STATE.sub){ back(); }
+    else if(isQuad(STATE.view)){ ovTabClick(STATE.view); }   /* collapse the open tab → glance */
+  });
 
   /* ================= HASH BOOT ================= */
   function fromHash(){
@@ -3394,8 +3478,8 @@ html[data-theme="dark"] .ovstrip{ box-shadow:none; }
   fromHash();
 
   /* ===== CROSS-IIFE BRIDGE — the connect gate (a separate IIFE) drives identity.
-     It calls these to set the real org name/version/day everywhere and re-render. ===== */
-  function setText(id, txt){ var el=document.getElementById(id); if(el) el.textContent=txt; }
+     It calls these to set the real org name/version/day everywhere and re-render.
+     (setText is declared once, up in the mirror-sync block — same IIFE.) ===== */
   function syncOrgState(status){
     status = status || {};
     var org = status.org || {};
@@ -3475,7 +3559,7 @@ html[data-theme="dark"] .ovstrip{ box-shadow:none; }
     questions = (questions||[]).filter(function(q){ return (q.status||'open')!=='answered'; });
     if(!questions.length) return;
     var key = 'sk-seeded:' + questions.map(function(q){ return q.id||q.text||q.q||''; }).join('|');
-    try{ if(sessionStorage.getItem(key)) return; sessionStorage.setItem(key,'1'); }catch(e){}
+    try{ if(sessionStorage.getItem(key)) return; }catch(e){}
     var n = questions.length;
     var who = (ORG.relationship==='public')
       ? ((ORG.name && ORG.name!=='\u2014 connect a project \u2014') ? ORG.name : 'the project')
@@ -3490,6 +3574,9 @@ html[data-theme="dark"] .ovstrip{ box-shadow:none; }
         SK_CHAT.questions({ lead:lead,
           items: questions.map(function(q){ return { text:String(q.text||q.q||''), why:q.why||'' }; }),
           cta:'OPEN THE QUESTIONS PAGE' });
+        /* mark consumed only AFTER the panel took it — a slow panel load must
+           not eat the seed for the whole session */
+        try{ sessionStorage.setItem(key,'1'); }catch(e){}
         return;
       }
       if(tries > 20){ return; }
@@ -3591,20 +3678,7 @@ html[data-theme="dark"] .ovstrip{ box-shadow:none; }
       "Posted replies and outreach, carrying kalai's cleared and cited words, land here.",
       "It is the only mouth; it authors nothing — nothing leaves without your tap at the publish gate."
      ]
-    },
-   chatScript:{
-    turns:[
-     {who:"user",text:"what is saakshe?"},
-     {who:"saksi",text:"I'm the witness — the one voice you talk to. Three agents do the work: manas knows, kalai creates, kural engages. I don't act on my own; I bring you what needs you and refuse what isn't grounded. Connect a project over setu and ask a real decision to begin."}
-    ],
-    triggers:[
-     {keyword:"waiting",reply:"Nothing waiting on you yet — no flywheel has run. Connect a project and ask a real decision; if an agent proposes a change, a gate lands in your queue for your tap."},
-     {keyword:"cost",reply:"No spend yet — nothing has run. Once you ask a decision, the work runs on your own keys — priced up front, refunded on failure; watch it land line-by-line in the live console."},
-     {keyword:"memory",reply:"Memory grounds the moment you connect. manas imbibes your granted sources over setu and commits a versioned Context Pack of cited facts — nothing invented. No project connected yet, so memory is empty."},
-     {keyword:"saakshe",reply:"I'm the witness — the only voice you talk to. Three agents do the work: manas knows, kalai creates, kural engages. I watch them, surface what needs you, and refuse anything not grounded in your memory."},
-     {keyword:"status",reply:"Empty state — no project connected, no run. Connect a repo and your site over setu, let manas ground the company, then ask a real decision to start the flywheel."}
-    ]
-   }
+    }
   }; }
 
 })();
@@ -3709,7 +3783,9 @@ html[data-theme="dark"] .ovstrip{ box-shadow:none; }
         <button type="button" class="cg-btn" onclick="location.href='/grasped'" data-tip="point at any text and edit it by chatting to manas">full profile — point &amp; edit &rarr;</button>
         <button type="button" class="cg-btn" id="cgReingestBtn">&#8635; re-run ingest</button>
         <button type="button" class="cg-btn" id="cgAddBtn">&plusmn; add sources</button>
-        <button type="button" class="cg-btn" id="cgResetBtn">start over</button>
+        <!-- ships hidden — only /api/me is_owner/sandbox reveals it (the server
+             enforces too; this just keeps the wipe affordance out of judges' sight) -->
+        <button type="button" class="cg-btn" id="cgResetBtn" hidden>start over</button>
         <span class="cg-status" id="cgResultStatus"></span>
       </div>
     </section>
@@ -3982,6 +4058,11 @@ html[data-theme="dark"] .ovstrip{ box-shadow:none; }
   function startFeed(){ if(feedPoll) return; feedPoll=setInterval(function(){ if(ingesting) pumpFeed(); else { clearInterval(feedPoll); feedPoll=null; } }, 700); }
 
   async function runIngest(){
+    /* in-flight guard — a double-click on ↻ re-run must never fire TWO
+       chargeable ingests (each call mints a fresh idem key, so the server
+       can't dedupe them) */
+    if(ingesting) return;
+    var rib=$("cgReingestBtn"); if(rib) rib.disabled=true;
     ingesting=true; show("cgStepIngest");
     $("cgFeed").innerHTML='<div class="cg-empty">imbibing… <span class="cg-spin" aria-hidden="true"></span></div>';
     /* the /api/stream feed is GLOBAL + cross-run and reset does NOT clear it — seed the
@@ -4000,14 +4081,14 @@ html[data-theme="dark"] .ovstrip{ box-shadow:none; }
       var r=await fetch(base+"/api/connect/ingest",{method:"POST",headers:(window.SA_HEADERS||Object)({"content-type":"application/json"}),body:JSON.stringify({idem_key:ik}),signal:ctrl?ctrl.signal:undefined});
       var j=await cgJson(r);
       if(deadline) clearTimeout(deadline);
-      ingesting=false; await pumpFeed();
+      ingesting=false; if(rib) rib.disabled=false; await pumpFeed();
       if(j.status===402){
         /* out of credits is not a transient failure — never steer the founder
            into a retry loop of repeat 402s */
         var bal=(j.data && j.data.balance!=null)? (" · balance "+j.data.balance) : "";
         feedRow({source:"saakshe",agent:"setu",text:"out of credits — ingest needs more"+bal});
         setTimeout(function(){ show("cgStepConnect"); $("cgConnectBtn").disabled=false;
-          $("cgConnectStatus").innerHTML='out of credits'+bal+' — <a href="/pricing" target="_blank" rel="noopener">see pricing</a>'; }, 1200);
+          $("cgConnectStatus").innerHTML='out of credits'+esc(bal)+' — <a href="/pricing" target="_blank" rel="noopener">see pricing</a>'; }, 1200);
         return;
       }
       if(!j.ok){ feedRow({source:"saakshe",agent:"setu",text:"ingest failed — "+((j.data&&(j.data.detail||j.data.error))||j.error||("HTTP "+j.status))});
@@ -4021,7 +4102,7 @@ html[data-theme="dark"] .ovstrip{ box-shadow:none; }
          not `d`. Covers both entry points (fresh connect + boot-resume). */
       var st=await getStatus(); if(st) lastStatus=st;
       show("cgStepResult");
-    }catch(e){ if(deadline) clearTimeout(deadline); ingesting=false;
+    }catch(e){ if(deadline) clearTimeout(deadline); ingesting=false; if(rib) rib.disabled=false;
       if(e && e.name==="AbortError"){
         feedRow({source:"saakshe",agent:"setu",text:"ingest timed out — re-run"});
         setTimeout(function(){ show("cgStepConnect"); $("cgConnectBtn").disabled=false;
@@ -4084,6 +4165,7 @@ html[data-theme="dark"] .ovstrip{ box-shadow:none; }
   }
   async function submitAnswer(qid, answer, el, btn){
     if(!answer) return;
+    if(btn.disabled) return;   /* Enter while a submit is in flight must not double-post */
     btn.disabled=true; btn.textContent="…";
     try{
       var r=await fetch(base+"/api/connect/answer",{method:"POST",headers:(window.SA_HEADERS||Object)({"content-type":"application/json"}),body:JSON.stringify({qid:qid, answer:answer})});
@@ -4117,7 +4199,13 @@ html[data-theme="dark"] .ovstrip{ box-shadow:none; }
 
   async function doReset(){
     $("cgResultStatus").textContent="disconnecting…";
-    try{ await fetch(base+"/api/connect/reset",{method:"POST",headers:(window.SA_HEADERS||Object)({"content-type":"application/json"}),body:"{}"}); }catch(e){}
+    /* honor the server's verdict — a 401/403/500 reset must not show a cleared
+       form over a store that is still intact */
+    try{
+      var r=await fetch(base+"/api/connect/reset",{method:"POST",headers:(window.SA_HEADERS||Object)({"content-type":"application/json"}),body:"{}"});
+      var j=await cgJson(r);
+      if(!j.ok){ $("cgResultStatus").textContent="reset refused — "+((j.data&&(j.data.detail||j.data.error))||j.error||("HTTP "+j.status)); return; }
+    }catch(e){ $("cgResultStatus").textContent="reset error: "+e; return; }
     runId=null; cursor=0;
     $("cgGithub").value=$("cgWebsite").value=$("cgDocs").value=$("cgSocial").value="";
     $("cgConnectBtn").disabled=false; $("cgConnectStatus").textContent=""; $("cgConnectHint").hidden=true;
@@ -4211,7 +4299,7 @@ html[data-theme="dark"] .ovstrip{ box-shadow:none; }
       $("cgOrgKind").textContent=(st.org&&st.org.kind)|| fbKind(st.org);
       $("cgOrgVer").textContent=st.version||"v0";
       $("cgOrgOneLiner").textContent=(st.org&&st.org.one_liner)||"";
-      $("cgFacts").innerHTML='<div class="cg-empty sm">'+(st.fact_count?(st.fact_count+" facts in memory"):"no facts yet")+'</div>';
+      $("cgFacts").innerHTML='<div class="cg-empty sm">'+(st.fact_count?(esc(st.fact_count)+" facts in memory"):"no facts yet")+'</div>';
       $("cgFactCt").textContent=st.fact_count?(st.fact_count+" in memory"):"";
       renderQuestions(st.open_questions||[], !!st.grounded);
       syncEnter({grounded:st.grounded}, (st.open_questions||[]).length);
@@ -4745,21 +4833,23 @@ html[data-theme="dark"] .ovstrip{ box-shadow:none; }
       .catch(function(){ btn.disabled=false; btn.textContent='UNAVAILABLE'; });
   }
   function row(j){
+    /* dots tell the truth: working = pulsing green, ready = steady green,
+       paused = amber, failed = faint. founder language — no backend-speak. */
     if(j.status==='rendering'){
       var pct=j.frames?Math.round(100*j.frame/j.frames):0;
-      return '<div class="gate idle"><div class="gtxt"><div class="gtitle"><span class="sdot idle"></span>'
-        +'rendering'+(j.resumed?' (auto-resumed)':'')+' · frame '+(+j.frame||0)+'/'+(+j.frames||0)+' ('+pct+'%)</div>'
+      return '<div class="gate idle"><div class="gtxt"><div class="gtitle"><span class="sdot working"></span>'
+        +'rendering'+(j.resumed?' (picked back up)':'')+' · frame '+(+j.frame||0)+'/'+(+j.frames||0)+' ('+pct+'%)</div>'
         +'<div class="gsub">background render — takes minutes; lands here and in the chat when done.</div></div></div>';
     }
     if(j.status==='interrupted'){
-      return '<div class="gate idle"><div class="gtxt"><div class="gtitle"><span class="sdot idle"></span>'
-        +'render interrupted</div>'
-        +'<div class="gsub">a restart caught it mid-flight — it auto-resumes when the current render finishes.</div></div></div>';
+      return '<div class="gate idle"><div class="gtxt"><div class="gtitle"><span class="sdot waiting"></span>'
+        +'render paused</div>'
+        +'<div class="gsub">it will pick itself back up when the current render finishes — nothing is lost.</div></div></div>';
     }
     if(j.status==='done'){
-      return '<div class="gate idle"><div class="gtxt"><div class="gtitle"><span class="sdot idle"></span>'
+      return '<div class="gate idle"><div class="gtxt"><div class="gtitle"><span class="sdot working" style="animation:none;"></span>'
         +'render ready'+(j.verify_ok?' · HDR ✓':'')+'</div>'
-        +'<div class="gsub">finished HDR clip — view it any time, even after a restart.</div></div>'
+        +'<div class="gsub">finished HDR clip — saved in the vault; view it any time.</div></div>'
         +'<button class="qbtn" type="button" style="flex:0 0 auto;width:auto;align-self:center;" data-skview="'+esc(j.job_id)+'">VIEW</button></div>';
     }
     return '<div class="gate idle"><div class="gtxt"><div class="gtitle"><span class="sdot idle"></span>render failed</div>'
@@ -4792,6 +4882,11 @@ html[data-theme="dark"] .ovstrip{ box-shadow:none; }
            HTML every 6s tick made the strip flicker. */
         var sig=(d.jobs||[]).map(function(j){ return j.job_id+':'+j.status+':'+(j.frame||0); }).join('|');
         lastSig=sig; lastHTML=jobsHTML(d.jobs);
+        /* the strip mirrors the studio truth even when the chat poller isn't
+           running (page reloaded mid-render) — positive signal only */
+        if(window.SK_ECHO && (d.jobs||[]).some(function(j){ return j.status==='rendering'||j.status==='interrupted'; })){
+          SK_ECHO('render',{phase:'rendering'});
+        }
         if(host.getAttribute('data-sig')===sig) return;
         host.setAttribute('data-sig', sig);
         host.innerHTML=lastHTML;
@@ -4809,7 +4904,7 @@ html[data-theme="dark"] .ovstrip{ box-shadow:none; }
   setTimeout(fill,1200);
 })();
 </script>
-<script src="chat-panel.js?v=palette2"></script>
+<script src="chat-panel.js?v=audit1"></script>
 <!-- the legacy once-a-day box-wake script is retired: the main script owns the
      wake on a ~20s heartbeat, and two owners restarted the animation mid-flight
      at boot — the topbar visibly snapped (founder flicker report, 2026-06-12). -->
