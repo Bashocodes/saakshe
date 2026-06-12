@@ -2143,15 +2143,16 @@ html[data-theme="dark"] .ovstrip{ box-shadow:none; }
      ============================================================================ */
   var OVTINT = { manas:'tint-amber', arivu:'tint-blue', kalai:'tint-rose', kural:'tint-green' };
 
+  /* the strip is self-explanatory — NO tooltips on the tabs (founder, 2026-06-12) */
   function ovTabHTML(q, sel){
     var m=QMETA[q], st=OVSTATUS[q], qn=quadQ[q];
     var tap = (q==='kural' && gateOpen())
-      ? '<span class="ovpill" data-tip="taps waiting"><span class="pdot" style="background:var(--sig-amber)"></span>✋ '+gateOpen()+'</span>' : '';
+      ? '<span class="ovpill"><span class="pdot" style="background:var(--sig-amber)"></span>✋ '+gateOpen()+'</span>' : '';
     return '<button class="ovtab '+OVTINT[q]+(sel?' sel':'')+'" data-view="'+q+'" type="button" '
-      +'aria-pressed="'+(sel?'true':'false')+'" data-tip="'+(sel ? 'collapse — back to the overview' : q+' — '+m.verb+' · opens below, no page change')+'">'
+      +'aria-pressed="'+(sel?'true':'false')+'">'
       +'<div class="ovtop"><span class="ovname c-'+q+'">'+q+'</span><span class="ovverb">'+m.verb+'</span></div>'
       +'<div class="ovtab-foot"><span class="ovtab-line">'+st.three+'</span>'
-      +'<span class="ovpills"><span class="ovpill" data-tip="questions waiting on you"><span class="pdot" style="background:'+(qn?'var(--sig-red)':'var(--sig-green)')+'"></span>? '+qn+'</span>'+tap+'</span></div>'
+      +'<span class="ovpills"><span class="ovpill"><span class="pdot" style="background:'+(qn?'var(--sig-red)':'var(--sig-green)')+'"></span>? '+qn+'</span>'+tap+'</span></div>'
       +'<span class="ovmark s-'+q+'" aria-hidden="true"></span></button>';
   }
 
