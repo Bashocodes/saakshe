@@ -750,6 +750,33 @@ def vault_asset(uri: str, sess: Session = Depends(_session_dep)) -> Response:
 
 
 # ─── the witness chat ─────────────────────────────────────────────────────────
+def _remember_turn(sess: Session, role: str, text: str, meta: Optional[dict] = None) -> None:
+    """Fail-soft transcript write — a closed tab must not amnesia the chat, but
+    the transcript must never break the ask it records. Judges ride the SHARED
+    seeded store: their turns are never written into it."""
+    if not text or _is_judge(sess.user):
+        return
+    try:
+        sess.store.append_message(role, text, meta=meta or {})
+    except Exception:  # noqa: BLE001
+        pass
+
+
+@app.get("/api/saakshe/messages")
+def chat_history(request: Request, limit: int = 60,
+                 sess: Session = Depends(_session_dep)) -> dict[str, Any]:
+    """The persisted witness-chat transcript, oldest first — the feed restores
+    from here when the tab's sessionStorage is gone (closed window, new device)."""
+    _rate_limit(request, "chat_history", capacity=20, per_seconds=60)
+    _require_auth_if_live(sess.user)
+    if _is_judge(sess.user):
+        return {"messages": []}    # the shared store holds no judge transcript
+    try:
+        return {"messages": sess.store.get_messages(limit=max(1, min(200, limit)))}
+    except Exception:  # noqa: BLE001
+        return {"messages": []}
+
+
 @app.post("/api/saakshe/ask")
 async def ask(req: AskRequest, request: Request, sess: Session = Depends(_session_dep)) -> Any:
     """Telemetry Q&A through the witness; a decision-shaped question starts the flywheel."""
@@ -757,17 +784,23 @@ async def ask(req: AskRequest, request: Request, sess: Session = Depends(_sessio
     _require_auth_if_live(sess.user)
     text = (req.text or "").strip()
     low = text.lower()
+    _remember_turn(sess, "you", text)
     mi = presenter.media_intent(text)
     if mi["is_media"]:
         q = media_crew.quote(seconds=4, budget_usd=mi["budget_usd"],
                              has_source_image=True, wants_hdr=mi["wants_hdr"])
-        return {"kind": "media_quote", "quote": q,
-                "blocks": presenter.quote_blocks(q)}
+        qb = presenter.quote_blocks(q)
+        _remember_turn(sess, "kalai/router", f"Path {q['path']} — {q['rationale']}.",
+                       {"kind": "media_quote", "blocks": qb})
+        return {"kind": "media_quote", "quote": q, "blocks": qb}
     # A decision ask routes to arivu on the hint phrase alone — founders (and
     # voice transcripts) say "decide and tell me" without a question mark, and
     # requiring "?" used to drop those into a witness refusal.
     if any(h in low for h in _DECISION_HINTS) or low.rstrip(" .!").endswith("decide"):
         if not sess.store.is_grounded():
+            _remember_turn(sess, "saakshe/witness",
+                           "I can't run a decision on a blank memory — connect your project first "
+                           "(a repo + your site), and I'll ground the company before deciding.")
             return {"kind": "connect_first",
                     "text": "I can't run a decision on a blank memory — connect your project first "
                             "(a repo + your site), and I'll ground the company before deciding.",
@@ -783,6 +816,8 @@ async def ask(req: AskRequest, request: Request, sess: Session = Depends(_sessio
                             {"label": "what can you see right now?",
                              "send": "what can you see right now?"}]},
                     ]}
+        _remember_turn(sess, "saakshe/witness",
+                       "That's a real decision — routing it to arivu. A gate will land in your queue.")
         return await _start_flywheel(sess, question=text, idem_key=req.idem_key,
                                      ok_text="That's a real decision — routing it to arivu. A gate will land in your queue.",
                                      wrap_key="flywheel")
@@ -795,7 +830,10 @@ async def ask(req: AskRequest, request: Request, sess: Session = Depends(_sessio
             reply = await witness.respond(text, req.run_id, sess.stream)
     except credits.OutOfCredits as exc:
         return JSONResponse(status_code=402, content=credits.out_of_credits_payload(exc.balance))
-    return {"kind": "witness", **reply, "blocks": presenter.to_blocks(reply, asked=text)}
+    blocks = presenter.to_blocks(reply, asked=text)
+    _remember_turn(sess, "saakshe/witness", reply.get("text", ""),
+                   {"kind": "witness", "blocks": blocks})
+    return {"kind": "witness", **reply, "blocks": blocks}
 
 
 # ─── the flywheel (resumable 2-gate state machine) ───────────────────────────
@@ -974,6 +1012,11 @@ async def media_render(request: Request,
                         # Tenancy: jobs are keyed by jid for lookup but OWNED by the
                         # creating user — retrieval must not be guessable cross-tenant.
                         "user_id": sess.user.user_id if sess.user else ""}
+    # Captured for the worker thread: the in-memory job table and /tmp die with
+    # the instance, so a finished render is ALSO written to the vault + the
+    # transcript — that record is what job/file fall back to after a restart.
+    vault_user = sess.user.user_id if sess.user else "founder"
+    job_sess = sess
 
     def _run() -> None:
         job = _media_jobs[jid]
@@ -985,6 +1028,17 @@ async def media_render(request: Request,
             job.update(status="done", out_path=res["out_path"], verify=res["verify"],
                        receipt=media_crew.receipt(
                            q, measured_vcpu_sec=res["vcpu_sec_estimate"], vertex_usd=0.0))
+            try:
+                from common import vault as blob
+                data = open(res["out_path"], "rb").read()
+                uri = blob.put(f"render_{jid}.mp4", data, "video/mp4", user=vault_user)
+                job["vault_uri"] = uri
+                _remember_turn(job_sess, "kalai/renderer",
+                               f"render done — {q['seconds']}s {fx.replace('_', ' ')} HDR clip.",
+                               {"kind": "render_done", "job_id": jid, "vault_uri": uri,
+                                "receipt": job["receipt"], "verify": job["verify"]})
+            except Exception:  # noqa: BLE001 — durability is best-effort; the job dict still serves
+                pass
         except Exception as exc:  # noqa: BLE001 — job surface reports, never raises
             job.update(status="error", error=str(exc)[:300])
             if payer is not None:   # the render died on OUR side — make them whole
@@ -1016,9 +1070,25 @@ def _owned_media_job(jid: str, sess: Session) -> Optional[dict]:
     return job
 
 
+def _persisted_media_job(jid: str, sess: Session) -> Optional[dict]:
+    """After a restart the in-memory job table is empty — fall back to the
+    transcript record the worker persisted. Reads only the caller's OWN store,
+    so the tenancy rule of _owned_media_job carries over for free."""
+    try:
+        for m in reversed(sess.store.get_messages(limit=200)):
+            meta = m.get("meta") or {}
+            if meta.get("kind") == "render_done" and meta.get("job_id") == jid:
+                return {"status": "done", "persisted": True,
+                        "vault_uri": meta.get("vault_uri"),
+                        "receipt": meta.get("receipt"), "verify": meta.get("verify")}
+    except Exception:  # noqa: BLE001
+        pass
+    return None
+
+
 @app.get("/api/kalai/media/job/{jid}")
 def media_job(jid: str, sess: Session = Depends(_session_dep)) -> Any:
-    job = _owned_media_job(jid, sess)
+    job = _owned_media_job(jid, sess) or _persisted_media_job(jid, sess)
     if not job:
         return JSONResponse(status_code=404, content={"error": "unknown job"})
     return job
@@ -1027,10 +1097,19 @@ def media_job(jid: str, sess: Session = Depends(_session_dep)) -> Any:
 @app.get("/api/kalai/media/file/{jid}")
 def media_file(jid: str, sess: Session = Depends(_session_dep)) -> Any:
     job = _owned_media_job(jid, sess)
-    if not job or job.get("status") != "done":
-        return JSONResponse(status_code=404, content={"error": "not ready"})
-    return FileResponse(job["out_path"], media_type="video/mp4",
-                        filename="saakshe_hdr.mp4")
+    if job and job.get("status") == "done" and job.get("out_path") \
+            and os.path.exists(job["out_path"]):
+        return FileResponse(job["out_path"], media_type="video/mp4",
+                            filename="saakshe_hdr.mp4")
+    # /tmp is gone (restart) — serve the vault copy the worker persisted.
+    pj = job if (job and job.get("vault_uri")) else _persisted_media_job(jid, sess)
+    if pj and pj.get("vault_uri"):
+        from common import vault as blob
+        data = blob.get(pj["vault_uri"], user=sess.user.user_id if sess.user else "founder")
+        if data:
+            return Response(content=data, media_type="video/mp4", headers={
+                "Content-Disposition": 'inline; filename="saakshe_hdr.mp4"'})
+    return JSONResponse(status_code=404, content={"error": "not ready"})
 
 
 # ─── the one ordered stream + the derived gate queue ─────────────────────────

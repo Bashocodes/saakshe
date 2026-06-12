@@ -61,3 +61,27 @@ def test_render_job_lifecycle():
 
 def test_unknown_job_404():
     assert client.get("/api/kalai/media/job/nope").status_code == 404
+
+
+def test_render_survives_a_restart_via_the_persisted_record():
+    """The in-memory job table dies with the instance — the transcript record +
+    vault copy must keep a finished render reachable (the refresh-amnesia fix)."""
+    from service import app as appmod
+    r = client.post("/api/kalai/media/render",
+                    files={"image": ("s.png", _png_bytes(), "image/png")},
+                    data={"fx": "ripple", "seconds": 1, "budget_usd": 1.0,
+                          "width": 16, "height": 28, "fps": 8})
+    assert r.status_code == 200
+    jid = r.json()["job_id"]
+    for _ in range(120):
+        s = client.get(f"/api/kalai/media/job/{jid}").json()
+        if s.get("status") in ("done", "error"):
+            break
+        time.sleep(0.5)
+    assert s.get("status") == "done", s
+    appmod._media_jobs.pop(jid, None)          # simulate the instance restarting
+    s2 = client.get(f"/api/kalai/media/job/{jid}").json()
+    assert s2.get("status") == "done" and s2.get("persisted") is True, s2
+    assert s2.get("verify", {}).get("ok") is True
+    f = client.get(f"/api/kalai/media/file/{jid}")
+    assert f.status_code == 200 and f.headers["content-type"] == "video/mp4"

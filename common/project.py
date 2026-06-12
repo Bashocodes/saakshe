@@ -154,6 +154,39 @@ class ProjectStore:
         except (OSError, json.JSONDecodeError):
             return None
 
+    # ── witness chat transcript (interface parity with SupabaseStore) ─────────
+    def _chat_path(self) -> Path:
+        safe = re.sub(r"[^A-Za-z0-9_\-]", "_", self.user) or "founder"
+        return _DIR / "chat" / f"{safe}.jsonl"
+
+    def append_message(self, role: str, text: str, run_id: str = "", meta: Optional[dict] = None) -> dict:
+        """Persist one chat turn (append-only JSONL, fail-soft — the transcript
+        must never break the ask it is recording)."""
+        row = {"role": role, "text": text, "run_id": run_id or None,
+               "meta": meta or {}, "created_at": time.time()}
+        try:
+            p = self._chat_path()
+            p.parent.mkdir(parents=True, exist_ok=True)
+            with self._lock, p.open("a", encoding="utf-8") as f:
+                f.write(json.dumps(row) + "\n")
+        except (OSError, TypeError, ValueError):
+            pass
+        return row
+
+    def get_messages(self, limit: int = 100) -> list[dict]:
+        """The last `limit` chat turns, oldest first (mirrors the Supabase rows)."""
+        try:
+            lines = self._chat_path().read_text(encoding="utf-8").splitlines()
+        except OSError:
+            return []
+        out: list[dict] = []
+        for ln in lines[-max(1, limit):]:
+            try:
+                out.append(json.loads(ln))
+            except json.JSONDecodeError:
+                continue
+        return out
+
     # ── state queries ─────────────────────────────────────────────────────────
     def is_connected(self) -> bool:
         return bool(self.connections)

@@ -454,8 +454,11 @@ class SupabaseStore:
             "text": text, "meta": meta or {}})
 
     def get_messages(self, limit: int = 100) -> list[dict]:
-        return self._get("messages", project_id=f"eq.{self.pid}", select="*",
-                         order="created_at.asc", limit=limit)
+        # desc + reverse = the LAST `limit` turns oldest-first; asc+limit would
+        # silently pin the transcript to its first page forever.
+        rows = self._get("messages", project_id=f"eq.{self.pid}", select="*",
+                         order="created_at.desc", limit=limit)
+        return list(reversed(rows))
 
     # ── the ordered event stream (low-level; SupabaseEventStream is the surface) ─
     def append_event(self, run_id: str, seq: int, source: str, agent: str,

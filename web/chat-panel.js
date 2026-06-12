@@ -164,24 +164,36 @@
     return b;
   }
 
+  /* data/receipt rows render through ONE helper so a restored feed (session or
+     server history) rebuilds them exactly like the live path did */
+  function appendData(host, b) {
+    var rows = b.rows.map(function (r) {
+      return '<div class="row"><span>' + esc(r[0]) + '</span><b>' + esc(r[1]) + '</b></div>';
+    }).join('');
+    host.appendChild(el('<div class="data">' + rows + '</div>'));
+    if (b.verify) host.appendChild(el(
+      '<div class="data"><div class="row"><span>verify</span><b>' +
+      (b.verify.ok ? '✓ ' + esc(b.verify.hdr_format) : '✗ FAILED') +
+      '</b></div></div>'));
+  }
+  function appendActs(host, items) {
+    var acts = el('<div class="acts"></div>');
+    items.forEach(function (i) { acts.appendChild(actBtn(i)); });
+    host.appendChild(acts);
+  }
+
   function renderBlocks(blocks) {
     var last = null;
     blocks.forEach(function (b) {
       if (b.t === 'text') last = msg(b.who.toUpperCase(), fmt(b.md));
       else if ((b.t === 'data' || b.t === 'receipt') && last) {
-        var rows = b.rows.map(function (r) {
-          return '<div class="row"><span>' + esc(r[0]) + '</span><b>' + esc(r[1]) + '</b></div>';
-        }).join('');
-        last.appendChild(el('<div class="data">' + rows + '</div>'));
-        if (b.verify) last.appendChild(el(
-          '<div class="data"><div class="row"><span>verify</span><b>' +
-          (b.verify.ok ? '✓ ' + esc(b.verify.hdr_format) : '✗ FAILED') +
-          '</b></div></div>'));
+        appendData(last, b);
+        if (last._log) (last._log.rows = last._log.rows || []).push(
+          { rows: b.rows, verify: b.verify || null });
       }
       else if (b.t === 'actions' && last) {
-        var acts = el('<div class="acts"></div>');
-        b.items.forEach(function (i) { acts.appendChild(actBtn(i)); });
-        last.appendChild(acts);
+        appendActs(last, b.items);
+        if (last._log) last._log.acts = b.items;
       }
       else if (b.t === 'slider' && last) {
         var sv = +b.value || 4, q = b.quote || { total_usd: 0, est_wall_sec: 0 };
@@ -276,14 +288,14 @@
     else if (action === 'media.fxmenu') fxMenu();
     else if (action === 'media.fx') { state.fx = args.fx; startRender(); }
     else if (action === 'media.retrypoll' && args.job) pollJob(args.job);
-    else if (action === 'media.view' && state.job) viewHdr();
+    else if (action === 'media.view' && (args.job || state.job)) viewHdr(args.job || state.job);
   });
 
-  function viewHdr() {
+  function viewHdr(jid) {
     /* the gated prod 401s a bare window.open (no Bearer on navigation) —
        fetch WITH the token and open the blob */
     dot('busy');
-    fetch('/api/kalai/media/file/' + state.job, { headers: hdrs({}) })
+    fetch('/api/kalai/media/file/' + jid, { headers: hdrs({}) })
       .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.blob(); })
       .then(function (bl) {
         dot('');
@@ -349,10 +361,17 @@
       .catch(function () { dot('err'); msg('▲ KALAI · ROUTER', 'render request failed — network?'); });
   }
 
-  function pollJob(jid) {
+  function pollJob(jid, mGiven) {
     if (state.poller) { clearInterval(state.poller); state.poller = null; }
-    var m = msg('▲ KALAI · RENDERER', 'starting…');
+    var m = mGiven || msg('▲ KALAI · RENDERER', 'starting…');
     var p = m.querySelector('p');
+    /* the log entry tracks the LIVE state (not the birth text) + the job id —
+       that is what lets a refresh restore real progress and resume polling */
+    if (m._log) { m._log.job = jid; }
+    function note(t, terminal) {
+      p.textContent = t;
+      if (m._log) { m._log.html = fmt(t); if (terminal) m._log.job = null; }
+    }
     var fails = 0, every = 1500;
     state.poller = setInterval(function () {
       fetch('/api/kalai/media/job/' + jid, { headers: hdrs({}) })
@@ -360,8 +379,14 @@
           if (!r.ok) {
             return r.json().catch(function () { return null; }).then(function (d) {
               clearInterval(state.poller); state.poller = null;
-              p.textContent = 'render check failed.';
-              httpBubble({ ok: false, status: r.status, data: d }, 'check the render');
+              if (r.status === 404) {
+                /* the backend restarted mid-render and no persisted record
+                   exists — say so honestly instead of a generic failure */
+                note('this render did not survive a backend restart — start a new one.', true);
+              } else {
+                note('render check failed.', true);
+                httpBubble({ ok: false, status: r.status, data: d }, 'check the render');
+              }
               down(); persist();
               return null;
             });
@@ -372,18 +397,22 @@
           if (s == null) return;
           fails = 0;
           if (s.status === 'rendering') {
-            p.textContent = 'frame ' + s.frame + '/' + s.frames + ' · rendering…';
+            note('frame ' + s.frame + '/' + s.frames + ' · rendering…');
           } else {
             clearInterval(state.poller); state.poller = null;
-            if (s.status === 'done') { p.innerHTML = '<b>done.</b>'; renderBlocks(receiptBlocks(s)); bot('joy'); }
-            else p.textContent = 'error: ' + (s.error || 'unknown');
+            if (s.status === 'done') {
+              p.innerHTML = '<b>done.</b>';
+              if (m._log) { m._log.html = '<b>done.</b>'; m._log.job = null; }
+              state.job = jid;
+              renderBlocks(receiptBlocks(s, jid)); bot('joy');
+            } else note('error: ' + (s.error || 'unknown'), true);
           }
           down(); persist();
         })
         .catch(function () {
           if (++fails >= 4) {
             clearInterval(state.poller); state.poller = null;
-            p.textContent = 'lost the render — the backend stopped answering.';
+            note('lost the render — the backend stopped answering.');
             var acts = el('<div class="acts"></div>');
             acts.appendChild(actBtn({ label: 'RETRY', kind: 'primary', action: 'media.retrypoll', args: { job: jid } }));
             m.appendChild(acts); down(); persist();
@@ -392,7 +421,7 @@
     }, every);
   }
 
-  function receiptBlocks(s) {
+  function receiptBlocks(s, jid) {
     return [
       { t: 'text', who: 'kalai/verifier',
         md: s.verify.ok ? 'verified — ' + s.verify.hdr_format : 'HDR verify FAILED — not shipping.' },
@@ -402,7 +431,7 @@
                ['total', '$' + s.receipt.total_usd.toFixed(3)]],
         verify: s.verify },
       { t: 'actions', items: s.verify.ok ?
-        [{ label: 'VIEW HDR', kind: 'primary', action: 'media.view', args: {} },
+        [{ label: 'VIEW HDR', kind: 'primary', action: 'media.view', args: { job: jid || '' } },
          { label: 'NEW RENDER', kind: 'plain', action: 'media.fxmenu', args: {} }] :
         [{ label: 'RETRY', kind: 'primary', action: 'media.render', args: {} }] }
     ];
@@ -696,25 +725,11 @@
   };
 
   /* ── first paint: restore the session's feed, or seed the witness greeting ──
-     stored shape is {v:2, items:[{who, html, user, ts}]} re-rendered through
-     msg(); anything else (the old raw-innerHTML format, garbage) is discarded */
-  var restored = null;
-  try { restored = JSON.parse(sessionStorage.getItem('sk-chat-feed') || 'null'); }
-  catch (e) { restored = null; }
-  if (restored && restored.v === 2 && Array.isArray(restored.items) && restored.items.length) {
-    restored.items.forEach(function (it) {
-      if (it && typeof it.html === 'string') {
-        var rm = msg(String(it.who || 'SΛΛKSHE'), it.html, !!it.user, String(it.ts || ''));
-        if (Array.isArray(it.opts) && it.opts.length) {
-          /* restored options render SPENT — they reflect the moment they were
-             offered; keep them on the fresh log entry so they survive again */
-          if (rm._log) rm._log.opts = it.opts;
-          renderOpts(rm, it.opts, true);
-        }
-      }
-    });
-    down(true);
-  } else {
+     stored shape is {v:2, items:[{who, html, user, ts, rows, acts, opts, job}]}
+     re-rendered through msg(); anything else (the old raw-innerHTML format,
+     garbage) is discarded. A live job id on an entry RESUMES polling — the
+     render survives the refresh, so the card must too. */
+  function greet() {
     var g = msg('SΛΛKSHE · WITNESS',
       'I see everything the three agents and the arivu chamber do — and answer only from it. Ask me anything about your company.');
     var sugs = el('<div class="sugs"></div>');
@@ -726,6 +741,97 @@
       sugs.appendChild(b);
     });
     g.appendChild(sugs); down(true);
+  }
+
+  function restoreItems(items) {
+    items.forEach(function (it) {
+      if (!it || typeof it.html !== 'string') return;
+      var rm = msg(String(it.who || 'SΛΛKSHE'), it.html, !!it.user, String(it.ts || ''));
+      (Array.isArray(it.rows) ? it.rows : []).forEach(function (d) {
+        if (d && Array.isArray(d.rows)) appendData(rm, d);
+      });
+      if (rm._log && Array.isArray(it.rows)) rm._log.rows = it.rows;
+      if (Array.isArray(it.acts) && it.acts.length) {
+        appendActs(rm, it.acts);
+        if (rm._log) rm._log.acts = it.acts;
+      }
+      if (Array.isArray(it.opts) && it.opts.length) {
+        /* restored options render SPENT — they reflect the moment they were
+           offered; keep them on the fresh log entry so they survive again */
+        if (rm._log) rm._log.opts = it.opts;
+        renderOpts(rm, it.opts, true);
+      }
+      if (it.job) pollJob(String(it.job), rm);   // the render is still going — pick it back up
+    });
+    down(true);
+  }
+
+  function hhmm(c) {
+    var d = typeof c === 'number' ? new Date(c * 1000) : new Date(c || NaN);
+    if (isNaN(+d)) return '';
+    return ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2);
+  }
+
+  /* server history: the persisted transcript (closed tab / new device). Renders
+     the stored reply blocks minus live-only kinds (slider/progress); a persisted
+     render_done record rebuilds its receipt + a working VIEW HDR. */
+  function renderHistory(rows) {
+    feed.innerHTML = ''; log.length = 0;
+    rows.forEach(function (r) {
+      var who = String(r.role || 'saakshe'), when = hhmm(r.created_at);
+      if (who === 'you') { msg('YOU', fmt(String(r.text || '')), true, when); return; }
+      var meta = r.meta || {};
+      var m = msg(who.toUpperCase(), fmt(String(r.text || '')), false, when);
+      if (meta.kind === 'render_done' && meta.job_id && meta.receipt && meta.verify) {
+        renderBlocks(receiptBlocks({ receipt: meta.receipt, verify: meta.verify }, meta.job_id));
+        return;
+      }
+      (Array.isArray(meta.blocks) ? meta.blocks : []).forEach(function (b) {
+        if (!b) return;
+        if ((b.t === 'data' || b.t === 'receipt') && Array.isArray(b.rows)) {
+          appendData(m, b);
+          if (m._log) (m._log.rows = m._log.rows || []).push({ rows: b.rows, verify: b.verify || null });
+        } else if (b.t === 'actions' && Array.isArray(b.items)) {
+          appendActs(m, b.items);
+          if (m._log) m._log.acts = b.items;
+        } else if (b.t === 'options' && Array.isArray(b.items) && b.items.length) {
+          var clean = b.items.map(function (i) {
+            return { label: String(i.label || i.send || ''), send: String(i.send || i.label || '') };
+          });
+          if (m._log) m._log.opts = clean;
+          renderOpts(m, clean, true);
+        }
+      });
+    });
+    down(true); persist();
+  }
+
+  function whenAuthSettled(cb) {
+    var t0 = Date.now();
+    (function tick() {
+      var A = window.SAAKSHE_AUTH;
+      if ((A && A._ready) || Date.now() - t0 > 7000) return cb();
+      setTimeout(tick, 250);
+    })();
+  }
+
+  var restored = null;
+  try { restored = JSON.parse(sessionStorage.getItem('sk-chat-feed') || 'null'); }
+  catch (e) { restored = null; }
+  if (restored && restored.v === 2 && Array.isArray(restored.items) && restored.items.length) {
+    restoreItems(restored.items);
+  } else {
+    greet();
+    /* no session feed (closed tab) — once auth settles, swap in the persisted
+       transcript from the backend; an empty or failed fetch keeps the greeting */
+    whenAuthSettled(function () {
+      fetch('/api/saakshe/messages', { headers: hdrs({}) })
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (d) {
+          if (d && Array.isArray(d.messages) && d.messages.length) renderHistory(d.messages);
+        })
+        .catch(function () {});
+    });
   }
   syncSend();
 })();
