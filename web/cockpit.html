@@ -3646,10 +3646,22 @@ html[data-theme="dark"] #sa-chatpane .ch-tab.on[data-q]{ background:var(--act); 
         var s=sources[i];
         var r=await fetch(base+"/api/connect/source",{method:"POST",headers:(window.SA_HEADERS||Object)({"content-type":"application/json"}),body:JSON.stringify(s)});
         var j=await cgJson(r);
-        if(j.status===401){
-          $("cgConnectStatus").textContent="sign in first — raising the gate";
+        /* 401 (anon) and 403 (sealed shared demo) both mean: you are viewing the
+           read-only demo and must sign in to connect YOUR OWN project. Surface a
+           LOUD sign-in CTA in the gate hint, not a buried status line — this is
+           what read as "connect does nothing". */
+        if(j.status===401 || j.status===403){
+          var msg=(j.data&&(j.data.detail||j.data.error))
+                  || (j.status===401 ? "Sign in to connect your own project."
+                                     : "This is the read-only demo. Sign in to connect your own project.");
+          $("cgConnectStatus").textContent="";
           $("cgConnectBtn").disabled=false;
-          if(window.SAAKSHE_AUTH && SAAKSHE_AUTH.enabled){ SAAKSHE_AUTH.signIn(); }
+          var canSignIn = window.SAAKSHE_AUTH && SAAKSHE_AUTH.enabled;
+          connectHint('<b>'+esc(msg)+'</b>'
+            + (canSignIn ? ' <button type="button" class="cg-btn cg-primary" id="cgSignInCta" style="margin-top:9px">Sign in</button>'
+                         : ''));
+          var cta=$("cgSignInCta");
+          if(cta){ cta.addEventListener("click", function(){ SAAKSHE_AUTH.signIn(); }); }
           return;
         }
         if(!j.ok){ $("cgConnectStatus").textContent=(j.data&&(j.data.detail||j.data.error))||j.error||("HTTP "+j.status); $("cgConnectBtn").disabled=false; return; }

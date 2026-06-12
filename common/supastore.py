@@ -137,11 +137,25 @@ class SupabaseStore:
 
     # ── the project row (one per user) ───────────────────────────────────────
     def _project(self) -> dict:
-        rows = self._get("projects", user_id=f"eq.{self.user_id}", select="*", limit=1)
+        # DETERMINISTIC select: a bare limit=1 with no ORDER BY returns an
+        # ARBITRARY row if a user ever ends up with >1 project (e.g. a first-touch
+        # insert race). That made the cockpit flip between companies request to
+        # request. Always take the OLDEST row (the original project) so every
+        # request resolves to the same one.
+        rows = self._get("projects", user_id=f"eq.{self.user_id}", select="*",
+                         order="created_at.asc,id.asc", limit=1)
         if rows:
             self._pid = rows[0]["id"]
             return rows[0]
-        row = self._insert("projects", {"user_id": self.user_id})
+        try:
+            row = self._insert("projects", {"user_id": self.user_id})
+        except Exception:  # noqa: BLE001 — lost a first-touch insert race; re-read
+            rows = self._get("projects", user_id=f"eq.{self.user_id}", select="*",
+                             order="created_at.asc,id.asc", limit=1)
+            if not rows:
+                raise
+            self._pid = rows[0]["id"]
+            return rows[0]
         self._pid = row["id"]
         return row
 
