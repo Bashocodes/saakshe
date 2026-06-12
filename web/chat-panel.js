@@ -17,6 +17,8 @@
      a pill click drops an ENTITY CHIP into the ask, never plain text. */
   pane.innerHTML =
     '<div class="ch-head"><div class="ch-htab" role="group" aria-label="chat controls">' +
+    '<button class="ch-hbtn" id="sa-ch-new" type="button" title="new chat — a fresh sitting">' +
+    '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>new chat</button>' +
     '<button class="ch-hbtn" id="sa-ch-hist" type="button" title="chat history" aria-pressed="false">' +
     '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 12a8.5 8.5 0 1 1 2.5 6M3.5 12V7M3.5 12h5"/><path d="M12 7.5v5l3.2 2"/></svg>history</button>' +
     '<button class="ch-hbtn" id="sa-ch-gear" type="button" title="settings" aria-pressed="false">' +
@@ -852,6 +854,16 @@
   }
   gearBtn.onclick = function () { setMode(paneMode === 'settings' ? 'chat' : 'settings'); };
   histBtn.onclick = function () { setMode(paneMode === 'history' ? 'chat' : 'history'); };
+  /* NEW CHAT — a fresh sitting: the feed clears (the transcript keeps the old
+     sitting; it stays reachable under HISTORY), the witness greets again. */
+  document.getElementById('sa-ch-new').onclick = function () {
+    setMode('chat');
+    if (state.pollEnd) state.pollEnd();           // a live render poller must not write into the fresh feed
+    feed.innerHTML = ''; log.length = 0;
+    try { sessionStorage.removeItem('sk-chat-feed'); } catch (e) {}
+    clearInput();
+    greet();
+  };
 
   /* ── the pane never closes on desktop (founder, 2026-06-12) — collapse is
      retired; the FAB stays for narrow screens only ── */

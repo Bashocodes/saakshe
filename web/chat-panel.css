@@ -30,7 +30,7 @@ html[data-theme="dark"] #sa-chatpane .ch-htab{background:var(--surface-2,#141B14
 #sa-chatpane .ch-hbtn{border:0;background:transparent;color:var(--bg,#F4EEE2);
   font:700 9.5px var(--font-mono);letter-spacing:.1em;text-transform:uppercase;
   padding:5px 10px;border-radius:7px;cursor:pointer;display:inline-flex;
-  align-items:center;gap:6px}
+  align-items:center;gap:6px;white-space:nowrap}
 html[data-theme="dark"] #sa-chatpane .ch-hbtn{color:var(--ink,#D4F5DE)}
 #sa-chatpane .ch-hbtn .ic{width:12px;height:12px;stroke:currentColor;fill:none;
   stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
