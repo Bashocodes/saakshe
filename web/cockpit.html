@@ -2242,6 +2242,7 @@ html[data-theme="dark"] .ovstrip{ box-shadow:none; }
     document.documentElement.setAttribute('data-view', STATE.view);
     syncNav();
     refreshMirrors();
+    if(window.SK_STUDIO_PAINT){ SK_STUDIO_PAINT(); }
     if((target==='manas' || target==='kalai') && (Date.now()-PRES.at > 30000)){ fetchPresence(); }
   }
 
@@ -2944,6 +2945,9 @@ html[data-theme="dark"] .ovstrip{ box-shadow:none; }
     document.documentElement.setAttribute('data-view', STATE.view);  /* topbar overview active-state */
     syncNav();
     refreshMirrors();
+    /* the studio job board repaints from its cache in the SAME frame — a
+       rebuilt #skStudio must never sit empty until the next poll tick */
+    if(window.SK_STUDIO_PAINT){ SK_STUDIO_PAINT(); }
     if(STATE.view==='kalai' && STATE.sub==='media'){ loadMediaView(); }
     else if(MEDIA_URL){ try{ URL.revokeObjectURL(MEDIA_URL); }catch(e){} MEDIA_URL=null; }
   }
@@ -4760,6 +4764,22 @@ html[data-theme="dark"] .ovstrip{ box-shadow:none; }
     return '<div class="gate idle"><div class="gtxt"><div class="gtitle"><span class="sdot idle"></span>render failed</div>'
       +'<div class="gsub">'+esc(j.error||'the studio hit an error — nothing was charged.')+'</div></div></div>';
   }
+  /* the last known board, cached — a re-render rebuilds #skStudio EMPTY and
+     waiting for the next 6s tick made the panel visibly contract then expand
+     (founder, 2026-06-12). paint() restores the cache in the same frame. */
+  var lastSig=null, lastHTML='';
+  function jobsHTML(jobs){
+    return (jobs&&jobs.length) ? jobs.map(row).join('')
+      : '<div class="sub">no background renders yet — say “make hdr” in the chat to start one.</div>';
+  }
+  function paint(){
+    var host=document.getElementById('skStudio');
+    if(!host || lastSig===null) return;
+    if(host.getAttribute('data-sig')!==lastSig){
+      host.setAttribute('data-sig', lastSig);
+      host.innerHTML=lastHTML;
+    }
+  }
   function fill(){
     if(!document.getElementById('skStudio') || document.visibilityState!=='visible') return;
     fetch('/api/kalai/media/jobs',{headers:H()})
@@ -4768,15 +4788,17 @@ html[data-theme="dark"] .ovstrip{ box-shadow:none; }
         var host=document.getElementById('skStudio');   // overview may have re-rendered
         if(!d||!host) return;
         /* repaint ONLY when the board actually changed — rewriting identical
-           HTML every 6s tick made the strip flicker (founder, 2026-06-12).
-           The signature rides the element, so a re-rendered (fresh, empty)
-           host always takes the first fill. */
+           HTML every 6s tick made the strip flicker. */
         var sig=(d.jobs||[]).map(function(j){ return j.job_id+':'+j.status+':'+(j.frame||0); }).join('|');
+        lastSig=sig; lastHTML=jobsHTML(d.jobs);
         if(host.getAttribute('data-sig')===sig) return;
         host.setAttribute('data-sig', sig);
-        host.innerHTML=(d.jobs||[]).map(row).join('');
+        host.innerHTML=lastHTML;
       }).catch(function(){});
   }
+  /* the cockpit calls this right after any stage rebuild: cached board lands
+     in the SAME frame (no contract/expand), then a fresh fetch follows */
+  window.SK_STUDIO_PAINT = function(){ paint(); fill(); };
   document.addEventListener('click',function(e){
     var b=e.target.closest('[data-skview]');
     if(b) viewJob(b.getAttribute('data-skview'),b);
