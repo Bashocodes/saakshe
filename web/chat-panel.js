@@ -42,7 +42,7 @@
   var micBtn = document.getElementById('sa-ch-mic');
   var liveDot = document.getElementById('sa-ch-live');
   var state = { budget: 1.0, seconds: 4, fx: 'sat_sort', image: null, job: null,
-                poller: null, inflight: false, fac: 'saakshe' };
+                poller: null, pollEnd: null, inflight: false, fac: 'saakshe' };
   var FX = ['sat_sort', 'dark_sort', 'vert_sort', 'hue_sort', 'ripple', 'wave',
             'light_sweep', 'charcoal', 'lith', 'sabattier', 'cinestill', 'ca_pulse'];
   var MEDIA_WORDS = ['hdr', 'video', 'reel', 'animate', 'motion'];   // mirrors presenter.media_intent
@@ -362,6 +362,7 @@
   }
 
   function pollJob(jid, mGiven) {
+    if (state.pollEnd) state.pollEnd();        // a superseded poller must go fully dead
     if (state.poller) { clearInterval(state.poller); state.poller = null; }
     var m = mGiven || msg('▲ KALAI · RENDERER', 'starting…');
     var p = m.querySelector('p');
@@ -372,13 +373,28 @@
       p.textContent = t;
       if (m._log) { m._log.html = fmt(t); if (terminal) m._log.job = null; }
     }
-    var fails = 0, every = 1500;
-    state.poller = setInterval(function () {
+    /* `ended` makes every terminal branch fire ONCE. Without it, fetches that
+       were already in flight when the backend stalled (the interval keeps
+       issuing them) ALL land in .catch after the threshold and each appends
+       its own RETRY — the observed wall of buttons. And the interval id is
+       captured locally: clearing via state.poller could kill a NEWER poller
+       while this one keeps ticking forever. */
+    var fails = 0, every = 1500, ended = false, inflight = false, iv;
+    function endPoll() {
+      ended = true; clearInterval(iv);
+      if (state.poller === iv) state.poller = null;
+      if (state.pollEnd === endPoll) state.pollEnd = null;
+    }
+    state.pollEnd = endPoll;
+    iv = setInterval(function () {
+      if (ended || inflight) return;          // never stack requests on a slow backend
+      inflight = true;
       fetch('/api/kalai/media/job/' + jid, { headers: hdrs({}) })
         .then(function (r) {
           if (!r.ok) {
             return r.json().catch(function () { return null; }).then(function (d) {
-              clearInterval(state.poller); state.poller = null;
+              if (ended) return null;
+              endPoll();
               if (r.status === 404) {
                 /* the backend restarted mid-render and no persisted record
                    exists — say so honestly instead of a generic failure */
@@ -394,12 +410,13 @@
           return r.json();
         })
         .then(function (s) {
-          if (s == null) return;
+          inflight = false;
+          if (s == null || ended) return;
           fails = 0;
           if (s.status === 'rendering') {
             note('frame ' + s.frame + '/' + s.frames + ' · rendering…');
           } else {
-            clearInterval(state.poller); state.poller = null;
+            endPoll();
             if (s.status === 'done') {
               p.innerHTML = '<b>done.</b>';
               if (m._log) { m._log.html = '<b>done.</b>'; m._log.job = null; }
@@ -410,8 +427,10 @@
           down(); persist();
         })
         .catch(function () {
+          inflight = false;
+          if (ended) return;
           if (++fails >= 4) {
-            clearInterval(state.poller); state.poller = null;
+            endPoll();
             note('lost the render — the backend stopped answering.');
             var acts = el('<div class="acts"></div>');
             acts.appendChild(actBtn({ label: 'RETRY', kind: 'primary', action: 'media.retrypoll', args: { job: jid } }));
@@ -419,6 +438,7 @@
           }
         });
     }, every);
+    state.poller = iv;
   }
 
   function receiptBlocks(s, jid) {
