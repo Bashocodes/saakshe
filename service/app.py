@@ -973,12 +973,32 @@ def media_quote(req: MediaQuoteRequest, sess: Session = Depends(_session_dep)) -
                             has_source_image=req.has_source_image, wants_hdr=True)
 
 
+def _auto_canvas(src_path: str) -> tuple[int, int]:
+    """Output canvas matched to the SOURCE's orientation — a landscape plate
+    must not come back as a 9:16 centre-crop (founder, 2026-06-12). Same pixel
+    budget as the old fixed 1080x1920 (so the quote's render-time model holds),
+    long edge capped at 1920, even dims for the 10-bit HEVC encoder."""
+    try:
+        from PIL import Image
+        with Image.open(src_path) as im:
+            iw, ih = im.size
+    except Exception:  # noqa: BLE001 — unreadable image → the old portrait default
+        return 1080, 1920
+    if not iw or not ih:
+        return 1080, 1920
+    budget = 1080 * 1920
+    ar = iw / ih
+    w = min(1920.0, (budget * ar) ** 0.5)
+    h = min(1920.0, w / ar)
+    return max(2, int(w // 2) * 2), max(2, int(h // 2) * 2)
+
+
 @app.post("/api/kalai/media/render")
 async def media_render(request: Request,
                        image: UploadFile = File(...),
                        fx: str = Form("sat_sort"), seconds: int = Form(4),
                        budget_usd: float = Form(1.0),
-                       width: int = Form(1080), height: int = Form(1920),
+                       width: int = Form(0), height: int = Form(0),
                        fps: int = Form(24),
                        sess: Session = Depends(_session_dep)) -> Any:
     _rate_limit(request, "media_render", capacity=4, per_seconds=300)
@@ -1006,6 +1026,8 @@ async def media_render(request: Request,
     src = tempfile.NamedTemporaryFile(suffix=".png", delete=False)
     src.write(await image.read())
     src.close()
+    if width <= 0 or height <= 0:        # the cockpit sends no dims — follow the source
+        width, height = _auto_canvas(src.name)
     _media_jobs[jid] = {"status": "rendering", "frame": 0,
                         "frames": q["seconds"] * fps, "quote": q,
                         # Tenancy: jobs are keyed by jid for lookup but OWNED by the

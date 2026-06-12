@@ -321,6 +321,9 @@
   });
 
   function viewHdr(jid, _retried) {
+    /* the cockpit canvas IS the screen — clear it to the player (founder,
+       2026-06-12); the new-tab blob below survives only as a fallback */
+    if (window.SK_VIEW_MEDIA) { SK_VIEW_MEDIA(jid); return; }
     /* the gated prod 401s a bare window.open (no Bearer on navigation) —
        fetch WITH the token and open the blob */
     dot('busy');
