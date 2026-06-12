@@ -11,11 +11,18 @@ why the router exists.
 """
 from __future__ import annotations
 
+import os
+
 IMAGEN_USD = 0.04                      # vertex imagen-4.0 still, published price
 VEO_USD_PER_SEC = 0.40                 # vertex veo, low tier, per output second
 CPU_USD_PER_VCPU_SEC = 0.000024        # cloud run tier-1 vCPU-second
 RENDER_VCPU_SEC_PER_OUTPUT_SEC = 11.0  # measured locally 2026-06-10 (1080x1920@24)
 MAX_SECONDS = 8
+# The render runs in a BACKGROUND thread on a request-throttled Cloud Run
+# instance — wall time stretches far past the pure-CPU estimate (a 4s clip was
+# observed at 10-20+ min on 2026-06-12). The COST math is untouched (the receipt
+# bills measured vCPU-seconds); only the wall-clock honesty changes.
+BG_WALL_FACTOR = float(os.environ.get("SAAKSHE_RENDER_WALL_FACTOR", "30"))
 
 
 def route(*, has_source_image: bool, wants_hdr: bool) -> tuple[str, str]:
@@ -46,7 +53,8 @@ def quote(*, seconds: int, budget_usd: float, has_source_image: bool,
     out = {"path": path, "seconds": seconds, "lines": lines, "total_usd": total,
            "budget_usd": budget_usd, "fits_budget": total <= budget_usd,
            "rationale": rationale,
-           "est_wall_sec": int(seconds * RENDER_VCPU_SEC_PER_OUTPUT_SEC / 2) + 12}
+           "est_wall_sec": int(seconds * RENDER_VCPU_SEC_PER_OUTPUT_SEC / 2
+                               * BG_WALL_FACTOR) + 60}
     if not out["fits_budget"]:
         out["counter_offer"] = None
         for s in range(seconds, 0, -1):

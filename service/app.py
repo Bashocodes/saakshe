@@ -1086,6 +1086,37 @@ def _persisted_media_job(jid: str, sess: Session) -> Optional[dict]:
     return None
 
 
+@app.get("/api/kalai/media/jobs")
+def media_jobs(sess: Session = Depends(_session_dep)) -> dict[str, Any]:
+    """The studio's job board — THIS founder's renders, live ones first, then
+    persisted finished ones. Lets the kalai panel show renders outside the chat."""
+    _require_auth_if_live(sess.user)
+    caller = sess.user.user_id if sess.user else ""
+    live, done, seen = [], [], set()
+    for jid, job in list(_media_jobs.items()):
+        if job.get("user_id", "") != caller:
+            continue
+        seen.add(jid)
+        row = {"job_id": jid, "status": job.get("status"),
+               "frame": job.get("frame", 0), "frames": job.get("frames", 0),
+               "error": (job.get("error") or "")[:120] or None,
+               "verify_ok": (job.get("verify") or {}).get("ok")}
+        (live if job.get("status") == "rendering" else done).append(row)
+    if not _is_judge(sess.user):
+        try:
+            for m in reversed(sess.store.get_messages(limit=200)):
+                meta = m.get("meta") or {}
+                if (meta.get("kind") == "render_done" and meta.get("job_id")
+                        and meta["job_id"] not in seen):
+                    seen.add(meta["job_id"])
+                    done.append({"job_id": meta["job_id"], "status": "done",
+                                 "persisted": True, "error": None,
+                                 "verify_ok": (meta.get("verify") or {}).get("ok")})
+        except Exception:  # noqa: BLE001 — the board is best-effort
+            pass
+    return {"jobs": (list(reversed(live)) + done)[:12]}
+
+
 @app.get("/api/kalai/media/job/{jid}")
 def media_job(jid: str, sess: Session = Depends(_session_dep)) -> Any:
     job = _owned_media_job(jid, sess) or _persisted_media_job(jid, sess)

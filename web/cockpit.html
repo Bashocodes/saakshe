@@ -2047,6 +2047,11 @@ html[data-theme="dark"] #sa-chatpane .ch-tab.on[data-q]{ background:var(--act); 
       if(q==='kural'){
         body += '<div class="gates-col" style="display:flex;flex-direction:column;gap:8px;margin-top:9px;">'+emptyGateHTML()+'</div>';
       }
+      if(q==='kalai'){
+        /* the studio strip — renders live here too, not only in the chat;
+           filled by the skStudio poller (background renders take minutes) */
+        body += '<div class="gates-col" id="skStudio" style="display:flex;flex-direction:column;gap:8px;margin-top:9px;"></div>';
+      }
       var panel = '<div class="panel"><div class="phead"><h3>'+icon('question','sm')+' '+q+' — needs you</h3>'
         +'<span class="ct">? '+rows.length+(q==='kural'?' · ✋ '+gateOpen():'')+'</span></div>'
         +'<div class="pbody tight">'+body+'</div></div>';
@@ -4436,7 +4441,58 @@ html[data-theme="dark"] #sa-chatpane .ch-tab.on[data-q]{ background:var(--act); 
 })();
 </script>
 <div id="sa-chatpane"></div>
-<script src="chat-panel.js?v=durable2"></script>
+<script>
+/* ── kalai studio strip — renders are visible OUTSIDE the chat (founder,
+   2026-06-12): the job board fills #skStudio on the kalai card, polled gently;
+   VIEW fetches with the Bearer token (a bare navigation would 401). ── */
+(function(){
+  "use strict";
+  function H(extra){ return (window.SA_HEADERS||Object)(extra||{}); }
+  function esc(s){ return String(s).replace(/[&<>"]/g,function(c){return({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c];}); }
+  function viewJob(jid,btn){
+    btn.disabled=true;
+    fetch('/api/kalai/media/file/'+jid,{headers:H()})
+      .then(function(r){ if(!r.ok) throw 0; return r.blob(); })
+      .then(function(bl){ btn.disabled=false; var u=URL.createObjectURL(bl);
+        window.open(u,'_blank','noopener'); setTimeout(function(){URL.revokeObjectURL(u);},60000); })
+      .catch(function(){ btn.disabled=false; btn.textContent='UNAVAILABLE'; });
+  }
+  function row(j){
+    if(j.status==='rendering'){
+      var pct=j.frames?Math.round(100*j.frame/j.frames):0;
+      return '<div class="gate idle"><div class="gtxt"><div class="gtitle"><span class="sdot idle"></span>'
+        +'rendering · frame '+(+j.frame||0)+'/'+(+j.frames||0)+' ('+pct+'%)</div>'
+        +'<div class="gsub">background render — takes minutes; lands here and in the chat when done.</div></div></div>';
+    }
+    if(j.status==='done'){
+      return '<div class="gate idle"><div class="gtxt"><div class="gtitle"><span class="sdot idle"></span>'
+        +'render ready'+(j.verify_ok?' · HDR ✓':'')+'</div>'
+        +'<div class="gsub">finished HDR clip — view it any time, even after a restart.</div></div>'
+        +'<button class="qbtn" type="button" style="flex:0 0 auto;width:auto;align-self:center;" data-skview="'+esc(j.job_id)+'">VIEW</button></div>';
+    }
+    return '<div class="gate idle"><div class="gtxt"><div class="gtitle"><span class="sdot idle"></span>render failed</div>'
+      +'<div class="gsub">'+esc(j.error||'the studio hit an error — nothing was charged.')+'</div></div></div>';
+  }
+  function fill(){
+    if(!document.getElementById('skStudio') || document.visibilityState!=='visible') return;
+    fetch('/api/kalai/media/jobs',{headers:H()})
+      .then(function(r){ return r.ok?r.json():null; })
+      .then(function(d){
+        var host=document.getElementById('skStudio');   // overview may have re-rendered
+        if(!d||!host) return;
+        host.innerHTML=(d.jobs||[]).map(row).join('');
+      }).catch(function(){});
+  }
+  document.addEventListener('click',function(e){
+    var b=e.target.closest('[data-skview]');
+    if(b) viewJob(b.getAttribute('data-skview'),b);
+  });
+  setInterval(fill,6000);
+  document.addEventListener('visibilitychange',fill);
+  setTimeout(fill,1200);
+})();
+</script>
+<script src="chat-panel.js?v=durable3"></script>
 <script>
 /* the box wake — once a day, the badge contracts into the bot */
 (function(){

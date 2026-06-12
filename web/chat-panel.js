@@ -53,6 +53,15 @@
   function bot(fn) { if (window.SK_BOT && SK_BOT[fn]) SK_BOT[fn](); }
   function dot(cls) { liveDot.className = 'live' + (cls ? ' ' + cls : ''); }
 
+  /* honest wall-clock label: the render runs in a throttled background thread,
+     so anything past 90s is shown as a MINUTES RANGE, never false precision */
+  function fmtEta(sec) {
+    sec = +sec || 0;
+    if (sec <= 90) return '~' + sec + 's';
+    var lo = Math.max(1, Math.round(sec / 60));
+    return '~' + lo + '–' + (lo * 2) + ' min';
+  }
+
   /* escape FIRST, then a tiny safe formatter: **bold**, `code`, bare links */
   function fmt(s) {
     return esc(s)
@@ -201,7 +210,9 @@
           '<span class="dv">' + sv + 's</span></div>' +
           '<input type="range" min="' + (+b.min || 1) + '" max="' + (+b.max || 8) + '" value="' + sv + '" aria-label="duration seconds">' +
           '<div class="quote"><span>est. cost</span><b class="qc">$' + (+q.total_usd || 0).toFixed(3) + '</b></div>' +
-          '<div class="quote"><span>est. render</span><b class="qt">~' + q.est_wall_sec + 's</b></div></div>');
+          '<div class="quote"><span>est. render</span><b class="qt">' + fmtEta(q.est_wall_sec) + '</b></div>' +
+          '<div style="opacity:.72;font-size:.85em;margin-top:5px;">renders in the background — ' +
+          'track it here or on the kalai card; it survives a closed tab.</div></div>');
         s.querySelector('input').oninput = function (e) {
           state.seconds = +e.target.value;
           s.querySelector('.dv').textContent = state.seconds + 's';
@@ -209,7 +220,7 @@
                                           has_source_image: true }).then(function (res) {
             if (!res.ok) return;
             s.querySelector('.qc').textContent = '$' + res.data.total_usd.toFixed(3);
-            s.querySelector('.qt').textContent = '~' + res.data.est_wall_sec + 's';
+            s.querySelector('.qt').textContent = fmtEta(res.data.est_wall_sec);
           });
         };
         last.appendChild(s);
@@ -364,7 +375,8 @@
   function pollJob(jid, mGiven) {
     if (state.pollEnd) state.pollEnd();        // a superseded poller must go fully dead
     if (state.poller) { clearInterval(state.poller); state.poller = null; }
-    var m = mGiven || msg('▲ KALAI · RENDERER', 'starting…');
+    var m = mGiven || msg('▲ KALAI · RENDERER',
+      'starting… — background render (takes minutes, not seconds). Watch it here or on the kalai card; safe to close this tab.');
     var p = m.querySelector('p');
     /* the log entry tracks the LIVE state (not the birth text) + the job id —
        that is what lets a refresh restore real progress and resume polling */
