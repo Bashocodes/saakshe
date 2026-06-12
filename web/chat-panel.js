@@ -237,13 +237,31 @@
     down(); persist();
   }
 
+  /* A 401 can just mean the access token aged out (1h) while the tab sat
+     backgrounded or the machine slept — refresh the session once and retry
+     before telling a signed-in founder they are signed out. Always safe to
+     retry: a 401'd request was rejected at auth and never executed. */
+  function recoverAuth() {
+    var A = window.SAAKSHE_AUTH;
+    if (!A || !A.refresh || !A.signedIn()) return Promise.resolve(false);
+    return Promise.resolve(A.refresh())
+      .then(function () { return !!A.signedIn(); })
+      .catch(function () { return false; });
+  }
+
   /* api() reports status honestly — a 401/402 is an ANSWER, never '…' */
-  function api(url, body) {
+  function api(url, body, _retried) {
     dot('busy');
     return fetch(url, { method: 'POST', headers: hdrs({ 'content-type': 'application/json' }),
                         body: JSON.stringify(body) })
       .then(function (r) {
         return r.json().catch(function () { return null; }).then(function (d) {
+          if (r.status === 401 && !_retried) {
+            return recoverAuth().then(function (ok) {
+              if (ok) return api(url, body, true);
+              dot('err'); return { ok: false, status: 401, data: d };
+            });
+          }
           dot(r.ok ? '' : 'err');
           return { ok: r.ok, status: r.status, data: d };
         });
@@ -302,13 +320,23 @@
     else if (action === 'media.view' && (args.job || state.job)) viewHdr(args.job || state.job);
   });
 
-  function viewHdr(jid) {
+  function viewHdr(jid, _retried) {
     /* the gated prod 401s a bare window.open (no Bearer on navigation) —
        fetch WITH the token and open the blob */
     dot('busy');
     fetch('/api/kalai/media/file/' + jid, { headers: hdrs({}) })
-      .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.blob(); })
+      .then(function (r) {
+        if (r.status === 401 && _retried !== true) {
+          return recoverAuth().then(function (ok) {
+            if (ok) { viewHdr(jid, true); return null; }
+            throw new Error('HTTP 401');
+          });
+        }
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.blob();
+      })
       .then(function (bl) {
+        if (bl == null) return;                     // handed off to the retry
         dot('');
         var u = URL.createObjectURL(bl);
         window.open(u, '_blank', 'noopener');
@@ -350,7 +378,7 @@
     return d;
   }
 
-  function startRender() {
+  function startRender(_retried) {
     if (!state.image) {
       var m = msg('▲ KALAI · PRODUCER', 'drop the source image — or click to choose:');
       m.appendChild(dropPlate(m)); down(); persist(); return;
@@ -362,8 +390,14 @@
     fd.append('budget_usd', state.budget);
     dot('busy');
     fetch('/api/kalai/media/render', { method: 'POST', headers: hdrs({}), body: fd })
-      .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, status: r.status, data: d }; }); })
+      .then(function (r) { return r.json().catch(function () { return null; }).then(function (d) { return { ok: r.ok, status: r.status, data: d }; }); })
       .then(function (res) {
+        if (res.status === 401 && _retried !== true) {
+          return recoverAuth().then(function (ok) {
+            if (ok) return startRender(true);
+            dot('err'); httpBubble(res, 'render');
+          });
+        }
         dot(res.ok ? '' : 'err');
         if (res.data && res.data.job_id) { state.job = res.data.job_id; pollJob(res.data.job_id); }
         else if (!res.ok) httpBubble(res, 'render');
@@ -391,7 +425,7 @@
        its own RETRY — the observed wall of buttons. And the interval id is
        captured locally: clearing via state.poller could kill a NEWER poller
        while this one keeps ticking forever. */
-    var fails = 0, every = 1500, ended = false, inflight = false, iv;
+    var fails = 0, every = 1500, ended = false, inflight = false, authTried = false, iv;
     function endPoll() {
       ended = true; clearInterval(iv);
       if (state.poller === iv) state.poller = null;
@@ -406,6 +440,20 @@
           if (!r.ok) {
             return r.json().catch(function () { return null; }).then(function (d) {
               if (ended) return null;
+              if (r.status === 401 && !authTried) {
+                /* the access token aged out mid-render — the render is still
+                   running server-side. Refresh the session and keep polling;
+                   only a 401 AFTER a refresh means really signed out. */
+                authTried = true;
+                return recoverAuth().then(function (ok) {
+                  if (ok || ended) return null;   // next tick rides the fresh token
+                  endPoll();
+                  note('render check failed.', true);
+                  httpBubble({ ok: false, status: 401, data: d }, 'check the render');
+                  down(); persist();
+                  return null;
+                });
+              }
               endPoll();
               if (r.status === 404) {
                 /* the backend restarted mid-render and no persisted record
@@ -424,7 +472,7 @@
         .then(function (s) {
           inflight = false;
           if (s == null || ended) return;
-          fails = 0;
+          fails = 0; authTried = false;
           if (s.status === 'rendering') {
             note('frame ' + s.frame + '/' + s.frames + ' · rendering…');
           } else {

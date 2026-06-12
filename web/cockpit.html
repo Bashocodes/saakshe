@@ -4210,8 +4210,7 @@ html[data-theme="dark"] #sa-chatpane .ch-tab.on[data-q]{ background:var(--act); 
     var sb = mod.createClient(CFG.supabase_url, CFG.anon_key,
       {auth:{persistSession:true, autoRefreshToken:true, detectSessionInUrl:true}});
     A._sb = sb;
-    async function refresh(){
-      var s=null; try{ s=(await sb.auth.getSession()).data.session; }catch(e){}
+    async function apply(s){
       A._token = s ? s.access_token : null;
       A._ready = true;
       if(A._token){
@@ -4220,8 +4219,22 @@ html[data-theme="dark"] #sa-chatpane .ch-tab.on[data-q]{ background:var(--act); 
       } else A._balance=null;
       render(); if(typeof A.onChange==="function") A.onChange();
     }
+    async function refresh(){
+      var s=null; try{ s=(await sb.auth.getSession()).data.session; }catch(e){}
+      await apply(s);
+    }
     A.refresh = refresh;
-    sb.auth.onAuthStateChange(function(){ refresh(); });
+    /* The session rides IN on the event — calling getSession() (or any other
+       auth method) inside this callback can deadlock on the client's internal
+       auth lock (supabase-js v2). When that hit, _token kept the hour-old JWT
+       after the silent TOKEN_REFRESHED, every API call 401'd, and a signed-in
+       founder was told "you are signed out". Stamp the fresh token
+       synchronously; defer the network work until the lock is released. */
+    sb.auth.onAuthStateChange(function(_ev, s){
+      A._token = s ? s.access_token : null;
+      A._ready = true;
+      setTimeout(function(){ apply(s); }, 0);
+    });
     await refresh();
   }
   A._retry = connectSupabase;
