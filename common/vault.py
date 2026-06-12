@@ -21,9 +21,18 @@ def _vault_dir(user: str) -> Path:
     return _DIR / "vault" / user
 
 
-def available() -> bool:
-    """True only when the live Supabase Storage backend is opted in + configured."""
-    if os.environ.get("SAAKSHE_STORE", "").strip().lower() != "supabase":
+def available(user: str = "founder") -> bool:
+    """True only when the live Supabase Storage backend is opted in + configured.
+
+    Mirrors project._make_store's gate exactly: SAAKSHE_STORE=supabase opts every
+    blob in; SAAKSHE_OWNER_STORE=supabase opts in PER-USER blobs (user != founder).
+    Without the second arm, the gated profile kept transcripts durable but wrote
+    render BYTES to the container disk — every redeploy orphaned the founder's
+    finished clips (done record, 404 file)."""
+    def _env(name: str) -> str:
+        return os.environ.get(name, "").strip().lower()
+    if _env("SAAKSHE_STORE") != "supabase" and not (
+            user != "founder" and _env("SAAKSHE_OWNER_STORE") == "supabase"):
         return False
     try:
         from . import supastore
@@ -36,7 +45,7 @@ def put(asset_id: str, data: bytes, content_type: str, *, user: str = "founder")
     """Store bytes; return a URI the index records. Live → Supabase Storage (fallback
     to demo disk on any error, never hard-fail an ingest). Demo → content-addressed
     file on disk + a deterministic `vault://<sha256[:16]>` URI."""
-    if available():
+    if available(user):
         try:
             return _live_put(asset_id, data, content_type, user=user)
         except Exception:
@@ -56,7 +65,7 @@ def get(uri: str, *, user: str = "founder") -> Optional[bytes]:
         for f in d.glob(f"{prefix}*") if d.exists() else []:
             return f.read_bytes()
         return None
-    if available():
+    if available(user):
         try:
             return _live_get(uri, user=user)
         except Exception:

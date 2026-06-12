@@ -311,7 +311,9 @@
     if (action === 'open.pricing') { window.open('/pricing.html', '_blank', 'noopener'); return; }
     if (action === 'nav.questions') { if (window.cockpitGo) window.cockpitGo('questions', null); return; }
     if (action === 'nav.connections') { if (window.cockpitGo) window.cockpitGo('manas', 'connections'); return; }
-    lockActs(b.closest('.acts'));
+    /* viewing and menus are repeatable — only acting/spending chips lock the
+       row (VIEW HDR used to go permanently dead after one click) */
+    if (action !== 'media.view' && action !== 'media.fxmenu') lockActs(b.closest('.acts'));
     if (action === 'media.render') startRender();
     else if (action === 'media.requote') { if (args.seconds) state.seconds = args.seconds; requote(); }
     else if (action === 'media.fxmenu') fxMenu();
