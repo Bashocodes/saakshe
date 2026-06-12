@@ -4461,8 +4461,13 @@ html[data-theme="dark"] #sa-chatpane .ch-tab.on[data-q]{ background:var(--act); 
     if(j.status==='rendering'){
       var pct=j.frames?Math.round(100*j.frame/j.frames):0;
       return '<div class="gate idle"><div class="gtxt"><div class="gtitle"><span class="sdot idle"></span>'
-        +'rendering · frame '+(+j.frame||0)+'/'+(+j.frames||0)+' ('+pct+'%)</div>'
+        +'rendering'+(j.resumed?' (auto-resumed)':'')+' · frame '+(+j.frame||0)+'/'+(+j.frames||0)+' ('+pct+'%)</div>'
         +'<div class="gsub">background render — takes minutes; lands here and in the chat when done.</div></div></div>';
+    }
+    if(j.status==='interrupted'){
+      return '<div class="gate idle"><div class="gtxt"><div class="gtitle"><span class="sdot idle"></span>'
+        +'render interrupted</div>'
+        +'<div class="gsub">a restart caught it mid-flight — it auto-resumes when the current render finishes.</div></div></div>';
     }
     if(j.status==='done'){
       return '<div class="gate idle"><div class="gtxt"><div class="gtitle"><span class="sdot idle"></span>'

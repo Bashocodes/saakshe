@@ -1006,23 +1006,46 @@ async def media_render(request: Request,
     src = tempfile.NamedTemporaryFile(suffix=".png", delete=False)
     src.write(await image.read())
     src.close()
-    out = src.name.replace(".png", "_hdr.mp4")
     _media_jobs[jid] = {"status": "rendering", "frame": 0,
                         "frames": q["seconds"] * fps, "quote": q,
                         # Tenancy: jobs are keyed by jid for lookup but OWNED by the
                         # creating user — retrieval must not be guessable cross-tenant.
                         "user_id": sess.user.user_id if sess.user else ""}
-    # Captured for the worker thread: the in-memory job table and /tmp die with
-    # the instance, so a finished render is ALSO written to the vault + the
-    # transcript — that record is what job/file fall back to after a restart.
+    # Durability BEFORE the first frame: the source image + job spec go to the
+    # vault/transcript now, so an instance death mid-render (deploy, crash) is
+    # recoverable — _resume_media_job restarts it from this record.
+    try:
+        from common import vault as blob
+        src_uri = blob.put(f"render_src_{jid}.png", open(src.name, "rb").read(),
+                           "image/png", user=sess.user.user_id if sess.user else "founder")
+        _remember_turn(sess, "kalai/producer",
+                       f"render started — {q['seconds']}s {fx.replace('_', ' ')}, background.",
+                       {"kind": "render_pending", "job_id": jid, "src_uri": src_uri,
+                        "fx": fx, "seconds": q["seconds"], "budget_usd": budget_usd,
+                        "width": width, "height": height, "fps": fps})
+    except Exception:  # noqa: BLE001 — durability is best-effort
+        pass
+    _spawn_render(jid, sess=sess, src_path=src.name, fx=fx, q=q,
+                  width=width, height=height, fps=fps,
+                  payer=payer, render_key=render_key)
+    return {"job_id": jid, "quote": q}
+
+
+def _spawn_render(jid: str, *, sess: Session, src_path: str, fx: str, q: dict,
+                  width: int, height: int, fps: int,
+                  payer=None, render_key: str = "") -> None:
+    """The one render worker — fresh starts and resumes share it. On success the
+    MP4 is copied to the vault + a render_done transcript row (what job/file fall
+    back to after a restart); on failure the original spend is refunded (fresh
+    starts only — a resume carries no new spend to refund)."""
     vault_user = sess.user.user_id if sess.user else "founder"
-    job_sess = sess
+    out = src_path.rsplit(".", 1)[0] + "_hdr.mp4"
 
     def _run() -> None:
         job = _media_jobs[jid]
         try:
             res = media_pipeline.render(
-                src_path=src.name, fx=fx, seconds=q["seconds"], out_path=out,
+                src_path=src_path, fx=fx, seconds=q["seconds"], out_path=out,
                 width=width, height=height, fps=fps,
                 progress=lambda i, n: job.update(frame=i, frames=n))
             job.update(status="done", out_path=res["out_path"], verify=res["verify"],
@@ -1033,7 +1056,7 @@ async def media_render(request: Request,
                 data = open(res["out_path"], "rb").read()
                 uri = blob.put(f"render_{jid}.mp4", data, "video/mp4", user=vault_user)
                 job["vault_uri"] = uri
-                _remember_turn(job_sess, "kalai/renderer",
+                _remember_turn(sess, "kalai/renderer",
                                f"render done — {q['seconds']}s {fx.replace('_', ' ')} HDR clip.",
                                {"kind": "render_done", "job_id": jid, "vault_uri": uri,
                                 "receipt": job["receipt"], "verify": job["verify"]})
@@ -1050,10 +1073,59 @@ async def media_render(request: Request,
                 except Exception:  # noqa: BLE001 — idempotent key; ops can replay
                     print(f"REFUND FAILED — replay refund for spend key {render_key!r}")
         finally:
-            os.unlink(src.name)
+            try:
+                os.unlink(src_path)
+            except OSError:
+                pass
 
     threading.Thread(target=_run, daemon=True).start()
-    return {"job_id": jid, "quote": q}
+
+
+_resume_lock = threading.Lock()
+
+
+def _resume_media_job(jid: str, sess: Session) -> Optional[dict]:
+    """An interrupted render (the instance died mid-flight) restarts from its
+    vaulted source the moment any owner surface asks about it. The original
+    spend stands — a resume never charges again. Reads only the caller's own
+    store, so tenancy holds."""
+    try:
+        pending = None
+        for m in reversed(sess.store.get_messages(limit=200)):
+            meta = m.get("meta") or {}
+            if meta.get("job_id") != jid:
+                continue
+            if meta.get("kind") == "render_done":
+                return None                      # it actually finished — nothing to resume
+            if meta.get("kind") == "render_pending":
+                pending = meta
+                break
+        if not pending or not pending.get("src_uri"):
+            return None
+        from common import vault as blob
+        data = blob.get(pending["src_uri"], user=sess.user.user_id if sess.user else "founder")
+        if not data:
+            return None
+        fps = int(pending.get("fps") or 24)
+        q = media_crew.quote(seconds=int(pending.get("seconds") or 4),
+                             budget_usd=float(pending.get("budget_usd") or 1.0),
+                             has_source_image=True, wants_hdr=True)
+        with _resume_lock:                       # two polling tabs must not double-spawn
+            if jid in _media_jobs:
+                return _media_jobs[jid]
+            src = tempfile.NamedTemporaryFile(suffix=".png", delete=False)
+            src.write(data)
+            src.close()
+            _media_jobs[jid] = {"status": "rendering", "frame": 0,
+                                "frames": q["seconds"] * fps, "quote": q, "resumed": True,
+                                "user_id": sess.user.user_id if sess.user else ""}
+        _spawn_render(jid, sess=sess, src_path=src.name,
+                      fx=str(pending.get("fx") or "sat_sort"), q=q,
+                      width=int(pending.get("width") or 1080),
+                      height=int(pending.get("height") or 1920), fps=fps)
+        return _media_jobs[jid]
+    except Exception:  # noqa: BLE001 — a failed resume reads as unknown job
+        return None
 
 
 def _owned_media_job(jid: str, sess: Session) -> Optional[dict]:
@@ -1104,14 +1176,31 @@ def media_jobs(sess: Session = Depends(_session_dep)) -> dict[str, Any]:
         (live if job.get("status") == "rendering" else done).append(row)
     if not _is_judge(sess.user):
         try:
+            resumed_one = False
             for m in reversed(sess.store.get_messages(limit=200)):
                 meta = m.get("meta") or {}
-                if (meta.get("kind") == "render_done" and meta.get("job_id")
-                        and meta["job_id"] not in seen):
-                    seen.add(meta["job_id"])
-                    done.append({"job_id": meta["job_id"], "status": "done",
+                mjid, kind = meta.get("job_id"), meta.get("kind")
+                if not mjid or mjid in seen:
+                    continue
+                if kind == "render_done":
+                    seen.add(mjid)
+                    done.append({"job_id": mjid, "status": "done",
                                  "persisted": True, "error": None,
                                  "verify_ok": (meta.get("verify") or {}).get("ok")})
+                elif kind == "render_pending":
+                    # interrupted mid-flight (no done record, not in memory) —
+                    # auto-resume the NEWEST one; older ones wait their turn so a
+                    # cold instance isn't asked to render everything at once.
+                    seen.add(mjid)
+                    rj = None if resumed_one else _resume_media_job(mjid, sess)
+                    if rj:
+                        resumed_one = True
+                        live.append({"job_id": mjid, "status": "rendering", "resumed": True,
+                                     "frame": rj.get("frame", 0), "frames": rj.get("frames", 0),
+                                     "error": None, "verify_ok": None})
+                    else:
+                        done.append({"job_id": mjid, "status": "interrupted", "error": None,
+                                     "verify_ok": None})
         except Exception:  # noqa: BLE001 — the board is best-effort
             pass
     return {"jobs": (list(reversed(live)) + done)[:12]}
@@ -1119,7 +1208,8 @@ def media_jobs(sess: Session = Depends(_session_dep)) -> dict[str, Any]:
 
 @app.get("/api/kalai/media/job/{jid}")
 def media_job(jid: str, sess: Session = Depends(_session_dep)) -> Any:
-    job = _owned_media_job(jid, sess) or _persisted_media_job(jid, sess)
+    job = (_owned_media_job(jid, sess) or _persisted_media_job(jid, sess)
+           or _resume_media_job(jid, sess))
     if not job:
         return JSONResponse(status_code=404, content={"error": "unknown job"})
     return job

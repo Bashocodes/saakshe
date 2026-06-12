@@ -85,3 +85,27 @@ def test_render_survives_a_restart_via_the_persisted_record():
     assert s2.get("verify", {}).get("ok") is True
     f = client.get(f"/api/kalai/media/file/{jid}")
     assert f.status_code == 200 and f.headers["content-type"] == "video/mp4"
+
+
+def test_interrupted_render_auto_resumes_from_the_vaulted_source():
+    """A render the instance lost mid-flight (deploy/crash) restarts from its
+    render_pending record the moment the owner polls it — no new charge."""
+    from uuid import uuid4
+    from common import project, vault
+    jid = uuid4().hex
+    src_uri = vault.put(f"render_src_{jid}.png", _png_bytes(), "image/png", user="founder")
+    project.STORE.append_message(
+        "kalai/producer", "render started — 1s ripple, background.",
+        meta={"kind": "render_pending", "job_id": jid, "src_uri": src_uri,
+              "fx": "ripple", "seconds": 1, "budget_usd": 1.0,
+              "width": 16, "height": 28, "fps": 8})
+    s = client.get(f"/api/kalai/media/job/{jid}").json()   # the poll IS the resume
+    assert s.get("status") in ("rendering", "done"), s
+    for _ in range(120):
+        s = client.get(f"/api/kalai/media/job/{jid}").json()
+        if s.get("status") in ("done", "error"):
+            break
+        time.sleep(0.5)
+    assert s.get("status") == "done", s
+    f = client.get(f"/api/kalai/media/file/{jid}")
+    assert f.status_code == 200 and f.headers["content-type"] == "video/mp4"
