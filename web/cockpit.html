@@ -1951,7 +1951,7 @@ html[data-theme="dark"] .ovstrip{ box-shadow:none; }
         if(d && d.realms && d.total){
           SK_STAFF = d;
           var ne=document.getElementById('staffNavCt'); if(ne) ne.textContent=String(d.total);
-          if(STATE.view==='staff'){ render(); }
+          if(STATE.view==='staff'){ renderQuiet(render); }
         }
       }).catch(function(){});
     }catch(e){}
@@ -2006,7 +2006,7 @@ html[data-theme="dark"] .ovstrip{ box-shadow:none; }
       if(res[1] && res[1].assets){ VAULT.assets=res[1].assets; VAULT.note=''; }
       var changed = applyPresence();
       renderBrandShelf();
-      if(changed && STATE.view==='manas'){ render(); }
+      if(changed && STATE.view==='manas'){ renderQuiet(render); }
     });
   }
   setTimeout(fetchPresence, 400);                       /* once at boot */
@@ -2918,6 +2918,12 @@ html[data-theme="dark"] .ovstrip{ box-shadow:none; }
   }
 
   /* ================= RENDER + ROUTER ================= */
+  /* QUIET = a data-driven repaint (status reveal, presence refresh, an answer
+     landing) — the DOM still rebuilds but the .fadein entrance must NOT replay,
+     or every refresh visibly flickers when /api/connect/status lands after the
+     first paint (founder, 2026-06-12). User navigation keeps the fade. */
+  var QUIET = false;
+  function renderQuiet(fn){ QUIET = true; try{ fn(); } finally { QUIET = false; } }
   function render(){
     var v = STATE.view, sub = STATE.sub, html='';
     if(sub){
@@ -2934,7 +2940,7 @@ html[data-theme="dark"] .ovstrip{ box-shadow:none; }
       html = (BUILD[v]||BUILD.overview)();
     }
     stage.innerHTML = html;
-    if(!reduced){ var f=stage.firstElementChild; if(f) f.classList.add('fadein'); }
+    if(!reduced && !QUIET){ var f=stage.firstElementChild; if(f) f.classList.add('fadein'); }
     document.documentElement.setAttribute('data-view', STATE.view);  /* topbar overview active-state */
     syncNav();
     refreshMirrors();
@@ -3045,7 +3051,7 @@ html[data-theme="dark"] .ovstrip{ box-shadow:none; }
     refreshMirrors();
     /* flip any open qans: chips in the chat log to "reply answered" */
     if(replyResolved && typeof syncChatChips==='function'){ syncChatChips(); }
-    if(STATE.view==='overview' || STATE.view==='questions'){ render(); }
+    if(STATE.view==='overview' || STATE.view==='questions'){ renderQuiet(render); }
   }
 
   /* every in-view question counter, in one pass — shared by the demo answer
@@ -3111,7 +3117,7 @@ html[data-theme="dark"] .ovstrip{ box-shadow:none; }
     syncGateCards();
     refreshMirrors();
     if(typeof syncChatChips==='function') syncChatChips();
-    if(STATE.view==='overview'){ render(); }
+    if(STATE.view==='overview'){ renderQuiet(render); }
   }
 
   /* ===== TOOLTIP PORTAL — one body-level fixed element so a [data-tip] inside
@@ -3439,8 +3445,10 @@ html[data-theme="dark"] .ovstrip{ box-shadow:none; }
   }
   window.cockpitSetOrg = function(status){
     syncOrgState(status);
-    /* re-render the current view so every interpolated ORG/version refreshes */
-    if(typeof fromHash==='function') fromHash();
+    /* re-render the current view so every interpolated ORG/version refreshes —
+       QUIETLY: this fires on every page load after the first paint, and a
+       replayed entrance animation reads as the whole stage flickering */
+    renderQuiet(function(){ if(typeof fromHash==='function') fromHash(); });
   };
   /* the quiet variant — refresh state + every counter WITHOUT rebuilding the
      stage (used after an in-cockpit answer so the committed card stays in view) */
@@ -4759,6 +4767,13 @@ html[data-theme="dark"] .ovstrip{ box-shadow:none; }
       .then(function(d){
         var host=document.getElementById('skStudio');   // overview may have re-rendered
         if(!d||!host) return;
+        /* repaint ONLY when the board actually changed — rewriting identical
+           HTML every 6s tick made the strip flicker (founder, 2026-06-12).
+           The signature rides the element, so a re-rendered (fresh, empty)
+           host always takes the first fill. */
+        var sig=(d.jobs||[]).map(function(j){ return j.job_id+':'+j.status+':'+(j.frame||0); }).join('|');
+        if(host.getAttribute('data-sig')===sig) return;
+        host.setAttribute('data-sig', sig);
         host.innerHTML=(d.jobs||[]).map(row).join('');
       }).catch(function(){});
   }
@@ -4772,18 +4787,8 @@ html[data-theme="dark"] .ovstrip{ box-shadow:none; }
 })();
 </script>
 <script src="chat-panel.js?v=palette2"></script>
-<script>
-/* the box wake — once a day, the badge contracts into the bot */
-(function(){
-  try{
-    var k='sk-boxwake-day', d=new Date().toISOString().slice(0,10);
-    if(localStorage.getItem(k)!==d){
-      localStorage.setItem(k,d);
-      var b=document.querySelector('.tb-brand');
-      if(b) b.classList.add('wake');
-    }
-  }catch(e){}
-})();
-</script>
+<!-- the legacy once-a-day box-wake script is retired: the main script owns the
+     wake on a ~20s heartbeat, and two owners restarted the animation mid-flight
+     at boot — the topbar visibly snapped (founder flicker report, 2026-06-12). -->
 </body>
 </html>
