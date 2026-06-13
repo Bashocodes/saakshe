@@ -1,11 +1,11 @@
 """kural — the delivery chamber (4 deep readers + the delivery planner).
 
-After the separation fix kural authors NOTHING. The delivery chamber decides the
-ONE thing the mouth owns: HOW to carry kalai's cleared master out — to whom
-(segment), when (window), and which pre-authored variant. It never writes a word:
-the planner PICKS a variant; a deterministic assembler copies kalai's
-``formats[variant]`` VERBATIM into the plan, so the carried text is kalai's,
-byte-for-byte (the planner's schema has no ``text`` field — it cannot author).
+kural AUTHORS the copy (the Outreach Writer's draft); the delivery chamber decides
+the OTHER thing the mouth owns: HOW to carry that copy out — to whom (segment), when
+(window), and which authored variant. The planner never writes a word: it PICKS a
+variant; a deterministic assembler copies the chosen ``DRAFT[variant]`` VERBATIM
+into the plan (the planner's schema has no ``text`` field — it cannot author). When
+no draft exists yet it falls back to kalai's ``formats[variant]``, fail-closed.
 
 Four disjoint Gemini readers (consent · reach · topic-fit · timing) fan out in
 parallel — the kural-arivu panel, each citing the org's own grounding — then a
@@ -68,16 +68,14 @@ def _master_formats(state) -> dict:
 
 
 def _carried_formats(state) -> dict:
-    """The per-channel variants the mouth carries: under faculty-v2, kural's OWN
-    authored draft (the Outreach Writer's StateKeys.DRAFT, channel keys only); in
-    v1, kalai's master formats carried verbatim. Falls back to the master formats
-    if v2 is on but no draft exists yet (fail-closed — never invents text)."""
-    if config.faculty_v2():
-        draft = state.get(StateKeys.DRAFT) or {}
-        draft = draft if isinstance(draft, dict) else parse_json(draft)
-        variants = {k: v for k, v in draft.items() if k in ("x", "ig", "linkedin")}
-        if variants:
-            return variants
+    """The per-channel variants the mouth carries: kural's OWN authored draft (the
+    Outreach Writer's StateKeys.DRAFT, channel keys only). Falls back to kalai's
+    master formats if no draft exists yet (fail-closed — never invents text)."""
+    draft = state.get(StateKeys.DRAFT) or {}
+    draft = draft if isinstance(draft, dict) else parse_json(draft)
+    variants = {k: v for k, v in draft.items() if k in ("x", "ig", "linkedin")}
+    if variants:
+        return variants
     return _master_formats(state)
 
 
@@ -171,9 +169,10 @@ def build_delivery_planner() -> LlmAgent:
 
 
 class DeliveryAssembler(BaseAgent):
-    """Deterministically assemble the delivery plan: copy kalai's chosen variant
-    VERBATIM. The planner picked a variant; this guarantees the carried text is
-    kalai's ``formats[variant]`` byte-for-byte — kural authors nothing, ever."""
+    """Deterministically assemble the delivery plan: copy the chosen variant
+    VERBATIM. The planner picked a variant; this guarantees the carried text is the
+    authored ``DRAFT[variant]`` byte-for-byte (kalai's ``formats[variant]`` as the
+    fail-closed fallback) — the planner authors nothing, ever."""
 
     async def _run_async_impl(
         self, ctx: InvocationContext
@@ -186,9 +185,9 @@ class DeliveryAssembler(BaseAgent):
         if variant not in formats:
             # Fail-closed to a real, pre-authored variant — never invent text.
             variant = next(iter(formats), "")
-        # faculty-v2: when kural authored a draft, the carried text is kural's OWN
-        # words (authored). In v1 it's kalai's, byte-for-byte (carries_kalai_words).
-        authored = config.faculty_v2() and bool(state.get(StateKeys.DRAFT))
+        # When kural authored a draft, the carried text is kural's OWN words
+        # (authored); otherwise it falls back to kalai's master formats verbatim.
+        authored = bool(state.get(StateKeys.DRAFT))
         plan = {
             "variant": variant,
             "segment": pick.get("segment", "the consented, topic-fit slice"),

@@ -1,15 +1,17 @@
 """kural — the mouth as ADK agents.
 
-The seats (after the separation fix — kural authors nothing):
+The seats (kural is the word faculty — it AUTHORS the copy):
 
-  * Envoy Lead / Coordinator      — CLAUDE · the qualify decision, the spine entry
-  * Prospect Scout, Market Watcher — Gemini · disjoint research, in a ParallelAgent
-  * Email Envoy (Sender), Channel Mouth (Publisher) — Gemini · the channel desk
+  * Envoy Lead / Coordinator        — CLAUDE · the qualify decision, the spine entry
+  * Delivery readers (consent · reach · topic-fit · timing) — Gemini · a ParallelAgent
+  * Outreach Writer                 — Gemini · authors the caption + per-channel copy
+  * Claim Judge                     — CLAUDE · fact-checks every authored claim
+  * Email Envoy (Sender), Channel Mouth (Publisher) — the channel desk
     (driven by the runner's gate, NOT inside root_agent — see agent.py)
 
-The old Outreach Writer + Claim Judge are retired: kalai owns all copy (caption +
-every channel variant, fact-checked in its own fidelity loop), and kural carries
-that cleared master untouched. One company, one author.
+kalai is media-only; the Outreach Writer drafts the caption + every channel variant
+in the founder's voice and the Claim Judge fact-checks every claim before the gate.
+One company, one author of the words.
 
 The Claude qualify seat is forced through an ADK ``output_schema`` (pydantic) so a
 live reply can never collapse to prose. This is arivu's VerdictSchema discipline
@@ -82,13 +84,12 @@ def build_coordinator() -> LlmAgent:
 
 # The research fan-out (Prospect Scout + Market Watcher) was replaced in Phase 4 by
 # the four deep delivery readers (consent · reach · topic-fit · timing) — see
-# kural/delivery.py. kural still authors nothing; the readers feed the planner.
+# kural/delivery.py. The readers feed the planner; the Outreach Writer owns the copy.
 
 
-# ─── faculty-v2: kural AUTHORS the words (Outreach Writer + Claim Judge) ───────
-# kalai is media-only now; the WORD faculty writes the copy and a Claim Judge
-# proves every claim before the gate. Both seats are gated into the graph only
-# under SAAKSHE_FACULTY_V2 (see agent.build_root_agent); v1 stays authoring-free.
+# ─── kural AUTHORS the words (Outreach Writer + Claim Judge) ──────────────────
+# kalai is media-only; the WORD faculty writes the copy and a Claim Judge proves
+# every claim before the gate (see agent.build_root_agent).
 class OutreachDraftSchema(BaseModel):
     caption: str = Field(description="the one caption — the founder's plain, candid line")
     x: str = Field(description="the X variant")

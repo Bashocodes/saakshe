@@ -1,12 +1,12 @@
 """Pin the delivery chamber (Phase 4) — 4 deep readers + a planner that PICKS,
 authors nothing.
 
-kural's only owned decision is HOW to carry kalai's cleared master out: the four
-disjoint readers (consent · reach · topic-fit · timing) surface delivery facts, a
-Claude planner selects variant × segment × window, and a deterministic assembler
-copies kalai's pre-authored ``formats[variant]`` VERBATIM. The mouth never writes a
-word — the planner's schema has no ``text`` field, and the carried text is kalai's,
-byte-for-byte.
+kural AUTHORS the copy (the Outreach Writer's draft); the delivery chamber decides
+HOW to carry it out: the four disjoint readers (consent · reach · topic-fit ·
+timing) surface delivery facts, a Claude planner selects variant × segment × window,
+and a deterministic assembler copies the authored ``DRAFT[variant]`` VERBATIM. The
+planner never writes a word — its schema has no ``text`` field; the carried text is
+the authored draft, byte-for-byte (kalai's ``formats`` as the fail-closed fallback).
 """
 
 from __future__ import annotations
@@ -39,19 +39,14 @@ async def test_four_delivery_readers_run_and_planner_picks():
     assert plan["segment"] and plan["window"]
 
 
-async def test_planner_carries_words():
+async def test_planner_carries_authored_words():
     state = await runner._run_engagement(_MASTER, _PACK)
     plan = state.get(StateKeys.DELIVERY_PLAN)
     plan = plan if isinstance(plan, dict) else runner.parse_json(plan)
-    if config.faculty_v2():
-        # faculty-v2: kural AUTHORED the words — its own draft, not kalai's master.
-        assert plan["carries_kalai_words"] is False
-        assert plan.get("authored_by") == "kural"
-        assert plan["text"] and plan["text"] != _MASTER["formats"][plan["variant"]]
-    else:
-        # v1: the carried text is kalai's pre-authored variant, BYTE-FOR-BYTE.
-        assert plan["text"] == _MASTER["formats"][plan["variant"]]
-        assert plan["carries_kalai_words"] is True
+    # kural AUTHORED the words — its own draft, not kalai's master.
+    assert plan["carries_kalai_words"] is False
+    assert plan.get("authored_by") == "kural"
+    assert plan["text"] and plan["text"] != _MASTER["formats"][plan["variant"]]
 
 
 async def test_assembler_fails_closed_to_a_real_variant_never_invents_text():
@@ -82,12 +77,6 @@ async def test_delivery_readers_in_transcript():
                  "Timing Reader", "Delivery Planner"):
         assert seat in actors
     post = res.state["post"]
-    if config.faculty_v2():
-        # kural authors — the Writer + Judge appear; the post carries kural's words.
-        assert "Outreach Writer" in actors and "Claim Judge" in actors
-        assert post["delivery"]["text"] == post["drafts"][post["delivery"]["variant"]]
-    else:
-        # v1: no authoring seats; the post carries kalai's formats untouched.
-        assert "Outreach Writer" not in actors and "Claim Judge" not in actors
-        assert post["drafts"] == _MASTER["formats"]
-        assert post["delivery"]["text"] == _MASTER["formats"][post["delivery"]["variant"]]
+    # kural authors — the Writer + Judge appear; the post carries kural's words.
+    assert "Outreach Writer" in actors and "Claim Judge" in actors
+    assert post["delivery"]["text"] == post["drafts"][post["delivery"]["variant"]]

@@ -126,8 +126,8 @@ def _verdict_of(arivu_state: dict) -> dict:
 
 
 def _kalai_media_cleared(res) -> bool:
-    """faculty-v2: kalai's media clearance. kalai already refuses handoff when not
-    cleared (handoff ⇒ cleared); read the explicit marker defensively."""
+    """kalai's media clearance. kalai already refuses handoff when not cleared
+    (handoff ⇒ cleared); read the explicit marker defensively."""
     try:
         out = res.output if isinstance(res.output, dict) else {}
         return out.get("compliance", "cleared") == "cleared"
@@ -136,11 +136,8 @@ def _kalai_media_cleared(res) -> bool:
 
 
 def _kural_copy_claim_checked(res) -> bool:
-    """faculty-v2: kural claim-checked the words it authored (copy_claim_checked on
-    its carry-state). v1 kural authors nothing — the copy was cleared by kalai — so
-    this defaults True and the joined-clearance is a no-op under v1."""
-    if not config.faculty_v2():
-        return True
+    """kural claim-checked the words it authored (copy_claim_checked on its
+    carry-state) — the orchestrator ANDs it with kalai's media clearance at tap-2."""
     try:
         st = res.state if isinstance(res.state, dict) else {}
         return bool(st.get("copy_claim_checked", False))
@@ -365,9 +362,8 @@ async def _after_decision(state: FlywheelState, stream: EventStream) -> None:
         state.step = "kural_blocked"
         return
     state.kural_copy_claim_checked = _kural_copy_claim_checked(kural_res)
-    # faculty-v2 JOINED-CLEARANCE: a media-cleared but copy-UNCHECKED post must NOT
-    # reach tap-2. v1 leaves both flags True, so this is a no-op there.
-    if config.faculty_v2() and not (state.kalai_media_cleared and state.kural_copy_claim_checked):
+    # JOINED-CLEARANCE: a media-cleared but copy-UNCHECKED post must NOT reach tap-2.
+    if not (state.kalai_media_cleared and state.kural_copy_claim_checked):
         state.status = "no_safe_decision"
         state.step = ("kural_copy_unchecked" if not state.kural_copy_claim_checked
                       else "kalai_media_unclear")

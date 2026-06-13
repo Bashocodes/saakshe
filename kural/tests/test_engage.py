@@ -1,8 +1,8 @@
 """End-to-end engagement test, in demo mode (full ADK orchestration, replayed LLM).
 
 The whole pipeline runs — Coordinator (Claude) qualify, the ParallelAgent research
-fan-out, the send-eligibility gate — and HALTS at g2 awaiting the founder's tap-2.
-kural authors nothing: it carries kalai's cleared master untouched. The publish is
+fan-out, the Outreach Writer + Claim Judge (kural authors the copy), the
+send-eligibility gate — and HALTS at g2 awaiting the founder's tap-2. The publish is
 the separate, human-approved step, dry-run by default and only real when dry_run=False.
 """
 
@@ -24,31 +24,23 @@ _MASTER = {
 _PACK = {"version": config.CANON["context_pack_from"], "topic": "pricing", "grounded": True}
 
 
-# ─── separation fix #1: kural carries kalai's words untouched ─────────────────
-async def test_kural_carries_or_authors_the_words():
+# ─── kural authors its own words (the word faculty) ───────────────────────────
+async def test_kural_authors_the_words():
     master = {"asset_id": "a1", "brief": "b", "caption": "KALAI CAPTION",
               "formats": {"x": "KALAI X", "ig": "KALAI IG", "linkedin": "KALAI LI"},
               "fidelity_score": 9.1, "compliance": "cleared", "spend_usd": 1.2}
     res = await runner.engage(EventStream(), "fw", master, _PACK)
     post = res.state["post"] if "post" in res.state else res.output
-    assert res.status == "awaiting_approval"       # still halts at tap-2 in both
-    if config.faculty_v2():
-        # kural AUTHORED its own words (not kalai's) and the Claim Judge proved them.
-        assert post["drafts"] != master["formats"]
-        assert post["claim_support"] >= 0.80
-    else:
-        # v1: kural carried kalai's EXACT words — authored nothing of its own.
-        assert post["drafts"] == master["formats"]
-        assert "claim_support" not in post         # the judge is gone
+    assert res.status == "awaiting_approval"       # halts at tap-2
+    # kural AUTHORED its own words (not kalai's) and the Claim Judge proved them.
+    assert post["drafts"] != master["formats"]
+    assert post["claim_support"] >= 0.80
 
 
-async def test_writer_and_judge_presence_matches_faculty():
+async def test_writer_and_judge_are_in_the_pipeline():
     res = await runner.engage(EventStream(), "fw", _MASTER, _PACK)
     actors = " ".join(l["actor"] for l in res.transcript)
-    if config.faculty_v2():
-        assert "Outreach Writer" in actors and "Claim Judge" in actors
-    else:
-        assert "Outreach Writer" not in actors and "Claim Judge" not in actors
+    assert "Outreach Writer" in actors and "Claim Judge" in actors
     assert "Scout" in actors or "Delivery" in actors
 
 
@@ -108,16 +100,12 @@ async def test_engage_emits_the_seat_transcript():
     s = EventStream()
     res = await runner.engage(s, "run2", _MASTER, _PACK)
     actors = " ".join(t["actor"] for t in res.transcript)
-    # The Phase-4 seats: qualify, the four delivery readers, the Claude delivery
-    # planner, the channel desk. No Outreach Writer / Claim Judge — kural authors
-    # nothing; the planner only PICKS a pre-authored variant.
+    # The seats: qualify, the four delivery readers, the Outreach Writer + Claim
+    # Judge (kural authors the words), the Claude delivery planner, the channel desk.
     for seat in ("Envoy Lead", "Consent Reader", "Reach Reader", "Topic-fit Reader",
                  "Timing Reader", "Delivery Planner", "Email Envoy", "Channel Mouth"):
         assert seat in actors
-    if config.faculty_v2():
-        assert "Outreach Writer" in actors and "Claim Judge" in actors
-    else:
-        assert "Outreach Writer" not in actors and "Claim Judge" not in actors
+    assert "Outreach Writer" in actors and "Claim Judge" in actors
     # The sealed price appears in the gate proposal (never a forbidden number).
     proposal = next(e for e in s.all() if e.kind == "gate").text
     assert str(config.CANON["verdict_price_to"]) in proposal

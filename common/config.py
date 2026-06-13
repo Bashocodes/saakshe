@@ -110,17 +110,6 @@ EXAMPLE_MCP_SECRET_FILE = os.path.expanduser(
 # real side effect ONLY when dry_run is False *and* a human approved at a gate.
 EXECUTOR_DRY_RUN = _flag("SAAKSHE_EXECUTOR_DRY_RUN", True)
 
-# ─── Faculty re-assignment (the v2 migration switch) ─────────────────────────
-# The four-faculty re-assignment — manas CUSTODIES the keys (channel + provider) ·
-# kalai = media only · kural AUTHORS all copy · arivu decides. Phase 3 flipped the
-# default ON (go-live); the flag STAYS as the rollback path: SAAKSHE_FACULTY_V2=0
-# restores the pre-migration behavior, byte for byte. A function (not a module
-# constant) so tests can set the env and re-read it. The gate (scripts/test_all.sh)
-# runs BOTH states so the rollback path can never silently rot.
-def faculty_v2() -> bool:
-    return _flag("SAAKSHE_FACULTY_V2", True)
-
-
 # ─── Observability ───────────────────────────────────────────────────────────
 OTEL_CONSOLE = _flag("SAAKSHE_OTEL_CONSOLE", True)
 BIGQUERY_DATASET = os.environ.get("SAAKSHE_BIGQUERY_DATASET", "")

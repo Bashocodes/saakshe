@@ -204,7 +204,7 @@ AGENTS = [
     _a("channel_mouth", "ChMo", "Channel Mouth", "platform publisher",
        "kural", "action", "deterministic", "live",
        "The one mouth. Streams: X · Instagram · LinkedIn live; Pinterest · YouTube "
-       "planned. Assembles kalai's words verbatim and publishes only past tap-2."),
+       "planned. Assembles kural's own authored words verbatim and publishes only past tap-2."),
     _a("outreach_writer", "OuWr", "Outreach Writer", "founder-voice draft author",
        "kural", "action", "gemini-flash", "live",
        "Authors the consented outreach copy in the founder's voice — kural writes the words now."),

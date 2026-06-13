@@ -3,14 +3,16 @@
 The ONE earned engagement pipeline (after the separation fix):
 
     envoy_lead (Claude · Vertex · qualify + spine entry, grounds)
-      → ParallelAgent: research fan-out (Prospect Scout + Market Watcher, Gemini)
+      → ParallelAgent: delivery fan-out (consent · reach · topic-fit · timing, Gemini)
+      → outreach_writer (Gemini · authors the copy) → claim_judge (Claude · fact-checks)
+      → delivery_planner (Claude · PICKS variant×segment×window) → assembler
       → gate (HALTS — the publish sign-off is the founder's tap 2, NOT auto)
 
-kural authors NOTHING. kalai owns all copy (caption + every channel variant,
-fact-checked in its own fidelity loop); kural reads that cleared master, qualifies
-the engagement, researches the audience/timing in parallel, and HALTS at the
-publish gate. The old Outreach Writer + Claim Judge are retired — kural carries
-kalai's master untouched, so the company has exactly one mouth and one author.
+kalai is media-only; kural AUTHORS all copy. The Outreach Writer drafts the caption
++ every channel variant in the founder's voice, the Claim Judge fact-checks every
+claim, and the planner then PICKS how to carry it out — qualifying the engagement
+and reading audience/timing in parallel before it HALTS at the publish gate. One
+company, one mouth, one author of the words.
 
 Parallel is *earned* here: the two research lenses are genuinely disjoint
 (audience vs timing) and independent, so they belong in a ParallelAgent. The gate
@@ -34,8 +36,6 @@ from google.adk.agents import (
 )
 from google.adk.agents.invocation_context import InvocationContext
 from google.adk.events import Event, EventActions
-
-from common import config
 
 from . import delivery, grounding, sub_agents
 from .state import StateKeys
@@ -81,12 +81,11 @@ def build_root_agent() -> SequentialAgent:
         sub_agents=delivery.build_delivery_readers(),
     )
     seats = [coordinator, readers]
-    if config.faculty_v2():
-        # faculty-v2: kalai is media-only — kural AUTHORS the words. The Outreach
-        # Writer drafts the copy and the Claim Judge fact-checks it BEFORE the
-        # planner picks how to carry it out. (v1: kural authors nothing.)
-        seats.append(sub_agents.build_outreach_writer())
-        seats.append(sub_agents.build_claim_judge())
+    # kalai is media-only — kural AUTHORS the words. The Outreach Writer drafts the
+    # copy and the Claim Judge fact-checks it BEFORE the planner picks how to carry
+    # it out.
+    seats.append(sub_agents.build_outreach_writer())
+    seats.append(sub_agents.build_claim_judge())
     seats.append(delivery.build_delivery_planner())
     seats.append(delivery.DeliveryAssembler(name="delivery_assembler"))
     seats.append(GateAgent(name="gate"))

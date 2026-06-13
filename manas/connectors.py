@@ -16,8 +16,8 @@ SAAKSHE_CHANNEL_STATS_URL) so the deploy passthrough + its test are untouched an
 a revert is pure code. Secrets are read LAZILY at call time — never at import,
 never logged.
 
-Registered A2A skills (always registered, inert under v1 — nobody dispatches to
-them until SAAKSHE_FACULTY_V2 routes kural's channel client + measure here):
+Registered A2A skills (kural dispatches to them at tap-2 — its channel client and
+measure route through the keeper here):
 
   * manas.publish_action(action, args) -> dict   the world-facing POST (kural fires it post-tap-2)
   * manas.read_outcomes()              -> list    the stats GET (kural.measure reads through it)
@@ -51,8 +51,8 @@ def channel_configured() -> bool:
 
 
 def stats_configured() -> bool:
-    """Whether the keeper holds a stats surface — mirrors kural's v1 stats_url()
-    guard so an unconfigured surface stays inert (no facts, no stream events)."""
+    """Whether the keeper holds a stats surface — an unconfigured surface stays
+    inert (no facts, no stream events)."""
     return bool(_stats_url())
 
 

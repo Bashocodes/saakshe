@@ -83,9 +83,8 @@ def test_pull_outcomes_fail_soft(monkeypatch):
 
 
 def test_measure_emits_and_returns_facts(monkeypatch):
-    # Patch the TRANSPORT (httpx.get), not the reader, so this is flag-agnostic:
-    # v1 reads via outcomes.pull_outcomes, faculty-v2 reads via the manas broker —
-    # both hit httpx.get, so the same fixture proves the loop either way.
+    # Patch the TRANSPORT (httpx.get), not the reader: measure() reads outcomes
+    # through the manas broker, which hits httpx.get — the fixture proves the loop.
     monkeypatch.setenv("SAAKSHE_CHANNEL_STATS_URL", "https://stats.example/outcomes")
 
     class _Resp:

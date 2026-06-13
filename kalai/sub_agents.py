@@ -22,7 +22,7 @@ from google.adk.agents import LlmAgent
 from google.adk.agents.readonly_context import ReadonlyContext
 from pydantic import BaseModel, Field
 
-from common import config, models
+from common import models
 from . import prompts
 from .state import NS, PRODUCERS, StateKeys
 from .tools import analyst
@@ -144,8 +144,8 @@ def _producer_instruction(role: str):
 def build_producers() -> list[LlmAgent]:
     agents: list[LlmAgent] = []
     for role, display, state_key, lane in PRODUCERS:
-        if config.faculty_v2() and role == "copy":
-            continue  # faculty-v2: kalai is MEDIA-ONLY — the word faculty (kural) authors copy
+        if role == "copy":
+            continue  # kalai is MEDIA-ONLY — the word faculty (kural) authors copy
         agents.append(
             LlmAgent(
                 name=f"producer_{role}",
@@ -179,13 +179,8 @@ def _compliance_instruction(ctx: ReadonlyContext) -> str:
         + f"BRIEF:\n{brief}\n\n"
         + f"FINISHED MASTER — DESIGN:\n{json.dumps(design, indent=2)}\n"
     )
-    # v1: kalai authors AND clears the copy. faculty-v2: kalai is MEDIA-ONLY — the
-    # words are authored AND claim-checked in kural, so the gate sees only the media.
-    if not config.faculty_v2():
-        copy = ctx.state.get(StateKeys.COPY, {})
-        if not isinstance(copy, dict):
-            copy = parse_json(copy)
-        body += f"\nFINISHED MASTER — COPY:\n{json.dumps(copy, indent=2)}\n"
+    # kalai is MEDIA-ONLY — the words are authored AND claim-checked in kural, so the
+    # compliance gate sees only the media.
     return body
 
 
