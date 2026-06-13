@@ -2436,7 +2436,7 @@ html[data-theme="dark"] .ovtab:focus-visible{ outline-color:var(--act); }
     /* kalai */
     'STUDIO DIRECTOR':{ role:'scopes the brief — one brief, multi-platform pack', why:'high-stakes — owns the brief' },
     'VISUAL MAKER':{ role:'renders the masters', prov:'creates via ← Generative AI MCP' },
-    'WORD SMITH':{ role:'drafts the copy' },
+    'SOUND MAKER':{ role:'renders music and SFX' },
     'BRAND CHECK':{ role:'runs the brand-fidelity loop until it looks like us' },
     'LEGAL CHECK':{ role:'clears a master before it can ship', prov:'cleared master → handoff to kural', why:'high-stakes — can we say this safely' },
     /* kural */
@@ -2444,7 +2444,7 @@ html[data-theme="dark"] .ovtab:focus-visible{ outline-color:var(--act); }
     'PROSPECT SCOUT':{ role:'fans parallel research across prospects' },
     'MARKET WATCHER':{ role:'tracks competitor moves' },
     'EMAIL ENVOY':{ role:'sends kural\'s authored outreach only on your clearance', wake:'awaiting send clearance' },
-    'CHANNEL MOUTH':{ role:'holds the publish gate for your tap', prov:'holds the channel keys, granted over setu', wake:'holding the publish gate' }
+    'CHANNEL MOUTH':{ role:'holds the publish gate for your tap', prov:'wields the channel keys manas custodies, granted over setu', wake:'holding the publish gate' }
   };
 
   /* one enriched seat-dossier card; rings derive from claude:true, never literal */
@@ -2748,7 +2748,7 @@ html[data-theme="dark"] .ovtab:focus-visible{ outline-color:var(--act); }
           +'<div class="gates-col" style="display:flex;flex-direction:column;gap:9px;">'+emptyGateHTML()+'</div>'
           +'<div class="sub" style="margin-top:13px;">How a tap arrives</div>'
           +'<div class="dissent" style="margin-top:0;"><div class="dt">'+icon('alert','sm')+' nothing held yet</div>Anything kural would say to the world stops here for your tap. Ask saakshe a real decision; once a make is approved, the publish gate lands here.</div>'
-          +'<div class="prov-line" style="margin-top:auto;">'+icon('seal','sm')+'<span>the only mouth — granted channel keys, never taken; nothing leaves without your tap.</span></div>'
+          +'<div class="prov-line" style="margin-top:auto;">'+icon('seal','sm')+'<span>the only mouth — wields the channel keys manas custodies, granted not taken; nothing leaves without your tap.</span></div>'
         +'</div></div>'
     +'</div></div></div>';
   }
@@ -3600,7 +3600,7 @@ html[data-theme="dark"] .ovtab:focus-visible{ outline-color:var(--act); }
    ],
    kalai:[
     {t:'STUDIO DIRECTOR', s:'scoping launch brief', m:['STUDIO DIRECTOR']},
-    {t:'MAKER DESK', s:'producing the masters', m:['VISUAL MAKER','WORD SMITH']},
+    {t:'MAKER DESK', s:'producing the masters', m:['VISUAL MAKER','SOUND MAKER']},
     {t:'BRAND CHECK', s:'does it look like us?', m:['BRAND CHECK']},
     {t:'LEGAL CHECK', s:'can we say this safely?', m:['LEGAL CHECK']}
    ],
@@ -3653,7 +3653,7 @@ html[data-theme="dark"] .ovtab:focus-visible{ outline-color:var(--act); }
      seats:[
       {twoWord:"STUDIO DIRECTOR",threeWord:"scopes the brief",claude:true,status:"idle"},
       {twoWord:"VISUAL MAKER",threeWord:"renders the masters",claude:false,status:"idle"},
-      {twoWord:"WORD SMITH",threeWord:"drafts the copy",claude:false,status:"idle"},
+      {twoWord:"SOUND MAKER",threeWord:"renders music and SFX",claude:false,status:"idle"},
       {twoWord:"BRAND CHECK",threeWord:"does it look like us?",claude:false,status:"idle"},
       {twoWord:"LEGAL CHECK",threeWord:"can we say this safely?",claude:true,status:"idle"}
      ],

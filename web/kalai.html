@@ -617,7 +617,7 @@
     </div>
 
     <div class="pull reveal">
-      <p class="big">The point is not "AI makes an image." The point is the <em>whole pipeline</em> — direction, design, copy, brand-fidelity, compliance and handoff — running as a coordinated studio, not a single prompt.</p>
+      <p class="big">The point is not "AI makes an image." The point is the <em>whole pipeline</em> — direction, design, render, brand-fidelity, compliance and handoff — running as a coordinated studio, not a single prompt.</p>
     </div>
   </section>
 </div>
@@ -631,7 +631,7 @@
       <span class="mono"><span class="dot"></span>See it work — live</span>
     </div>
     <h2 class="reveal">The studio, in motion.</h2>
-    <p class="lede muted reveal">Watch one creative brief move through the studio. The Creative Director coordinates it, the Designer and Copy specialists work in parallel, then the Brand-Fidelity loop regenerates until the on-brand score clears its threshold — a fail-closed compliance check runs internally, and the approved master is handed off to kural over A2A. kalai holds no channel keys and never publishes; the founder's publish sign-off happens at kural, the company's only mouth. Flip to a lone generalist agent and watch the same brief come back slower, with no score gate, off-brand.</p>
+    <p class="lede muted reveal">Watch one creative brief move through the studio. The Creative Director coordinates it, the Designer drafts and the Still · Reel · Sound makers render every format, then the Brand-Fidelity loop regenerates until the on-brand score clears its threshold — a fail-closed compliance check runs internally, and the approved master is handed off to kural over A2A. kalai is media-only — it writes no copy (that's kural) — holds no channel keys, and never publishes; the founder's publish sign-off happens at kural, the company's only mouth. Flip to a lone generalist agent and watch the same brief come back slower, with no score gate, off-brand.</p>
 
     <div class="viz reveal" id="viz" data-mode="team">
       <div class="viz-controls">
@@ -658,7 +658,7 @@
         <div class="vrail"></div>
         <div class="vtier">
           <div class="vnode" data-step="2"><span class="vstamp" aria-hidden="true">✓</span><div class="vt">Designer / Producer</div><div class="vm"><span class="b"></span>Gemini · media MCP</div></div>
-          <div class="vnode" data-step="2"><span class="vstamp" aria-hidden="true">✓</span><div class="vt">Copy &amp; SEO</div><div class="vm"><span class="b"></span>Gemini · Search</div></div>
+          <div class="vnode" data-step="2"><span class="vstamp" aria-hidden="true">✓</span><div class="vt">Still · Reel · Sound</div><div class="vm"><span class="b"></span>Imagen · Veo · audio</div></div>
         </div>
         <div class="vrail"></div>
         <div class="vtier">
@@ -701,7 +701,7 @@
       </div>
 
       <!-- JS-off static caption: full diagram above is already visible; this explains it in one line -->
-      <p class="viz-static-cap">The flow: a creative brief enters → the Creative Director coordinator (Claude·Vertex) calls each specialist as an AgentTool → Designer/Producer (Gemini · media MCP) and Copy&amp;SEO (Gemini) work in parallel → a LoopAgent regenerates until Brand-Fidelity SCORE clears its threshold → a fail-closed Compliance callback (Claude·Vertex) clears it → the approved master is handed off to kural over A2A. kalai holds no channel keys and never publishes; the founder's publish sign-off happens at kural. A lone generalist agent has no score loop, no compliance callback and no handoff discipline — faster to fail, off-brand.</p>
+      <p class="viz-static-cap">The flow: a creative brief enters → the Creative Director coordinator (Claude·Vertex) calls each specialist as an AgentTool → Designer/Producer (Gemini · media MCP) and the Still · Reel · Sound makers (Imagen · Veo · audio) work in parallel → a LoopAgent regenerates until Brand-Fidelity SCORE clears its threshold → a fail-closed Compliance callback (Claude·Vertex) clears it → the approved master is handed off to kural over A2A. kalai is media-only (no copy desk — kural writes the words), holds no channel keys and never publishes; the founder's publish sign-off happens at kural. A lone generalist agent has no score loop, no compliance callback and no handoff discipline — faster to fail, off-brand.</p>
     </div>
   </section>
 </div>
@@ -746,9 +746,9 @@
       <div class="step reveal">
         <div class="n">04</div>
         <div>
-          <div class="nm">Write the words and the search brief</div>
-          <div class="who">Copy &amp; SEO · Gemini</div>
-          <div class="bd">Headlines, captions and metadata per platform, grounded with Google Search so the language is current and the piece is findable.</div>
+          <div class="nm">Render the master into every format</div>
+          <div class="who">Still · Reel · Sound · Imagen · Veo · audio</div>
+          <div class="bd">The on-brand draft rendered into every per-platform deliverable — Still Maker (Imagen) for posters &amp; stills, Reel Maker (Veo) for motion, Sound Maker for music &amp; SFX. kalai makes the media; the words are kural's.</div>
         </div>
       </div>
       <div class="step reveal">
@@ -809,10 +809,10 @@
 
       <div class="agent" style="--si:3">
         <div class="head">
-          <div class="name">Copy &amp; SEO</div>
-          <div class="model gemini"><span class="dot"></span>Gemini</div>
+          <div class="name">Still · Reel · Sound</div>
+          <div class="model gemini"><span class="dot"></span>Imagen · Veo · audio</div>
         </div>
-        <div class="desc">Writes headlines, captions and search briefs, grounded with <b>Google Search</b> so the piece is current and discoverable across platforms.</div>
+        <div class="desc">The renderers — <b>Still Maker</b> (Imagen) for posters &amp; stills, <b>Reel Maker</b> (Veo) for motion, <b>Sound Maker</b> for music &amp; SFX. They turn the on-brand draft into every per-platform deliverable. kalai makes the media; the words belong to kural.</div>
       </div>
 
       <div class="agent" style="--si:4">
@@ -831,7 +831,7 @@
         <span class="arrow" style="--ni:1">&rarr;</span>
         <div class="node" style="--ni:2">Designer<span class="m">Gemini · media MCP</span></div>
         <span class="arrow" style="--ni:3">+</span>
-        <div class="node" style="--ni:4">Copy &amp; SEO<span class="m">Gemini · Search</span></div>
+        <div class="node" style="--ni:4">Still · Reel · Sound<span class="m">Imagen · Veo · audio</span></div>
         <span class="arrow" style="--ni:5">&rarr;</span>
         <div class="node judge" style="--ni:6">↻ Brand-Fidelity<span class="m">LoopAgent · SCORE</span></div>
         <span class="arrow" style="--ni:7">&rarr;</span>
@@ -874,7 +874,7 @@
       <div class="layer" style="--si:3">
         <div class="k">Brand grounding</div>
         <div class="v">an asset library + Search</div>
-        <div class="d">The brand contract = a brand <b>system-instruction</b> + a searchable <b>asset library</b> grounding over the brand's own data; an <b>identity-preservation model</b> holds the subject steady across every frame. <b>Google Search</b> grounds the copy. Reasons from real context, not guesses.</div>
+        <div class="d">The brand contract = a brand <b>system-instruction</b> + a searchable <b>asset library</b> grounding over the brand's own data; an <b>identity-preservation model</b> holds the subject steady across every frame. <b>Google Search</b> grounds the work. Reasons from real context, not guesses.</div>
       </div>
       <div class="layer" style="--si:4">
         <div class="k">Eval &amp; observability</div>
@@ -901,7 +901,7 @@
         <div class="a-conn" style="--ci:3"></div>
         <div class="a-fan">
           <div class="a-box" style="--ci:4"><div class="t">Designer / Producer</div><div class="s">Gemini · media MCP · Imagen (Veo: roadmap)</div></div>
-          <div class="a-box" style="--ci:4"><div class="t">Copy &amp; SEO</div><div class="s">Gemini · Google Search</div></div>
+          <div class="a-box" style="--ci:4"><div class="t">Still · Reel · Sound</div><div class="s">Imagen · Veo · audio</div></div>
           <div class="a-box" style="--ci:4"><div class="t">↻ Brand-Fidelity loop</div><div class="s">LoopAgent · SCORE ≥ threshold</div></div>
         </div>
         <div class="a-conn" style="--ci:5"></div>
@@ -1161,7 +1161,7 @@
     var teamSeq = [
       {sel:'[data-step="0"]', lead:'Brief received —', words:'one creative brief, in plain language.'},
       {sel:'[data-step="1"]', lead:'Creative Director →', words:'coordinator reads intent, sets direction, calls each specialist as a tool.', decide:true},
-      {sel:'[data-step="2"]', lead:'Designer + Copy →', words:'the media MCP generates the media; copy written in parallel.'},
+      {sel:'[data-step="2"]', lead:'Designer + renderers →', words:'the media MCP drafts; Still · Reel · Sound render every format in parallel.'},
       {sel:'[data-step="3"]', lead:'↻ Brand-Fidelity loop →', words:'score against your asset library, regenerate… until SCORE ≥ threshold.'},
       {sel:'[data-step="4"]', lead:'Compliance callback →', words:'internal fail-closed read — claims, rights, tone, safety — cleared.'},
       {sel:'[data-step="5"]', lead:'Handoff → kural —', words:'the approved master delivered over A2A. kalai never publishes; the founder signs off at kural.'}
