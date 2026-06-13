@@ -159,8 +159,8 @@ def build_producers() -> list[LlmAgent]:
 
 
 # ─── Brand-Fidelity panel (Gemini · in the loop) ─────────────────────────────
-# The single Brand-Fidelity scorer is replaced by a 4-seat ParallelAgent panel
-# (brand · voice · platform · compliance) + a deterministic aggregate reducer —
+# The single Brand-Fidelity scorer is replaced by a 3-seat ParallelAgent panel
+# (brand · platform · compliance — voice lives in kural) + a deterministic reducer —
 # see ``kalai/scorers.py`` (build_scorer_panel) and ``kalai/agent.py``
 # (ScorerReducer). The panel is kalai's chamber for the deciding question
 # "is it on-brand + cleared?"; the loop exit stays owned by the checker.

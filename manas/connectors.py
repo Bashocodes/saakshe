@@ -115,9 +115,8 @@ def read_outcomes() -> list[dict]:
     return [r for r in rows if isinstance(r, dict)]
 
 
-# Register the broker skills at import (idempotent). Always registered so the
-# demo/CI import path is identical regardless of the flag; v1 simply never
-# dispatches to them.
+# Register the broker skills at import (idempotent) — kural dispatches to them at
+# tap-2; always registered so the demo/CI import path is identical.
 a2a.register_skill(NS, "publish_action", publish_action)
 a2a.register_skill(NS, "read_outcomes", read_outcomes)
 a2a.register_skill(NS, "stats_configured", stats_configured)

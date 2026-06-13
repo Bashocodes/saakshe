@@ -156,12 +156,10 @@ def _sub_state_key(lens: str) -> str:
 
 
 def build_scorer_panel() -> list[LlmAgent]:
-    """The four Brand-Fidelity scorer seats, each writing a DISJOINT sub-key so the
-    parallel seats never clobber each other (they'd race on one ``output_key``)."""
+    """The three media Brand-Fidelity scorer seats, each writing a DISJOINT sub-key so
+    the parallel seats never clobber each other (they'd race on one ``output_key``)."""
     panel: list[LlmAgent] = []
     for lens, display, focus in SCORERS:
-        if lens not in WEIGHTS:
-            continue  # the voice lens lives in kural — media lenses only
         panel.append(
             LlmAgent(
                 name=f"fidelity_{lens}_scorer",

@@ -125,7 +125,7 @@ def build_root_agent() -> SequentialAgent:
     )
     scorer_panel = ParallelAgent(
         name="brand_fidelity_panel",
-        description="Four disjoint scorers (brand · voice · platform · compliance) score in parallel.",
+        description="Three disjoint media scorers (brand · platform · compliance) score in parallel.",
         sub_agents=scorers.build_scorer_panel(),
     )
     fidelity_loop = LoopAgent(

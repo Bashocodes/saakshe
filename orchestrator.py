@@ -58,8 +58,8 @@ class FlywheelState:
     user_id: str = ""                # the founder who owns this run (route-layer auth)
     spend_idem_key: str = ""         # the stable credit-spend key (for refund-on-failure)
     charged: bool = False            # whether this run was actually billed
-    # faculty-v2 joined-clearance: a post reaches tap-2 only when the media is
-    # cleared (kalai) AND the words are claim-checked (kural). v1 leaves both True.
+    # Joined-clearance: a post reaches tap-2 only when the media is cleared (kalai)
+    # AND the words are claim-checked (kural).
     kalai_media_cleared: bool = False
     kural_copy_claim_checked: bool = False
 

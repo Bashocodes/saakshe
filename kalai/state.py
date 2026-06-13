@@ -55,15 +55,14 @@ PRODUCERS = [
 ]
 
 
-# The four Brand-Fidelity scorer seats — kalai's chamber panel for the one
+# The three media Brand-Fidelity scorer seats — kalai's chamber panel for the one
 # deciding question "is it on-brand + cleared?". (lens, display, focus). The lens
 # key matches scorers.WEIGHTS, the sub-state-key suffix, and the demo_subscores key
-# — one name, no mapping table. All four are Gemini Flash (panel advisors).
+# — one name, no mapping table. All three are Gemini Flash (panel advisors). The
+# voice lens lives in kural (the word faculty) now — kalai is media-only.
 SCORERS = [
     ("brand", "Brand-Consistency",
      "palette · lockups · grid · the asset-bank references vs. the canon"),
-    ("voice", "Voice-Tone",
-     "calm, candid, anti-hype — the voice rules, no exclamation-mark hype"),
     ("platform", "Platform-Fit",
      "the crop / format / length right for x · ig · linkedin"),
     ("compliance", "Compliance-Edge",

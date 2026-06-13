@@ -1,9 +1,9 @@
-"""Pin the 4-scorer fidelity panel — the chamber decomposition of the brand score.
+"""Pin the 3-scorer fidelity panel — the chamber decomposition of the brand score.
 
-The single Brand-Fidelity scorer is now a panel of four Gemini Flash seats
-(brand-consistency · voice-tone · platform-fit · compliance-edge). A deterministic
-aggregate (a documented weighted mean, reported to the canon's 1-dp precision) folds
-the four sub-scores into the ONE FIDELITY_SCORE the loop reads.
+The single Brand-Fidelity scorer is now a panel of three media Gemini Flash seats
+(brand-consistency · platform-fit · compliance-edge — the voice lens lives in kural).
+A deterministic aggregate (a documented weighted mean, reported to the canon's 1-dp
+precision) folds the sub-scores into the ONE FIDELITY_SCORE the loop reads.
 
 The safety property these tests pin: the demo sub-scores per round AGGREGATE to the
 sealed canon climb 6.8 → 8.4 → 9.1, so decomposing the score never moves the loop's
@@ -61,7 +61,7 @@ def test_aggregate_is_deterministic():
 # ─── every round's sub-scores are real per-seat numbers (not a flat copy) ─────
 def test_demo_subscores_are_per_seat_not_flat():
     """The panel earns its name only if the seats disagree — a flat copy of the
-    target across all four would make the decomposition cosmetic. At least one
+    target across all three would make the decomposition cosmetic. At least one
     round must carry genuinely differing per-seat scores."""
     differ = False
     for rnd in range(1, len(config.CANON["fidelity_climb"]) + 1):

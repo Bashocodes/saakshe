@@ -1,8 +1,8 @@
-"""Pin the outcome reader — loop step 7 (measure) at the kural edge.
+"""Pin the outcome normalizer + measure — loop step 7 at the kural edge.
 
-The stats surface is pure configuration (like the webhook adapter): unset env →
-zero network, zero facts, zero stream noise, so demo/CI stay byte-identical.
-Configured → rows normalize into cited facts (no number, no fact)."""
+The stats surface is pure configuration: unset env → zero network, zero facts, zero
+stream noise, so demo/CI stay byte-identical. Configured → the manas broker reads the
+rows and ``outcome_facts`` normalizes them into cited facts (no number, no fact)."""
 
 from __future__ import annotations
 
@@ -13,18 +13,13 @@ import pytest
 from common.stream import EventStream
 from kural import runner
 from kural.tools import outcomes
-# faculty-v2: measure() routes its outcome-read through the manas broker when the
-# flag is on; importing connectors registers those skills so this isolated kural
-# suite exercises the v2 path too (inert under v1).
+# measure() routes its outcome-read through the manas channel broker (which custodies
+# the channel keys); importing connectors registers those skills so this isolated
+# kural suite can exercise the read path.
 from manas import connectors as _manas_connectors  # noqa: F401
 
 
 # ─── unconfigured = inert (the demo byte-identity guarantee) ──────────────────
-def test_pull_returns_empty_without_env(monkeypatch):
-    monkeypatch.delenv("SAAKSHE_CHANNEL_STATS_URL", raising=False)
-    assert outcomes.pull_outcomes() == []
-
-
 def test_measure_unconfigured_emits_nothing(monkeypatch):
     monkeypatch.delenv("SAAKSHE_CHANNEL_STATS_URL", raising=False)
     stream = EventStream()
@@ -54,34 +49,7 @@ def test_outcome_facts_ignore_bools_and_strings():
     assert facts == []                                     # no real number, no fact
 
 
-# ─── configured: the read flows, fail-soft on a flaky surface ─────────────────
-def test_pull_outcomes_fetches_and_filters(monkeypatch):
-    monkeypatch.setenv("SAAKSHE_CHANNEL_STATS_URL", "https://stats.example/outcomes")
-
-    class _Resp:
-        def raise_for_status(self):  # noqa: D401
-            return None
-
-        def json(self):
-            return {"outcomes": [{"ref": "x/1", "channel": "x", "reach": 9}, 42]}
-
-    import httpx
-    monkeypatch.setattr(httpx, "get", lambda *a, **k: _Resp())
-    rows = outcomes.pull_outcomes()
-    assert rows == [{"ref": "x/1", "channel": "x", "reach": 9}]
-
-
-def test_pull_outcomes_fail_soft(monkeypatch):
-    monkeypatch.setenv("SAAKSHE_CHANNEL_STATS_URL", "https://stats.example/outcomes")
-    import httpx
-
-    def _boom(*a, **k):
-        raise httpx.ConnectError("down")
-
-    monkeypatch.setattr(httpx, "get", _boom)
-    assert outcomes.pull_outcomes() == []                  # reads fail SOFT
-
-
+# ─── configured: the read flows through the manas broker, fail-soft on a flake ─
 def test_measure_emits_and_returns_facts(monkeypatch):
     # Patch the TRANSPORT (httpx.get), not the reader: measure() reads outcomes
     # through the manas broker, which hits httpx.get — the fixture proves the loop.

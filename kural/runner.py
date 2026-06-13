@@ -68,20 +68,24 @@ async def _run_engagement(master: dict, context_pack: dict, org: dict | None = N
     return state
 
 
-def _build_post(state: dict, master: dict, context_pack: dict) -> dict:
+def _build_post(state: dict, master: dict, context_pack: dict, *,
+                draft: dict | None = None, claim: dict | None = None) -> dict:
     """Assemble the gate-ready post.
 
     kural AUTHORED the words (the Outreach Writer's draft), with the Claim Judge's
     claim_support attached; falls back to the master's words if no draft is in state
-    (fail-closed — never strands the post).
+    (fail-closed — never strands the post). ``draft``/``claim`` may be passed
+    pre-parsed — engage already reads them for the transcript — to avoid re-parsing
+    the same state; both default to reading + coercing from ``state``.
     """
     pack_v = (context_pack or {}).get("version", config.CANON["context_pack_from"])
     master = master if isinstance(master, dict) else {}
     plan = state.get(StateKeys.DELIVERY_PLAN, {})
     plan = plan if isinstance(plan, dict) else parse_json(plan)
 
-    draft = state.get(StateKeys.DRAFT) or {}
-    draft = draft if isinstance(draft, dict) else parse_json(draft)
+    if draft is None:
+        draft = state.get(StateKeys.DRAFT) or {}
+        draft = draft if isinstance(draft, dict) else parse_json(draft)
     caption = draft.get("caption") or master.get("caption", "")
     drafts = ({k: v for k, v in draft.items() if k in ("x", "ig", "linkedin")}
               if draft else master.get("formats", {}))
@@ -96,8 +100,9 @@ def _build_post(state: dict, master: dict, context_pack: dict) -> dict:
         "delivery": plan,
     }
     # The Claim Judge's support rides the post — kural authored, so kural proves.
-    claim = state.get(StateKeys.CLAIM) or {}
-    claim = claim if isinstance(claim, dict) else parse_json(claim)
+    if claim is None:
+        claim = state.get(StateKeys.CLAIM) or {}
+        claim = claim if isinstance(claim, dict) else parse_json(claim)
     cs = claim.get("claim_support")
     if cs is not None:
         post["claim_support"] = cs
@@ -198,8 +203,9 @@ async def engage(stream: EventStream, run_id: str, master: dict, context_pack: d
                 span="agent_run", send_eligible=eligible)
     transcript.append({"actor": "Email Envoy", "text": elig_reason})
 
-    # HALT at the publish gate (tap 2) — never auto-publish.
-    post = _build_post(state, master, context_pack)
+    # HALT at the publish gate (tap 2) — never auto-publish. Hand _build_post the
+    # draft/claim already parsed above so the same state isn't re-parsed.
+    post = _build_post(state, master, context_pack, draft=draft, claim=claim)
     # The rendered creative's vault handle (when kalai persisted pixels) rides the
     # gate so the cockpit card shows WHAT the founder is approving; demo masters
     # are pixel-free → no key, and the gate payload stays byte-identical.
