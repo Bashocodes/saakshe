@@ -13,6 +13,10 @@ import pytest
 from common.stream import EventStream
 from kural import runner
 from kural.tools import outcomes
+# faculty-v2: measure() routes its outcome-read through the manas broker when the
+# flag is on; importing connectors registers those skills so this isolated kural
+# suite exercises the v2 path too (inert under v1).
+from manas import connectors as _manas_connectors  # noqa: F401
 
 
 # ─── unconfigured = inert (the demo byte-identity guarantee) ──────────────────
@@ -79,9 +83,20 @@ def test_pull_outcomes_fail_soft(monkeypatch):
 
 
 def test_measure_emits_and_returns_facts(monkeypatch):
+    # Patch the TRANSPORT (httpx.get), not the reader, so this is flag-agnostic:
+    # v1 reads via outcomes.pull_outcomes, faculty-v2 reads via the manas broker —
+    # both hit httpx.get, so the same fixture proves the loop either way.
     monkeypatch.setenv("SAAKSHE_CHANNEL_STATS_URL", "https://stats.example/outcomes")
-    monkeypatch.setattr(outcomes, "pull_outcomes",
-                        lambda: [{"ref": "x/1", "channel": "x", "reach": 9}])
+
+    class _Resp:
+        def raise_for_status(self):  # noqa: D401
+            return None
+
+        def json(self):
+            return {"outcomes": [{"ref": "x/1", "channel": "x", "reach": 9}]}
+
+    import httpx
+    monkeypatch.setattr(httpx, "get", lambda *a, **k: _Resp())
     stream = EventStream()
     facts = asyncio.run(runner.measure(stream, "fw_test"))
     assert len(facts) == 1 and facts[0]["source"] == "channel stats · x/1"

@@ -73,12 +73,27 @@ config.sync_runtime_mode()
 if os.environ.get("SAAKSHE_ALLOW_LIVE_SEND") == "1":
     try:
         from kural.tools import channels as _channels
-        from kural.tools.adapters import webhook as _webhook
 
-        _fn = _webhook.from_env()
-        if _fn is not None:
-            _channels.set_channel_client(_fn)
-            print("kural: live channel armed → webhook adapter registered")
+        if config.faculty_v2():
+            # faculty-v2: the channel KEY lives in manas (the keeper). kural holds
+            # only a tokenless capability handle that dispatches to the broker;
+            # set_channel_client stays HERE on kural so has_channel_client() and the
+            # orchestrator arm-gate are unchanged. The token never reaches kural.
+            from manas import connectors as _connectors   # registers the broker skills
+            from common import a2a as _a2a
+
+            if _connectors.channel_configured():
+                _channels.set_channel_client(
+                    lambda action, args: _a2a.dispatch("manas", "publish_action", action, args)
+                )
+                print("kural: live channel armed → manas connector (v2 key custody)")
+        else:
+            from kural.tools.adapters import webhook as _webhook
+
+            _fn = _webhook.from_env()
+            if _fn is not None:
+                _channels.set_channel_client(_fn)
+                print("kural: live channel armed → webhook adapter registered")
     except Exception:  # noqa: BLE001 — a bad adapter config must not sink the site
         traceback.print_exc()
 

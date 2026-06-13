@@ -520,6 +520,9 @@ def _ask_founder_voice(question: str) -> dict:
 
 a2a.register_skill(NS, "get_founder_context", _get_founder_context)
 a2a.register_skill(NS, "ask_founder_voice", _ask_founder_voice)
+# faculty-v2: manas custodies the channel keys. Importing connectors registers the
+# broker skills (manas.publish_action / read_outcomes) — inert under v1.
+from . import connectors as _connectors  # noqa: E402,F401
 a2a.register_card(NS, {
     "name": "manas",
     "description": "The company's mind — versioned, source-cited memory. Knows; never acts, posts, or decides. Refuses out-of-corpus.",

@@ -220,13 +220,25 @@ async def measure(stream: EventStream, run_id: str) -> list[dict]:
     the normalized facts, ready for ``manas.learn({"results": facts})``.
     """
     from .tools import outcomes
-
-    if not outcomes.stats_url():
-        return []
+    from common import config
     import asyncio
 
-    rows = await asyncio.to_thread(outcomes.pull_outcomes)
-    facts = outcomes.outcome_facts(rows)
+    if config.faculty_v2():
+        # faculty-v2: the stats surface + token are custodied by manas. The mouth
+        # reads outcomes THROUGH the broker and never holds the key. The
+        # configured-check mirrors the v1 stats_url() guard so an unconfigured
+        # surface stays inert (no facts, no stream events).
+        from common import a2a
+        # Fail-soft if the broker isn't booted (a read must never crash a run).
+        if not a2a.has_skill("manas", "stats_configured") or not a2a.dispatch("manas", "stats_configured"):
+            return []
+        rows = await asyncio.to_thread(lambda: a2a.dispatch("manas", "read_outcomes"))
+    else:
+        if not outcomes.stats_url():
+            return []
+        rows = await asyncio.to_thread(outcomes.pull_outcomes)
+
+    facts = outcomes.outcome_facts(rows or [])
     if not facts:
         stream.emit(run_id, NS, "Channel Analyst",
                     "stats surface reachable — no measurable outcomes yet",

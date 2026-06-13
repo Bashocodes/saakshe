@@ -110,6 +110,16 @@ EXAMPLE_MCP_SECRET_FILE = os.path.expanduser(
 # real side effect ONLY when dry_run is False *and* a human approved at a gate.
 EXECUTOR_DRY_RUN = _flag("SAAKSHE_EXECUTOR_DRY_RUN", True)
 
+# ─── Faculty re-assignment (the v2 migration switch) ─────────────────────────
+# The four-faculty re-assignment — manas CUSTODIES the keys (channel + provider) ·
+# kalai = media only · kural AUTHORS all copy · arivu decides — lands behind this
+# flag so each phase is a non-breaking commit until the one atomic flip. OFF =
+# today's behavior, byte for byte. A function (not a module constant) so tests can
+# set the env and re-read it. See scripts/test_all.sh + the faculty-v2 plan.
+def faculty_v2() -> bool:
+    return _flag("SAAKSHE_FACULTY_V2", False)
+
+
 # ─── Observability ───────────────────────────────────────────────────────────
 OTEL_CONSOLE = _flag("SAAKSHE_OTEL_CONSOLE", True)
 BIGQUERY_DATASET = os.environ.get("SAAKSHE_BIGQUERY_DATASET", "")
