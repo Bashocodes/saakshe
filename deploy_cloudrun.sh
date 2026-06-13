@@ -119,6 +119,16 @@ done
 
 echo "→ profile: $PROFILE"
 
+# ── pre-flight test gate (faculty-v2 Phase -1) ────────────────────────────────
+# commit==deploy with NO gate meant a bare `pytest` (testpaths=tests) ran only
+# the root suite and the realm contract tests never ran. Run the FULL suite,
+# every realm in its own process, BEFORE the build. Skip with SAAKSHE_SKIP_TESTS=1
+# (emergencies only). A red suite aborts the deploy.
+if [ -z "${SAAKSHE_SKIP_TESTS:-}" ]; then
+  echo "→ test gate: full suite (set SAAKSHE_SKIP_TESTS=1 to skip)…"
+  bash scripts/test_all.sh || { echo "✗ deploy aborted — tests are red"; exit 1; }
+fi
+
 # ── one-time project setup, OFF the hot path (≈30s of ceremony every deploy) ──
 # Run once per project with SAAKSHE_DEPLOY_BOOTSTRAP=1; every later deploy skips it.
 if [ -n "${SAAKSHE_DEPLOY_BOOTSTRAP:-}" ]; then

@@ -61,6 +61,14 @@ REALMS = {
 
 _TYPES = ("orchestrator", "action", "verifier", "keeper")
 
+# The canonical per-realm headcount (Σ == 42). The TOTAL alone is not enough: a
+# faculty re-assignment that moves a seat between realms keeps the total at 42
+# while silently inverting ownership. validate() pins this map so such a move
+# fails at IMPORT (the Docker build), not only in tests/test_agents_registry.py
+# — which a bare `pytest` (testpaths=tests) runs, but the realm suites it does
+# not. Update this in the SAME commit that moves the seats.
+REALM_HEADCOUNT = {"manas": 10, "arivu": 10, "kalai": 11, "kural": 11}
+
 
 def _a(id, call, name, expansion, realm, type, model, status, does):
     return {
@@ -261,6 +269,18 @@ def validate() -> None:
         assert len(a["name"].split()) <= 2, f"name over two words: {a['name']}"
         assert a["name"].lower() not in forbidden, f"forbidden name: {a['name']}"
         assert a["status"] in ("live", "planned", "benched")
+    # Per-realm headcount is a hard invariant, not just the total — a cross-realm
+    # seat move keeps Σ==42 while inverting ownership. Pin it at import.
+    counts: dict[str, int] = {name: 0 for name in REALMS}
+    for a in AGENTS:
+        counts[a["realm"]] += 1
+    assert counts == REALM_HEADCOUNT, f"per-realm headcount drift: {counts} != {REALM_HEADCOUNT}"
+    # Every realm stays self-checking: at least one orchestrator (frames/routes)
+    # and one verifier (gates) live in each.
+    for name in REALMS:
+        types = {a["type"] for a in AGENTS if a["realm"] == name}
+        assert "orchestrator" in types, f"{name} has no orchestrator"
+        assert "verifier" in types, f"{name} has no verifier"
 
 
 def as_payload() -> dict:
