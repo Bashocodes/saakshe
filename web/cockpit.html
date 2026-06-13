@@ -2392,7 +2392,7 @@ html[data-theme="dark"] .ovtab:focus-visible{ outline-color:var(--act); }
           +'<div class="pipe">'
             +'<div class="pstep"><span class="pn">·</span><span class="pt">Delivery readers — <span class="meta">consent · reach · topic-fit · timing, fanned in parallel over your own funnel</span></span></div>'
             +'<div class="pstep"><span class="pn">·</span><span class="pt">Delivery planner — <span class="meta">picks variant × segment × window · authors nothing</span></span></div>'
-            +'<div class="pstep"><span class="pn">·</span><span class="pt">Email Envoy — <span class="meta">sends kalai\'s cleared words only on your clearance</span></span></div>'
+            +'<div class="pstep"><span class="pn">·</span><span class="pt">Email Envoy — <span class="meta">sends kural\'s authored outreach only on your clearance</span></span></div>'
           +'</div>'
           +'<div class="sub" style="margin-top:13px;">Channels × scopes</div>'
           +'<table class="matrix"><thead><tr><th>Channel</th><th>posts</th><th>replies</th><th>listen</th><th>DMs</th></tr></thead><tbody>'
@@ -2443,7 +2443,7 @@ html[data-theme="dark"] .ovtab:focus-visible{ outline-color:var(--act); }
     'ENVOY LEAD':{ role:'qualifies inbound prospects', why:'high-stakes — leads the only mouth' },
     'PROSPECT SCOUT':{ role:'fans parallel research across prospects' },
     'MARKET WATCHER':{ role:'tracks competitor moves' },
-    'EMAIL ENVOY':{ role:'sends kalai\'s cleared words only on your clearance', wake:'awaiting send clearance' },
+    'EMAIL ENVOY':{ role:'sends kural\'s authored outreach only on your clearance', wake:'awaiting send clearance' },
     'CHANNEL MOUTH':{ role:'holds the publish gate for your tap', prov:'holds the channel keys, granted over setu', wake:'holding the publish gate' }
   };
 
@@ -2515,7 +2515,7 @@ html[data-theme="dark"] .ovtab:focus-visible{ outline-color:var(--act); }
     if(quad==='manas'){ fills='Imbibed facts and the cited Context Pack fill here after the first run.'; next='grants land in versioned buckets → Memory Curator commits the Pack'; }
     else if(quad==='arivu'){ fills='The five lenses, the sealed verdict and any dissent fill here once you ask a decision.'; next='a real question → five lenses → verdict bench → your tap'; }
     else if(quad==='kalai'){ fills='The brief, the brand-fidelity loop and the master fill here once a verdict asks for a make.'; next='an approved make → render → brand + legal checks → handoff to kural'; }
-    else { fills='Research, kalai\'s cleared words and the publish gate fill here once there is something to say.'; next='a cleared master → research → your tap → the world'; }
+    else { fills='Research, kural\'s authored copy and the publish gate fill here once there is something to say.'; next='kalai\'s cleared media → research → your tap → the world'; }
     var gate = (t==='CHANNEL DESK')
       ? '<div class="sub" style="margin-top:11px;">the publish gate</div><div class="gates-col" style="display:flex;flex-direction:column;gap:9px;">'+emptyGateHTML()+'</div>'
       : '';
@@ -2721,11 +2721,11 @@ html[data-theme="dark"] .ovtab:focus-visible{ outline-color:var(--act); }
       .catch(function(){ fail('could not reach the studio.'); });
   }
 
-  /* kural/outreach — the full engage: research → kalai's cleared words → the two gates */
+  /* kural/outreach — the full engage: research → kural's authored words → the two gates */
   function drillOutreach(){
     return '<div class="view">'+backChip('back to kural')
     +'<div class="vhead"><div><div class="vid"><span class="drillanchor c-kural">The outreach &amp; gates</span></div>'
-      +'<div class="vline"><span style="font-style:italic;">research → kalai\'s cleared words → the world, only after your tap</span></div></div></div>'
+      +'<div class="vline"><span style="font-style:italic;">research → kural\'s authored words → the world, only after your tap</span></div></div></div>'
     +'<div class="vbody"><div class="grid2" style="flex:1 1 auto;min-height:0;">'
       +'<div class="panel flex"><div class="phead"><h3>'+icon('mail','sm')+' Outreach pipeline</h3><span class="ct">cleared-before-send</span></div>'
         +'<div class="pbody" style="display:flex;flex-direction:column;">'
@@ -2733,7 +2733,7 @@ html[data-theme="dark"] .ovtab:focus-visible{ outline-color:var(--act); }
             +'<div class="pstep"><span class="pn">01</span><span class="pt">Envoy Lead — <span class="meta">qualifies the engagement · the spine entry</span></span></div>'
             +'<div class="pstep"><span class="pn">02</span><span class="pt">Delivery readers — <span class="meta">consent · reach · topic-fit · timing, fanned in parallel</span></span></div>'
             +'<div class="pstep"><span class="pn">03</span><span class="pt">Delivery planner — <span class="meta">picks variant × segment × window · authors nothing</span></span></div>'
-            +'<div class="pstep"><span class="pn">04</span><span class="pt">Email Envoy — <span class="meta">sends kalai\'s cleared words only on your clearance</span></span></div>'
+            +'<div class="pstep"><span class="pn">04</span><span class="pt">Email Envoy — <span class="meta">sends kural\'s authored outreach only on your clearance</span></span></div>'
           +'</div>'
           +'<div class="sub" style="margin-top:13px;">Outputs</div>'
           +'<ul class="outs"><li>No engage yet — posted replies and outreach land here, each cited.</li>'
@@ -3607,7 +3607,7 @@ html[data-theme="dark"] .ovtab:focus-visible{ outline-color:var(--act); }
    kural:[
     {t:'ENVOY LEAD', s:'qualifying inbound prospect', m:['ENVOY LEAD']},
     {t:'RESEARCH DESK', s:'citing live signals', m:['PROSPECT SCOUT','MARKET WATCHER']},
-    {t:'CHANNEL DESK', s:'carrying kalai\'s cleared words, holding the keys', m:['EMAIL ENVOY','CHANNEL MOUTH']}
+    {t:'CHANNEL DESK', s:'carrying kural\'s authored words past your publish tap', m:['EMAIL ENVOY','CHANNEL MOUTH']}
    ]
   }; }
 
@@ -3669,14 +3669,14 @@ html[data-theme="dark"] .ovtab:focus-visible{ outline-color:var(--act); }
       {twoWord:"ENVOY LEAD",threeWord:"qualifies inbound prospects",claude:true,status:"idle"},
       {twoWord:"PROSPECT SCOUT",threeWord:"fans parallel research",claude:false,status:"idle"},
       {twoWord:"MARKET WATCHER",threeWord:"tracks competitor moves",claude:false,status:"idle"},
-      {twoWord:"EMAIL ENVOY",threeWord:"sends kalai's cleared words on clearance",claude:false,status:"idle"},
+      {twoWord:"EMAIL ENVOY",threeWord:"sends kural's authored outreach on clearance",claude:false,status:"idle"},
       {twoWord:"CHANNEL MOUTH",threeWord:"holds the publish gate",claude:false,status:"idle"}
      ],
      questions:[],
      outputs:[
       "No engage yet — kural speaks only on an approved make.",
-      "Posted replies and outreach, carrying kalai's cleared and cited words, land here.",
-      "It is the only mouth; it authors nothing — nothing leaves without your tap at the publish gate."
+      "Posted replies and outreach — kural's own authored, fact-checked words — land here.",
+      "It is the only mouth and the word faculty; it authors every post and fact-checks it — nothing leaves without your tap at the publish gate."
      ]
     }
   }; }

@@ -1,8 +1,8 @@
 """The deploy carries the channel surface — loop step 6's last missing metre.
 
-The webhook adapter, the AND-gate, and the startup registration all existed;
-no deploy profile ever carried the env, so kural had never been ABLE to send.
-These tests pin the passthrough (and its one deliberate property: nothing is
+The manas key-custody broker, the AND-gate, and the startup registration all
+existed; no deploy profile ever carried the env, so kural had never been ABLE to
+send. These tests pin the passthrough (and its one deliberate property: nothing is
 ever defaulted — arming stays an explicit founder act)."""
 
 from __future__ import annotations
@@ -24,17 +24,17 @@ def test_deploy_never_defaults_the_arm_flag():
     assert "SAAKSHE_ALLOW_LIVE_SEND=1" not in SCRIPT
 
 
-def test_startup_registers_webhook_client_when_configured(monkeypatch):
-    """service startup binds webhook.from_env() into channels — with the env set,
-    has_channel_client() turns true and the AND-gate's third key exists."""
+def test_startup_registers_channel_client_when_configured(monkeypatch):
+    """service startup binds the manas key-custody broker into channels — with the
+    webhook env set, the keeper reports channel_configured() and has_channel_client()
+    turns true (the AND-gate's third key), the token never leaving manas."""
     from kural.tools import channels
-    from kural.tools.adapters import webhook
+    from manas import connectors
 
     monkeypatch.setenv("SAAKSHE_CHANNEL_WEBHOOK_URL", "https://intake.example/hook")
-    fn = webhook.from_env()
-    assert callable(fn)
+    assert connectors.channel_configured()
     monkeypatch.setattr(channels, "_channel_call", None)
-    channels.set_channel_client(fn)
+    channels.set_channel_client(lambda action, args: connectors.publish_action(action, args))
     assert channels.has_channel_client()
 
 

@@ -2,11 +2,11 @@
 
 The mouth published; somebody must come back and ask the world what happened.
 This module reads engagement outcomes from one founder-configured stats surface
-(the same pure-configuration doctrine as the webhook adapter — saakshe holds no
-platform keys and names no platform):
+(the same pure-configuration doctrine as the manas channel broker — saakshe holds
+no platform keys and names no platform):
 
     SAAKSHE_CHANNEL_STATS_URL      — GET returns {"outcomes": [{...}, ...]}
-    SAAKSHE_CHANNEL_WEBHOOK_TOKEN  — optional Bearer (shared with the webhook)
+    SAAKSHE_CHANNEL_WEBHOOK_TOKEN  — optional Bearer (shared with the broker)
 
 Each outcome row is receiver-defined; the normalizer keeps only what it can
 cite: a ref (post id/url), a channel, and numeric engagement metrics. Rows
@@ -49,7 +49,7 @@ def pull_outcomes() -> list[dict]:
     if token:
         headers["authorization"] = f"Bearer {token}"
     try:
-        import httpx  # lazy — no client at import, mirrors the webhook adapter
+        import httpx  # lazy — no client at import, mirrors the manas channel broker
 
         resp = httpx.get(url, headers=headers, timeout=_TIMEOUT)
         resp.raise_for_status()

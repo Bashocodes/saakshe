@@ -1,4 +1,4 @@
-"""The arm-real-send AND-gate + the generic webhook channel adapter.
+"""The arm-real-send AND-gate.
 
 Three keys must all turn before tap-2 fires a real publish: the founder's
 per-tap ``arm_real_send`` flag, the deploy-level ``SAAKSHE_ALLOW_LIVE_SEND=1``
@@ -10,7 +10,6 @@ from __future__ import annotations
 import orchestrator
 from common.stream import EventStream
 from kural.tools import channels
-from kural.tools.adapters import webhook
 
 
 def _reset_client():
@@ -90,36 +89,3 @@ async def test_all_three_keys_fire_the_real_channel(monkeypatch, grounded_compan
         assert acts and acts[0].meta["urls"]["x"] == "https://x.com/real/status/123"
     finally:
         _reset_client()
-
-
-def test_webhook_adapter_posts_action_and_bearer(monkeypatch):
-    """The generic adapter: one POST per action, bearer when configured,
-    response JSON returned verbatim."""
-    monkeypatch.setenv("SAAKSHE_CHANNEL_WEBHOOK_URL", "https://hooks.example/saakshe")
-    monkeypatch.setenv("SAAKSHE_CHANNEL_WEBHOOK_TOKEN", "tok-123")
-    fn = webhook.from_env()
-    assert fn is not None
-
-    seen = {}
-
-    class _Resp:
-        status_code = 200
-        def raise_for_status(self): pass
-        def json(self): return {"urls": {"x": "https://x.com/q/1"}}
-
-    import httpx
-    def fake_post(url, *, json, headers, timeout):
-        seen.update(url=url, json=json, headers=headers)
-        return _Resp()
-    monkeypatch.setattr(httpx, "post", fake_post)
-
-    out = fn("publish", {"channel": "x"})
-    assert out == {"urls": {"x": "https://x.com/q/1"}}
-    assert seen["url"] == "https://hooks.example/saakshe"
-    assert seen["json"] == {"action": "publish", "args": {"channel": "x"}}
-    assert seen["headers"]["authorization"] == "Bearer tok-123"
-
-
-def test_webhook_adapter_unconfigured_is_none(monkeypatch):
-    monkeypatch.delenv("SAAKSHE_CHANNEL_WEBHOOK_URL", raising=False)
-    assert webhook.from_env() is None
