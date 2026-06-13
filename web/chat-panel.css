@@ -64,6 +64,37 @@ html[data-theme="dark"] #sa-chatpane .ch-tab:hover{transform:none;box-shadow:non
 html[data-theme="dark"] #sa-chatpane .ch-tab.on{background:var(--act);color:var(--on-act)}
 #sa-chatpane .ch-tab:focus-visible{outline:none;box-shadow:0 0 0 2px var(--accent,#2A41A0)}
 
+/* ── faculty SKILL flyout: hover/focus a faculty pill → that realm's REAL,
+   chat-invokable skills. A click pre-fills the example ask. Brut tokens. ── */
+#sa-chatpane .ch-skills{position:fixed;z-index:60;display:none;flex-direction:column;gap:8px;
+  max-width:min(300px,calc(100% - 16px));padding:9px 10px 10px;
+  border:1.5px solid var(--line,#161410);border-radius:14px;background:var(--surface,#FBF7EE);
+  box-shadow:5px 5px 0 var(--ink,#161410)}
+#sa-chatpane .ch-skills.on{display:flex;animation:chSkIn .14s ease-out}
+@keyframes chSkIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+#sa-chatpane .ch-skhead{display:flex;align-items:center;gap:6px;
+  font:700 9.5px var(--font-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-2,#5f5868)}
+#sa-chatpane .ch-skhead .fdot{display:inline-block;width:8px;height:8px;border:1px solid var(--line)}
+#sa-chatpane .ch-skills[data-q="manas"] .fdot{background:var(--manas);border-radius:50%}
+#sa-chatpane .ch-skills[data-q="arivu"] .fdot{background:var(--arivu);clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);border:0}
+#sa-chatpane .ch-skills[data-q="kalai"] .fdot{background:var(--kalai);clip-path:polygon(50% 0,100% 100%,0 100%);border:0}
+#sa-chatpane .ch-skills[data-q="kural"] .fdot{background:var(--kural)}
+#sa-chatpane .ch-skrow{display:flex;flex-wrap:wrap;gap:6px}
+#sa-chatpane .ch-skill{border:1.5px solid var(--line,#161410);border-radius:var(--radius-pill,999px);
+  padding:5px 11px;font:600 11px var(--font-mono);letter-spacing:.03em;text-transform:lowercase;
+  background:var(--bg,#F4EEE2);color:var(--ink,#161410);cursor:pointer;white-space:nowrap;
+  box-shadow:var(--shadow-sm,2px 2px 0 var(--ink));transition:transform .1s,box-shadow .1s,background .1s,color .1s}
+#sa-chatpane .ch-skill:hover{background:var(--ink,#161410);color:var(--bg,#F4EEE2);transform:translate(-1px,-1px)}
+#sa-chatpane .ch-skill:focus-visible{outline:none;box-shadow:0 0 0 2px var(--accent,#2A41A0)}
+/* Obsidian: clean terminal field — hairline, no hard offset shadows */
+html[data-theme="dark"] #sa-chatpane .ch-skills{background:var(--surface-2,#141B14);
+  border-color:var(--line,#1E2A20);box-shadow:none;border-radius:10px}
+html[data-theme="dark"] #sa-chatpane .ch-skill{background:transparent;border-color:var(--ink-2,#7fa089);
+  color:var(--ink,#D4F5DE);box-shadow:none}
+html[data-theme="dark"] #sa-chatpane .ch-skill:hover{background:var(--act);color:var(--on-act);
+  border-color:var(--act);transform:none}
+@media(prefers-reduced-motion:reduce){#sa-chatpane .ch-skills.on{animation:none}}
+
 /* ── feed ── */
 #sa-chatpane .ch-feed{flex:1;overflow-y:auto;padding:14px;display:flex;
   flex-direction:column;gap:11px;background:var(--bg,#F4EEE2)}

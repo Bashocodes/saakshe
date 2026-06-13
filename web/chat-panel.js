@@ -60,6 +60,42 @@
   };
   var MEDIA_WORDS = ['hdr', 'video', 'reel', 'animate', 'motion'];   // mirrors presenter.media_intent
 
+  /* faculty skill pills — VERIFIED chat-invokable capabilities per realm. Each
+     label is ≤3 words; hovering a faculty pill reveals them, and a click DROPS
+     the example ask into the box — editable, never auto-sent (some asks spend,
+     e.g. a render). Mapped from common/agents.py LIVE agents + the real routes,
+     adversarially verified (saakshe-agentic-map workflow, 2026-06-13). */
+  var REALM_VERB = { manas: 'knows', arivu: 'decides', kalai: 'makes', kural: 'engages' };
+  var SKILLS = {
+    manas: [
+      { l: 'ask the company', a: "what can you see right now? what's waiting on me?" },
+      { l: 'connect repo',    a: 'connect my github repo for me to read' },
+      { l: 'crawl site',      a: 'connect my website so I can ground my company memory' },
+      { l: 'ground memory',   a: 'run the ingest to learn everything from our repo and site' },
+      { l: 'read social',     a: 'connect my X profile so you see how we talk' }
+    ],
+    arivu: [
+      { l: 'decide this',     a: 'should we raise the price?' },
+      { l: 'cross-examine',   a: 'decide and give me the defense' },
+      { l: 'approve verdict', a: 'approve that decision' },
+      { l: 'economics case',  a: "what's the unit economics case?" },
+      { l: 'growth case',     a: 'will this move the needle on reach?' }
+    ],
+    kalai: [
+      { l: 'render reel',  a: 'render an HDR reel under $1' },
+      { l: 'add hdr',      a: 'render with a cinestill effect, 4 seconds, HDR' },
+      { l: 'quote render', a: 'how much would a 6-second reel cost?' },
+      { l: 'check status', a: "how's that render going?" },
+      { l: 'view clip',    a: 'show me the reel' }
+    ],
+    kural: [
+      { l: 'qualify engagement', a: 'should we announce the Pro pricing launch to our audience?' },
+      { l: 'pick delivery',      a: 'how should we send it — which variant, to whom, and when?' },
+      { l: 'scout audience',     a: 'who should we reach when we launch the Pro tier?' },
+      { l: 'watch timing',       a: "when's the right moment to publish — is the feed crowded?" }
+    ]
+  };
+
   function el(h) { var d = document.createElement('div'); d.innerHTML = h; return d.firstElementChild; }
   function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]; }); }
   function hdrs(extra) { return (window.SA_HEADERS || Object)(extra || {}); }
@@ -894,6 +930,70 @@
       setMode('chat');                        // any faculty pill returns to chat
       insertEnt(t.dataset.q);
     };
+  });
+
+  /* ── hover / focus a faculty pill → a flyout of that realm's REAL skills.
+     ONE shared flyout, appended to the pane (never inside the horizontally
+     scrolling tab row, so it can't be clipped). A skill click PRE-FILLS the
+     ask into the box — editable, NOT auto-sent, because some asks spend. ── */
+  var skillFly = el('<div class="ch-skills" role="menu" aria-hidden="true"></div>');
+  pane.appendChild(skillFly);
+  var skillHideT = null;
+  function cancelHide() { if (skillHideT) { clearTimeout(skillHideT); skillHideT = null; } }
+  function hideSkills(now) {
+    cancelHide();
+    if (now) { skillFly.classList.remove('on'); skillFly.setAttribute('aria-hidden', 'true'); return; }
+    skillHideT = setTimeout(function () {
+      skillFly.classList.remove('on'); skillFly.setAttribute('aria-hidden', 'true');
+    }, 180);
+  }
+  function showSkills(tab) {
+    var q = tab.dataset.q, list = SKILLS[q];
+    if (!list || !list.length) return;
+    cancelHide();
+    skillFly.dataset.q = q;
+    skillFly.innerHTML = '<div class="ch-skhead"><span class="fdot"></span>' + esc(q) +
+      ' · ' + esc(REALM_VERB[q] || '') + '</div><div class="ch-skrow"></div>';
+    var row = skillFly.querySelector('.ch-skrow');
+    list.forEach(function (s) {
+      var b = document.createElement('button');
+      b.className = 'ch-skill'; b.type = 'button'; b.setAttribute('role', 'menuitem');
+      b.dataset.ask = s.a; b.textContent = s.l; b.title = s.a;
+      row.appendChild(b);
+    });
+    /* show first (to measure), then sit it directly ABOVE the hovered tab in
+       VIEWPORT space — the flyout is position:fixed, so viewport coords stay
+       aligned with the fixed pane and never get clipped by the scrolling tab
+       row or confused by the pane's containing block. */
+    skillFly.style.visibility = 'hidden';
+    skillFly.classList.add('on'); skillFly.setAttribute('aria-hidden', 'false');
+    var tr = tab.getBoundingClientRect();
+    var fw = skillFly.offsetWidth, fh = skillFly.offsetHeight;
+    var left = Math.max(8, Math.min(tr.left, window.innerWidth - fw - 8));
+    var top = Math.max(8, tr.top - fh - 8);
+    skillFly.style.left = left + 'px';
+    skillFly.style.top = top + 'px';
+    skillFly.style.visibility = '';
+  }
+  pane.querySelectorAll('.ch-tab').forEach(function (t) {
+    t.addEventListener('mouseenter', function () { showSkills(t); });
+    t.addEventListener('mouseleave', function () { hideSkills(); });
+    t.addEventListener('focus', function () { showSkills(t); });
+    t.addEventListener('blur', function () { hideSkills(); });
+  });
+  skillFly.addEventListener('mouseenter', cancelHide);
+  skillFly.addEventListener('mouseleave', function () { hideSkills(); });
+  skillFly.addEventListener('click', function (e) {
+    var b = e.target.closest('.ch-skill');
+    if (!b) return;
+    setMode('chat');
+    input.innerHTML = '';
+    input.appendChild(document.createTextNode(b.dataset.ask));
+    input.focus();
+    var r = document.createRange(); r.selectNodeContents(input); r.collapse(false);
+    var sel = window.getSelection(); if (sel) { sel.removeAllRanges(); sel.addRange(r); }
+    syncSend();
+    hideSkills(true);
   });
 
   /* ── pane MODES: chat ↔ settings ↔ history (the top-right ink tab drives
