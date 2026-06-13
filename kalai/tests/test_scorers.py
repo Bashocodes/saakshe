@@ -18,17 +18,21 @@ from kalai import scorers
 
 
 # ─── the panel rosters exactly four seats, named to the chamber ───────────────
-def test_panel_has_four_named_scorer_seats():
-    assert set(scorers.WEIGHTS) == {"brand", "voice", "platform", "compliance"}
-    # a documented weighted mean: the weights are a partition of unity.
+def test_panel_seats_named_to_the_chamber():
+    # faculty-v2 makes kalai media-only: the voice lens moves to kural, leaving the
+    # three media lenses. Either way the weights stay a partition of unity.
+    if config.faculty_v2():
+        assert set(scorers.WEIGHTS) == {"brand", "platform", "compliance"}
+    else:
+        assert set(scorers.WEIGHTS) == {"brand", "voice", "platform", "compliance"}
     assert abs(sum(scorers.WEIGHTS.values()) - 1.0) < 1e-9
 
 
 # ─── the aggregate of the 4 demo sub-scores reproduces the canon climb ────────
-def test_four_scorers_aggregate_to_canon_climb():
+def test_scorers_aggregate_to_canon_climb():
     for rnd, expected in enumerate(config.CANON["fidelity_climb"], start=1):
-        subs = scorers.demo_subscores(rnd)            # {brand,voice,platform,compliance}
-        assert len(subs) == 4
+        subs = scorers.demo_subscores(rnd)            # one score per active lens
+        assert len(subs) == len(scorers.WEIGHTS)      # 4 (v1) or 3 (v2, voice dropped)
         assert set(subs) == set(scorers.WEIGHTS)
         assert abs(scorers.aggregate(subs) - expected) < 1e-6
 

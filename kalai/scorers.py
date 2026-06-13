@@ -42,12 +42,23 @@ from .util import brand_block, parse_json
 # bank); the other three lenses split the remainder evenly. The weights name the
 # same lenses as the seats / sub-state-keys / ``demo_subscores`` keys, so there is
 # never a mapping table to get wrong.
-WEIGHTS: dict[str, float] = {
+_WEIGHTS_V1: dict[str, float] = {
     "brand": 0.40,
     "voice": 0.20,
     "platform": 0.20,
     "compliance": 0.20,
 }
+# faculty-v2: kalai is MEDIA-ONLY — the voice lens moves to kural (the word
+# faculty). The three surviving media lenses re-partition to unity, brand still
+# heaviest (the master lives or dies on the asset bank), platform + compliance
+# splitting the remainder. The demo climb below is re-sealed to the SAME canon
+# [6.8, 8.4, 9.1] under these weights, so dropping voice never moves the loop exit.
+_WEIGHTS_V2: dict[str, float] = {
+    "brand": 0.50,
+    "platform": 0.25,
+    "compliance": 0.25,
+}
+WEIGHTS: dict[str, float] = _WEIGHTS_V2 if config.faculty_v2() else _WEIGHTS_V1
 
 # Reported to ONE decimal — the canon's reporting precision (every fidelity beat
 # streams ``.1f``). Rounding here makes the weighted mean land EXACTLY on the canon
@@ -72,11 +83,23 @@ def aggregate(subs: dict[str, float]) -> float:
 # brand-consistency is the lagging lens that climbs the most; compliance-edge stays
 # strong throughout), whose weighted mean is the sealed climb value for that round.
 # 1-INDEXED by round (round 1 → 6.8), matching ``CANON["fidelity_climb"]``.
-_DEMO_SUBSCORES: dict[int, dict[str, float]] = {
+_DEMO_SUBSCORES_V1: dict[int, dict[str, float]] = {
     1: {"brand": 6.4, "voice": 6.6, "platform": 6.9, "compliance": 7.7},  # → 6.8
     2: {"brand": 8.1, "voice": 8.2, "platform": 8.4, "compliance": 9.0},  # → 8.4
     3: {"brand": 9.0, "voice": 9.0, "platform": 9.0, "compliance": 9.4},  # → 9.1
 }
+# faculty-v2 (voice dropped): re-sealed so .5·brand + .25·platform + .25·compliance
+# lands EXACTLY on the same canon — r1 .5·6.4+.25·6.9+.25·7.5 = 6.8,
+# r2 .5·8.1+.25·8.4+.25·9.0 = 8.4, r3 .5·9.0+.25·9.0+.25·9.4 = 9.1. brand stays
+# the lagging lens that climbs most; compliance stays strong — same narrative.
+_DEMO_SUBSCORES_V2: dict[int, dict[str, float]] = {
+    1: {"brand": 6.4, "platform": 6.9, "compliance": 7.5},  # → 6.8
+    2: {"brand": 8.1, "platform": 8.4, "compliance": 9.0},  # → 8.4
+    3: {"brand": 9.0, "platform": 9.0, "compliance": 9.4},  # → 9.1
+}
+_DEMO_SUBSCORES: dict[int, dict[str, float]] = (
+    _DEMO_SUBSCORES_V2 if config.faculty_v2() else _DEMO_SUBSCORES_V1
+)
 
 
 def demo_subscores(rnd: int) -> dict[str, float]:
@@ -153,6 +176,8 @@ def build_scorer_panel() -> list[LlmAgent]:
     parallel seats never clobber each other (they'd race on one ``output_key``)."""
     panel: list[LlmAgent] = []
     for lens, display, focus in SCORERS:
+        if lens not in WEIGHTS:
+            continue  # faculty-v2: the voice lens has moved to kural — media lenses only
         panel.append(
             LlmAgent(
                 name=f"fidelity_{lens}_scorer",
