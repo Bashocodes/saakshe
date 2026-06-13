@@ -68,25 +68,44 @@ async def _run_engagement(master: dict, context_pack: dict, org: dict | None = N
 
 
 def _build_post(state: dict, master: dict, context_pack: dict) -> dict:
-    """Assemble the gate-ready post — kalai's master carried untouched.
+    """Assemble the gate-ready post.
 
-    kural authors NOTHING: the caption and per-channel drafts are kalai's own
-    `caption`/`formats`, master-wins, with no fallback to re-authored variants.
+    v1: kalai's master carried untouched — the caption + per-channel drafts are
+    kalai's own `caption`/`formats`, master-wins. faculty-v2: kural AUTHORED the
+    words (the Outreach Writer's draft), with the Claim Judge's claim_support
+    attached; falls back to the master's words if v2 is on but no draft is in
+    state (fail-closed — never strands the post).
     """
     pack_v = (context_pack or {}).get("version", config.CANON["context_pack_from"])
     master = master if isinstance(master, dict) else {}
     plan = state.get(StateKeys.DELIVERY_PLAN, {})
     plan = plan if isinstance(plan, dict) else parse_json(plan)
+
+    draft = {}
+    if config.faculty_v2():
+        draft = state.get(StateKeys.DRAFT) or {}
+        draft = draft if isinstance(draft, dict) else parse_json(draft)
+    caption = draft.get("caption") or master.get("caption", "")
+    drafts = ({k: v for k, v in draft.items() if k in ("x", "ig", "linkedin")}
+              if draft else master.get("formats", {}))
+
     post = {
         "channel": "x+ig+linkedin",
         "as_voice": "founder · plain, warm, names the trade-off",
         "grounded_in": pack_v,
-        "caption": master.get("caption", ""),
-        "drafts": master.get("formats", {}),
-        # The delivery chamber's pick — variant × segment × window; the carried text
-        # is kalai's own formats[variant], VERBATIM (kural authors nothing).
+        "caption": caption,
+        "drafts": drafts,
+        # The delivery chamber's pick — variant × segment × window.
         "delivery": plan,
     }
+    # faculty-v2: the Claim Judge's support rides the post (kural authored → kural
+    # proves). v1 carries nothing (kalai cleared the copy in its own fidelity loop).
+    if config.faculty_v2():
+        claim = state.get(StateKeys.CLAIM) or {}
+        claim = claim if isinstance(claim, dict) else parse_json(claim)
+        cs = claim.get("claim_support")
+        if cs is not None:
+            post["claim_support"] = cs
     # kalai's rendered creative rides the post UNTOUCHED — same verbatim doctrine
     # as the words. Until this key the gate card showed the image but the publish
     # payload dropped it: the channel never received the creative it approved.
@@ -132,6 +151,29 @@ async def engage(stream: EventStream, run_id: str, master: dict, context_pack: d
         finding = r.get("finding", f"read the {lens}")
         stream.emit(run_id, NS, display, finding, span="execute_tool")
         transcript.append({"actor": display, "text": finding})
+
+    # faculty-v2: kural AUTHORED the words — surface the Outreach Writer + Claim
+    # Judge beats (they ran in the pipeline before the planner). copy_claim_checked
+    # is the signal the orchestrator ANDs with kalai's media clearance (tap-2 gate).
+    copy_claim_checked = True
+    if config.faculty_v2():
+        draft = state.get(StateKeys.DRAFT, {})
+        draft = draft if isinstance(draft, dict) else parse_json(draft)
+        claim = state.get(StateKeys.CLAIM, {})
+        claim = claim if isinstance(claim, dict) else parse_json(claim)
+        cs = float(claim.get("claim_support") or 0.0)
+        copy_claim_checked = cs >= 0.80
+        stream.emit(run_id, NS, "Outreach Writer",
+                    "authored the caption + per-channel copy in the founder's voice",
+                    span="agent_run", model="gemini")
+        transcript.append({"actor": "Outreach Writer",
+                           "text": draft.get("caption", "(draft authored)")})
+        stream.emit(run_id, NS, "Claim Judge",
+                    f"claim-check: support {cs:.2f} — "
+                    f"{'cleared' if copy_claim_checked else 'BLOCK (unsupported claim)'}",
+                    span="agent_run", model="claude·vertex", claim_support=cs)
+        transcript.append({"actor": "Claim Judge",
+                           "text": f"every claim grounded · support {cs:.2f}"})
 
     # Delivery planner (Claude) — PICKS variant × segment × window; authors nothing.
     plan = state.get(StateKeys.DELIVERY_PLAN, {})
@@ -180,11 +222,16 @@ async def engage(stream: EventStream, run_id: str, master: dict, context_pack: d
                 gate_kind="publish", reversible=False, **img_meta)
     transcript.append({"actor": "Channel Mouth», gate", "text": "HALT — awaiting founder publish sign-off (tap 2)"})
 
+    result_state = {"post": post, "run_id": run_id}
+    if config.faculty_v2():
+        # The joined-clearance signal for the orchestrator (publishable = kalai
+        # media-cleared AND this).
+        result_state["copy_claim_checked"] = copy_claim_checked
     return a2a.QuadrantResult(
         quadrant=NS, status="awaiting_approval", gate=gate,
         output={"post": post},
         transcript=transcript,
-        state={"post": post, "run_id": run_id},
+        state=result_state,
     )
 
 

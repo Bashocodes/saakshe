@@ -25,22 +25,30 @@ _PACK = {"version": config.CANON["context_pack_from"], "topic": "pricing", "grou
 
 
 # ─── separation fix #1: kural carries kalai's words untouched ─────────────────
-async def test_kural_publishes_kalai_words_untouched():
+async def test_kural_carries_or_authors_the_words():
     master = {"asset_id": "a1", "brief": "b", "caption": "KALAI CAPTION",
               "formats": {"x": "KALAI X", "ig": "KALAI IG", "linkedin": "KALAI LI"},
               "fidelity_score": 9.1, "compliance": "cleared", "spend_usd": 1.2}
     res = await runner.engage(EventStream(), "fw", master, _PACK)
     post = res.state["post"] if "post" in res.state else res.output
-    # kural carried kalai's EXACT words — authored nothing of its own.
-    assert post["drafts"] == master["formats"]
-    assert "claim_support" not in post            # the judge is gone
-    assert res.status == "awaiting_approval"       # still halts at tap-2
+    assert res.status == "awaiting_approval"       # still halts at tap-2 in both
+    if config.faculty_v2():
+        # kural AUTHORED its own words (not kalai's) and the Claim Judge proved them.
+        assert post["drafts"] != master["formats"]
+        assert post["claim_support"] >= 0.80
+    else:
+        # v1: kural carried kalai's EXACT words — authored nothing of its own.
+        assert post["drafts"] == master["formats"]
+        assert "claim_support" not in post         # the judge is gone
 
 
-async def test_no_writer_or_judge_in_transcript():
+async def test_writer_and_judge_presence_matches_faculty():
     res = await runner.engage(EventStream(), "fw", _MASTER, _PACK)
     actors = " ".join(l["actor"] for l in res.transcript)
-    assert "Outreach Writer" not in actors and "Claim Judge" not in actors
+    if config.faculty_v2():
+        assert "Outreach Writer" in actors and "Claim Judge" in actors
+    else:
+        assert "Outreach Writer" not in actors and "Claim Judge" not in actors
     assert "Scout" in actors or "Delivery" in actors
 
 
@@ -106,7 +114,10 @@ async def test_engage_emits_the_seat_transcript():
     for seat in ("Envoy Lead", "Consent Reader", "Reach Reader", "Topic-fit Reader",
                  "Timing Reader", "Delivery Planner", "Email Envoy", "Channel Mouth"):
         assert seat in actors
-    assert "Outreach Writer" not in actors and "Claim Judge" not in actors
+    if config.faculty_v2():
+        assert "Outreach Writer" in actors and "Claim Judge" in actors
+    else:
+        assert "Outreach Writer" not in actors and "Claim Judge" not in actors
     # The sealed price appears in the gate proposal (never a forbidden number).
     proposal = next(e for e in s.all() if e.kind == "gate").text
     assert str(config.CANON["verdict_price_to"]) in proposal

@@ -89,6 +89,32 @@ _DELIVERY_PICK = {
     "slice while the feed is open.",
 }
 
+# ─── faculty-v2: kural AUTHORS the words ──────────────────────────────────────
+# The Outreach Writer's draft. Byte-identical to the words kalai used to author in
+# v1 (kalai/demo_fixtures._COPY), so the published demo post is unchanged once the
+# authorship simply moves from the studio to the mouth.
+_DRAFT = {
+    "caption": "Same coffee obsession, clearer pricing: Pro moves to $34. Early "
+    "believers keep their price; everyone gets 30 days' notice.",
+    "x": "Pro is moving to $34 — and if you're already with us, you keep your price. "
+    "30 days' notice, no surprises.",
+    "ig": "Same coffee obsession, clearer pricing. Pro → $34. Early believers "
+    "grandfathered. ☕",
+    "linkedin": "We're adjusting Pro to $34. Existing subscribers are grandfathered; "
+    "everyone gets 30 days' notice. Here's the why →",
+}
+
+# The Claim Judge's verdict — every claim grounded in the brief + the grandfathering
+# trust promise. Reports the sealed canon claim_support (0.86 ≥ the 0.80 gate).
+_CLAIM = {
+    "claim_support": config.CANON["claim_support"],   # 0.86
+    "reasons": [
+        "Pro → $34 — grounded by the approved decision (verdict_price_to)",
+        "grandfathering — grounded by the manas trust promise",
+        "30 days' notice — grounded by the approved decision",
+    ],
+}
+
 
 def scripted_payload(role: str, llm_request=None) -> str:
     """Return the canned output for a role in deterministic-replay mode.
@@ -105,6 +131,10 @@ def scripted_payload(role: str, llm_request=None) -> str:
         return json.dumps(_READERS[role])
     if role == "delivery_planner":
         return json.dumps(_DELIVERY_PICK)
+    if role == "outreach_writer":            # faculty-v2: kural authors the words
+        return json.dumps(_DRAFT)
+    if role == "claim_judge":                # faculty-v2: kural fact-checks them
+        return json.dumps(_CLAIM)
     return "Acknowledged."
 
 

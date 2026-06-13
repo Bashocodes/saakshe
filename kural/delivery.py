@@ -67,6 +67,20 @@ def _master_formats(state) -> dict:
     return fmts if isinstance(fmts, dict) else {}
 
 
+def _carried_formats(state) -> dict:
+    """The per-channel variants the mouth carries: under faculty-v2, kural's OWN
+    authored draft (the Outreach Writer's StateKeys.DRAFT, channel keys only); in
+    v1, kalai's master formats carried verbatim. Falls back to the master formats
+    if v2 is on but no draft exists yet (fail-closed — never invents text)."""
+    if config.faculty_v2():
+        draft = state.get(StateKeys.DRAFT) or {}
+        draft = draft if isinstance(draft, dict) else parse_json(draft)
+        variants = {k: v for k, v in draft.items() if k in ("x", "ig", "linkedin")}
+        if variants:
+            return variants
+    return _master_formats(state)
+
+
 # ─── Live read-tools over the org's own funnel/feed (Phase 4.3) ───────────────
 # Each reader holds a read-tool to compute over the org's REAL list/consent/feed
 # numbers — audience-fit for the audience lenses, the timing window for the feed.
@@ -135,10 +149,10 @@ def _readers_block(ctx: ReadonlyContext) -> str:
 
 
 def _planner_instruction(ctx: ReadonlyContext) -> str:
-    fmts = _master_formats(ctx.state)
+    fmts = _carried_formats(ctx.state)
     return (
         prompts.DELIVERY_PLANNER.replace("{org}", _org_name(ctx))
-        + "\n\nTHE PRE-AUTHORED VARIANTS YOU MAY CHOOSE FROM (kalai's — do NOT edit):\n"
+        + "\n\nTHE PRE-AUTHORED VARIANTS YOU MAY CHOOSE FROM (do NOT edit the words):\n"
         + json.dumps(list(fmts.keys()))
         + f"\n\nWHAT THE READERS FOUND:\n{_readers_block(ctx)}\n\n"
         + f"THE ORG'S OWN GROUNDING:\n{_grounding_block(ctx)}\n"
@@ -167,19 +181,24 @@ class DeliveryAssembler(BaseAgent):
         state = ctx.session.state
         pick = state.get(StateKeys.DELIVERY_PICK, {})
         pick = pick if isinstance(pick, dict) else parse_json(pick)
-        formats = _master_formats(state)
+        formats = _carried_formats(state)
         variant = pick.get("variant", "")
         if variant not in formats:
             # Fail-closed to a real, pre-authored variant — never invent text.
             variant = next(iter(formats), "")
+        # faculty-v2: when kural authored a draft, the carried text is kural's OWN
+        # words (authored). In v1 it's kalai's, byte-for-byte (carries_kalai_words).
+        authored = config.faculty_v2() and bool(state.get(StateKeys.DRAFT))
         plan = {
             "variant": variant,
             "segment": pick.get("segment", "the consented, topic-fit slice"),
             "window": pick.get("window", "the open window"),
-            "text": formats.get(variant, ""),     # kalai's words, VERBATIM
+            "text": formats.get(variant, ""),
             "rationale": pick.get("rationale", ""),
-            "carries_kalai_words": True,
+            "carries_kalai_words": not authored,
         }
+        if authored:
+            plan["authored_by"] = "kural"
         delta = {StateKeys.DELIVERY_PLAN: plan}
         state.update(delta)
         yield Event(author=self.name, actions=EventActions(state_delta=delta))

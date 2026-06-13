@@ -83,3 +83,64 @@ def build_coordinator() -> LlmAgent:
 # The research fan-out (Prospect Scout + Market Watcher) was replaced in Phase 4 by
 # the four deep delivery readers (consent · reach · topic-fit · timing) — see
 # kural/delivery.py. kural still authors nothing; the readers feed the planner.
+
+
+# ─── faculty-v2: kural AUTHORS the words (Outreach Writer + Claim Judge) ───────
+# kalai is media-only now; the WORD faculty writes the copy and a Claim Judge
+# proves every claim before the gate. Both seats are gated into the graph only
+# under SAAKSHE_FACULTY_V2 (see agent.build_root_agent); v1 stays authoring-free.
+class OutreachDraftSchema(BaseModel):
+    caption: str = Field(description="the one caption — the founder's plain, candid line")
+    x: str = Field(description="the X variant")
+    ig: str = Field(description="the Instagram variant")
+    linkedin: str = Field(description="the LinkedIn variant")
+
+
+class ClaimJudgeSchema(BaseModel):
+    claim_support: float = Field(description="0.0–1.0 — the fraction of claims the grounding supports")
+    reasons: list[str] = Field(description="one line per claim: grounded by … / UNSUPPORTED")
+
+
+def _draft_block(ctx: ReadonlyContext) -> str:
+    draft = ctx.state.get(StateKeys.DRAFT) or {}
+    return json.dumps(draft, indent=2) if draft else "(no draft yet)"
+
+
+def _writer_instruction(ctx: ReadonlyContext) -> str:
+    return (
+        prompts.OUTREACH_WRITER.replace("{org}", _org_name(ctx))
+        + f"\n\nTHE APPROVED DECISION (brief):\n{_brief(ctx)}\n\n"
+        + f"KALAI'S CREATIVE (media — pair your words to it; do NOT describe it):\n{_master_block(ctx)}\n\n"
+        + f"THE ORG'S OWN GROUNDING (manas Context Pack + funnel):\n{_grounding_block(ctx)}\n"
+    )
+
+
+def build_outreach_writer() -> LlmAgent:
+    return LlmAgent(
+        name="outreach_writer",
+        model=models.gemini_flash("kural", "outreach_writer"),
+        description="Gemini — writes the caption + per-channel copy in the founder's voice (faculty-v2).",
+        instruction=_writer_instruction,
+        output_schema=OutreachDraftSchema,
+        output_key=StateKeys.DRAFT,
+    )
+
+
+def _judge_instruction(ctx: ReadonlyContext) -> str:
+    return (
+        prompts.CLAIM_JUDGE.replace("{org}", _org_name(ctx))
+        + f"\n\nTHE APPROVED DECISION (brief):\n{_brief(ctx)}\n\n"
+        + f"THE OUTREACH WRITER'S DRAFT (judge every claim in it):\n{_draft_block(ctx)}\n\n"
+        + f"THE ORG'S OWN GROUNDING (the only evidence a claim may rest on):\n{_grounding_block(ctx)}\n"
+    )
+
+
+def build_claim_judge() -> LlmAgent:
+    return LlmAgent(
+        name="claim_judge",
+        model=models.claude("kural", "claim_judge"),
+        description="Claude via Vertex — fact-checks the authored words; every claim must be grounded (faculty-v2).",
+        instruction=_judge_instruction,
+        output_schema=ClaimJudgeSchema,
+        output_key=StateKeys.CLAIM,
+    )

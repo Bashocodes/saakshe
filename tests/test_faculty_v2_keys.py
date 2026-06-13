@@ -91,3 +91,34 @@ def test_v2_publish_routes_through_manas_and_only_manas_sees_the_token(monkeypat
     assert captured["headers"]["authorization"] == "Bearer secret-bearer"
     assert captured["body"]["action"] == "publish"
     assert out["urls"]["x"].endswith("LIVE-x")
+
+
+# ─── Phase 2: the orchestrator joined-clearance (kalai media AND kural copy) ───
+class _Res:
+    def __init__(self, output, state):
+        self.output = output
+        self.state = state
+        self.status = "awaiting_approval"
+        self.gate = True
+
+
+def test_joined_clearance_blocks_a_copy_unchecked_post(monkeypatch):
+    monkeypatch.setenv("SAAKSHE_FACULTY_V2", "1")
+    import orchestrator as o
+
+    checked = _Res({"compliance": "cleared"}, {"copy_claim_checked": True})
+    unchecked = _Res({"compliance": "cleared"}, {"copy_claim_checked": False})
+    # media-cleared AND copy-claim-checked → the post may reach tap-2
+    assert o._kalai_media_cleared(checked) and o._kural_copy_claim_checked(checked)
+    # media-cleared but copy UNCHECKED → the words were never proven → blocked
+    assert o._kalai_media_cleared(unchecked)
+    assert o._kural_copy_claim_checked(unchecked) is False
+
+
+def test_joined_clearance_is_a_noop_under_v1(monkeypatch):
+    monkeypatch.delenv("SAAKSHE_FACULTY_V2", raising=False)
+    import orchestrator as o
+
+    # v1: kural authors nothing (kalai cleared the copy), so the copy signal is
+    # always "checked" and the joined-clearance never blocks.
+    assert o._kural_copy_claim_checked(_Res({}, {})) is True

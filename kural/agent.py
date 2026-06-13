@@ -35,6 +35,8 @@ from google.adk.agents import (
 from google.adk.agents.invocation_context import InvocationContext
 from google.adk.events import Event, EventActions
 
+from common import config
+
 from . import delivery, grounding, sub_agents
 from .state import StateKeys
 from .tools import analyst
@@ -78,22 +80,25 @@ def build_root_agent() -> SequentialAgent:
         description="Four disjoint delivery readers (consent · reach · topic-fit · timing) in parallel — the kural panel.",
         sub_agents=delivery.build_delivery_readers(),
     )
+    seats = [coordinator, readers]
+    if config.faculty_v2():
+        # faculty-v2: kalai is media-only — kural AUTHORS the words. The Outreach
+        # Writer drafts the copy and the Claim Judge fact-checks it BEFORE the
+        # planner picks how to carry it out. (v1: kural authors nothing.)
+        seats.append(sub_agents.build_outreach_writer())
+        seats.append(sub_agents.build_claim_judge())
+    seats.append(delivery.build_delivery_planner())
+    seats.append(delivery.DeliveryAssembler(name="delivery_assembler"))
+    seats.append(GateAgent(name="gate"))
     return SequentialAgent(
         name="kural",
         description=(
             "kural — the company's only mouth. Qualifies the engagement, reads the "
             "delivery facts in parallel (consent · reach · topic-fit · timing), a "
             "planner PICKS variant × segment × window, and it HALTS at the founder's "
-            "publish sign-off before saying anything to the world. It authors nothing "
-            "— it carries kalai's compliance-cleared master untouched."
+            "publish sign-off before saying anything to the world."
         ),
-        sub_agents=[
-            coordinator,
-            readers,
-            delivery.build_delivery_planner(),
-            delivery.DeliveryAssembler(name="delivery_assembler"),
-            GateAgent(name="gate"),
-        ],
+        sub_agents=seats,
     )
 
 

@@ -58,6 +58,10 @@ class FlywheelState:
     user_id: str = ""                # the founder who owns this run (route-layer auth)
     spend_idem_key: str = ""         # the stable credit-spend key (for refund-on-failure)
     charged: bool = False            # whether this run was actually billed
+    # faculty-v2 joined-clearance: a post reaches tap-2 only when the media is
+    # cleared (kalai) AND the words are claim-checked (kural). v1 leaves both True.
+    kalai_media_cleared: bool = False
+    kural_copy_claim_checked: bool = False
 
 
 _RUNS: dict[str, FlywheelState] = {}
@@ -75,6 +79,8 @@ def _snapshot(state: FlywheelState) -> dict:
         "verdict": state.verdict, "actions": state.actions,
         "user_id": state.user_id, "spend_idem_key": state.spend_idem_key,
         "charged": state.charged,
+        "kalai_media_cleared": state.kalai_media_cleared,
+        "kural_copy_claim_checked": state.kural_copy_claim_checked,
     }
     return json.loads(json.dumps(d, default=str))   # scrub non-JSON leaves
 
@@ -106,7 +112,8 @@ def _restore_run(run_id: str, store: Any) -> Optional[FlywheelState]:
                           org=snap.get("org") or {}, store=store)
     for k in ("status", "step", "open_gate", "context_pack", "arivu_state",
               "kural_state", "master", "verdict", "actions", "user_id",
-              "spend_idem_key", "charged"):
+              "spend_idem_key", "charged", "kalai_media_cleared",
+              "kural_copy_claim_checked"):
         if k in snap:
             setattr(state, k, snap[k])
     _RUNS[run_id] = state
@@ -116,6 +123,29 @@ def _restore_run(run_id: str, store: Any) -> Optional[FlywheelState]:
 def _verdict_of(arivu_state: dict) -> dict:
     v = arivu_state.get(_ASK.VERDICT, {})
     return v if isinstance(v, dict) else _arivu_parse(v)
+
+
+def _kalai_media_cleared(res) -> bool:
+    """faculty-v2: kalai's media clearance. kalai already refuses handoff when not
+    cleared (handoff ⇒ cleared); read the explicit marker defensively."""
+    try:
+        out = res.output if isinstance(res.output, dict) else {}
+        return out.get("compliance", "cleared") == "cleared"
+    except Exception:  # noqa: BLE001 — a malformed result never crashes the run
+        return False
+
+
+def _kural_copy_claim_checked(res) -> bool:
+    """faculty-v2: kural claim-checked the words it authored (copy_claim_checked on
+    its carry-state). v1 kural authors nothing — the copy was cleared by kalai — so
+    this defaults True and the joined-clearance is a no-op under v1."""
+    if not config.faculty_v2():
+        return True
+    try:
+        st = res.state if isinstance(res.state, dict) else {}
+        return bool(st.get("copy_claim_checked", False))
+    except Exception:  # noqa: BLE001
+        return False
 
 
 def _brief_from_verdict(verdict: dict) -> str:
@@ -325,6 +355,7 @@ async def _after_decision(state: FlywheelState, stream: EventStream) -> None:
         state.step = "kalai_blocked"
         return
     state.master = kalai_res.output
+    state.kalai_media_cleared = _kalai_media_cleared(kalai_res)
 
     # kural engages — halts at the publish gate (tap 2).
     kural_res = await kural.engage(stream, run_id, state.master, state.context_pack)
@@ -332,6 +363,14 @@ async def _after_decision(state: FlywheelState, stream: EventStream) -> None:
     if kural_res.status != "awaiting_approval" or not kural_res.gate:
         state.status = "no_safe_decision"
         state.step = "kural_blocked"
+        return
+    state.kural_copy_claim_checked = _kural_copy_claim_checked(kural_res)
+    # faculty-v2 JOINED-CLEARANCE: a media-cleared but copy-UNCHECKED post must NOT
+    # reach tap-2. v1 leaves both flags True, so this is a no-op there.
+    if config.faculty_v2() and not (state.kalai_media_cleared and state.kural_copy_claim_checked):
+        state.status = "no_safe_decision"
+        state.step = ("kural_copy_unchecked" if not state.kural_copy_claim_checked
+                      else "kalai_media_unclear")
         return
     state.open_gate = kural_res.gate.as_dict()
     state.status = "awaiting_approval"

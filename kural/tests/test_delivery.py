@@ -39,13 +39,19 @@ async def test_four_delivery_readers_run_and_planner_picks():
     assert plan["segment"] and plan["window"]
 
 
-async def test_planner_carries_kalai_words_verbatim_authors_nothing():
+async def test_planner_carries_words():
     state = await runner._run_engagement(_MASTER, _PACK)
     plan = state.get(StateKeys.DELIVERY_PLAN)
     plan = plan if isinstance(plan, dict) else runner.parse_json(plan)
-    # The carried text is kalai's pre-authored variant, BYTE-FOR-BYTE — kural wrote nothing.
-    assert plan["text"] == _MASTER["formats"][plan["variant"]]
-    assert plan["carries_kalai_words"] is True
+    if config.faculty_v2():
+        # faculty-v2: kural AUTHORED the words — its own draft, not kalai's master.
+        assert plan["carries_kalai_words"] is False
+        assert plan.get("authored_by") == "kural"
+        assert plan["text"] and plan["text"] != _MASTER["formats"][plan["variant"]]
+    else:
+        # v1: the carried text is kalai's pre-authored variant, BYTE-FOR-BYTE.
+        assert plan["text"] == _MASTER["formats"][plan["variant"]]
+        assert plan["carries_kalai_words"] is True
 
 
 async def test_assembler_fails_closed_to_a_real_variant_never_invents_text():
@@ -69,14 +75,19 @@ async def test_assembler_fails_closed_to_a_real_variant_never_invents_text():
     assert plan["text"] == "ONLY X"          # kalai's words, never invented
 
 
-async def test_delivery_readers_in_transcript_no_authoring():
+async def test_delivery_readers_in_transcript():
     res = await runner.engage(EventStream(), "fw", _MASTER, _PACK)
     actors = " ".join(l["actor"] for l in res.transcript)
     for seat in ("Consent Reader", "Reach Reader", "Topic-fit Reader",
                  "Timing Reader", "Delivery Planner"):
         assert seat in actors
-    assert "Outreach Writer" not in actors and "Claim Judge" not in actors
-    # The post still carries kalai's full formats untouched, plus the delivery pick.
     post = res.state["post"]
-    assert post["drafts"] == _MASTER["formats"]
-    assert post["delivery"]["text"] == _MASTER["formats"][post["delivery"]["variant"]]
+    if config.faculty_v2():
+        # kural authors — the Writer + Judge appear; the post carries kural's words.
+        assert "Outreach Writer" in actors and "Claim Judge" in actors
+        assert post["delivery"]["text"] == post["drafts"][post["delivery"]["variant"]]
+    else:
+        # v1: no authoring seats; the post carries kalai's formats untouched.
+        assert "Outreach Writer" not in actors and "Claim Judge" not in actors
+        assert post["drafts"] == _MASTER["formats"]
+        assert post["delivery"]["text"] == _MASTER["formats"][post["delivery"]["variant"]]
