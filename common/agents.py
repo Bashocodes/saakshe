@@ -67,7 +67,7 @@ _TYPES = ("orchestrator", "action", "verifier", "keeper")
 # fails at IMPORT (the Docker build), not only in tests/test_agents_registry.py
 # — which a bare `pytest` (testpaths=tests) runs, but the realm suites it does
 # not. Update this in the SAME commit that moves the seats.
-REALM_HEADCOUNT = {"manas": 10, "arivu": 10, "kalai": 11, "kural": 11}
+REALM_HEADCOUNT = {"manas": 10, "arivu": 10, "kalai": 9, "kural": 13}
 
 
 def _a(id, call, name, expansion, realm, type, model, status, does):
@@ -144,16 +144,13 @@ AGENTS = [
        "arivu", "action", "deterministic", "live",
        "Fires ONLY after tap-1 approval — commits and dispatches to kalai/kural."),
 
-    # KALAI — Imagination (11) ▲ -----------------------------------------------
+    # KALAI — Imagination (9) ▲ — media-only (copy authoring moved to kural) -----
     _a("creative_director", "CrDi", "Creative Director", "concept & guardrail framer",
        "kalai", "orchestrator", "claude-vertex", "live",
        "Frames the concept and brand guardrails every desk works inside."),
     _a("designer_producer", "DePr", "Designer Producer", "visual master-spec desk",
        "kalai", "action", "gemini-flash", "live",
        "Composes the visual spec — layout, palette, formats per platform."),
-    _a("copy_smith", "CoSm", "Copy Smith", "copy & SEO desk",
-       "kalai", "action", "gemini-flash", "live",
-       "Writes every variant of the words — captions, posts, SEO."),
     _a("still_maker", "StMa", "Still Maker", "poster & still renderer",
        "kalai", "action", "vertex-imagen", "live",
        "Renders stills and posters (Imagen) after compliance clears — never before."),
@@ -166,9 +163,6 @@ AGENTS = [
     _a("brand_scorer", "BrSc", "Brand Scorer", "brand-consistency lens",
        "kalai", "verifier", "gemini-flash", "live",
        "Scores palette, lockups, grid against the brand pack (0–10)."),
-    _a("voice_scorer", "VoSc", "Voice Scorer", "voice-tone lens",
-       "kalai", "verifier", "gemini-flash", "live",
-       "Scores the words against the voice rules — calm, candid, anti-hype."),
     _a("platform_scorer", "PlSc", "Platform Scorer", "platform-fit lens",
        "kalai", "verifier", "gemini-flash", "live",
        "Scores crop, format, length per destination platform."),
@@ -179,7 +173,7 @@ AGENTS = [
        "kalai", "verifier", "claude-vertex", "live",
        "Cleared or blocked — default-deny; nothing renders or ships uncleared."),
 
-    # KURAL — Communication (11) ◼ ----------------------------------------------
+    # KURAL — Communication (13) ◼ — the word faculty: authors + engages ---------
     _a("envoy_lead", "EnLe", "Envoy Lead", "engagement qualifier",
        "kural", "orchestrator", "claude-vertex", "live",
        "Decides if this is worth saying at all before anyone drafts a send."),
@@ -211,6 +205,12 @@ AGENTS = [
        "kural", "action", "deterministic", "live",
        "The one mouth. Streams: X · Instagram · LinkedIn live; Pinterest · YouTube "
        "planned. Assembles kalai's words verbatim and publishes only past tap-2."),
+    _a("outreach_writer", "OuWr", "Outreach Writer", "founder-voice draft author",
+       "kural", "action", "gemini-flash", "live",
+       "Authors the consented outreach copy in the founder's voice — kural writes the words now."),
+    _a("claim_judge", "ClJu", "Claim Judge", "claim-support fact-checker",
+       "kural", "verifier", "claude-vertex", "live",
+       "Fact-checks every claim in the draft against the corpus; below claim_support 0.80 it dies."),
     _a("send_gate", "SeGa", "Send Gate", "send-eligibility gate",
        "kural", "verifier", "deterministic", "live",
        "Fail-closed: qualified + consented + under cap, or nothing leaves."),

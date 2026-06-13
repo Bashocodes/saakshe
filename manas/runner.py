@@ -525,7 +525,7 @@ a2a.register_skill(NS, "ask_founder_voice", _ask_founder_voice)
 from . import connectors as _connectors  # noqa: E402,F401
 a2a.register_card(NS, {
     "name": "manas",
-    "description": "The company's mind — versioned, source-cited memory. Knows; never acts, posts, or decides. Refuses out-of-corpus.",
+    "description": "The company's mind — versioned, source-cited memory, and custodian of the company's keys to the world (it holds the channel + provider credentials and lends a scoped use; it wields none itself). Knows; never acts, posts, or decides. Refuses out-of-corpus.",
     "protocol": "a2a",
     "url": "/api/manas",
     "skills": [

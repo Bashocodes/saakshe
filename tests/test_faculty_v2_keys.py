@@ -14,10 +14,12 @@ from kural.tools import channels
 
 
 # ─── the flag ────────────────────────────────────────────────────────────────
-def test_faculty_v2_defaults_off(monkeypatch):
-    # Robust to an ambient SAAKSHE_FACULTY_V2 (e.g. a full-suite V2 soak): this
-    # asserts the UNSET default, so it stays green in either soak.
+def test_faculty_v2_default_is_on_after_golive(monkeypatch):
+    # Phase 3 flipped the default ON (go-live); the flag stays as the rollback path.
     monkeypatch.delenv("SAAKSHE_FACULTY_V2", raising=False)
+    assert config.faculty_v2() is True
+    # the rollback is explicit and still works:
+    monkeypatch.setenv("SAAKSHE_FACULTY_V2", "0")
     assert config.faculty_v2() is False
 
 
@@ -116,7 +118,7 @@ def test_joined_clearance_blocks_a_copy_unchecked_post(monkeypatch):
 
 
 def test_joined_clearance_is_a_noop_under_v1(monkeypatch):
-    monkeypatch.delenv("SAAKSHE_FACULTY_V2", raising=False)
+    monkeypatch.setenv("SAAKSHE_FACULTY_V2", "0")   # the explicit rollback path
     import orchestrator as o
 
     # v1: kural authors nothing (kalai cleared the copy), so the copy signal is

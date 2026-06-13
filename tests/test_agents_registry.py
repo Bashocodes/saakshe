@@ -18,7 +18,7 @@ def test_the_staff_is_exactly_42():
 def test_realm_counts():
     realms = agents.by_realm()
     assert {k: len(v) for k, v in realms.items()} == {
-        "manas": 10, "arivu": 10, "kalai": 11, "kural": 11}
+        "manas": 10, "arivu": 10, "kalai": 9, "kural": 13}
 
 
 def test_ids_and_callsigns_unique():

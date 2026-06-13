@@ -311,7 +311,7 @@ def _launch_campaign(brief: str = "", **kw) -> dict:
 a2a.register_skill(NS, "launch_campaign", _launch_campaign)
 a2a.register_card(NS, {
     "name": "kural",
-    "description": "The company's only mouth — outreach, replies, and publishing kalai's approved creative behind the founder's gate. Holds the channel keys; every claim fact-checked.",
+    "description": "The company's only mouth and word faculty — authors the founder-voice copy, fact-checks every claim, and publishes kalai's media behind the founder's gate. The channel keys are custodied by manas; kural wields a scoped use.",
     "protocol": "a2a",
     "url": "/api/kural",
     "skills": [

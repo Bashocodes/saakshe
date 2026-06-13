@@ -15,7 +15,8 @@ of A2A contracts, one sealed canon.
 
 ```
 creative_director  (Claude · Vertex · frames concept + brand guardrails)
-  → ParallelAgent:  Designer/Producer  ‖  Copy & SEO   (disjoint lanes, concurrent)
+  → Designer/Producer  (composes the visual master spec — kalai is media-only;
+                         kural authors the words)
   → LoopAgent:      Brand-Fidelity scorer + deterministic checker  (climb to threshold)
   → compliance_gate (Claude · Vertex · FAIL-CLOSED — blocks unless explicitly cleared)
   → compliance_check (deterministic default-deny — the boolean the handoff is gated on)
@@ -27,10 +28,10 @@ creative_director  (Claude · Vertex · frames concept + brand guardrails)
 
 ### Why Parallel and Loop are *earned*
 
-- **ParallelAgent** — the Designer/Producer and the Copy & SEO desk are genuinely
-  independent: one makes the visual, the other writes the copy, on the same frame
-  but in disjoint lanes. They run **concurrently** — anti-bottleneck fan-out, not
-  a stylistic flourish.
+- **MEDIA-ONLY (faculty-v2)** — kalai composes the visual master spec; the words
+  are authored by **kural** (the word faculty). The Copy & SEO desk that once ran
+  in parallel here moved to kural, so kalai is now a single production lane feeding
+  the brand-fidelity loop.
 - **LoopAgent** — the Brand-Fidelity loop is a *real numeric climb* to a bar:
   `6.8 → 8.4 → 9.1` against `FIDELITY_THRESHOLD = 8.5`. **8.4 fails** (under the
   bar, regenerate); **9.1 passes** (on brand, ship). The exit is owned by a
@@ -48,7 +49,7 @@ sentinel screen (`compliance_screen`) is a hard floor underneath the model, so a
 planted-unsafe brief is blocked even if a live gate were ever fooled — and on a
 block there is **no master, no spend disclosure, and no A2A to kural**.
 
-## Seats (5 — exactly 2 on Claude)
+## Seats (media-only — the Copy & SEO desk + Voice lens moved to kural in faculty-v2)
 
 | Desk | Seat | Model |
 |---|---|---|

@@ -1,6 +1,6 @@
 {
   "name": "manas",
-  "description": "The company's mind — versioned, source-cited memory on Google ADK. A Gemini Mind-Keeper routes ingestion; four Gemini imbibers fan out across disjoint modalities (documents, images, founder voice, the world's pulse) in parallel; a Claude-via-Vertex Memory Curator verifies every claim cites a source and is non-contradictory before commit (a deterministic groundedness loop, v14 -> v15); a Claude-via-Vertex Founder Voice answers as the founder grounded only in corpus and refuses out-of-corpus. manas knows; it never acts, posts, or decides.",
+  "description": "The company's mind — versioned, source-cited memory on Google ADK. A Gemini Mind-Keeper routes ingestion; four Gemini imbibers fan out across disjoint modalities (documents, images, founder voice, the world's pulse) in parallel; a Claude-via-Vertex Memory Curator verifies every claim cites a source and is non-contradictory before commit (a deterministic groundedness loop, v14 -> v15); a Claude-via-Vertex Founder Voice answers as the founder grounded only in corpus and refuses out-of-corpus. manas is also the custodian of the company's keys to the world — it holds every channel and provider credential and lends a scoped use to the faculty that acts, wielding none itself. manas knows; it never acts, posts, or decides.",
   "version": "0.1.0",
   "protocolVersion": "0.2.5",
   "url": "https://saakshe.com/api/manas",

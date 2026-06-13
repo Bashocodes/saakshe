@@ -1,6 +1,6 @@
 {
   "name": "kural",
-  "description": "The company's only mouth, on Google ADK. A Claude-via-Vertex Envoy Lead qualifies an approved campaign; two Gemini scouts research audience and timing in parallel; a Gemini writer drafts founder-voice outreach grounded in the manas Context Pack; a Claude-via-Vertex Claim-Judge fact-checks every claim at a numeric gate (claim_support >= 0.80) and loops the draft back to be re-grounded until it verifies or rolls back; the run HALTS at the founder's publish sign-off before anything reaches the world. kural holds the channel keys, sends as the buyer behind an eligibility/value-cap gate and a no-double-send ledger, and never edits the creative. kural ENGAGES.",
+  "description": "The company's only mouth — the word faculty — on Google ADK. A Claude-via-Vertex Envoy Lead qualifies an approved campaign; two Gemini scouts research audience and timing in parallel; a Gemini writer drafts founder-voice outreach grounded in the manas Context Pack; a Claude-via-Vertex Claim-Judge fact-checks every claim at a numeric gate (claim_support >= 0.80) and loops the draft back to be re-grounded until it verifies or rolls back; the run HALTS at the founder's publish sign-off before anything reaches the world. kural authors the words, fact-checks them, and sends as the buyer behind an eligibility/value-cap gate and a no-double-send ledger (the channel keys are custodied by manas); it never edits kalai's creative. kural AUTHORS and ENGAGES.",
   "version": "0.1.0",
   "protocolVersion": "0.2.5",
   "url": "https://saakshe.com/api/kural",

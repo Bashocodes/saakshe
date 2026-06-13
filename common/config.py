@@ -112,12 +112,13 @@ EXECUTOR_DRY_RUN = _flag("SAAKSHE_EXECUTOR_DRY_RUN", True)
 
 # ─── Faculty re-assignment (the v2 migration switch) ─────────────────────────
 # The four-faculty re-assignment — manas CUSTODIES the keys (channel + provider) ·
-# kalai = media only · kural AUTHORS all copy · arivu decides — lands behind this
-# flag so each phase is a non-breaking commit until the one atomic flip. OFF =
-# today's behavior, byte for byte. A function (not a module constant) so tests can
-# set the env and re-read it. See scripts/test_all.sh + the faculty-v2 plan.
+# kalai = media only · kural AUTHORS all copy · arivu decides. Phase 3 flipped the
+# default ON (go-live); the flag STAYS as the rollback path: SAAKSHE_FACULTY_V2=0
+# restores the pre-migration behavior, byte for byte. A function (not a module
+# constant) so tests can set the env and re-read it. The gate (scripts/test_all.sh)
+# runs BOTH states so the rollback path can never silently rot.
 def faculty_v2() -> bool:
-    return _flag("SAAKSHE_FACULTY_V2", False)
+    return _flag("SAAKSHE_FACULTY_V2", True)
 
 
 # ─── Observability ───────────────────────────────────────────────────────────
@@ -196,14 +197,16 @@ def sync_runtime_mode() -> str:
 QUADRANTS = {
     "manas": {"verb": "knows", "seats": 7, "claude_seats": 2, "hue": "#88602c"},
     "arivu": {"verb": "decides", "seats": 9, "claude_seats": 2, "hue": "#5166a7"},
-    "kalai": {"verb": "makes", "seats": 5, "claude_seats": 2, "hue": "#b35a4e"},
-    # kural shed its Outreach Writer + Claim Judge in the separation fix (kalai
-    # authors everything; kural carries the master untouched). Live roster:
-    # Envoy Lead (Claude) · Prospect Scout · Market Watcher · Email Envoy · Channel
-    # Mouth · the delivery-reader panel (4 lenses, folded as ONE seat — the same
-    # rule that counts each mantri ensemble once) · Delivery Planner (Claude,
-    # no-text-field) = 7 seats, 2 Claude. Matches darshana + the cockpit spec.
-    "kural": {"verb": "engages", "seats": 7, "claude_seats": 2, "hue": "#3e725f"},
+    # kalai went MEDIA-ONLY in faculty-v2 (the Copy & SEO desk moved to kural), so it
+    # sheds one folded seat: Creative Director (Claude) · Designer/Producer · the media
+    # renderers · the brand-fidelity panel (folded ONE) · Compliance Gate (Claude).
+    "kalai": {"verb": "makes", "seats": 4, "claude_seats": 2, "hue": "#b35a4e"},
+    # kural RE-GAINED its Outreach Writer + Claim Judge in faculty-v2 (it authors the
+    # words now; kalai is media-only). Roster: Envoy Lead (Claude) · Prospect Scout ·
+    # Market Watcher · Outreach Writer · Claim Judge (Claude) · Email Envoy · Channel
+    # Mouth · the delivery-reader panel (4 lenses, folded as ONE seat — the same rule
+    # that counts each mantri ensemble once) · Delivery Planner (Claude) = 9 seats, 3 Claude.
+    "kural": {"verb": "engages", "seats": 9, "claude_seats": 3, "hue": "#3e725f"},
 }
 TOTAL_SEATS = sum(q["seats"] for q in QUADRANTS.values())          # 28
 TOTAL_CLAUDE_SEATS = sum(q["claude_seats"] for q in QUADRANTS.values())  # 8

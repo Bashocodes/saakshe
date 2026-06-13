@@ -2,13 +2,13 @@
 
 > _kural · Tamil — the spoken word, the utterance; speech made to carry weight (as in Thirukkural, the classic of couplets). The faculty that says the right thing, once, and means it._
 
-**kural is a company's ENGAGE faculty made operational.** It discovers who to
-talk to, researches them, and **carries kalai's already-cleared words untouched**
-(it authors nothing — kalai owns and fact-checks all copy in its own brand-fidelity
-loop), sends as the buyer (never a blast), and publishes the studio's approved
-creative **only behind the founder's sign-off**. It holds the channel keys. It
-never edits the creative, never re-authors, never blasts, and never publishes
-without the gate.
+**kural is a company's WORD faculty made operational** (the name is the spoken word
+itself). It discovers who to talk to, researches them, **authors the founder-voice
+copy and fact-checks every claim** (the Outreach Writer + Claim Judge, at
+`claim_support ≥ 0.80`), sends as the buyer (never a blast), and publishes kalai's
+approved media **only behind the founder's sign-off**. The channel keys are
+custodied by manas; kural wields a scoped use. It never edits kalai's creative,
+never blasts, and never publishes without the gate.
 
 Built on the **Google Agent Development Kit (ADK)**. Submitted to the
 **Google for Startups AI Agents Challenge — Track 1 · Build**.

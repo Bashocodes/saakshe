@@ -7,7 +7,10 @@ vision, voice, and history together with the world's pulse into ONE versioned,
 source-cited memory — a Context Pack the rest of the company is bound by. It
 **knows; it never acts, posts, or decides.** When it cannot ground a claim it
 **refuses rather than fabricate** — the guardrail that keeps the company from ever
-being bound by a hallucinated founder opinion.
+being bound by a hallucinated founder opinion. In faculty-v2 manas is also the
+**custodian of the company's keys to the world** — it holds every channel and
+provider credential and lends a scoped use to the faculty that acts, wielding none
+itself; still it never acts, posts, or decides.
 
 Built on the **Google Agent Development Kit (ADK)**, on the shared saakshe
 substrate (`common/`). Part of the saakshe agentic company:
