@@ -20,7 +20,12 @@
 set -uo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
-export SAAKSHE_MODE="${SAAKSHE_MODE:-demo}"
+# Force DEMO (sealed replay) for EVERY quadrant. The gate verifies deterministic
+# correctness, and deploy_cloudrun.sh sources .env.local (GOOGLE_CLOUD_PROJECT)
+# BEFORE calling this gate — which would otherwise auto-detect LIVE and make real
+# Vertex calls (ADC + network, absent in a build). arivu reads ARIVU_MODE (not
+# SAAKSHE_MODE), so force BOTH, plus the Claude-understudy modes.
+export SAAKSHE_MODE=demo ARIVU_MODE=demo SAAKSHE_CLAUDE_MODE=demo ARIVU_CLAUDE_MODE=demo
 PY="${PY:-$ROOT/.venv/bin/python}"
 fail=0
 
