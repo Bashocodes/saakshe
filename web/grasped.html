@@ -10,7 +10,7 @@
 <link rel="canonical" href="https://saakshe.com/grasped">
 <title>manas · what we grasped — point &amp; edit</title>
 <meta name="description" content="aikizi, extracted: an AI visual-intelligence platform that reverse-engineers any image, video, or audio into its creative DNA — and a production-ready prompt. Grasped by manas from the code and the site, every fact cited.">
-<meta name="color-scheme" content="light">
+<meta name="color-scheme" content="light dark">
 <meta property="og:title" content="saakshe — what we grasped">
 <meta property="og:description" content="aikizi, extracted: an AI visual-intelligence platform that reverse-engineers any image, video, or audio into its creative DNA — and a production-ready prompt. Grasped by manas from the code and the site, every fact cited.">
 <meta property="og:type" content="website">
@@ -20,6 +20,16 @@
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://saakshe.com/og.png">
+<!-- no-flash theme: set before first paint, before any CSS applies -->
+<script>
+(function(){
+  try{
+    var p=new URLSearchParams(location.search).get('theme');
+    var t=(p==='dark'||p==='light')?p:(localStorage.getItem('saakshe-theme')||'light');
+    document.documentElement.setAttribute('data-theme',t);
+  }catch(e){document.documentElement.setAttribute('data-theme','light');}
+})();
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&family=Michroma&display=swap">
@@ -29,9 +39,25 @@
   --ink:#161410;--ink-2:#45413A;--ink-3:#6B6557;--line:#161410;
   --c-amber:#E3A52B;--c-blue:#3551C8;--c-red:#CC4632;--c-black:#161410;
   --t-amber:#F1DC95;--t-blue:#C6CFF2;--t-red:#EBBAAC;--t-black:#DAD3C3;
+  /* TEXT-safe amber (≥4.5:1 on cream/tints) — darkened from the vivid fill so the
+     amber metric value passes contrast; dark re-aliases it to the bright phosphor amber */
+  --tx-amber:#7F5A0F;
+  /* on-red: legible label colour on the red send button (cream fails 4.5:1; white passes) */
+  --on-red:#fff;
   --disp:'Space Grotesk',system-ui,sans-serif;--body:'Inter',system-ui,sans-serif;
   --mono:'IBM Plex Mono',ui-monospace,monospace;--word:'Michroma',var(--disp);
   --maxw:1080px;
+}
+html[data-theme="dark"]{
+  /* ── OBSIDIAN (dark) tokens — same names, phosphor-terminal values ── */
+  --paper:#0A0D0A;--paper-2:#0E120E;--card:#0F140F;
+  --ink:#D4F5DE;--ink-2:#9DBBA6;--ink-3:#6F8C78;--line:#1E2A20;
+  --c-amber:#E0B25A;--c-blue:#7C97F2;--c-red:#E0685C;--c-black:#D4F5DE;
+  --t-amber:#19170F;--t-blue:#10131F;--t-red:#1A1310;--t-black:#0C100C;
+  /* dark: text-safe amber = the bright phosphor amber (already high-contrast on near-black) */
+  --tx-amber:var(--c-amber);
+  /* dark send button rides the phosphor-red; near-black label keeps ≥4.5:1 */
+  --on-red:#06140A;
 }
 *{box-sizing:border-box}
 html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
@@ -46,12 +72,39 @@ b,strong{font-weight:600;color:var(--ink)}
 em{font-style:italic}
 .mono{font-family:var(--mono)}.mute{color:var(--ink-3)}
 ::selection{background:var(--c-amber);color:var(--ink)}
+html[data-theme="dark"] ::selection{background:var(--c-red);color:#0A0D0A}
+
+/* ════ OBSIDIAN affordance swaps — hard brut shadows→none, radius softened,
+   phosphor grid + scanline veil. Light is untouched (these only match dark). ════ */
+html[data-theme="dark"] body::before{opacity:1;
+  background:linear-gradient(rgba(94,240,138,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(94,240,138,.045) 1px,transparent 1px);
+  background-size:38px 38px;mask:linear-gradient(180deg,#000,#000)}
+html[data-theme="dark"] body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:repeating-linear-gradient(0deg,rgba(0,0,0,0) 0px,rgba(0,0,0,0) 2px,rgba(0,0,0,.16) 3px);opacity:.5}
+/* drop the hard offset shadows in dark (phosphor terminal has no cast shadow) */
+html[data-theme="dark"] .backck,
+html[data-theme="dark"] .logo,
+html[data-theme="dark"] .box,
+html[data-theme="dark"] .credo,
+html[data-theme="dark"] .me-panel{box-shadow:none}
+html[data-theme="dark"] .prompt{box-shadow:none;border-color:var(--c-blue)}
+html[data-theme="dark"] .backck:hover{box-shadow:none;transform:none}
+/* the credo panel rides on the blue tint — keep it legible in both themes */
+html[data-theme="dark"] .me-hint{box-shadow:none}
+html[data-theme="dark"] .me-msg{box-shadow:none}
+html[data-theme="dark"] .me-msg .undo,
+html[data-theme="dark"] .me-form button{box-shadow:none}
 
 /* back to the cockpit */
 .backck{position:fixed;top:16px;right:18px;z-index:80;font-family:var(--mono);font-size:10.5px;
   font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--ink);
   border:1.5px solid var(--ink);border-radius:999px;background:var(--card);
   padding:6px 14px;text-decoration:none;box-shadow:2px 2px 0 var(--ink)}
+/* a11y: ≥44px hit area without growing the pill — an invisible inset extender
+   stretches the tappable region above/below the visual button */
+.backck{display:inline-flex;align-items:center;min-height:32px}
+.backck::before{content:'';position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);
+  height:44px;min-width:44px}
 .backck:hover{transform:translate(-1px,-1px);box-shadow:3px 3px 0 var(--ink)}
 
 /* logo + masthead */
@@ -62,6 +115,20 @@ em{font-style:italic}
 .logo .wd{font-family:var(--word);font-size:18px;line-height:1;letter-spacing:.30em;padding-left:.30em}
 @media(max-width:480px){.logo .wd{font-size:13px;letter-spacing:.22em}.logo .pr{font-size:18px}}
 .mast{padding-top:8px}
+/* topbar row: logo left, theme toggle right (mirrors saakshe_landing) */
+.mast-top{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.toggle{display:inline-flex;align-items:center;gap:0;border:2.5px solid var(--ink);
+  background:var(--card);font-family:var(--mono);font-size:11px;font-weight:600;overflow:hidden;cursor:pointer;
+  box-shadow:5px 5px 0 var(--ink)}
+html[data-theme="dark"] .toggle{box-shadow:none;border-radius:5px}
+.toggle button{appearance:none;border:0;background:transparent;color:var(--ink-2);font:inherit;letter-spacing:.1em;
+  text-transform:uppercase;padding:9px 13px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;min-height:44px}
+.toggle button .dot{width:8px;height:8px;border:1.5px solid currentColor}
+.toggle button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.toggle button[aria-pressed="true"] .dot{background:currentColor;border-color:currentColor}
+html[data-theme="light"] .toggle button#tg-light[aria-pressed="true"] .dot{border-radius:50%}
+html[data-theme="dark"] .toggle button#tg-dark[aria-pressed="true"]{background:var(--c-blue);color:#0A0D0A}
+.toggle button:focus-visible{outline:3px solid var(--c-blue);outline-offset:2px}
 .grasp{display:inline-flex;align-items:center;gap:8px;margin-top:22px;font-family:var(--mono);font-size:10.5px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;background:var(--ink);color:var(--paper);padding:6px 12px}
 .grasp .gd{width:9px;height:9px;border-radius:50%;background:var(--c-amber)}
 .kick{font-family:var(--mono);font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-2);margin-top:16px}
@@ -80,7 +147,7 @@ em{font-style:italic}
 .dt:nth-child(4n),.dt:last-child{border-right:none}
 .dt .l{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
 .dt .v{font-family:var(--disp);font-weight:700;font-size:27px;margin-top:8px;line-height:1.02}
-.dt:nth-child(1) .v{color:var(--c-red)}.dt:nth-child(2) .v{color:var(--c-blue)}.dt:nth-child(3) .v{color:var(--c-amber)}.dt:nth-child(4) .v{color:var(--ink)}
+.dt:nth-child(1) .v{color:var(--c-red)}.dt:nth-child(2) .v{color:var(--c-blue)}.dt:nth-child(3) .v{color:var(--tx-amber)}.dt:nth-child(4) .v{color:var(--ink)}
 .dt .x{color:var(--ink-3);font-size:12px;margin-top:7px;line-height:1.4}
 
 /* sections */
@@ -283,7 +350,7 @@ ul.b.tight li::before{top:15px;width:9px;height:9px}
 .me-form input:focus{outline:none;border-color:var(--c-blue);box-shadow:0 0 0 2px var(--c-blue)}
 .me-form input::placeholder{color:var(--ink-3)}
 .me-form button{
-  flex:none;border:2px solid var(--ink);border-radius:999px;background:var(--c-red);color:var(--paper);
+  flex:none;border:2px solid var(--ink);border-radius:999px;background:var(--c-red);color:var(--on-red);
   font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
   padding:9px 16px;cursor:pointer;box-shadow:2px 2px 0 var(--ink);
   transition:transform .1s, box-shadow .1s}
@@ -307,7 +374,13 @@ ul.b.tight li::before{top:15px;width:9px;height:9px}
 
   <a class="backck" href="/cockpit#manas">&larr; cockpit</a>
   <header class="mast">
-    <a class="logo" href="https://aikizi.com"><span class="pr">&gt;_</span><span class="dv"></span><span class="wd">AIKIZI</span></a>
+    <div class="mast-top">
+      <a class="logo" href="https://aikizi.com"><span class="pr">&gt;_</span><span class="dv"></span><span class="wd">AIKIZI</span></a>
+      <div class="toggle" role="group" aria-label="Theme">
+        <button id="tg-light" type="button" aria-pressed="true"><span class="dot"></span>Brut</button>
+        <button id="tg-dark" type="button" aria-pressed="false"><span class="dot"></span>Obsidian</button>
+      </div>
+    </div>
     <div class="grasp"><span class="gd"></span>Grasped by manas · Context Pack · from a live site crawl</div>
     <div class="kick">Style DNA Decoder · AI visual-intelligence platform</div>
     <h1>Reverse-engineer any media into its creative DNA.</h1>
@@ -1128,7 +1201,13 @@ ul.b.tight li::before{top:15px;width:9px;height:9px}
     var html =
       '<a class="backck" href="/cockpit.html#manas">&larr; cockpit</a>'
       +'<header class="mast">'
-        +'<span class="logo"><span class="pr">&gt;_</span><span class="dv"></span><span class="wd">'+esc(name)+'</span></span>'
+        +'<div class="mast-top">'
+          +'<span class="logo"><span class="pr">&gt;_</span><span class="dv"></span><span class="wd">'+esc(name)+'</span></span>'
+          +'<div class="toggle" role="group" aria-label="Theme">'
+            +'<button id="tg-light" type="button" aria-pressed="true"><span class="dot"></span>Brut</button>'
+            +'<button id="tg-dark" type="button" aria-pressed="false"><span class="dot"></span>Obsidian</button>'
+          +'</div>'
+        +'</div>'
         +'<div class="grasp"><span class="gd"></span>Grasped by manas &middot; Context Pack '+esc(d.version||'v1')+' &middot; live extraction</div>'
         +'<div class="kick">'+esc(org.kind||'the connected company')+' &middot; grounded &middot; cited</div>'
         +'<h1>'+esc(h1)+'</h1>'
@@ -1211,6 +1290,56 @@ ul.b.tight li::before{top:15px;width:9px;height:9px}
       // reachable but ungrounded/empty → the showcase stays as the worked example
     });
   })(0);
+})();
+</script>
+
+<script>
+/* Brut/Obsidian theme toggle — mirrors saakshe_landing: setTheme + aria sync +
+   MutationObserver + cross-tab storage listener. The pre-paint resolver in <head>
+   has already set data-theme; this only wires the control and keeps it in sync. */
+(function(){
+  var root=document.documentElement;
+  /* theme-color should follow the TOGGLED theme, not the OS scheme — add one JS-driven
+     tag (appended last, so it wins over the prefers-color-scheme metas) that tracks --paper. */
+  var tc=document.createElement('meta'); tc.setAttribute('name','theme-color');
+  document.head.appendChild(tc);
+  function paper(){ try{ return getComputedStyle(root).getPropertyValue('--paper').trim()||'#F4EEE2'; }catch(e){ return '#F4EEE2'; } }
+  /* sync resolves the live buttons each time, so it survives the live-pack re-render
+     that replaces main.wrap (and therefore the toggle) with fresh DOM. */
+  function sync(t){
+    var dark=t==='dark';
+    var bL=document.getElementById('tg-light'), bD=document.getElementById('tg-dark');
+    if(bL) bL.setAttribute('aria-pressed',String(!dark));
+    if(bD) bD.setAttribute('aria-pressed',String(dark));
+    tc.setAttribute('content',paper());
+  }
+  function setTheme(t){
+    root.setAttribute('data-theme',t);
+    try{localStorage.setItem('saakshe-theme',t);}catch(e){}
+    sync(t);
+  }
+  /* delegated click — works for both the static toggle and any re-rendered one,
+     without re-binding after the live pack rewrites main.wrap. */
+  document.addEventListener('click',function(e){
+    var b=e.target.closest && e.target.closest('#tg-light,#tg-dark');
+    if(!b) return;
+    setTheme(b.id==='tg-dark'?'dark':'light');
+  },false);
+  sync(root.getAttribute('data-theme')||'light');
+  if('MutationObserver' in window){
+    new MutationObserver(function(){sync(root.getAttribute('data-theme')||'light');})
+      .observe(root,{attributes:true,attributeFilter:['data-theme']});
+  }
+  window.addEventListener('storage',function(e){
+    if(e.key==='saakshe-theme'&&(e.newValue==='dark'||e.newValue==='light')){setTheme(e.newValue);}
+  });
+  /* when the live pack swaps in a fresh masthead (and a fresh toggle), re-sync the new
+     buttons' aria-pressed to the current theme. Wraps the existing retag hook additively. */
+  var prevRetag=window.__meRetag;
+  window.__meRetag=function(){
+    if(typeof prevRetag==='function') prevRetag();
+    sync(root.getAttribute('data-theme')||'light');
+  };
 })();
 </script>
 </body>

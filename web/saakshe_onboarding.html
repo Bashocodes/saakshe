@@ -463,6 +463,14 @@ html[data-theme="dark"] .nav-count .num{color:var(--ink-2);text-shadow:none}
 @media(max-width:380px){
   .s-head{font-size:clamp(26px,9vw,34px)}
 }
+/* ≤430px: keep all three bottom-nav buttons and the topbar toggle fully on-screen (no clipping) */
+@media(max-width:430px){
+  /* topbar: let the toggle drop below the founder chip rather than clip 'Obsidian' off the right edge */
+  .topbar .tb-mid{gap:8px;row-gap:9px}
+  /* bottom nav: Next + 'Last slide →' may wrap, and shrink to fit on the narrowest phones */
+  .nav .right{flex-wrap:wrap;justify-content:flex-end;gap:8px;min-width:0}
+  .navbtn{padding:9px 11px;font-size:10.5px;letter-spacing:.05em}
+}
 
 /* keyboard focus */
 a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--c-arivu);outline-offset:2px}

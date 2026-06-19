@@ -5,6 +5,8 @@
 <meta name="google" content="notranslate">
 <meta name="theme-color" content="#F4EEE2" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#0A0D0A" media="(prefers-color-scheme: dark)">
+<!-- media-less meta tracks the in-page (toggled) theme, overriding the OS-keyed pair above -->
+<meta name="theme-color" id="meta-theme-color" content="#f3f1ec">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link rel="canonical" href="https://saakshe.com/samples">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -33,6 +35,9 @@
   }catch(e2){} }
   if(t!=='light'&&t!=='dark'){ t='light'; }
   d.setAttribute('data-theme',t);
+  /* keep browser chrome on the in-page theme's --bg, not the OS scheme */
+  try{ var mc=document.getElementById('meta-theme-color');
+    if(mc){ mc.setAttribute('content', t==='dark' ? '#16181a' : '#f3f1ec'); } }catch(e3){}
 })();</script>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -44,9 +49,9 @@
    stripe / border-accent on ANY container edge; hues only as dots <=12px. */
 :root{
   --bg:#f3f1ec; --bg-2:#efece5; --panel:#faf8f3; --panel-2:#f6f3ec; --well:#ece8df;
-  --ink:#232520; --ink-2:#5d5a51; --muted:#84807548; --muted-s:#827e72;
+  --ink:#232520; --ink-2:#5d5a51; --muted:#84807548; --muted-s:#6c6960;
   --rule:#d8d3c7; --rule-2:#cdc7b9; --ghost:#e8e4da;
-  --acc:#3f7d6e; --acc-press:#2f5d52; --acc-ring:#3f7d6e55;
+  --acc:#3f7d6e; --acc-press:#2f5d52; --acc-ring:#3f7d6e55; --acc-text:#356b5e;
   --sw-off:#cfcabd; --sw-on:#3f7d6e; --brass:#9a8c5e;
   --manas:#b8862f; --arivu:#6a4fd0; --kalai:#b9602f; --kural:#2f54c0; --saakshe:#4a4d52;
   --sel-bg:#dfe9e4; --sel-fg:#1c241f; color-scheme:light;
@@ -55,7 +60,7 @@
   --bg:#16181a; --bg-2:#191c1e; --panel:#1e2123; --panel-2:#1a1d1f; --well:#121315;
   --ink:#e8e6df; --ink-2:#a6a399; --muted:#6f6c6388; --muted-s:#8c897e;
   --rule:#34383a; --rule-2:#3e4244; --ghost:#212527;
-  --acc:#5fb89e; --acc-press:#7fd0b6; --acc-ring:#5fb89e55;
+  --acc:#5fb89e; --acc-press:#7fd0b6; --acc-ring:#5fb89e55; --acc-text:#5fb89e;
   --sw-off:#3a3e3f; --sw-on:#5fb89e; --brass:#b6a877;
   --manas:#e6b454; --arivu:#9a82f0; --kalai:#e08a55; --kural:#6f8cf5; --saakshe:#9aa0a8;
   --sel-bg:#274038; --sel-fg:#e8f3ee; color-scheme:dark;
@@ -67,14 +72,14 @@ body{margin:0;background:var(--bg);color:var(--ink);
 ::selection{background:var(--sel-bg);color:var(--sel-fg)}
 h1,h2,h3{font-family:"Saira",sans-serif;font-weight:600;letter-spacing:-0.01em;line-height:1.08;margin:0}
 h1{font-size:clamp(34px,6vw,62px);font-weight:700;letter-spacing:-0.02em;font-stretch:semi-condensed}
-h3{font-size:clamp(18px,2.4vw,23px)}
+h2,h3{font-size:clamp(18px,2.4vw,23px)}
 p{margin:0 0 1em 0}
 .lead{font-size:clamp(18px,2.2vw,20px);line-height:1.6;color:var(--ink-2);max-width:62ch}
 a{color:var(--acc);text-decoration:none;border-bottom:1px solid var(--acc-ring)}
 a:hover{color:var(--acc-press)}
-.eyebrow{font-family:"Martian Mono",monospace;font-size:13px;font-weight:500;letter-spacing:0.16em;text-transform:uppercase;color:var(--acc)}
+.eyebrow{font-family:"Martian Mono",monospace;font-size:13px;font-weight:500;letter-spacing:0.16em;text-transform:uppercase;color:var(--acc-text)}
 .label{font-family:"Martian Mono",monospace;font-size:13px;letter-spacing:0.1em;color:var(--muted-s)}
-.acc{color:var(--acc)} .ink2{color:var(--ink-2)}
+.acc{color:var(--acc-text)} .ink2{color:var(--ink-2)}
 .wrap{max-width:1080px;margin:0 auto;padding:0 24px}
 section{padding:56px 0;border-top:1px solid var(--rule)}
 section:first-of-type{border-top:none}
@@ -87,7 +92,7 @@ section:first-of-type{border-top:none}
 a.tag{border-bottom-width:1px} a.tag:hover{color:var(--acc);border-color:var(--rule-2)}
 .flex{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
 .stamp{display:inline-flex;align-items:center;gap:7px;font-family:"Martian Mono",monospace;
-  font-size:13px;letter-spacing:0.08em;color:var(--acc);border:1px solid var(--rule-2);
+  font-size:13px;letter-spacing:0.08em;color:var(--acc-text);border:1px solid var(--rule-2);
   border-radius:5px;padding:6px 11px;background:var(--well);text-transform:uppercase}
 .stamp::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--acc);flex:none}
 .topbar{position:sticky;top:0;z-index:40;background:var(--bg);border-bottom:1px solid var(--rule)}
@@ -113,28 +118,29 @@ a.tag{border-bottom-width:1px} a.tag:hover{color:var(--acc);border-color:var(--r
 .jack .jname{flex:1;font-weight:500}
 .jack .jstate{font-family:"Martian Mono",monospace;font-size:13px;letter-spacing:0.06em;color:var(--muted-s)}
 .jack[data-patched="true"] .jdot{background:var(--manas)}
-.jack[data-patched="true"] .jstate{color:var(--acc)}
+.jack[data-patched="true"] .jstate{color:var(--acc-text)}
 .readonly-note{font-size:14px;color:var(--ink-2);margin:12px 0 0}
 .pack{background:var(--well);border:1px solid var(--rule);border-radius:8px;padding:16px}
 .pack .ver{font-family:"Saira",sans-serif;font-weight:700;font-size:22px;color:var(--ink)}
 .pack .verdot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--acc);margin-left:8px;vertical-align:middle}
 @keyframes pulse{0%,100%{opacity:.3}50%{opacity:1}}
 .live .verdot{animation:pulse 1.8s ease-in-out infinite}
-.pack .grounded{font-family:"Martian Mono",monospace;font-size:13px;letter-spacing:0.06em;color:var(--acc);margin-left:10px}
+.pack .grounded{font-family:"Martian Mono",monospace;font-size:13px;letter-spacing:0.06em;color:var(--acc-text);margin-left:10px}
 .pack ul{list-style:none;margin:12px 0 0;padding:0;display:grid;gap:6px}
 .pack li{font-family:"Martian Mono",monospace;font-size:13px;letter-spacing:0.02em;color:var(--ink-2);line-height:1.5}
-.pack li::before{content:"› ";color:var(--acc)}
+.pack li::before{content:"› ";color:var(--acc-text)}
 .pack li .src{color:var(--muted-s)}
 .pack li.more{color:var(--muted-s)}
 .qcard{background:var(--well);border:1px solid var(--rule);border-radius:8px;padding:18px;margin-top:16px}
 .qcard h3{margin-bottom:6px;font-size:clamp(16px,2vw,19px)}
-.qcard .qmeta{font-family:"Martian Mono",monospace;font-size:13px;letter-spacing:0.06em;color:var(--acc);margin-bottom:10px}
+.qcard .qmeta{font-family:"Martian Mono",monospace;font-size:13px;letter-spacing:0.06em;color:var(--acc-text);margin-bottom:10px}
 .btn{font-family:"Saira",sans-serif;font-weight:600;font-size:15px;color:var(--bg);background:var(--acc);
   border:1px solid var(--acc);border-radius:8px;padding:11px 20px;cursor:pointer;display:inline-block}
 .btn:hover{background:var(--acc-press);border-color:var(--acc-press)}
+:root .btn{background:var(--acc-press);border-color:var(--acc-press)}
 a.btn{color:var(--bg);border-bottom:1px solid var(--acc)}
-.btn-ghost{color:var(--ink-2);background:var(--panel);border:1px solid var(--rule)}
-a.btn-ghost{color:var(--ink-2)} .btn-ghost:hover{color:var(--ink);background:var(--panel-2);border-color:var(--rule-2)}
+:root .btn-ghost{color:var(--ink-2);background:var(--panel);border:1px solid var(--rule)}
+:root a.btn-ghost{color:var(--ink-2)} :root .btn-ghost:hover{color:var(--ink);background:var(--panel-2);border-color:var(--rule-2)}
 .foot{border-top:1px solid var(--rule);padding:56px 0 64px}
 .seam{font-family:"Martian Mono",monospace;font-size:13px;letter-spacing:0.06em;color:var(--muted-s);line-height:1.9;margin:0 0 26px}
 .siblings{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:24px}
@@ -148,6 +154,17 @@ a.btn-ghost{color:var(--ink-2)} .btn-ghost:hover{color:var(--ink);background:var
 .legal a:hover{color:var(--acc)}
 /* keyboard focus */
 a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--arivu, #3551C8);outline-offset:2px}
+/* a11y · 44px tap targets. Small pills keep their chrome and grow the HIT area via an
+   invisible ::before; the toggle button itself takes a real 44px min-height. */
+.brand .homelink,.siblings a,a.tag{position:relative}
+.brand .homelink::before,.siblings a::before,a.tag::before{content:"";position:absolute;top:50%;left:0;width:100%;min-height:44px;height:100%;transform:translateY(-50%)}
+.tgl{min-height:44px;display:inline-flex;align-items:center}
+/* responsive · keep the toggle on-screen at narrow widths */
+@media(max-width:560px){
+  .topbar .wrap{flex-wrap:wrap;gap:8px}
+  .brand .sib{display:none}
+}
+@media(prefers-reduced-motion:reduce){.live .verdot{animation:none}}
 </style>
 </head>
 <body>
@@ -185,7 +202,7 @@ a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var
       <div class="demo-head">
         <div>
           <div class="eyebrow">patched in over setu · read live</div>
-          <h3 style="margin-top:6px">Excalidraw Whiteboard</h3>
+          <h2 style="margin-top:6px">Excalidraw Whiteboard</h2>
           <p class="ink2" style="font-size:15px;max-width:58ch;margin:8px 0 0">Excalidraw is a virtual collaborative whiteboard tool that lets you easily sketch diagrams that have a hand-drawn feel to them.</p>
         </div>
         <div class="flex"><a class="tag" href="https://github.com/excalidraw/excalidraw" target="_blank" rel="noopener">github · excalidraw/excalidraw</a><a class="tag" href="https://excalidraw.com" target="_blank" rel="noopener">website · excalidraw.com</a><span class="tag">12 cited facts</span></div>
@@ -219,7 +236,7 @@ a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var
       <div class="demo-head">
         <div>
           <div class="eyebrow">patched in over setu · read live</div>
-          <h3 style="margin-top:6px">Cal.com (Cal.diy community edition)</h3>
+          <h2 style="margin-top:6px">Cal.com (Cal.diy community edition)</h2>
           <p class="ink2" style="font-size:15px;max-width:58ch;margin:8px 0 0">A fully customizable scheduling software for individuals, businesses taking calls and developers building scheduling platforms where users meet users.</p>
           <p class="ink2" style="font-size:13.5px;max-width:58ch;margin:6px 0 0">capture note · this run was made against the Cal.diy community fork of Cal.com, so the cited facts describe Cal.diy.</p>
         </div>
@@ -254,7 +271,7 @@ a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var
       <div class="demo-head">
         <div>
           <div class="eyebrow">patched in over setu · read live</div>
-          <h3 style="margin-top:6px">Plausible Analytics</h3>
+          <h2 style="margin-top:6px">Plausible Analytics</h2>
           <p class="ink2" style="font-size:15px;max-width:58ch;margin:8px 0 0">Plausible is a lightweight and open-source Google Analytics alternative. Your website data is 100% yours and the privacy of your visitors is respected.</p>
         </div>
         <div class="flex"><a class="tag" href="https://github.com/plausible/analytics" target="_blank" rel="noopener">github · plausible/analytics</a><a class="tag" href="https://plausible.io" target="_blank" rel="noopener">website · plausible.io</a><span class="tag">33 cited facts</span></div>
@@ -285,7 +302,7 @@ a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var
   <div class="wrap">
     <span class="sec-no">04 — run it on yours</span>
     <div class="panel">
-      <h3 style="margin-bottom:8px">This is minute one with any company.</h3>
+      <h2 style="margin-bottom:8px">This is minute one with any company.</h2>
       <p class="ink2" style="max-width:62ch">Patch your own jacks, watch the Pack form, answer what manas asks —
       then the rest of the company (arivu decides · kalai creates · kural engages) works only from that
       cited memory, behind your two gates.</p>
@@ -320,9 +337,11 @@ a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var
 <script>
 (function(){
   var toggle=document.getElementById('themeToggle'), lbl=document.getElementById('themeLabel');
+  var metaTC=document.getElementById('meta-theme-color');
   function paint(){
     var t=document.documentElement.getAttribute('data-theme');
     if(lbl) lbl.textContent = (t==='dark') ? 'Brut' : 'Obsidian';
+    if(metaTC) metaTC.setAttribute('content', (t==='dark') ? '#16181a' : '#f3f1ec');
   }
   if(toggle) toggle.addEventListener('click',function(){
     var cur=document.documentElement.getAttribute('data-theme');

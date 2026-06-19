@@ -1556,7 +1556,14 @@ html[data-theme="dark"] .ovtab:focus-visible{ outline-color:var(--act); }
 }
 @media (max-width:720px){
   .ovstrip{ flex-direction:column; }
-  .ovtab{ height:auto; min-height:62px; }
+  /* stacked tabs flow naturally — the desktop 88px space-between flex squeezed
+     .ovtop (the name) to 12px so overflow:hidden clipped the top of
+     manas/kalai/kural. On mobile, stack name+status+mark with no clipping
+     (2026-06-19 mobile fix). */
+  .ovtab{ flex:0 0 auto; height:auto; min-height:0; justify-content:flex-start; gap:4px; }
+  .ovtab .ovtop{ flex:0 0 auto; overflow:visible; min-height:0; }
+  .ovtab .ovname{ line-height:1.15; }
+  .ovtab .ovtab-foot{ flex:0 0 auto; }
   .ovtab + .ovtab{ margin-left:0; margin-top:calc(var(--line-w) * -1); }
   .ovtab:first-child{ border-radius:var(--r6) var(--r6) 0 0; }
   .ovtab:last-child{ border-radius:0 0 var(--r6) var(--r6); }
