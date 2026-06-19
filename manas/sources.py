@@ -209,7 +209,9 @@ class WebsiteSource:
         prov: list[str] = []
         org: dict = {}
         try:
-            with httpx.Client(follow_redirects=True, timeout=timeout,
+            from common import egress
+            with httpx.Client(transport=egress.guarded_transport(), follow_redirects=True,
+                              timeout=timeout,
                               headers={"user-agent": "saakshe-setu/1.0 (+manas ingestion)"}) as cli:
                 home = cli.get(url)
                 title, desc, body, links = _parse_html(home.text, base=str(home.url))

@@ -74,7 +74,8 @@ def _fetch_handle(ref: str) -> src.SourceBundle:
     name = _handle_name(ref)
     url = _handle_url(ref)               # full URL verbatim (any platform); bare handle → default
     try:
-        with httpx.Client(follow_redirects=True, timeout=15,
+        from common import egress
+        with httpx.Client(transport=egress.guarded_transport(), follow_redirects=True, timeout=15,
                           headers={"user-agent": "saakshe-setu/1.0 (+manas social read)"}) as cli:
             r = cli.get(url)
             r.raise_for_status()

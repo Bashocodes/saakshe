@@ -37,7 +37,8 @@ def _content_type(url: str) -> str:
 def _fetch_bytes(url: str) -> tuple[bytes, str]:
     """Live image fetch (the ONLY network seam — mock in tests). Lazy httpx import."""
     import httpx
-    with httpx.Client(follow_redirects=True, timeout=20.0,
+    from common import egress
+    with httpx.Client(transport=egress.guarded_transport(), follow_redirects=True, timeout=20.0,
                       headers={"user-agent": "saakshe-setu/1.0 (+vault)"}) as cli:
         r = cli.get(url)
         r.raise_for_status()
